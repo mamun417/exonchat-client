@@ -75,6 +75,7 @@ module.exports = {
             12: '3rem',
             14: '3.5rem',
             16: '4rem',
+            18: '4.5rem',
             20: '5rem',
             24: '6rem',
             28: '7rem',
@@ -88,6 +89,9 @@ module.exports = {
             60: '15rem',
             64: '16rem',
             72: '18rem',
+            74: '18.5rem',
+            76: '19rem',
+            78: '19.5rem',
             80: '20rem',
             96: '24rem'
         },
@@ -499,6 +503,7 @@ module.exports = {
         maxWidth: (theme, { breakpoints }) => ({
             none: 'none',
             0: '0rem',
+            16: '4rem',
             xs: '20rem',
             sm: '24rem',
             md: '28rem',
