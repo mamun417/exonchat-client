@@ -25,23 +25,21 @@
 
         <q-page-container class="tw-min-h-screen"
             ><div
-                class="tw-fixed tw-w-18 tw-h-full tw-top-0 tw-left-0 tw-border-r-2 tw-border-blue-100"
+                class="tw-fixed tw-w-18 tw-h-full tw-top-0 tw-left-0 tw-border-r-2 tw-border-blue-50"
             >
-                <q-list class="tw-text-gray-600 ">
+                <q-list class="tw-text-gray-600">
                     <q-item class="tw-my-3 tw-py-4">
                         <q-item-section class="content-center" avatar>
                             <q-icon name="mediation" />
                         </q-item-section>
                     </q-item>
-                    <div class="tw-border-b-2 tw-border-blue-100"></div>
+                    <div class="tw-border-b-2 tw-border-blue-50"></div>
 
                     <q-item clickable v-ripple class="tw-my-3 tw-py-5">
                         <q-item-section class="content-center" avatar>
                             <q-avatar size="xl">
                                 <img
-                                    :src="
-                                        `https://cdn.quasar.dev/img/avatar1.jpg`
-                                    "
+                                    :src="`https://cdn.quasar.dev/img/avatar1.jpg`"
                                 />
 
                                 <q-badge
@@ -84,17 +82,17 @@
             </div>
 
             <div
-                class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18  tw-border-r-2 tw-border-blue-100"
+                class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-border-r-2 tw-border-blue-50 tw-shadow-sm"
             >
                 <q-scroll-area
-                    class="fit"
+                    class="fit tw-px-1 tw-py-3"
                     :bar-style="{
                         background: '#60A5FA',
                         width: '5px',
-                        opacity: 0.7
+                        opacity: 0.7,
                     }"
                     :thumb-style="{
-                        display: 'none'
+                        display: 'none',
                     }"
                 >
                     <!-- <div
@@ -107,7 +105,7 @@
                         <q-expansion-item
                             default-opened
                             label="Incoming chat request"
-                            header-class="text-weight-bold tw-bg-blueGray-100"
+                            header-class="text-weight-bold tw-bg-blue-50"
                         >
                             <q-card>
                                 <q-card-section>
@@ -119,7 +117,7 @@
                         <q-expansion-item
                             default-opened
                             label="Agents"
-                            header-class="text-weight-bold tw-bg-blueGray-100"
+                            header-class="text-weight-bold tw-bg-blue-50"
                         >
                             <q-card>
                                 <q-card-section class="tw-p-0">
@@ -128,9 +126,7 @@
                                             <q-item-section avatar>
                                                 <q-avatar>
                                                     <img
-                                                        :src="
-                                                            `https://cdn.quasar.dev/img/avatar2.jpg`
-                                                        "
+                                                        :src="`https://cdn.quasar.dev/img/avatar2.jpg`"
                                                     />
                                                 </q-avatar>
                                             </q-item-section>
@@ -154,9 +150,7 @@
                                             <q-item-section avatar>
                                                 <q-avatar>
                                                     <img
-                                                        :src="
-                                                            `https://cdn.quasar.dev/img/avatar6.jpg`
-                                                        "
+                                                        :src="`https://cdn.quasar.dev/img/avatar6.jpg`"
                                                     />
                                                 </q-avatar>
                                             </q-item-section>
@@ -182,10 +176,9 @@
                         </q-expansion-item>
 
                         <q-expansion-item
-                            expand-separator
                             default-opened
                             label="Chat For Me"
-                            header-class="text-weight-bold tw-bg-blueGray-100"
+                            header-class="text-weight-bold tw-bg-blue-50"
                         >
                             <q-card>
                                 <q-list>
@@ -193,9 +186,7 @@
                                         <q-item-section avatar>
                                             <q-avatar>
                                                 <img
-                                                    :src="
-                                                        `https://cdn.quasar.dev/img/avatar1.jpg`
-                                                    "
+                                                    :src="`https://cdn.quasar.dev/img/avatar1.jpg`"
                                                 />
                                             </q-avatar>
                                         </q-item-section>
@@ -214,9 +205,7 @@
                                         <q-item-section avatar>
                                             <q-avatar>
                                                 <img
-                                                    :src="
-                                                        `https://cdn.quasar.dev/img/avatar3.jpg`
-                                                    "
+                                                    :src="`https://cdn.quasar.dev/img/avatar3.jpg`"
                                                 />
                                             </q-avatar>
                                         </q-item-section>
@@ -237,7 +226,7 @@
                         <q-expansion-item
                             default-opened
                             label="Chat Departments"
-                            header-class="text-weight-bold tw-bg-blueGray-100"
+                            header-class="text-weight-bold tw-bg-blue-50"
                         >
                             <q-card>
                                 <q-list dense>
@@ -292,7 +281,7 @@
                         <q-expansion-item
                             default-opened
                             label="Busy Agents"
-                            header-class="text-weight-bold tw-bg-blueGray-100"
+                            header-class="text-weight-bold tw-bg-blue-50"
                         >
                             <q-card>
                                 <q-card-section class="tw-p-0">
@@ -301,9 +290,7 @@
                                             <q-item-section avatar>
                                                 <q-avatar>
                                                     <img
-                                                        :src="
-                                                            `https://cdn.quasar.dev/img/avatar2.jpg`
-                                                        "
+                                                        :src="`https://cdn.quasar.dev/img/avatar2.jpg`"
                                                     />
                                                 </q-avatar>
                                             </q-item-section>
@@ -333,18 +320,137 @@
 
             <div class="tw-ml-78 tw-grid tw-grid-cols-12 tw-min-h-screen">
                 <div
-                    class="tw-h-full tw-col-span-8 tw-border-r-2 tw-border-blue-100"
-                ></div>
+                    class="tw-h-full tw-col-span-9 tw-border-r-2 tw-border-blue-50"
+                >
+                    <div
+                        class="tw-h-full tw-grid tw-grid-cols-12 tw-bg-blue-50"
+                    >
+                        <div class="tw-col-span-12 tw-px-3 tw-my-3">
+                            <q-card class="tw-shadow-sm"
+                                ><q-card-section
+                                    class="row no-wrap items-center"
+                                    ><q-item class="">
+                                        <q-item-section avatar>
+                                            <q-avatar size="xl">
+                                                <img
+                                                    :src="`https://cdn.quasar.dev/img/avatar1.jpg`"
+                                                />
+                                            </q-avatar>
+                                        </q-item-section>
 
-                <div class="tw-h-full tw-col-span-4">
-                    <q-list>
+                                        <q-item-section class="tw-w-full">
+                                            <q-item-label
+                                                class="text-weight-bold tw-text-lg"
+                                                >Hasan</q-item-label
+                                            ><q-item-label caption
+                                                ><q-badge
+                                                    color="green"
+                                                    class="tw-px-2 tw-py-1"
+                                                    >Active</q-badge
+                                                ></q-item-label
+                                            >
+                                        </q-item-section>
+                                    </q-item>
+                                    <q-space></q-space
+                                    ><q-btn flat color="orange-8"
+                                        >Leave</q-btn
+                                    ></q-card-section
+                                ></q-card
+                            >
+                            <div class="">
+                                <q-scroll-area
+                                    :bar-style="{
+                                        background: '#60A5FA',
+                                        width: '5px',
+                                        opacity: 0.7,
+                                    }"
+                                    visible
+                                >
+                                    <q-chat-message
+                                        name="hasan"
+                                        avatar="https://cdn.quasar.dev/img/avatar3.jpg"
+                                        :text="['hey, how are you?']"
+                                        stamp="7 minutes ago"
+                                        sent
+                                        text-color="white"
+                                        bg-color="orange-9"
+                                    />
+                                    <q-chat-message
+                                        avatar="https://cdn.quasar.dev/img/avatar5.jpg"
+                                        :text="[
+                                            'doing fine, how r you?',
+                                            'I just feel like typing a really, really, REALLY long message to annoy you...',
+                                        ]"
+                                        stamp="6 minutes ago"
+                                        text-color="white"
+                                        bg-color="blue-9"
+                                    />
+                                    <q-chat-message
+                                        avatar="https://cdn.quasar.dev/img/avatar5.jpg"
+                                        :text="['Did it work?']"
+                                        stamp="6 minutes ago"
+                                        text-color="white"
+                                        bg-color="blue-9"
+                                    />
+                                    <q-chat-message
+                                        name="me"
+                                        avatar="https://cdn.quasar.dev/img/avatar3.jpg"
+                                        stamp="5 minutes ago"
+                                        :text="['Hey there!']"
+                                        sent
+                                        text-color="white"
+                                        bg-color="green-9"
+                                    >
+                                    </q-chat-message>
+
+                                    <q-chat-message
+                                        avatar="https://cdn.quasar.dev/img/avatar5.jpg"
+                                        bg-color="blue-9"
+                                    >
+                                        <q-spinner-dots
+                                            color="white"
+                                            size="2rem"
+                                        />
+                                    </q-chat-message>
+                                </q-scroll-area>
+                                <div
+                                    class="tw-flex tw-mt-3 tw-bg-white tw-shadow-sm tw-self-end tw-rounded"
+                                >
+                                    <q-btn
+                                        flat
+                                        color="green"
+                                        icon="attachment"
+                                    ></q-btn>
+                                    <q-btn
+                                        flat
+                                        color="green"
+                                        icon="mood"
+                                    ></q-btn>
+                                    <q-input
+                                        autogrow
+                                        borderless
+                                        placeholder="Write Message..."
+                                        color="green-8"
+                                        class="tw-flex-auto"
+                                    ></q-input>
+                                    <q-btn
+                                        icon="send"
+                                        flat
+                                        color="green-8"
+                                    ></q-btn>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tw-h-full tw-col-span-3 tw-shadow">
+                    <q-list class="tw-px-1 tw-my-3">
                         <q-item class="">
                             <q-item-section avatar>
                                 <q-avatar size="xl">
                                     <img
-                                        :src="
-                                            `https://cdn.quasar.dev/img/avatar1.jpg`
-                                        "
+                                        :src="`https://cdn.quasar.dev/img/avatar1.jpg`"
                                     />
                                 </q-avatar>
                             </q-item-section>
@@ -494,6 +600,6 @@ export default defineComponent({
         const miniMode = ref(false);
 
         return { miniMode };
-    }
+    },
 });
 </script>
