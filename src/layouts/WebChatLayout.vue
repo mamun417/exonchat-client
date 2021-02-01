@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="lHh Lpr lFf" class="tw-text-blueGray-900">
+    <q-layout view="lHh Lpr lFf" class="tw-bg-blue-50 tw-text-blueGray-900">
         <q-page-container>
             <router-view />
         </q-page-container>

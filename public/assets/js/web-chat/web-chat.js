@@ -22,7 +22,11 @@ addDom(document, 'div', 'exhonchat-container');
 
 let exonChatContainer = document.getElementById('exhonchat-container');
 
+exonChatContainer.style =
+    'position: fixed; bottom: 20px; right: 20px; height: 600px; width: 100%; max-width: 320px; z-index: 9999999';
+
 let exonChatIFrame = document.createElement('iframe');
+exonChatIFrame.style = 'height: 100%; border: 0';
 exonChatIFrame.src = 'http://localhost:8080/web-chat';
 
 exonChatContainer.appendChild(exonChatIFrame);
