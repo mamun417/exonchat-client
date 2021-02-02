@@ -94,7 +94,13 @@
                         class="tw-flex-auto"
                         dense
                     ></q-input>
-                    <q-btn icon="send" flat color="green-8" size="sm"></q-btn>
+                    <q-btn
+                        @click="sm"
+                        icon="send"
+                        flat
+                        color="green-8"
+                        size="sm"
+                    ></q-btn>
                 </div>
             </div>
             <div
@@ -163,12 +169,46 @@
 
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
+import { io } from 'socket.io-client';
 
 export default defineComponent({
     name: 'WebChat',
     components: {},
     setup() {
         return {};
+    },
+    mounted() {
+        const socket = io('http://localhost:3000', {
+            transports: ['websocket']
+        });
+        localStorage.debug = '*';
+        console.log(socket);
+
+        socket.on('connect', () => {
+            console.log(`connected ${socket.id}`); // x8WIv7-mJelg7on_ALbx
+            socket.emit('message', { test: 'test' });
+        });
+
+        socket.on('disconnect', () => {
+            console.log(`disconnected ${socket.id}`); // undefined
+        });
+
+        socket.on('message', (data: any) => {
+            console.log(`from server ${data}`);
+        });
+
+        socket.on('pong', function(data: any) {
+            console.log('Received Pong: ', data);
+        });
+    },
+    methods: {
+        sm() {
+            console.log('sending msg');
+
+            // socket.emit('message', { nm: 'new message' });
+
+            // console.log(socket);
+        }
     }
 });
 </script>
