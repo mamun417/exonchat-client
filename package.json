@@ -18,13 +18,14 @@
         "core-js": "^3.6.5",
         "postcss": "^7.0.35",
         "quasar": "^1.0.0",
-        "socket.io-client": "^3.1.0",
+        "socket.io-client": "2.3.*",
         "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.2",
         "vue-i18n": "^8.0.0"
     },
     "devDependencies": {
         "@quasar/app": "^2.0.0",
         "@types/node": "^10.17.15",
+        "@types/socket.io-client": "^1.4.35",
         "@typescript-eslint/eslint-plugin": "^3.3.0",
         "@typescript-eslint/parser": "^3.3.0",
         "babel-eslint": "^10.0.1",

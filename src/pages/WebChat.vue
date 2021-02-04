@@ -95,7 +95,8 @@
                         dense
                     ></q-input>
                     <q-btn
-                        @click="sm"
+                        @click="sendMessage"
+                        v-model="msg"
                         icon="send"
                         flat
                         color="green-8"
@@ -169,7 +170,7 @@
 
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
-import { io } from 'socket.io-client';
+import io from 'socket.io-client';
 
 export default defineComponent({
     name: 'WebChat',
@@ -177,36 +178,61 @@ export default defineComponent({
     setup() {
         return {};
     },
+    data(): any {
+        return {
+            socket: null,
+            socketId: null,
+            sesId: null,
+            chatConnected: false,
+            msg: '',
+            messages: []
+        };
+    },
     mounted() {
-        const socket = io('http://localhost:3000', {
-            transports: ['websocket']
-        });
-        localStorage.debug = '*';
-        console.log(socket);
+        let sesId = sessionStorage.getItem('exonchat-ses-id');
+        if (!sesId) {
+            sessionStorage.setItem('exonchat-ses-id', '123');
+            this.sesId = '123';
+        }
 
-        socket.on('connect', () => {
-            console.log(`connected ${socket.id}`); // x8WIv7-mJelg7on_ALbx
-            socket.emit('message', { test: 'test' });
+        let chatToken = 'xyz'; // get when chat panel opens
+
+        this.socket = io('http://localhost:3000', {
+            query: {
+                token: chatToken
+            }
+        });
+        // localStorage.debug = '*';
+        console.log(this.socket);
+
+        this.socket.on('connect', () => {
+            console.log(`connected ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
+            this.chatConnected = true;
         });
 
-        socket.on('disconnect', () => {
-            console.log(`disconnected ${socket.id}`); // undefined
+        this.socket.on('disconnect', () => {
+            console.log(`disconnected ${this.socket.id}`); // undefined
+
+            sessionStorage.removeItem('exonchat-ses-id');
+            this.sesId = null;
+            this.chatConnected = false;
         });
 
-        socket.on('message', (data: any) => {
+        this.socket.on('message', (data: any) => {
             console.log(`from server ${data}`);
-        });
 
-        socket.on('pong', function(data: any) {
-            console.log('Received Pong: ', data);
+            if (data.sentByClient) {
+                // mark sended msg to done by match the time else use setTimeout to mark for resend
+            }
         });
     },
     methods: {
-        sm() {
-            console.log('sending msg');
-
-            // socket.emit('message', { nm: 'new message' });
-
+        sendMessage() {
+            // console.log('sending msg');
+            this.socket.emit('webchat-new-msg', {
+                msg: this.msg,
+                sentAt: 'timestamp'
+            }); // sentAt will also mean as tempId
             // console.log(socket);
         }
     }
