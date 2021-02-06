@@ -9,7 +9,11 @@
         </div>
 
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
-            <div v-if="true" class="tw-flex-grow tw-flex tw-flex-col">
+            <div
+                v-if="true"
+                id="webchat-container"
+                class="tw-flex-grow tw-flex tw-flex-col"
+            >
                 <q-scroll-area
                     class="tw-p-3 tw-flex-grow tw-text-xs"
                     style="height:1px"
@@ -189,17 +193,26 @@ export default defineComponent({
         };
     },
     mounted() {
-        let sesId = sessionStorage.getItem('exonchat-ses-id');
-        if (!sesId) {
-            sessionStorage.setItem('exonchat-ses-id', '123');
-            this.sesId = '123';
+        console.log('WebChat Mounted');
+
+        this.sesId = sessionStorage.getItem('exonchat-ses-id');
+        console.log(this.sesId);
+
+        if (!this.sesId) {
+            sessionStorage.setItem(
+                'exonchat-ses-id',
+                new Date().getTime().toString()
+            );
+            this.sesId = new Date().getTime().toString();
         }
 
         let chatToken = 'xyz'; // get when chat panel opens
 
         this.socket = io('http://localhost:3000', {
             query: {
-                token: chatToken
+                token: chatToken,
+                sesId: this.sesId,
+                client_type: 'user'
             }
         });
         // localStorage.debug = '*';
@@ -207,18 +220,13 @@ export default defineComponent({
 
         this.socket.on('connect', () => {
             console.log(`connected ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
-            this.chatConnected = true;
         });
 
         this.socket.on('disconnect', () => {
             console.log(`disconnected ${this.socket.id}`); // undefined
-
-            sessionStorage.removeItem('exonchat-ses-id');
-            this.sesId = null;
-            this.chatConnected = false;
         });
 
-        this.socket.on('message', (data: any) => {
+        this.socket.on('exonchat_msg_from_agent', (data: any) => {
             console.log(`from server ${data}`);
 
             if (data.sentByClient) {
@@ -228,8 +236,8 @@ export default defineComponent({
     },
     methods: {
         sendMessage() {
-            // console.log('sending msg');
-            this.socket.emit('webchat-new-msg', {
+            // send event when current user is sending msg
+            this.socket.emit('exonchat_msg_from_user', {
                 msg: this.msg,
                 sentAt: 'timestamp'
             }); // sentAt will also mean as tempId
@@ -239,8 +247,26 @@ export default defineComponent({
 });
 </script>
 
-<style>
-.q-message.exonchat-is-typing .q-message-text {
-    min-height: unset;
+<style lang="scss">
+#webchat-container {
+    .q-message {
+        &.exonchat-is-typing {
+            .q-message-text {
+                min-height: unset;
+            }
+        }
+
+        .q-message-container {
+            .q-message-avatar {
+                height: 32px;
+                width: 32px;
+                min-width: 32px;
+            }
+        }
+
+        .q-message-text {
+            padding: 7px;
+        }
+    }
 }
 </style>
