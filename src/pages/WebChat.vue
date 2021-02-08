@@ -211,8 +211,10 @@ export default defineComponent({
         this.socket = io('http://localhost:3000', {
             query: {
                 token: chatToken,
-                sesId: this.sesId,
-                client_type: 'user'
+                ses_id: this.sesId,
+                client_type: 'user',
+                conv_id: '123',
+                api_key: '999'
             }
         });
         // localStorage.debug = '*';
@@ -236,6 +238,8 @@ export default defineComponent({
     },
     methods: {
         sendMessage() {
+            console.log('send the msg');
+
             // send event when current user is sending msg
             this.socket.emit('exonchat_msg_from_user', {
                 msg: this.msg,

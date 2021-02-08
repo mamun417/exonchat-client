@@ -25,7 +25,7 @@
 
         <q-page-container class="tw-min-h-screen"
             ><div
-                class="tw-fixed tw-w-18 tw-h-full tw-top-0 tw-left-0 tw-border-r-2 tw-border-blue-50"
+                class="tw-fixed tw-w-18 tw-h-full tw-top-0 tw-left-0 tw-border-r-2 tw-border-blue-50 tw-shadow-lg"
             >
                 <q-list class="tw-text-gray-600">
                     <q-item class="tw-my-3 tw-py-4">
@@ -84,7 +84,7 @@
             </div>
 
             <div
-                class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-border-r-2 tw-border-blue-50 tw-shadow-sm"
+                class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-border-r-2 tw-border-blue-50 tw-shadow-lg"
             >
                 <q-scroll-area
                     class="fit tw-px-1 tw-py-3"
@@ -344,7 +344,7 @@
                         <div
                             class="tw-col-span-12 tw-px-3 tw-my-3 tw-flex tw-flex-col"
                         >
-                            <q-card class="tw-shadow-sm"
+                            <q-card class="tw-shadow-lg"
                                 ><q-card-section
                                     class="row no-wrap items-center"
                                     ><q-item class="">
@@ -442,7 +442,7 @@
                             </q-scroll-area>
 
                             <div
-                                class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-sm tw-self-end tw-rounded"
+                                class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
                             >
                                 <q-btn
                                     flat
@@ -465,7 +465,7 @@
                 </div>
 
                 <div
-                    class="tw-h-full tw-col-span-3 tw-shadow tw-overflow-hidden"
+                    class="tw-h-full tw-col-span-3 tw-shadow-lg tw-overflow-hidden"
                 >
                     <q-list class="tw-px-1 tw-my-3">
                         <q-item class="">
