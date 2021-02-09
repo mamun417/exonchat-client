@@ -67,7 +67,9 @@ export default defineComponent({
     data(): any {
         return {};
     },
-    mounted() {},
+    mounted() {
+        console.log('main left bar initiated');
+    },
     methods: {}
 });
 </script>
