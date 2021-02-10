@@ -1,6 +1,6 @@
-import { RouteConfig } from 'vue-router';
+import { RouteRecordRaw } from 'vue-router';
 
-const routes: RouteConfig[] = [
+const routes: RouteRecordRaw[] = [
     {
         path: '/',
         component: () => import('layouts/MainLayout.vue'),
@@ -8,23 +8,23 @@ const routes: RouteConfig[] = [
             { path: '', component: () => import('pages/Index.vue') },
             {
                 path: 'chat',
-                component: () => import('pages/subscriber/Chat.vue')
-            }
-        ]
+                component: () => import('pages/subscriber/Chat.vue'),
+            },
+        ],
     },
 
     {
         path: '/web-chat',
         component: () => import('layouts/WebChatLayout.vue'),
-        children: [{ path: '', component: () => import('pages/WebChat.vue') }]
+        children: [{ path: '', component: () => import('pages/WebChat.vue') }],
     },
 
     // Always leave this as last one,
     // but you can also remove it
     {
-        path: '*',
-        component: () => import('pages/Error404.vue')
-    }
+        path: '/:catchAll(.*)*',
+        component: () => import('pages/Error404.vue'),
+    },
 ];
 
 export default routes;

@@ -31,7 +31,7 @@
 
                 <div class="tw-ml-78 tw-grid tw-grid-cols-12 tw-min-h-screen">
                     <router-view
-                        class="tw-h-full tw-p-3 tw-col-span-9 tw-border-r-2 tw-border-blue-50  tw-bg-blue-50"
+                        class="tw-h-full tw-p-3 tw-col-span-9 tw-border-r-2 tw-border-blue-50 tw-bg-blue-50"
                     ></router-view>
 
                     <right-bar
@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
+import { defineComponent, ref } from 'vue';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
 import MainLeftBar from 'src/components/subscriber/side-panel/MainLeftBar.vue';
 import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
@@ -58,6 +58,6 @@ export default defineComponent({
         const miniMode = ref(false);
 
         return { miniMode };
-    }
+    },
 });
 </script>

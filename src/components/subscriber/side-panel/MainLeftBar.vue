@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'MainLeftBar',
@@ -70,6 +70,6 @@ export default defineComponent({
     mounted() {
         console.log('main left bar initiated');
     },
-    methods: {}
+    methods: {},
 });
 </script>

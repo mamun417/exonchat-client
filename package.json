@@ -1,8 +1,8 @@
 {
-    "name": "exoncaht-client",
+    "name": "exonchat-client",
     "version": "0.0.1",
-    "description": "ExonChat Client",
-    "productName": "ExonChat Client",
+    "description": "ExonChat",
+    "productName": "ExonChat",
     "author": "younus <younusdev@gmail.com>",
     "private": true,
     "scripts": {
@@ -10,37 +10,33 @@
         "test": "echo \"No test specified\" && exit 0"
     },
     "dependencies": {
-        "@quasar/extras": "^1.9.16",
+        "@quasar/extras": "^1.0.0",
         "@tailwindcss/postcss7-compat": "^2.0.3",
-        "@vue/composition-api": "^0.6.4",
         "autoprefixer": "^9.8.6",
         "axios": "^0.21.1",
         "core-js": "^3.6.5",
         "postcss": "^7.0.35",
-        "quasar": "^1.15.2",
+        "quasar": "^2.0.0-beta.1",
         "socket.io-client": "2.3.*",
         "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3",
-        "vue-i18n": "^8.0.0"
+        "vue-i18n": "^9.0.0-beta.0"
     },
     "devDependencies": {
-        "@quasar/app": "^2.0.0",
+        "@quasar/app": "^3.0.0-beta.1",
         "@types/node": "^10.17.15",
         "@types/socket.io-client": "^1.4.35",
-        "@typescript-eslint/eslint-plugin": "^3.3.0",
-        "@typescript-eslint/parser": "^3.3.0",
+        "@typescript-eslint/eslint-plugin": "^4.9.0",
+        "@typescript-eslint/parser": "^4.9.0",
         "babel-eslint": "^10.0.1",
-        "cz-conventional-changelog": "^3.3.0",
         "devtron": "^1.4.0",
         "electron": "^9.4.3",
         "electron-debug": "^3.2.0",
         "electron-devtools-installer": "^3.1.1",
-        "eslint": "^6.8.0",
-        "eslint-config-prettier": "^6.9.0",
-        "eslint-loader": "^3.0.3",
-        "eslint-plugin-vue": "^6.1.2"
+        "eslint": "^7.14.0",
+        "eslint-config-prettier": "^6.15.0",
+        "eslint-plugin-vue": "^7.0.0"
     },
     "browserslist": [
-        "ie >= 11",
         "last 10 Chrome versions",
         "last 10 Firefox versions",
         "last 4 Edge versions",
@@ -55,10 +51,5 @@
         "node": ">= 10.18.1",
         "npm": ">= 6.13.4",
         "yarn": ">= 1.21.1"
-    },
-    "config": {
-        "commitizen": {
-            "path": "./node_modules/cz-conventional-changelog"
-        }
     }
 }

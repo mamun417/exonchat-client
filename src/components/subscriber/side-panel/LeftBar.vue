@@ -1,6 +1,6 @@
 <template>
     <div
-        class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-border-r-2 tw-border-blue-50 tw-shadow-lg  tw-py-3"
+        class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-border-r-2 tw-border-blue-50 tw-shadow-lg tw-py-3"
     >
         <q-scroll-area
             class="fit tw-px-1"
@@ -8,13 +8,13 @@
                 background: '#60A5FA',
                 width: '4px',
                 opacity: 0.2,
-                borderRadius: '10px'
+                borderRadius: '10px',
             }"
             :thumb-style="{
                 borderRadius: '9px',
                 backgroundColor: '#60A5FA',
                 width: '4px',
-                opacity: 0.5
+                opacity: 0.5,
             }"
         >
             <!-- <div
@@ -48,9 +48,7 @@
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
-                                                :src="
-                                                    `https://cdn.quasar.dev/img/avatar2.jpg`
-                                                "
+                                                :src="`https://cdn.quasar.dev/img/avatar2.jpg`"
                                             />
                                         </q-avatar>
                                     </q-item-section>
@@ -73,9 +71,7 @@
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
-                                                :src="
-                                                    `https://cdn.quasar.dev/img/avatar6.jpg`
-                                                "
+                                                :src="`https://cdn.quasar.dev/img/avatar6.jpg`"
                                             />
                                         </q-avatar>
                                     </q-item-section>
@@ -110,9 +106,7 @@
                                 <q-item-section avatar>
                                     <q-avatar>
                                         <img
-                                            :src="
-                                                `https://cdn.quasar.dev/img/avatar1.jpg`
-                                            "
+                                            :src="`https://cdn.quasar.dev/img/avatar1.jpg`"
                                         />
                                     </q-avatar>
                                 </q-item-section>
@@ -130,9 +124,7 @@
                                 <q-item-section avatar>
                                     <q-avatar>
                                         <img
-                                            :src="
-                                                `https://cdn.quasar.dev/img/avatar3.jpg`
-                                            "
+                                            :src="`https://cdn.quasar.dev/img/avatar3.jpg`"
                                         />
                                     </q-avatar>
                                 </q-item-section>
@@ -209,9 +201,7 @@
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
-                                                :src="
-                                                    `https://cdn.quasar.dev/img/avatar2.jpg`
-                                                "
+                                                :src="`https://cdn.quasar.dev/img/avatar2.jpg`"
                                             />
                                         </q-avatar>
                                     </q-item-section>
@@ -240,7 +230,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'LeftBar',
@@ -254,6 +244,6 @@ export default defineComponent({
     mounted() {
         console.log('left bar initiated');
     },
-    methods: {}
+    methods: {},
 });
 </script>

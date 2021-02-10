@@ -1,8 +1,8 @@
-export interface ExampleStateInterface {
+export interface AuthStateInterface {
     prop: boolean;
 }
 
-function state(): ExampleStateInterface {
+function state(): AuthStateInterface {
     return {
         prop: false,
     };

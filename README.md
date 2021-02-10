@@ -1,6 +1,6 @@
-# ExonChat Client (exoncaht-client)
+# ExonChat (exonchat-client)
 
-ExonChat Client
+ExonChat
 
 ## Install the dependencies
 

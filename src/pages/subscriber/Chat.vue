@@ -8,9 +8,7 @@
                             <q-item-section avatar>
                                 <q-avatar size="xl">
                                     <img
-                                        :src="
-                                            `https://cdn.quasar.dev/img/avatar1.jpg`
-                                        "
+                                        :src="`https://cdn.quasar.dev/img/avatar1.jpg`"
                                     />
                                 </q-avatar>
                             </q-item-section>
@@ -41,13 +39,13 @@
                         background: '#60A5FA',
                         width: '4px',
                         opacity: 0.2,
-                        borderRadius: '10px'
+                        borderRadius: '10px',
                     }"
                     :thumb-style="{
                         borderRadius: '9px',
                         backgroundColor: '#60A5FA',
                         width: '4px',
-                        opacity: 0.7
+                        opacity: 0.7,
                     }"
                     :content-style="{}"
                 >
@@ -65,7 +63,7 @@
                         avatar="https://cdn.quasar.dev/img/avatar5.jpg"
                         :text="[
                             'doing fine, how r you?',
-                            'I just feel like typing a really, really, REALLY long message to annoy you...'
+                            'I just feel like typing a really, really, REALLY long message to annoy you...',
                         ]"
                         stamp="6 minutes ago"
                         text-color="white"
@@ -119,7 +117,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'ChatPage',
@@ -133,6 +131,6 @@ export default defineComponent({
     mounted() {
         console.log('chat page initiated');
     },
-    methods: {}
+    methods: {},
 });
 </script>

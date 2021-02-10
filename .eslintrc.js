@@ -17,11 +17,11 @@ module.exports = {
         project: resolve(__dirname, './tsconfig.json'),
         tsconfigRootDir: __dirname,
         ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
-        sourceType: 'module' // Allows for the use of imports
+        sourceType: 'module', // Allows for the use of imports
     },
 
     env: {
-        browser: true
+        browser: true,
     },
 
     // Rules order is important, please avoid shuffling them
@@ -38,15 +38,15 @@ module.exports = {
         // Uncomment any of the lines below to choose desired strictness,
         // but leave only one uncommented!
         // See https://eslint.vuejs.org/rules/#available-rules
-        'plugin:vue/essential', // Priority A: Essential (Error Prevention)
-        // 'plugin:vue/strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
-        // 'plugin:vue/recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
+        'plugin:vue/vue3-essential', // Priority A: Essential (Error Prevention)
+        // 'plugin:vue/vue3-strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
+        // 'plugin:vue/vue3-recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
 
         // https://github.com/prettier/eslint-config-prettier#installation
         // usage with Prettier, provided by 'eslint-config-prettier'.
         'prettier',
         'prettier/@typescript-eslint',
-        'prettier/vue'
+        'prettier/vue',
     ],
 
     plugins: [
@@ -55,7 +55,7 @@ module.exports = {
 
         // https://eslint.vuejs.org/user-guide/#why-doesn-t-it-work-on-vue-file
         // required to lint *.vue files
-        'vue'
+        'vue',
 
         // https://github.com/typescript-eslint/typescript-eslint/issues/389#issuecomment-509292674
         // Prettier has not been included as plugin to avoid performance impact
@@ -66,9 +66,13 @@ module.exports = {
         ga: true, // Google Analytics
         cordova: true,
         __statics: true,
+        __QUASAR_SSR__: true,
+        __QUASAR_SSR_SERVER__: true,
+        __QUASAR_SSR_CLIENT__: true,
+        __QUASAR_SSR_PWA__: true,
         process: true,
         Capacitor: true,
-        chrome: true
+        chrome: true,
     },
 
     // add your custom rules here
@@ -90,7 +94,6 @@ module.exports = {
         '@typescript-eslint/no-unsafe-return': 'off',
         '@typescript-eslint/no-floating-promises': 'off',
         '@typescript-eslint/restrict-template-expressions': 'off',
-        '@typescript-eslint/no-explicit-any': 'off'
-    }
-
+        '@typescript-eslint/no-explicit-any': 'off',
+    },
 };
