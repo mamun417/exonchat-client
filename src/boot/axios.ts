@@ -1,24 +1,20 @@
 import { boot } from 'quasar/wrappers';
-import axios, { AxiosInstance } from 'axios';
+import io from 'socket.io-client';
 
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
-        $axios: AxiosInstance;
+        socket: SocketIOClient.Socket;
     }
 }
 
-const api = axios.create({ baseURL: 'https://api.example.com' });
-
-export default boot(({ app }) => {
-    // for use inside Vue files (Options API) through this.$axios and this.$api
-
-    app.config.globalProperties.$axios = axios;
-    // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-    //       so you won't necessarily have to import axios in each vue file
-
-    app.config.globalProperties.$api = api;
-    // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-    //       so you can easily perform requests against your app's API
+const socket = io('http://localhost:3000', {
+    autoConnect: true,
 });
 
-export { axios, api };
+export default boot(({ app }) => {
+    // for use inside Vue files (Options API) through this.$socket and this.$api
+
+    app.config.globalProperties.$socket = socket;
+});
+
+export { socket };

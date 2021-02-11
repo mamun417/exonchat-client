@@ -6,6 +6,9 @@ const getters: GetterTree<SocketStateInterface, StateInterface> = {
     someAction(/* context */) {
         // your code
     },
+    auth(/* context */) {
+        // your code
+    },
 };
 
 export default getters;
