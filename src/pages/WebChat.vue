@@ -16,18 +16,18 @@
             >
                 <q-scroll-area
                     class="tw-p-3 tw-flex-grow tw-text-xs"
-                    style="height:1px"
+                    style="height: 1px"
                     :bar-style="{
                         background: '#60A5FA',
                         width: '4px',
                         opacity: 0.2,
-                        borderRadius: '10px'
+                        borderRadius: '10px',
                     }"
                     :thumb-style="{
                         borderRadius: '9px',
                         backgroundColor: '#60A5FA',
                         width: '4px',
-                        opacity: 0.7
+                        opacity: 0.7,
                     }"
                     :content-style="{}"
                 >
@@ -45,7 +45,7 @@
                         avatar="https://cdn.quasar.dev/img/avatar5.jpg"
                         :text="[
                             'doing fine, how r you?',
-                            'I just feel like typing a really, really, REALLY long message to annoy you...'
+                            'I just feel like typing a really, really, REALLY long message to annoy you...',
                         ]"
                         stamp="6 minutes ago"
                         text-color="white"
@@ -115,7 +115,7 @@
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
                     <div
                         class="tw-absolute tw-m-auto full-width text-center"
-                        style="top:-25px"
+                        style="top: -25px"
                     >
                         <q-icon name="chat" size="xl" color="green"></q-icon>
                     </div>
@@ -137,7 +137,7 @@
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
                     <div
                         class="tw-absolute tw-m-auto full-width text-center"
-                        style="top:-25px"
+                        style="top: -25px"
                     >
                         <q-icon
                             name="account_circle"
@@ -173,7 +173,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 
 export default defineComponent({
@@ -189,7 +189,7 @@ export default defineComponent({
             sesId: null,
             chatConnected: false,
             msg: '',
-            messages: []
+            messages: [],
         };
     },
     mounted() {
@@ -214,8 +214,8 @@ export default defineComponent({
                 ses_id: this.sesId,
                 client_type: 'user',
                 conv_id: '123',
-                api_key: '999'
-            }
+                api_key: '999',
+            },
         });
         // localStorage.debug = '*';
         console.log(this.socket);
@@ -237,17 +237,17 @@ export default defineComponent({
         });
     },
     methods: {
-        sendMessage() {
+        sendMessage(): any {
             console.log('send the msg');
 
             // send event when current user is sending msg
             this.socket.emit('exonchat_msg_from_user', {
                 msg: this.msg,
-                sentAt: 'timestamp'
+                sentAt: 'timestamp',
             }); // sentAt will also mean as tempId
             // console.log(socket);
-        }
-    }
+        },
+    },
 });
 </script>
 

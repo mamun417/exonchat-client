@@ -121,7 +121,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'RightBar',
@@ -135,6 +135,6 @@ export default defineComponent({
     mounted() {
         console.log('right bar initiated');
     },
-    methods: {}
+    methods: {},
 });
 </script>
