@@ -9,6 +9,9 @@ import { SocketStateInterface } from './socket/state';
 import auth from './auth';
 import { AuthStateInterface } from './auth/state';
 
+import chat from './chat';
+import { ChatStateInterface } from './chat/state';
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -24,6 +27,7 @@ export interface StateInterface {
     // Declared as unknown to avoid linting issue. Best to strongly type as per the line above.
     auth: AuthStateInterface;
     socket: SocketStateInterface;
+    chat: ChatStateInterface;
 }
 
 export default store(function (/* { ssrContext } */) {
@@ -32,6 +36,7 @@ export default store(function (/* { ssrContext } */) {
             // example
             auth,
             socket,
+            chat,
         },
 
         // enable strict mode (adds overhead!)
