@@ -9,6 +9,9 @@ import { SocketStateInterface } from './socket/state';
 import auth from './auth';
 import { AuthStateInterface } from './auth/state';
 
+import ui from './ui';
+import { UiStateInterface } from './ui/state';
+
 import chat from './chat';
 import { ChatStateInterface } from './chat/state';
 
@@ -28,6 +31,7 @@ export interface StateInterface {
     auth: AuthStateInterface;
     socket: SocketStateInterface;
     chat: ChatStateInterface;
+    ui: UiStateInterface;
 }
 
 export default store(function (/* { ssrContext } */) {
@@ -36,6 +40,7 @@ export default store(function (/* { ssrContext } */) {
             // example
             auth,
             socket,
+            ui,
             chat,
         },
 

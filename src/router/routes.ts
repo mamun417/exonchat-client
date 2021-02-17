@@ -10,6 +10,10 @@ const routes: RouteRecordRaw[] = [
                 path: 'chat',
                 component: () => import('pages/subscriber/Chat.vue'),
             },
+            {
+                path: 'agent',
+                component: () => import('pages/subscriber/agent/Agent.vue'),
+            },
         ],
     },
 
