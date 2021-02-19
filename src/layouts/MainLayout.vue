@@ -43,6 +43,8 @@ export default defineComponent({
         return { miniMode };
     },
     mounted() {
+        console.log('main layout mounted');
+
         if ('logged in') {
             this.socketInitialize();
         }

@@ -12,7 +12,7 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: 'agent',
-                component: () => import('pages/subscriber/agent/Agent.vue'),
+                component: () => import('pages/subscriber/agent/Index.vue'),
             },
         ],
     },
