@@ -50,7 +50,7 @@ export default defineComponent({
         }
     },
     computed: {
-        ...mapGetters('socket', ['handshake']),
+        // ...mapGetters('socket', ['handshake']),
     },
     methods: {
         socketInitialize() {

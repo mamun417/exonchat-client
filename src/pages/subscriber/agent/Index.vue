@@ -3,8 +3,15 @@
         <div
             class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
         >
-            <div class="tw-font-bold tw-text-lg tw-py-1">My Agents</div>
-            <q-btn color="green" icon="add" label="Assign"></q-btn>
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
+                My Agents
+            </div>
+            <q-btn
+                color="green"
+                icon="add"
+                label="Assign"
+                @click="assignAgentModal = true"
+            ></q-btn>
         </div>
 
         <div class="tw-flex-grow">
@@ -52,14 +59,16 @@
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
                             <q-btn
-                                icon="create"
+                                icon="settings"
                                 text-color="green"
+                                size="sm"
                                 dense
                                 flat
                             ></q-btn>
                             <q-btn
-                                icon="settings"
-                                text-color="green"
+                                icon="delete"
+                                text-color="red"
+                                size="sm"
                                 dense
                                 flat
                             ></q-btn>
@@ -77,6 +86,45 @@
                 </q-table>
             </div>
         </div>
+
+        <q-dialog
+            v-model="assignAgentModal"
+            @update:modelValue="(value) => (assignAgentModal = value)"
+            persistent
+        >
+            <q-card style="max-width: 500px">
+                <q-card-section
+                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
+                >
+                    <div class="tw-text-lg text-green">Add New Agent</div>
+                    <q-space></q-space>
+                    <q-btn
+                        icon="close"
+                        color="orange"
+                        flat
+                        round
+                        dense
+                        v-close-popup
+                    ></q-btn>
+                </q-card-section>
+
+                <q-card-section class="q-py-2 tw-mx-6">
+                    <q-input label="Email" color="green"
+                        ><template v-slot:prepend>
+                            <q-icon name="mail" color="green" /> </template
+                    ></q-input>
+
+                    <div class="tw-mt-4 tw-text-xs tw-text-orange-600">
+                        A verification email will be sended with a random
+                        generated password to this email
+                    </div>
+                </q-card-section>
+
+                <q-card-actions class="tw-mx-6 tw-my-4">
+                    <q-btn color="green" label="submit" class="full-width" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </div>
 </template>
 
@@ -127,6 +175,11 @@ const rows = [
     },
 ];
 export default {
+    data() {
+        return {
+            assignAgentModal: false,
+        };
+    },
     setup() {
         return {
             columns,

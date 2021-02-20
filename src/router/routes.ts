@@ -7,12 +7,16 @@ const routes: RouteRecordRaw[] = [
         children: [
             { path: '', component: () => import('pages/Index.vue') },
             {
-                path: 'chat',
+                path: 'chats',
                 component: () => import('pages/subscriber/Chat.vue'),
             },
             {
-                path: 'agent',
+                path: 'agents',
                 component: () => import('pages/subscriber/agent/Index.vue'),
+            },
+            {
+                path: 'tags',
+                component: () => import('pages/subscriber/tag/Index.vue'),
             },
         ],
     },
