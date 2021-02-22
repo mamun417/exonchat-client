@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { mapGetters } from 'vuex';
+// import { mapGetters } from 'vuex';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
 import MainLeftBar from 'src/components/subscriber/side-panel/MainLeftBar.vue';
 import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';

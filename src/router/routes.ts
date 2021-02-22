@@ -18,6 +18,11 @@ const routes: RouteRecordRaw[] = [
                 path: 'tags',
                 component: () => import('pages/subscriber/tag/Index.vue'),
             },
+            {
+                path: 'site-variables',
+                component: () =>
+                    import('pages/subscriber/site-variables/Index.vue'),
+            },
         ],
     },
 

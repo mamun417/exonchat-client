@@ -174,6 +174,47 @@
                             <q-icon name="ballot" color="green" /> </template
                     ></q-select>
 
+                    <q-select
+                        v-show="newTagType === 'intent'"
+                        label="Choose Intent"
+                        :options="[
+                            {
+                                label: '@price/hosting',
+                                value: '@price/hosting',
+                                description: 'Get the hosting price',
+                            },
+                            {
+                                label: '@info/user',
+                                value: '@info/user',
+                                description: 'Get user info',
+                            },
+                        ]"
+                        class="tw-my-2"
+                        color="green"
+                        options-selected-class="text-green"
+                        v-model="intentChoosed"
+                        @virtual-scroll="onScrollIntent"
+                        @filter="filterIntent"
+                        dense
+                        ><template v-slot:prepend>
+                            <q-icon name="work" color="green" />
+                        </template>
+                        <template v-slot:option="scope">
+                            <q-item
+                                v-bind="scope.itemProps"
+                                v-on="scope.itemEvents"
+                                dense
+                            >
+                                <q-item-section class="tw-py-1">
+                                    <q-item-label v-html="scope.opt.label" />
+                                    <q-item-label class="tw-text-xxs" caption>{{
+                                        scope.opt.description
+                                    }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                        </template></q-select
+                    >
+
                     <q-input
                         label="Message"
                         color="green"
@@ -330,8 +371,9 @@ export default {
     data() {
         return {
             newTagModal: false,
-            newTagType: 'static',
+            newTagType: 'intent',
             variableListModal: false,
+            intentChoosed: '',
         };
     },
     setup() {
@@ -340,6 +382,35 @@ export default {
             rows,
             dynamicVariables,
         };
+    },
+    methods: {
+        onScrollIntent({ to, ref }) {
+            // const lastIndex = options.value.length - 1;
+            // if (
+            //     loading.value !== true &&
+            //     nextPage.value < lastPage &&
+            //     to === lastIndex
+            // ) {
+            //     loading.value = true;
+            //     setTimeout(() => {
+            //         nextPage.value++;
+            //         nextTick(() => {
+            //             ref.refresh();
+            //             loading.value = false;
+            //         });
+            //     }, 500);
+            // }
+        },
+        filterIntent(val, update) {
+            // if (val === '') {
+            //     update(() => {
+            //         options.value = stringOptions;
+            //         // here you have access to "ref" which
+            //         // is the Vue reference of the QSelect
+            //     });
+            //     return;
+            // }
+        },
     },
 };
 </script>
