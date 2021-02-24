@@ -193,8 +193,6 @@
                         color="green"
                         options-selected-class="text-green"
                         v-model="intentChoosed"
-                        @virtual-scroll="onScrollIntent"
-                        @filter="filterIntent"
                         dense
                         ><template v-slot:prepend>
                             <q-icon name="work" color="green" />
@@ -384,33 +382,33 @@ export default {
         };
     },
     methods: {
-        onScrollIntent({ to, ref }) {
-            // const lastIndex = options.value.length - 1;
-            // if (
-            //     loading.value !== true &&
-            //     nextPage.value < lastPage &&
-            //     to === lastIndex
-            // ) {
-            //     loading.value = true;
-            //     setTimeout(() => {
-            //         nextPage.value++;
-            //         nextTick(() => {
-            //             ref.refresh();
-            //             loading.value = false;
-            //         });
-            //     }, 500);
-            // }
-        },
-        filterIntent(val, update) {
-            // if (val === '') {
-            //     update(() => {
-            //         options.value = stringOptions;
-            //         // here you have access to "ref" which
-            //         // is the Vue reference of the QSelect
-            //     });
-            //     return;
-            // }
-        },
+        // onScrollIntent({ to, ref }) {
+        // const lastIndex = options.value.length - 1;
+        // if (
+        //     loading.value !== true &&
+        //     nextPage.value < lastPage &&
+        //     to === lastIndex
+        // ) {
+        //     loading.value = true;
+        //     setTimeout(() => {
+        //         nextPage.value++;
+        //         nextTick(() => {
+        //             ref.refresh();
+        //             loading.value = false;
+        //         });
+        //     }, 500);
+        // }
+        // },
+        // filterIntent(val, update) {
+        // if (val === '') {
+        //     update(() => {
+        //         options.value = stringOptions;
+        //         // here you have access to "ref" which
+        //         // is the Vue reference of the QSelect
+        //     });
+        //     return;
+        // }
+        // },
     },
 };
 </script>

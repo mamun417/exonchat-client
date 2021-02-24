@@ -27,6 +27,26 @@ const routes: RouteRecordRaw[] = [
     },
 
     {
+        path: '/auth',
+        component: () => import('layouts/AuthLayout.vue'),
+        children: [
+            {
+                path: 'login',
+                component: () => import('pages/subscriber/auth/Login.vue'),
+            },
+            {
+                path: 'register',
+                component: () => import('pages/subscriber/auth/Register.vue'),
+            },
+            {
+                path: 'agent-activate',
+                component: () =>
+                    import('pages/subscriber/auth/AgentActivate.vue'),
+            },
+        ],
+    },
+
+    {
         path: '/web-chat',
         component: () => import('layouts/WebChatLayout.vue'),
         children: [{ path: '', component: () => import('pages/WebChat.vue') }],
