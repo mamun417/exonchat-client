@@ -27,7 +27,12 @@
                     size="sm"
                     dense
                 ></q-checkbox>
-                <div class="text-green">Forgot Password?</div>
+                <div
+                    class="text-green"
+                    @click="$router.push('/auth/reset-pass')"
+                >
+                    Forgot Password?
+                </div>
             </div>
 
             <div class="tw-mt-8 tw-mb-4">

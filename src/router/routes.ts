@@ -43,6 +43,14 @@ const routes: RouteRecordRaw[] = [
                 component: () =>
                     import('pages/subscriber/auth/AgentActivate.vue'),
             },
+            {
+                path: 'reset-pass',
+                component: () => import('pages/subscriber/auth/ResetPass.vue'),
+            },
+            {
+                path: 'change-pass',
+                component: () => import('pages/subscriber/auth/ChangePass.vue'),
+            },
         ],
     },
 
