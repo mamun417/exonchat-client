@@ -19,9 +19,28 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/tag/Index.vue'),
             },
             {
+                path: 'intents',
+                component: () => import('pages/subscriber/intents/Index.vue'),
+            },
+            {
                 path: 'site-variables',
                 component: () =>
                     import('pages/subscriber/site-variables/Index.vue'),
+            },
+        ],
+    },
+
+    {
+        path: '/admin',
+        component: () => import('layouts/AdminLayout.vue'),
+        children: [
+            {
+                path: '',
+                component: () => import('pages/super-admin/Index.vue'),
+            },
+            {
+                path: 'intents',
+                component: () => import('pages/super-admin/intents/Index.vue'),
             },
         ],
     },
