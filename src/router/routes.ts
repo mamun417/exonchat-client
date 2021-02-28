@@ -22,11 +22,6 @@ const routes: RouteRecordRaw[] = [
                 path: 'intents',
                 component: () => import('pages/subscriber/intents/Index.vue'),
             },
-            {
-                path: 'site-variables',
-                component: () =>
-                    import('pages/subscriber/site-variables/Index.vue'),
-            },
         ],
     },
 
@@ -41,6 +36,16 @@ const routes: RouteRecordRaw[] = [
             {
                 path: 'intents',
                 component: () => import('pages/super-admin/intents/Index.vue'),
+            },
+            {
+                path: 'speech-recognition',
+                component: () =>
+                    import('pages/super-admin/speech-recognition/Index.vue'),
+            },
+            {
+                path: 'site-variables',
+                component: () =>
+                    import('pages/super-admin/site-variables/Index.vue'),
             },
         ],
     },

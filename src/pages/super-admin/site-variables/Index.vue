@@ -127,10 +127,6 @@
                                 color="green"
                             /> </template
                     ></q-input>
-
-                    <div class="tw-text-xs tw-mt-5 tw-text-gray-700">
-                        You can use dynamic variables in input.
-                    </div>
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-6 tw-my-4">

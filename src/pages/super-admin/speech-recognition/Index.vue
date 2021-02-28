@@ -4,13 +4,13 @@
             class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
         >
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
-                Intents List
+                Speech List
             </div>
             <q-btn
                 color="green"
                 icon="add"
                 label="Add New"
-                @click="newIntentModal = true"
+                @click="newSpeechModal = true"
             ></q-btn>
         </div>
 
@@ -51,6 +51,14 @@
                         </q-tr>
                     </template>
 
+                    <template v-slot:body-cell-speech="props">
+                        <q-td :props="props">
+                            <div class="tw-font-medium">
+                                {{ props.row.speech }}
+                            </div>
+                        </q-td>
+                    </template>
+
                     <template v-slot:body-cell-intent="props">
                         <q-td :props="props">
                             <q-badge color="green" class="text-italic"
@@ -66,22 +74,25 @@
                         </q-td>
                     </template>
 
-                    <template v-slot:body-cell-map_to="props">
+                    <template v-slot:body-cell-generated_by="props">
                         <q-td :props="props">
-                            <div
-                                class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700"
-                            >
-                                {{ props.row.map_to }}
+                            <div class="tw-font-medium">
+                                {{ props.row.generated_by }}
                             </div>
                         </q-td>
                     </template>
 
-                    <template v-slot:body-cell-parent_intent="props">
+                    <template v-slot:body-cell-speech_in_ai="props">
                         <q-td :props="props">
                             <div
-                                class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700"
+                                class="tw-font-medium"
+                                :class="[
+                                    props.row.speech_in_ai === 'True'
+                                        ? 'text-green'
+                                        : 'text-orange',
+                                ]"
                             >
-                                {{ props.row.parent_intent }}
+                                {{ props.row.speech_in_ai }}
                             </div>
                         </q-td>
                     </template>
@@ -132,15 +143,15 @@
         </div>
 
         <q-dialog
-            v-model="newIntentModal"
-            @update:modelValue="(value) => (newIntentModal = value)"
+            v-model="newSpeechModal"
+            @update:modelValue="(value) => (newSpeechModal = value)"
             persistent
         >
             <q-card style="max-width: 500px">
                 <q-card-section
                     class="row items-center tw-border-b tw-border-green-500 tw-px-10"
                 >
-                    <div class="tw-text-lg text-green">Add New Intent</div>
+                    <div class="tw-text-lg text-green">Add New Speech</div>
                     <q-space></q-space>
                     <q-btn
                         icon="close"
@@ -154,7 +165,7 @@
 
                 <q-card-section class="q-py-2 tw-mx-6">
                     <q-input
-                        label="Intent Name"
+                        label="New Speech"
                         color="green"
                         prefix="@"
                         class="tw-my-2"
@@ -164,7 +175,7 @@
                     ></q-input>
 
                     <q-select
-                        label="Select a Parent Intent"
+                        label="Select a Intent"
                         :options="[
                             {
                                 label: '@price/hosting',
@@ -177,8 +188,10 @@
                                 description: 'Get user info',
                             },
                         ]"
+                        v-model="newSpeechIntent"
                         class="tw-my-2"
                         color="green"
+                        hint="leave intent select if wanted by ai automate"
                         dense
                         ><template v-slot:prepend>
                             <q-icon name="ballot" color="green" /> </template
@@ -198,59 +211,28 @@
                         </template></q-select
                     >
 
-                    <q-select
-                        label="Content Type"
-                        :options="['action', 'static']"
-                        class="tw-my-2"
-                        color="green"
-                        v-model="newIntentType"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="ballot" color="green" /> </template
-                    ></q-select>
-
-                    <q-input
-                        :label="
-                            newIntentType === 'action'
-                                ? 'Action Name'
-                                : 'Static Content'
-                        "
-                        class="tw-my-2"
-                        color="green"
-                        options-selected-class="text-green"
-                        v-model="intentChoosed"
-                        :autogrow="newIntentType === 'static'"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="work" color="green" /></template
-                    ></q-input>
-
-                    <q-input
-                        label="Description"
-                        color="green"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon
-                                name="description"
-                                color="green"
-                            /> </template
-                    ></q-input>
-
                     <q-checkbox
                         class="tw-mt-2"
-                        label="Activate This Intent"
+                        label="Activate This As soon it resolved"
                         color="green"
                         dense
                     />
 
-                    <div
-                        class="tw-text-xxs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold"
-                    >
-                        <div>
-                            When a msg is parsed by ai it will return the parent
-                            intent. Then it will resolve to your intents action
-                            or content.
+                    <div v-if="newSpeechIntent">
+                        <q-checkbox
+                            class="tw-mt-2"
+                            label="Associate this message with the intent to AI"
+                            color="green"
+                            dense
+                        />
+
+                        <div
+                            class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold"
+                        >
+                            <div>
+                                IF you checked that all other ai generated
+                                message intents will be affected
+                            </div>
                         </div>
                     </div>
                 </q-card-section>
@@ -262,8 +244,8 @@
         </q-dialog>
 
         <q-dialog
-            v-model="editIntent"
-            @update:modelValue="(value) => (editIntent = value)"
+            v-model="editSpeech"
+            @update:modelValue="(value) => (editSpeech = value)"
             persistent
         >
             <!-- load parent intents all content -->
@@ -272,9 +254,7 @@
                 <q-card-section
                     class="row items-center tw-border-b tw-border-green-500 tw-px-10"
                 >
-                    <div class="tw-text-lg text-green">
-                        Edit Intent @get_lowest_hosting_price
-                    </div>
+                    <div class="tw-text-lg text-green">Edit Speech lalala</div>
                     <q-space></q-space>
                     <q-btn
                         icon="close"
@@ -288,7 +268,7 @@
 
                 <q-card-section class="q-py-2 tw-mx-6">
                     <q-input
-                        label="Parent Intent is using for this"
+                        label="Speech"
                         color="green"
                         prefix="@"
                         class="tw-my-2"
@@ -298,68 +278,82 @@
                             <q-icon name="label" color="green" /> </template
                     ></q-input>
 
-                    <q-input
-                        label="Intent Name"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="label" color="green" /> </template
-                    ></q-input>
-
                     <q-select
-                        label="Content Type"
-                        :options="['action', 'static']"
+                        label="Select a Intent"
+                        :options="[
+                            {
+                                label: '@price/hosting',
+                                value: '@price/hosting',
+                                description: 'Get the hosting price',
+                            },
+                            {
+                                label: '@info/user',
+                                value: '@info/user',
+                                description: 'Get user info',
+                            },
+                        ]"
+                        v-model="newSpeechIntent"
                         class="tw-my-2"
                         color="green"
-                        v-model="newIntentType"
+                        hint="leave intent select if wanted by ai automate"
                         dense
                         ><template v-slot:prepend>
                             <q-icon name="ballot" color="green" /> </template
-                    ></q-select>
-
-                    <q-input
-                        :label="
-                            newIntentType === 'action'
-                                ? 'Action Name'
-                                : 'Static Content'
-                        "
-                        class="tw-my-2"
-                        color="green"
-                        options-selected-class="text-green"
-                        v-model="intentChoosed"
-                        :autogrow="newIntentType === 'static'"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="work" color="green" /></template
-                    ></q-input>
-
-                    <q-input
-                        label="Description"
-                        color="green"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon
-                                name="description"
-                                color="green"
-                            /> </template
-                    ></q-input>
+                        ><template v-slot:option="scope">
+                            <q-item
+                                v-bind="scope.itemProps"
+                                v-on="scope.itemEvents"
+                                dense
+                            >
+                                <q-item-section class="tw-py-1">
+                                    <q-item-label v-html="scope.opt.label" />
+                                    <q-item-label class="tw-text-xxs" caption>{{
+                                        scope.opt.description
+                                    }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                        </template></q-select
+                    >
 
                     <q-checkbox
                         class="tw-mt-2"
-                        label="Activate This Intent"
+                        label="Activate This As soon it resolved"
                         color="green"
                         dense
                     />
 
+                    <div>
+                        <q-checkbox
+                            class="tw-mt-2"
+                            label="Associate updated intetnt with the msg to AI"
+                            color="green"
+                            dense
+                        />
+
+                        <div
+                            class="tw-text-xs tw-mt-1 text-white bg-orange tw-p-2 tw-font-bold"
+                        >
+                            <div>
+                                You have changed your intent. Deselect this if
+                                not want to subbmit to AI
+                            </div>
+                        </div>
+                    </div>
+
                     <div
-                        class="tw-text-xxs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold"
+                        class="tw-text-xs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold"
                     >
                         <div>
-                            If you change a global intent it will create a new
-                            one with the associated intent.
+                            It looks like this speech holds by ai. By updating
+                            this will remove from ai speech association
+                        </div>
+                    </div>
+                    <div
+                        class="tw-text-xs tw-mt-1 text-white bg-orange tw-p-2 tw-font-bold"
+                    >
+                        <div>
+                            It will also affect all other speech intent which
+                            are generated by ai
                         </div>
                     </div>
                 </q-card-section>
@@ -374,18 +368,30 @@
 
 <script>
 const columns = [
-    { name: 'intent', align: 'left', label: 'Intent Name', field: 'intent' },
+    { name: 'speech', align: 'left', label: 'Speech', field: 'speech' },
     {
-        name: 'map_to',
+        name: 'intent',
         align: 'center',
-        label: 'Map to Action/Content',
-        field: 'map_to',
+        label: 'Maped to Intent',
+        field: 'intent',
     },
     {
-        name: 'parent_intent',
+        name: 'confidence',
         align: 'center',
-        label: 'Intent Mapped To',
-        field: 'parent_intent',
+        label: 'Confidence Level',
+        field: 'confidence',
+    },
+    {
+        name: 'generated_by',
+        align: 'center',
+        label: 'Generated By',
+        field: 'generated_by',
+    },
+    {
+        name: 'speech_in_ai',
+        align: 'center',
+        label: 'Speech in AI',
+        field: 'speech_in_ai',
     },
     {
         name: 'status',
@@ -403,33 +409,43 @@ const columns = [
 
 const rows = [
     {
-        intent: { name: '@get/hosting/low/price', desc: 'message hi' },
-        map_to: 'get_lowest_hosting_price',
-        parent_intent: 'nill',
+        speech: 'lalala',
+        intent: { name: '@aaa', desc: 'zzz' },
+        confidence: '0.999',
+        generated_by: 'Me',
+        speech_in_ai: 'True',
         status: 'active',
     },
     {
-        intent: { name: '@del/order', desc: 'message hello' },
-        map_to: 'delte_order_by_id',
-        parent_intent: 'nill',
-        status: 'inactive',
+        speech: 'eeee',
+        intent: { name: '@ccc', desc: 'xxx' },
+        confidence: '0.999',
+        generated_by: 'Me',
+        speech_in_ai: 'False',
+        status: 'active',
     },
     {
-        intent: {
-            name: '@post/profile/name',
-            desc: 'give shared hosting price',
-        },
-        map_to: 'update_profile_name',
-        parent_intent: 'nill',
-        status: 'pending',
+        speech: 'kkkk',
+        intent: { name: '@bbb', desc: 'yyy' },
+        confidence: '0.853',
+        generated_by: 'AI',
+        speech_in_ai: 'True',
+        status: 'active',
     },
     {
-        intent: {
-            name: '@post/user/name',
-            desc: 'give shared hosting price',
-        },
-        map_to: 'update_user_name',
-        parent_intent: '@post/profile/name',
+        speech: 'not handled yet',
+        intent: { name: '', desc: '' },
+        confidence: '',
+        generated_by: '',
+        speech_in_ai: '',
+        status: 'waiting action',
+    },
+    {
+        speech: 'action given for ai generate',
+        intent: { name: '', desc: '' },
+        confidence: '',
+        generated_by: '',
+        speech_in_ai: '',
         status: 'pending',
     },
 ];
@@ -441,8 +457,9 @@ const dynamicVariables = [
 export default {
     data() {
         return {
-            newIntentModal: false,
-            editIntent: false,
+            newSpeechModal: false,
+            newSpeechIntent: '',
+            editSpeech: true,
             newIntentType: 'action',
             variableListModal: false,
             intentChoosed: '',
