@@ -4,13 +4,13 @@
             class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
         >
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
-                My Tags
+                My Chat Templates
             </div>
             <q-btn
                 color="green"
                 icon="add"
                 label="Add New"
-                @click="newTagModal = true"
+                @click="newTemplateModal = true"
             ></q-btn>
         </div>
 
@@ -132,15 +132,17 @@
         </div>
 
         <q-dialog
-            v-model="newTagModal"
-            @update:modelValue="(value) => (newTagModal = value)"
+            v-model="newTemplateModal"
+            @update:modelValue="(value) => (newTemplateModal = value)"
             persistent
         >
             <q-card style="max-width: 500px">
                 <q-card-section
                     class="row items-center tw-border-b tw-border-green-500 tw-px-10"
                 >
-                    <div class="tw-text-lg text-green">Add New Tag</div>
+                    <div class="tw-text-lg text-green">
+                        Add New Chat Template
+                    </div>
                     <q-space></q-space>
                     <q-btn
                         icon="close"
@@ -168,14 +170,14 @@
                         :options="['intent', 'static']"
                         class="tw-my-2"
                         color="green"
-                        v-model="newTagType"
+                        v-model="newTemplateType"
                         dense
                         ><template v-slot:prepend>
                             <q-icon name="ballot" color="green" /> </template
                     ></q-select>
 
                     <q-select
-                        v-show="newTagType === 'intent'"
+                        v-show="newTemplateType === 'intent'"
                         label="Choose Intent"
                         :options="[
                             {
@@ -217,8 +219,8 @@
                         label="Message"
                         color="green"
                         class="tw-my-2"
-                        :readonly="newTagType === 'intent'"
-                        :loading="newTagType === 'intent' && true"
+                        :readonly="newTemplateType === 'intent'"
+                        :loading="newTemplateType === 'intent' && true"
                         autogrow
                         dense
                         ><template v-slot:prepend>
@@ -240,7 +242,9 @@
                             /> </template
                     ></q-input>
 
-                    <div class="tw-text-xs tw-mt-5 tw-text-gray-700">
+                    <div
+                        class="tw-text-xxs tw-font-medium tw-mt-5 tw-text-gray-700"
+                    >
                         You can use dynamic variables in content input as
                         $${variable} from list.
                         <span
@@ -366,10 +370,11 @@ const dynamicVariables = [
     { name: 'user_id', des: 'will print logged users id' },
 ];
 export default {
+    // add department feature
     data() {
         return {
-            newTagModal: false,
-            newTagType: 'intent',
+            newTemplateModal: false,
+            newTemplateType: 'intent',
             variableListModal: false,
             intentChoosed: '',
         };

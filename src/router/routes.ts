@@ -15,8 +15,14 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/agent/Index.vue'),
             },
             {
-                path: 'tags',
-                component: () => import('pages/subscriber/tag/Index.vue'),
+                path: 'departments',
+                component: () =>
+                    import('pages/subscriber/departments/Index.vue'),
+            },
+            {
+                path: 'chat-templates',
+                component: () =>
+                    import('pages/subscriber/chat-templates/Index.vue'),
             },
             {
                 path: 'intents',
