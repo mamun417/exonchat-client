@@ -53,6 +53,20 @@ const routes: RouteRecordRaw[] = [
                 component: () =>
                     import('pages/super-admin/site-variables/Index.vue'),
             },
+            {
+                path: 'subscribers',
+                component: () =>
+                    import('pages/super-admin/subscribers/Index.vue'),
+            },
+            {
+                path: 'packages',
+                component: () => import('pages/super-admin/packages/Index.vue'),
+            },
+            {
+                path: 'validity-periods',
+                component: () =>
+                    import('pages/super-admin/validity-periods/Index.vue'),
+            },
         ],
     },
 
