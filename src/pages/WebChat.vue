@@ -190,58 +190,161 @@ export default defineComponent({
             chatConnected: false,
             msg: '',
             messages: [],
+            pageVisitingHandler: null,
+            pageInFocus: false,
+            typingHandler: null,
         };
     },
     mounted() {
         console.log('WebChat Mounted');
 
-        this.sesId = sessionStorage.getItem('exonchat-ses-id');
-        console.log(this.sesId);
+        this.initializeSocket();
+        this.fireSocketListners();
 
-        if (!this.sesId) {
-            sessionStorage.setItem(
-                'exonchat-ses-id',
-                new Date().getTime().toString()
-            );
-            this.sesId = new Date().getTime().toString();
-        }
-
-        let chatToken = 'xyz'; // get when chat panel opens
-
-        this.socket = io('http://localhost:3000', {
-            query: {
-                token: chatToken,
-                ses_id: this.sesId,
-                client_type: 'user',
-                conv_id: '123',
-                api_key: '999',
-            },
-        });
-        // localStorage.debug = '*';
-        console.log(this.socket);
-
-        this.socket.on('connect', () => {
-            console.log(`connected ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
-        });
-
-        this.socket.on('disconnect', () => {
-            console.log(`disconnected ${this.socket.id}`); // undefined
-        });
-
-        this.socket.on('exonchat_msg_from_agent', (data: any) => {
-            console.log(`from server ${data}`);
-
-            if (data.sentByClient) {
-                // mark sended msg to done by match the time else use setTimeout to mark for resend
-            }
-        });
+        this.firePageVisitListner();
     },
     methods: {
+        initializeSocket() {
+            this.sesId = sessionStorage.getItem('exonchat-ses-id');
+            console.log(this.sesId);
+
+            if (!this.sesId) {
+                sessionStorage.setItem(
+                    'exonchat-ses-id',
+                    new Date().getTime().toString()
+                );
+                this.sesId = new Date().getTime().toString();
+            }
+
+            let chatToken = 'xyz'; // get when chat panel opens
+
+            this.socket = io('http://localhost:3000', {
+                query: {
+                    token: chatToken,
+                    ses_id: this.sesId,
+                    client_type: 'user',
+                    conv_id: '123',
+                    api_key: '999',
+                },
+            });
+            // localStorage.debug = '*';
+            // console.log(this.socket);
+        },
+        fireSocketListners() {
+            this.socket.on('connect', () => {
+                console.log(`Your Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
+
+                this.socketId = this.socket.id;
+            });
+
+            this.socket.on('disconnect', () => {
+                console.log('You Are Disconnected'); // undefined
+
+                this.socketId = this.socket.id;
+            });
+
+            this.socket.on('ec_msg_from_agent', (data: any) => {
+                console.log(`from ec_msg_from_agent ${data}`);
+
+                if (data.sentByClient) {
+                    // mark sended msg to done by match the time else use setTimeout to mark for resend
+                }
+            });
+
+            this.socket.on('ec_is_typing_from_agent', (data: any) => {
+                console.log(`from ec_is_typing_from_agent ${data}`);
+            });
+
+            this.socket.on('ec_is_joined_from_conversation', (data: any) => {
+                console.log(`from ec_is_joined_from_conversation ${data}`);
+            });
+
+            this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
+                console.log(`from ec_is_leaved_from_conversation ${data}`);
+            });
+
+            this.socket.on('ec_chat_closed_from_conversation', (data: any) => {
+                console.log(`from ec_chat_closed_from_conversation ${data}`);
+            });
+        },
+        firePageVisitListner() {
+            // Set the name of the hidden property and the change event for visibility
+            // let hidden: string, visibilityChange: string;
+
+            // if (typeof document.hidden !== 'undefined') {
+            //     // Opera 12.10 and Firefox 18 and later support
+            //     hidden = 'hidden';
+            //     visibilityChange = 'visibilitychange';
+            // }
+            // else if (typeof document.msHidden !== 'undefined') {
+            //     hidden = 'msHidden';
+            //     visibilityChange = 'msvisibilitychange';
+            // } else if (typeof document.webkitHidden !== 'undefined') {
+            //     hidden = 'webkitHidden';
+            //     visibilityChange = 'webkitvisibilitychange';
+            // }
+
+            // If the page is hidden, pause sending browsing state;
+
+            // Warn if the browser doesn't support addEventListener or the Page Visibility API
+            if (
+                typeof document.addEventListener === 'undefined' ||
+                document.hidden === undefined
+            ) {
+                console.log(
+                    'This check requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.'
+                );
+            } else {
+                // Handle page visibility change
+                document.addEventListener(
+                    'visibilitychange',
+                    this.handlePageVisibilityChange,
+                    false
+                );
+
+                if (!this.pageVisitingHandler) {
+                    this.pageVisitingHandler = setInterval(() => {
+                        this.sendPageVisitingInfo();
+                    }, 2000);
+                }
+            }
+        },
+        handlePageVisibilityChange() {
+            if (document.hidden) {
+                this.pageInFocus = false;
+            } else {
+                this.pageInFocus = true;
+            }
+        },
+        sendPageVisitingInfo() {
+            if (this.pageInFocus && this.socketId) {
+                this.socket.emit('ec_page_visit_info_from_client', {
+                    url: '',
+                    sentAt: 'timestamp',
+                });
+            }
+        },
+        inputFocusHandle() {
+            this.typingHandler = setInterval(() => {
+                this.sendTypingData();
+            }, 1000);
+        },
+        inputBlurHandle() {
+            clearInterval(this.typingHandler);
+        },
+        sendTypingData() {
+            if (this.msg && this.socketId) {
+                this.socket.emit('ec_is_typing_from_client', {
+                    msg: this.msg,
+                    sentAt: 'timestamp',
+                });
+            }
+        },
         sendMessage(): any {
             console.log('send the msg');
 
             // send event when current user is sending msg
-            this.socket.emit('exonchat_msg_from_user', {
+            this.socket.emit('ec_msg_from_client', {
                 msg: this.msg,
                 sentAt: 'timestamp',
             }); // sentAt will also mean as tempId
