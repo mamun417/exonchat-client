@@ -35,6 +35,7 @@ export default defineComponent({
     data(): any {
         return {
             sesId: null,
+            socket: null,
         };
     },
     setup() {
@@ -54,8 +55,10 @@ export default defineComponent({
     },
     methods: {
         socketInitialize() {
-            if (this.handshake) {
-                console.log(this.$socket);
+            if (this.handshake || 'logged') {
+                this.socket = this.$socket.connect();
+
+                console.log(this.socket);
 
                 this.socket.on('connect', () => {
                     console.log(`connected ${this.$socket.id}`); // x8WIv7-mJelg7on_ALbx

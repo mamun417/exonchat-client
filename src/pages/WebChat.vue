@@ -10,7 +10,7 @@
 
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
             <div
-                v-if="true"
+                v-if="showChatForm"
                 id="webchat-container"
                 class="tw-flex-grow tw-flex tw-flex-col"
             >
@@ -109,7 +109,7 @@
                 </div>
             </div>
             <div
-                v-else-if="'after_login_found' === 'after_login_found'"
+                v-else-if="userLogged"
                 class="tw-flex tw-flex-col justify-center tw-flex-grow"
             >
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
@@ -152,7 +152,11 @@
                             color="green"
                             class="tw-mb-3"
                             ><template v-slot:prepend>
-                                <q-icon name="person" size="xs" /> </template
+                                <q-icon
+                                    name="person"
+                                    size="xs"
+                                    color="green"
+                                /> </template
                         ></q-input>
                         <q-input
                             dense
@@ -160,9 +164,17 @@
                             label="Your Email"
                             type="email"
                             ><template v-slot:prepend>
-                                <q-icon name="email" size="xs" /> </template
+                                <q-icon
+                                    name="email"
+                                    size="xs"
+                                    color="green"
+                                /> </template
                         ></q-input>
-                        <q-btn dense color="green" class="full-width tw-mt-6"
+                        <q-btn
+                            dense
+                            color="green"
+                            class="full-width tw-mt-6"
+                            @click="chatInitialize"
                             >Start Chat as Guest</q-btn
                         >
                     </div>
@@ -187,12 +199,14 @@ export default defineComponent({
             socket: null,
             socketId: null,
             sesId: null,
-            chatConnected: false,
+            covId: null,
+            showChatForm: false,
+            userLogged: false,
             msg: '',
             messages: [],
-            pageVisitingHandler: null,
             pageInFocus: false,
             typingHandler: null,
+            pageVisitingHandler: null,
         };
     },
     mounted() {
@@ -216,14 +230,9 @@ export default defineComponent({
                 this.sesId = new Date().getTime().toString();
             }
 
-            let chatToken = 'xyz'; // get when chat panel opens
-
             this.socket = io('http://localhost:3000', {
                 query: {
-                    token: chatToken,
                     ses_id: this.sesId,
-                    client_type: 'user',
-                    conv_id: '123',
                     api_key: '999',
                 },
             });
@@ -255,6 +264,21 @@ export default defineComponent({
                 console.log(`from ec_is_typing_from_agent ${data}`);
             });
 
+            this.socket.on('ec_conv_initiated_from_user', (data: any) => {
+                console.log(`from ec_conv_initiated_from_user ${data}`);
+
+                if (data.status === 'success') {
+                    if (!this.conv_id) {
+                        this.conv_id = data.data.conv_id;
+                        this.showChatForm = true;
+                    } else {
+                        if (this.conv_id === data.data.conv_id) {
+                            //no idea for now what to do if conv_id donst match
+                        }
+                    }
+                }
+            });
+
             this.socket.on('ec_is_joined_from_conversation', (data: any) => {
                 console.log(`from ec_is_joined_from_conversation ${data}`);
             });
@@ -266,6 +290,13 @@ export default defineComponent({
             this.socket.on('ec_chat_closed_from_conversation', (data: any) => {
                 console.log(`from ec_chat_closed_from_conversation ${data}`);
             });
+
+            this.socket.on('ec_error', (data: any) => {
+                console.log(`from ec_error ${data}`);
+            });
+        },
+        chatInitialize() {
+            this.socket.emit('ec_init_conv_from_user');
         },
         firePageVisitListner() {
             // Set the name of the hidden property and the change event for visibility

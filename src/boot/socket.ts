@@ -8,7 +8,7 @@ declare module '@vue/runtime-core' {
 }
 
 const socket = io('http://localhost:3000', {
-    autoConnect: true,
+    autoConnect: false,
 });
 
 export default boot(({ app }) => {
