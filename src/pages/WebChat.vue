@@ -197,14 +197,19 @@ export default defineComponent({
     data(): any {
         return {
             socket: null,
+
             socketId: null,
             sesId: null,
             covId: null,
+
             showChatForm: false,
             userLogged: false,
+
             msg: '',
             messages: [],
+
             pageInFocus: false,
+
             typingHandler: null,
             pageVisitingHandler: null,
         };
@@ -264,8 +269,8 @@ export default defineComponent({
                 console.log(`from ec_is_typing_from_agent ${data}`);
             });
 
-            this.socket.on('ec_conv_initiated_from_user', (data: any) => {
-                console.log(`from ec_conv_initiated_from_user ${data}`);
+            this.socket.on('ec_conv_initiated_from_client', (data: any) => {
+                console.log(`from ec_conv_initiated_from_client ${data}`);
 
                 if (data.status === 'success') {
                     if (!this.conv_id) {
@@ -287,8 +292,8 @@ export default defineComponent({
                 console.log(`from ec_is_leaved_from_conversation ${data}`);
             });
 
-            this.socket.on('ec_chat_closed_from_conversation', (data: any) => {
-                console.log(`from ec_chat_closed_from_conversation ${data}`);
+            this.socket.on('ec_is_closed_conversation', (data: any) => {
+                console.log(`from ec_is_closed_conversation ${data}`);
             });
 
             this.socket.on('ec_error', (data: any) => {

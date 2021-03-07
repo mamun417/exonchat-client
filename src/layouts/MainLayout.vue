@@ -34,8 +34,12 @@ export default defineComponent({
     components: { MainLeftBar, LeftBar, RightBar },
     data(): any {
         return {
-            sesId: null,
             socket: null,
+
+            sesId: null,
+            convIds: [],
+
+            typingHandler: null,
         };
     },
     setup() {
@@ -56,26 +60,106 @@ export default defineComponent({
     methods: {
         socketInitialize() {
             if (this.handshake || 'logged') {
-                this.socket = this.$socket.connect();
+                this.socket = this.$socket.connect({
+                    query: {
+                        client_type: 'agent',
+                    },
+                });
 
                 console.log(this.socket);
 
-                this.socket.on('connect', () => {
-                    console.log(`connected ${this.$socket.id}`); // x8WIv7-mJelg7on_ALbx
-                });
-
-                this.socket.on('disconnect', () => {
-                    console.log(`disconnected ${this.$socket.id}`); // undefined
-                });
-
-                this.socket.on('exonchat_msg_from_client', (data: any) => {
-                    console.log(`from server ${data}`);
-
-                    if (data) {
-                        // mark sended msg to done by match the time else use setTimeout to mark for resend
-                    }
-                });
+                this.fireSocketListners();
             }
+        },
+        fireSocketListners() {
+            this.socket.on('connect', () => {
+                console.log(`Your Agent Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
+
+                this.socketId = this.socket.id;
+            });
+
+            this.socket.on('disconnect', () => {
+                console.log('You Are Disconnected'); // undefined
+
+                this.socketId = this.socket.id;
+            });
+
+            // get msg from me & also from other agents connected with this conv.
+            // me msg will be used for my other tabs update
+            this.socket.on('ec_msg_from_agent', (data: any) => {
+                console.log(`from ec_msg_from_agent ${data}`);
+            });
+
+            this.socket.on('ec_msg_from_client', (data: any) => {
+                console.log(`from ec_msg_from_client ${data}`);
+            });
+
+            // handle only other agents typing
+            this.socket.on('ec_is_typing_from_agent', (data: any) => {
+                console.log(`from ec_is_typing_from_agent ${data}`);
+            });
+
+            this.socket.on('ec_is_typing_from_client', (data: any) => {
+                console.log(`from ec_is_typing_from_client ${data}`);
+            });
+
+            this.socket.on('ec_conv_initiated_from_client', (data: any) => {
+                console.log(`from ec_conv_initiated_from_client ${data}`);
+
+                if (data.status === 'success') {
+                    //
+                }
+            });
+
+            this.socket.on('ec_is_joined_from_conversation', (data: any) => {
+                console.log(`from ec_is_joined_from_conversation ${data}`);
+            });
+
+            this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
+                console.log(`from ec_is_leaved_from_conversation ${data}`);
+            });
+
+            this.socket.on('ec_is_closed_conversation', (data: any) => {
+                console.log(`from ec_is_closed_conversation ${data}`);
+            });
+
+            this.socket.on('ec_error', (data: any) => {
+                console.log(`from ec_error ${data}`);
+            });
+        },
+        joinConversation() {
+            this.socket.emit('ec_join_conversation', {
+                conv_id: '',
+            });
+        },
+        leaveConversation() {
+            this.socket.emit('ec_leave_conversation', {
+                conv_id: '',
+            });
+        },
+        closeConversation() {
+            this.socket.emit('ec_close_conversation', {
+                conv_id: '',
+            });
+        },
+        inputFocusHandle() {
+            this.typingHandler = setInterval(() => {
+                this.socket.emit('ec_is_typing_from_agent', {
+                    sentAt: 'timestamp',
+                });
+            }, 1000);
+        },
+        inputBlurHandle() {
+            clearInterval(this.typingHandler);
+        },
+        sendMessage(): any {
+            console.log('send the msg');
+
+            // send event when current user is sending msg
+            this.socket.emit('ec_msg_from_agent', {
+                msg: this.msg,
+                sentAt: 'timestamp',
+            }); // sentAt will also mean as tempId
         },
     },
 });
