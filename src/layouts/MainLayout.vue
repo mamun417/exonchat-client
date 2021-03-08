@@ -60,11 +60,19 @@ export default defineComponent({
     methods: {
         socketInitialize() {
             if (this.handshake || 'logged') {
-                this.socket = this.$socket.connect({
-                    query: {
-                        client_type: 'agent',
-                    },
-                });
+                this.sesId = sessionStorage.getItem('exonchat-agent-ses-id');
+                console.log(this.sesId);
+
+                if (!this.sesId) {
+                    this.sesId = new Date().getTime().toString();
+
+                    sessionStorage.setItem('exonchat-agent-ses-id', this.sesId);
+                }
+                // console.log(this.$socket);
+
+                this.$socket.io.opts.query = `api_key=999&ses_id=${this.sesId}&client_type=agent`;
+
+                this.socket = this.$socket.connect();
 
                 console.log(this.socket);
 
@@ -124,42 +132,8 @@ export default defineComponent({
             });
 
             this.socket.on('ec_error', (data: any) => {
-                console.log(`from ec_error ${data}`);
+                console.log(`from ec_error ${data.reason}`);
             });
-        },
-        joinConversation() {
-            this.socket.emit('ec_join_conversation', {
-                conv_id: '',
-            });
-        },
-        leaveConversation() {
-            this.socket.emit('ec_leave_conversation', {
-                conv_id: '',
-            });
-        },
-        closeConversation() {
-            this.socket.emit('ec_close_conversation', {
-                conv_id: '',
-            });
-        },
-        inputFocusHandle() {
-            this.typingHandler = setInterval(() => {
-                this.socket.emit('ec_is_typing_from_agent', {
-                    sentAt: 'timestamp',
-                });
-            }, 1000);
-        },
-        inputBlurHandle() {
-            clearInterval(this.typingHandler);
-        },
-        sendMessage(): any {
-            console.log('send the msg');
-
-            // send event when current user is sending msg
-            this.socket.emit('ec_msg_from_agent', {
-                msg: this.msg,
-                sentAt: 'timestamp',
-            }); // sentAt will also mean as tempId
         },
     },
 });

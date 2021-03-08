@@ -22,9 +22,14 @@
                     </q-item-section>
                 </q-item>
                 <q-space></q-space
-                ><q-btn flat color="orange-8">Leave</q-btn></q-card-section
-            ></q-card
-        >
+                ><q-btn
+                    flat
+                    color="orange-8"
+                    @click="convStateHandle(convStateButtionInfo.action)"
+                    no-caps
+                    :label="`${convStateButtionInfo.name} Chat`"
+                ></q-btn></q-card-section
+        ></q-card>
         <!-- <div class=""> -->
         <q-scroll-area
             class="tw-flex-1 tw-p-3"
@@ -127,6 +132,7 @@ export default defineComponent({
     },
     data(): any {
         return {
+            convState: '',
             msg: '',
             typingInstance: null,
             msgInputFocused: false,
@@ -135,24 +141,58 @@ export default defineComponent({
     mounted() {
         console.log('chat panel initiated');
     },
-    methods: {
-        typing(value: any) {
-            if (!value) {
-                this.emitTyping(false);
-            } else {
-                this.emitTyping();
+    computed: {
+        convStateButtionInfo() {
+            if (this.convState === 'leaved') {
+                return { name: 'Close', action: 'close' };
+            } else if (this.convState === 'closed') {
+                return { name: 'Closed' };
+            } else if (this.convState === 'joined') {
+                return { name: 'Join', action: 'join' };
             }
+
+            return { name: 'Join', action: 'join' };
         },
-        msgInputFocusHandle() {
-            this.msgInputFocused = true;
+    },
+    methods: {
+        convStateHandle(type: string) {
+            if (!type) return;
+
+            this[`${type}Conversation`](123);
         },
-        msgInputBlurHandle() {
-            this.msgInputFocused = false;
-            this.emitTyping(false);
+        joinConversation(conv_id: any) {
+            this.$socket.emit('ec_join_conversation', {
+                conv_id: conv_id,
+            });
         },
-        emitTyping(typing = true) {
-            //emit typing
-            console.log(typing);
+        leaveConversation(conv_id: any) {
+            this.$socket.emit('ec_leave_conversation', {
+                conv_id: conv_id,
+            });
+        },
+        closeConversation(conv_id: any) {
+            this.$socket.emit('ec_close_conversation', {
+                conv_id: conv_id,
+            });
+        },
+        inputFocusHandle() {
+            this.typingHandler = setInterval(() => {
+                this.$socket.emit('ec_is_typing_from_agent', {
+                    sentAt: 'timestamp',
+                });
+            }, 1000);
+        },
+        inputBlurHandle() {
+            clearInterval(this.typingHandler);
+        },
+        sendMessage(): any {
+            console.log('send the msg');
+
+            // send event when current user is sending msg
+            this.$socket.emit('ec_msg_from_agent', {
+                msg: this.msg,
+                sentAt: 'timestamp',
+            }); // sentAt will also mean as tempId
         },
     },
 });

@@ -228,11 +228,9 @@ export default defineComponent({
             console.log(this.sesId);
 
             if (!this.sesId) {
-                sessionStorage.setItem(
-                    'exonchat-ses-id',
-                    new Date().getTime().toString()
-                );
                 this.sesId = new Date().getTime().toString();
+
+                sessionStorage.setItem('exonchat-ses-id', this.sesId);
             }
 
             this.socket = io('http://localhost:3000', {
@@ -297,7 +295,7 @@ export default defineComponent({
             });
 
             this.socket.on('ec_error', (data: any) => {
-                console.log(`from ec_error ${data}`);
+                console.log(`from ec_error ${data.reason}`);
             });
         },
         chatInitialize() {
