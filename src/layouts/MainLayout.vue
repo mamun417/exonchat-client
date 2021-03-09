@@ -51,7 +51,7 @@ export default defineComponent({
         console.log('main layout mounted');
 
         if ('logged in') {
-            this.socketInitialize();
+            // this.socketInitialize();
         }
     },
     computed: {

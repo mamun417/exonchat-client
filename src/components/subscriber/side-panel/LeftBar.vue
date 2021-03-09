@@ -1,9 +1,12 @@
 <template>
     <div
-        class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-border-r-2 tw-border-blue-50 tw-shadow-lg tw-py-3"
+        id="realtime-left-bar"
+        class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-pb-3 tw-border-r-2 tw-border-blue-50 tw-shadow-lg"
     >
+        <div></div>
+
         <q-scroll-area
-            class="fit tw-px-1"
+            class="fit"
             :bar-style="{
                 background: '#60A5FA',
                 width: '4px',
@@ -24,6 +27,18 @@
                     </div> -->
 
             <q-list class="tw-text-gray-600">
+                <q-item class="text-weight-bold tw-pr-2">
+                    <q-item-section>Real Time Info</q-item-section>
+                    <q-item-section side
+                        ><q-btn
+                            icon="navigate_before"
+                            color="green"
+                            class="tw-px-2"
+                            flat
+                        ></q-btn
+                    ></q-item-section>
+                </q-item>
+
                 <q-expansion-item
                     default-opened
                     label="Incoming chat request"
@@ -44,7 +59,7 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item class="">
+                                <q-item class="" clickable>
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
@@ -67,7 +82,7 @@
                                         />
                                     </q-item-section>
                                 </q-item>
-                                <q-item class="">
+                                <q-item class="" clickable>
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
@@ -102,7 +117,7 @@
                 >
                     <q-card>
                         <q-list>
-                            <q-item class="">
+                            <q-item class="" clickable>
                                 <q-item-section avatar>
                                     <q-avatar>
                                         <img
@@ -120,7 +135,7 @@
                                     >
                                 </q-item-section>
                             </q-item>
-                            <q-item class="">
+                            <q-item class="" clickable>
                                 <q-item-section avatar>
                                     <q-avatar>
                                         <img
@@ -148,7 +163,7 @@
                 >
                     <q-card>
                         <q-list dense>
-                            <q-item class="tw-text-xs">
+                            <q-item class="tw-text-xs" clickable>
                                 <q-item-section>
                                     <q-item-label class="text-weight-bold"
                                         >All</q-item-label
@@ -162,7 +177,7 @@
                                     >
                                 </q-item-section>
                             </q-item>
-                            <q-item class="tw-text-xs">
+                            <q-item class="tw-text-xs" clickable>
                                 <q-item-section>
                                     <q-item-label class="text-weight-bold"
                                         >Sales</q-item-label
@@ -174,7 +189,7 @@
                                     >
                                 </q-item-section>
                             </q-item>
-                            <q-item class="tw-text-xs">
+                            <q-item class="tw-text-xs" clickable>
                                 <q-item-section>
                                     <q-item-label class="text-weight-bold"
                                         >Technical Support</q-item-label
@@ -197,7 +212,7 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list v-for="n in 10" :key="n">
-                                <q-item class="">
+                                <q-item class="" clickable>
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img

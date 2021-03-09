@@ -257,10 +257,14 @@ export default defineComponent({
 
             this.socket.on('ec_msg_from_agent', (data: any) => {
                 console.log(`from ec_msg_from_agent ${data}`);
+            });
 
-                if (data.sentByClient) {
-                    // mark sended msg to done by match the time else use setTimeout to mark for resend
-                }
+            this.socket.on('ec_is_typing_to_client', (data: any) => {
+                console.log(`from ec_is_typing_to_client ${data}`);
+            });
+
+            this.socket.on('ec_msg_to_client', (data: any) => {
+                console.log(`from ec_msg_to_client ${data}`);
             });
 
             this.socket.on('ec_is_typing_from_agent', (data: any) => {
@@ -354,7 +358,7 @@ export default defineComponent({
             if (this.pageInFocus && this.socketId) {
                 this.socket.emit('ec_page_visit_info_from_client', {
                     url: '',
-                    sentAt: 'timestamp',
+                    sent_at: 'timestamp',
                 });
             }
         },
@@ -370,7 +374,7 @@ export default defineComponent({
             if (this.msg && this.socketId) {
                 this.socket.emit('ec_is_typing_from_client', {
                     msg: this.msg,
-                    sentAt: 'timestamp',
+                    sent_at: 'timestamp',
                 });
             }
         },
@@ -380,7 +384,7 @@ export default defineComponent({
             // send event when current user is sending msg
             this.socket.emit('ec_msg_from_client', {
                 msg: this.msg,
-                sentAt: 'timestamp',
+                sent_at: 'timestamp',
             }); // sentAt will also mean as tempId
             // console.log(socket);
         },
