@@ -91,11 +91,15 @@
                         size="sm"
                     ></q-btn>
                     <q-input
-                        autogrow
-                        borderless
+                        v-model="msg"
+                        @keyup.enter="sendMessage"
+                        @focus="inputFocusHandle"
+                        @blur="inputBlurHandle"
                         placeholder="Write Message..."
                         color="green-8"
                         class="tw-flex-auto"
+                        autogrow
+                        borderless
                         dense
                     ></q-input>
                     <q-btn
@@ -372,6 +376,8 @@ export default defineComponent({
         },
         sendTypingData() {
             if (this.msg && this.socketId) {
+                // console.log('typing');
+
                 this.socket.emit('ec_is_typing_from_client', {
                     msg: this.msg,
                     sent_at: 'timestamp',
@@ -379,7 +385,7 @@ export default defineComponent({
             }
         },
         sendMessage(): any {
-            console.log('send the msg');
+            console.log('sending the msg');
 
             // send event when current user is sending msg
             this.socket.emit('ec_msg_from_client', {
@@ -387,6 +393,8 @@ export default defineComponent({
                 sent_at: 'timestamp',
             }); // sentAt will also mean as tempId
             // console.log(socket);
+
+            this.msg = '';
         },
     },
 });

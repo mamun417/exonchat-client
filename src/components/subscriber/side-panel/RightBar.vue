@@ -1,5 +1,10 @@
 <template>
     <div>
+        <div
+            class="tw-bg-white tw-rounded tw-h-10 tw-flex tw-items-center tw-absolute tw-top-28 tw-right-60 hover:tw-bg-blue-100"
+        >
+            <q-icon name="chevron_right" />
+        </div>
         <q-list class="tw-px-1 tw-my-3">
             <q-item class="">
                 <q-item-section avatar>

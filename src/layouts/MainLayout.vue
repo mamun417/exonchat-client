@@ -4,9 +4,9 @@
             <q-page
                 ><main-left-bar></main-left-bar>
 
-                <left-bar></left-bar>
+                <!-- <left-bar></left-bar> -->
 
-                <div class="tw-ml-78 tw-grid tw-grid-cols-12 tw-min-h-screen">
+                <div class="tw-ml-18 tw-grid tw-grid-cols-12 tw-min-h-screen">
                     <router-view
                         class="tw-h-full tw-p-3 tw-col-span-9 tw-border-r-2 tw-border-blue-50 tw-bg-blue-50"
                     ></router-view>
@@ -51,7 +51,7 @@ export default defineComponent({
         console.log('main layout mounted');
 
         if ('logged in') {
-            // this.socketInitialize();
+            this.socketInitialize();
         }
     },
     computed: {
@@ -107,8 +107,12 @@ export default defineComponent({
                 console.log(`from ec_is_typing_from_agent ${data}`);
             });
 
+            this.socket.on('ec_is_typing_to_agent', (data: any) => {
+                console.log(`from ec_is_typing_to_agent ${data}`);
+            });
+
             this.socket.on('ec_is_typing_from_client', (data: any) => {
-                console.log(`from ec_is_typing_from_client ${data}`);
+                console.log('from ec_is_typing_from_client', data.msg);
             });
 
             this.socket.on('ec_conv_initiated_from_client', (data: any) => {

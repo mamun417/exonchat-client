@@ -101,13 +101,15 @@
             <q-btn flat color="green" icon="mood"></q-btn>
             <q-input
                 v-model="msg"
-                autogrow
-                borderless
+                @keyup.enter="sendMessage"
+                @focus="inputFocusHandle"
+                @blur="inputBlurHandle"
                 debounce="500"
                 placeholder="Write Message..."
                 color="green-8"
                 class="tw-flex-auto"
-                @update:modelValue="typing"
+                autogrow
+                borderless
             ></q-input>
             <q-btn icon="send" flat color="green-8"></q-btn>
         </div>
@@ -186,7 +188,7 @@ export default defineComponent({
             clearInterval(this.typingHandler);
         },
         sendMessage(): any {
-            console.log('send the msg');
+            console.log('sending the msg');
 
             // send event when current user is sending msg
             this.$socket.emit('ec_msg_from_agent', {
