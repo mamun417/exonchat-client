@@ -307,7 +307,7 @@ export default defineComponent({
             });
         },
         chatInitialize() {
-            this.socket.emit('ec_init_conv_from_user');
+            this.socket.emit('ec_init_conv_from_client');
         },
         firePageVisitListner() {
             // Set the name of the hidden property and the change event for visibility
