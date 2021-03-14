@@ -1,8 +1,5 @@
 <template>
-    <div
-        id="realtime-left-bar"
-        class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-pb-3 tw-border-r-2 tw-border-blue-50 tw-shadow-lg"
-    >
+    <div id="realtime-left-bar" class="tw-pb-3 tw-h-full">
         <div></div>
 
         <q-scroll-area
@@ -27,7 +24,7 @@
                     </div> -->
 
             <q-list class="tw-text-gray-600">
-                <q-item class="text-weight-bold tw-pr-2">
+                <!-- <q-item class="text-weight-bold tw-pr-2">
                     <q-item-section>Real Time Info</q-item-section>
                     <q-item-section side
                         ><q-btn
@@ -37,12 +34,12 @@
                             flat
                         ></q-btn
                     ></q-item-section>
-                </q-item>
+                </q-item> -->
 
                 <q-expansion-item
                     default-opened
                     label="Incoming chat request"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-card-section>
@@ -54,7 +51,7 @@
                 <q-expansion-item
                     default-opened
                     label="Agents"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
@@ -113,7 +110,7 @@
                 <q-expansion-item
                     default-opened
                     label="Chat For Me"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-list>
@@ -159,7 +156,7 @@
                 <q-expansion-item
                     default-opened
                     label="Chat Departments"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-list dense>
@@ -207,7 +204,7 @@
                 <q-expansion-item
                     default-opened
                     label="Busy Agents"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">

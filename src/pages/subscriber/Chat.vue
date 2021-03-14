@@ -1,12 +1,15 @@
 <template>
     <div>
+        <chat-panel class="tw-h-full" conversationId="123"></chat-panel>
+    </div>
+    <!-- <div>
         <div class="tw-h-full tw-grid tw-grid-cols-12">
             <chat-panel
                 class="tw-col-span-12"
                 conversationId="123"
             ></chat-panel>
         </div>
-    </div>
+    </div> -->
 </template>
 
 <script lang="ts">

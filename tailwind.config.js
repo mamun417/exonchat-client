@@ -17,42 +17,6 @@ module.exports = {
             transparent: 'transparent',
             current: 'currentColor',
             ...colors,
-
-            // black: colors.black,
-            // white: colors.white,
-            // 'blue-gray': {
-            //     50: '#F8FAFC',
-            //     100: '#F1F5F9',
-            //     200: '#E2E8F0',
-            //     300: '#CBD5E1',
-            //     400: '#94A3B8',
-            //     500: '#64748B',
-            //     600: '#475569',
-            //     700: '#334155',
-            //     800: '#1E293B',
-            //     900: '#0F172A'
-            // },
-            // 'cool-gray': colors.coolGray,
-            // gray: colors.gray,
-            // 'true-gray': colors.trueGray,
-            // 'warm-gray': colors.warmGray,
-            // red: colors.red,
-            // orange: colors.orange,
-            // amber: colors.amber,
-            // yellow: colors.amber,
-            // lime: colors.lime,
-            // green: colors.emerald,
-            // emerald: colors.emerald,
-            // teal: colors.teal,
-            // cyan: colors.cyan,
-            // lightBlue: colors.lightBlue,
-            // blue: colors.blue,
-            // indigo: colors.indigo,
-            // violet: colors.violet,
-            // purple: colors.violet,
-            // fuchsia: colors.fuchsia,
-            // pink: colors.pink,
-            // rose: colors.rose
         },
         spacing: {
             px: '1px',
@@ -87,6 +51,7 @@ module.exports = {
             48: '12rem',
             52: '13rem',
             56: '14rem',
+            58: '14.5rem',
             60: '15rem',
             64: '16rem',
             72: '18rem',
@@ -171,6 +136,10 @@ module.exports = {
                 '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             lg:
                 '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            lgr:
+                '10px 0 15px -3px rgba(0, 0, 0, 0.1), 4px 0 6px -2px rgba(0, 0, 0, 0.05)',
+            lgl:
+                '-10px 0 15px -3px rgba(0, 0, 0, 0.1), -4px 0 6px -2px rgba(0, 0, 0, 0.05)',
             xl:
                 '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
             '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
