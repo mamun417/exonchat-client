@@ -1,20 +1,20 @@
 <template>
-    <div
-        class="tw-fixed tw-w-60 tw-h-full tw-top-0 tw-left-18 tw-border-r-2 tw-border-blue-50 tw-shadow-lg  tw-py-3"
-    >
+    <div id="realtime-left-bar" class="tw-pb-3 tw-h-full">
+        <div></div>
+
         <q-scroll-area
-            class="fit tw-px-1"
+            class="fit"
             :bar-style="{
                 background: '#60A5FA',
                 width: '4px',
                 opacity: 0.2,
-                borderRadius: '10px'
+                borderRadius: '10px',
             }"
             :thumb-style="{
                 borderRadius: '9px',
                 backgroundColor: '#60A5FA',
                 width: '4px',
-                opacity: 0.5
+                opacity: 0.5,
             }"
         >
             <!-- <div
@@ -24,10 +24,22 @@
                     </div> -->
 
             <q-list class="tw-text-gray-600">
+                <!-- <q-item class="text-weight-bold tw-pr-2">
+                    <q-item-section>Real Time Info</q-item-section>
+                    <q-item-section side
+                        ><q-btn
+                            icon="navigate_before"
+                            color="green"
+                            class="tw-px-2"
+                            flat
+                        ></q-btn
+                    ></q-item-section>
+                </q-item> -->
+
                 <q-expansion-item
                     default-opened
                     label="Incoming chat request"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-card-section>
@@ -39,18 +51,16 @@
                 <q-expansion-item
                     default-opened
                     label="Agents"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item class="">
+                                <q-item class="" clickable>
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
-                                                :src="
-                                                    `https://cdn.quasar.dev/img/avatar2.jpg`
-                                                "
+                                                :src="`https://cdn.quasar.dev/img/avatar2.jpg`"
                                             />
                                         </q-avatar>
                                     </q-item-section>
@@ -69,13 +79,11 @@
                                         />
                                     </q-item-section>
                                 </q-item>
-                                <q-item class="">
+                                <q-item class="" clickable>
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
-                                                :src="
-                                                    `https://cdn.quasar.dev/img/avatar6.jpg`
-                                                "
+                                                :src="`https://cdn.quasar.dev/img/avatar6.jpg`"
                                             />
                                         </q-avatar>
                                     </q-item-section>
@@ -102,17 +110,15 @@
                 <q-expansion-item
                     default-opened
                     label="Chat For Me"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-list>
-                            <q-item class="">
+                            <q-item class="" clickable>
                                 <q-item-section avatar>
                                     <q-avatar>
                                         <img
-                                            :src="
-                                                `https://cdn.quasar.dev/img/avatar1.jpg`
-                                            "
+                                            :src="`https://cdn.quasar.dev/img/avatar1.jpg`"
                                         />
                                     </q-avatar>
                                 </q-item-section>
@@ -126,13 +132,11 @@
                                     >
                                 </q-item-section>
                             </q-item>
-                            <q-item class="">
+                            <q-item class="" clickable>
                                 <q-item-section avatar>
                                     <q-avatar>
                                         <img
-                                            :src="
-                                                `https://cdn.quasar.dev/img/avatar3.jpg`
-                                            "
+                                            :src="`https://cdn.quasar.dev/img/avatar3.jpg`"
                                         />
                                     </q-avatar>
                                 </q-item-section>
@@ -152,11 +156,11 @@
                 <q-expansion-item
                     default-opened
                     label="Chat Departments"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-list dense>
-                            <q-item class="tw-text-xs">
+                            <q-item class="tw-text-xs" clickable>
                                 <q-item-section>
                                     <q-item-label class="text-weight-bold"
                                         >All</q-item-label
@@ -170,7 +174,7 @@
                                     >
                                 </q-item-section>
                             </q-item>
-                            <q-item class="tw-text-xs">
+                            <q-item class="tw-text-xs" clickable>
                                 <q-item-section>
                                     <q-item-label class="text-weight-bold"
                                         >Sales</q-item-label
@@ -182,7 +186,7 @@
                                     >
                                 </q-item-section>
                             </q-item>
-                            <q-item class="tw-text-xs">
+                            <q-item class="tw-text-xs" clickable>
                                 <q-item-section>
                                     <q-item-label class="text-weight-bold"
                                         >Technical Support</q-item-label
@@ -200,18 +204,16 @@
                 <q-expansion-item
                     default-opened
                     label="Busy Agents"
-                    header-class="text-weight-bold tw-bg-blue-50"
+                    header-class="text-weight-bold bg-green-1"
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list v-for="n in 10" :key="n">
-                                <q-item class="">
+                                <q-item class="" clickable>
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img
-                                                :src="
-                                                    `https://cdn.quasar.dev/img/avatar2.jpg`
-                                                "
+                                                :src="`https://cdn.quasar.dev/img/avatar2.jpg`"
                                             />
                                         </q-avatar>
                                     </q-item-section>
@@ -240,7 +242,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'LeftBar',
@@ -254,6 +256,6 @@ export default defineComponent({
     mounted() {
         console.log('left bar initiated');
     },
-    methods: {}
+    methods: {},
 });
 </script>
