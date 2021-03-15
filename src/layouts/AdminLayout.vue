@@ -1,10 +1,11 @@
 <template>
-    <q-layout view="hhh LpR fff" class="tw-bg-white">
+    <q-layout view="hhh LpR fff" class="bg-white">
+        <q-drawer :model-value="true" :mini="true" mini-width="80"
+            ><admin-left-bar></admin-left-bar
+        ></q-drawer>
         <q-page-container>
-            <q-page
-                ><main-left-bar></main-left-bar>
-
-                <div class="tw-ml-18 tw-min-h-screen tw-bg-blue-50">
+            <q-page>
+                <div class="tw-min-h-screen bg-green-1">
                     <router-view class="tw-h-full tw-p-5"></router-view>
                 </div>
             </q-page>
@@ -17,11 +18,11 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 // import { mapGetters } from 'vuex';
-import MainLeftBar from 'src/components/subscriber/side-panel/MainLeftBar.vue';
+import AdminLeftBar from 'src/components/super-admin/side-panel/AdminLeftBar.vue';
 
 export default defineComponent({
     name: 'MainLayout',
-    components: { MainLeftBar },
+    components: { AdminLeftBar },
     data(): any {
         return {};
     },

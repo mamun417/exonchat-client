@@ -1,6 +1,6 @@
 <template>
-    <q-layout view="hHh LpR fff" class="tw-bg-white">
-        <q-header class="bg-green" elevated
+    <q-layout view="hHh LpR fff" class="bg-white">
+        <q-header class="bg-green-8" elevated
             ><q-toolbar class="tw-px-8"
                 ><q-btn icon="mediation" flat /><q-btn
                     :icon="leftDrawer ? 'menu_open' : 'menu'"
@@ -42,7 +42,7 @@
         ></q-drawer>
         <q-page-container>
             <q-page class="tw-flex">
-                <router-view class="tw-w-full tw-p-3"></router-view>
+                <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
             </q-page>
         </q-page-container>
     </q-layout>
@@ -80,7 +80,7 @@ export default defineComponent({
         console.log('main layout mounted');
 
         if ('logged in') {
-            // this.socketInitialize();
+            this.socketInitialize();
         }
     },
     computed: {

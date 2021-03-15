@@ -59,6 +59,16 @@ const routes: RouteRecordRaw[] = [
                     import('pages/super-admin/subscribers/Index.vue'),
             },
             {
+                path: 'roles',
+                component: () =>
+                    import('pages/super-admin/role-permission/Roles.vue'),
+            },
+            {
+                path: 'permissions',
+                component: () =>
+                    import('pages/super-admin/role-permission/Permissions.vue'),
+            },
+            {
                 path: 'packages',
                 component: () => import('pages/super-admin/packages/Index.vue'),
             },

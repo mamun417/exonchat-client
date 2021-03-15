@@ -206,7 +206,7 @@ export default defineComponent({
             sesId: null,
             covId: null,
 
-            showChatForm: false,
+            showChatForm: true,
             userLogged: false,
 
             msg: '',
