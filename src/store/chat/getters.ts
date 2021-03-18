@@ -9,6 +9,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     auth(/* context */) {
         // your code
     },
+
+    messages(context) {
+        return context.messages;
+    }
 };
 
 export default getters;
