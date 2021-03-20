@@ -7,12 +7,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         // your code
     },
 
-    storeChatInitiate(context) {
-        context.commit('storeChatInitiate');
+    storeChatInitiate(context, payload) {
+        context.commit('storeChatInitiate', payload);
     },
 
-    storeTemMessage(context, payload) {
-        context.commit('storeTemMessage', payload);
+    storeTemporaryMessage(context, payload) {
+        context.commit('storeTemporaryMessage', payload);
     }
 };
 

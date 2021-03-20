@@ -60,5 +60,5 @@
         "**/*.vue",
         "**/*.styl"
     ],
-    "workbench.iconTheme": "vscode-icons"
+    "workbench.iconTheme": "material-icon-theme"
 }

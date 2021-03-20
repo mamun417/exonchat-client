@@ -129,7 +129,7 @@ export default defineComponent({
 
             this.socket.on('ec_msg_from_client', (data: any) => {
                 console.log(data);
-                this.$store.dispatch('chat/storeTemMessage', data);
+                this.$store.dispatch('chat/storeTemporaryMessage', data);
                 console.log(`from ec_msg_from_client ${data}`);
             });
 

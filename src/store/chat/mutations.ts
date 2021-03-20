@@ -6,14 +6,15 @@ const mutation: MutationTree<ChatStateInterface> = {
         // your code
     },
 
-    storeChatInitiate() {
-        console.log('okkk');
-        localStorage.setItem('chatInitiate', 'true');
+    storeChatInitiate(state: ChatStateInterface, payload: any) {
+        const data = JSON.stringify(payload.data);
+        localStorage.setItem('convInfo', data);
+        state.convInfo = payload.data;
     },
 
-    storeTemMessage(state: ChatStateInterface, payload: any) {
+    storeTemporaryMessage(state: ChatStateInterface, payload: any) {
         state.messages.push(payload);
-    }
+    },
 };
 
 export default mutation;
