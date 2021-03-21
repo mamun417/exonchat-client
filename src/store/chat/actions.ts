@@ -7,12 +7,19 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         // your code
     },
 
+    storeJoinConversation(context, payload) {
+        context.commit('storeJoinConversation', payload);
+    },
+
     storeChatInitiate(context, payload) {
         context.commit('storeChatInitiate', payload);
     },
 
     storeTemporaryMessage(context, payload) {
-        context.commit('storeTemporaryMessage', payload);
+        return new Promise((resolve) => {
+            context.commit('storeTemporaryMessage', payload);
+            resolve(true)
+        })
     }
 };
 
