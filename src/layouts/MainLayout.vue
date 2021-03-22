@@ -1,69 +1,55 @@
 <template>
-    <q-layout view='hHh LpR fff' class='bg-white'>
-        <q-header class='bg-green-8' elevated
-        >
-            <q-toolbar class='tw-px-8'>
-                <q-btn icon='mediation' flat />
-                <q-btn
-                    :icon="leftDrawer ? 'menu_open' : 'menu'"
-                    @click='leftDrawer = !leftDrawer'
-                    flat
-                />
+    <q-layout view="hHh LpR fff" class="bg-white">
+        <q-header class="bg-green-8" elevated>
+            <q-toolbar class="tw-px-8">
+                <q-btn icon="mediation" flat />
+                <q-btn :icon="leftDrawer ? 'menu_open' : 'menu'" @click="leftDrawer = !leftDrawer" flat />
                 <q-space />
-                <q-btn icon='forum' flat />
-                <q-btn
-                    icon='star'
-                    flat
-                />
-                <q-btn icon='send' flat />
-                <q-btn
-                    icon='drafts'
-                    flat
-                />
+                <q-btn icon="forum" flat />
+                <q-btn icon="star" flat />
+                <q-btn icon="send" flat />
+                <q-btn icon="drafts" flat />
                 <q-space />
-                <q-avatar size='lg'>
-                    <img :src='`https://cdn.quasar.dev/img/avatar1.jpg`' />
+                <q-avatar size="lg">
+                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
 
-                    <q-badge color='primary' floating rounded>2</q-badge>
+                    <q-badge color="primary" floating rounded>2</q-badge>
                 </q-avatar>
-            </q-toolbar
-            >
-        </q-header
-        >
+            </q-toolbar>
+        </q-header>
+
         <q-drawer
-            v-model='leftDrawer'
-            class='tw-shadow-lgr'
-            side='left'
-            breakpoint='xs'
-            width='250'
+            v-model="leftDrawer"
+            class="tw-shadow-lgr"
+            side="left"
+            breakpoint="xs"
+            width="250"
             persistent
             show-if-above
         >
-            <left-bar></left-bar
-            >
+            <left-bar></left-bar>
         </q-drawer>
         <q-drawer
             v-if="$route.path === '/chats'"
-            v-model='rightDrawer'
-            class='tw-shadow-lgl'
-            side='right'
-            breakpoint='xs'
-            width='250'
+            v-model="rightDrawer"
+            class="tw-shadow-lgl"
+            side="right"
+            breakpoint="xs"
+            width="250"
             persistent
             show-if-above
         >
-            <right-bar></right-bar
-            >
+            <right-bar></right-bar>
         </q-drawer>
         <q-page-container>
-            <q-page class='tw-flex'>
-                <router-view class='tw-w-full tw-p-3 bg-green-1'></router-view>
+            <q-page class="tw-flex">
+                <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
             </q-page>
         </q-page-container>
     </q-layout>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent, ref } from 'vue';
 // import { mapGetters } from 'vuex';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
@@ -81,7 +67,7 @@ export default defineComponent({
             sesId: null,
             convIds: [],
 
-            typingHandler: null
+            typingHandler: null,
         };
     },
     setup() {
@@ -138,10 +124,14 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            // get msg from me & also from other agents connected with this conv.
-            // me msg will be used for my other tabs update
             this.socket.on('ec_msg_to_agent', async (data: any) => {
                 await this.$store.dispatch('chat/storeTemporaryMessage', data);
+                console.log(`from ec_msg_to_agent ${data}`);
+            });
+
+            // get msg from me & also from other agents connected with this conv.
+            // me msg will be used for my other tabs update
+            this.socket.on('ec_msg_from_agent', async (data: any) => {
                 console.log(`from ec_msg_from_agent ${data}`);
             });
 
@@ -151,8 +141,8 @@ export default defineComponent({
                 this.$q.notify({
                     message: 'Jim pinged you.',
                     icon: 'announcement',
-                    position: 'top-left'
-                })
+                    position: 'top-left',
+                });
 
                 console.log(`from ec_msg_from_client ${data}`);
             });
@@ -179,22 +169,41 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_joined_from_conversation', (data: any) => {
-                this.$store.dispatch('chat/storeJoinConversation', data);
+                data.data = {
+                    convState: 'joined',
+                };
+
+                this.$store.dispatch('chat/setConvState', data);
                 console.log(`from ec_is_joined_from_conversation ${data}`);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
+                data.data = {
+                    convState: 'left',
+                };
+
+                this.$store.dispatch('chat/setConvState', data);
+
                 console.log(`from ec_is_leaved_from_conversation ${data}`);
             });
 
-            this.socket.on('ec_is_closed_conversation', (data: any) => {
-                console.log(`from ec_is_closed_conversation ${data}`);
+            this.socket.on('ec_is_closed_from_conversation', (data: any) => {
+                console.log('okk');
+
+                console.log(`from ec_is_closed_from_conversation ${data}`);
             });
 
             this.socket.on('ec_error', (data: any) => {
                 console.log(`from ec_error ${data.reason}`);
             });
         },
-    }
+
+        scrollToBottom() {
+            const msgScrollArea = this.$refs.msgScrollArea;
+            const scrollTarget = msgScrollArea.getScrollTarget();
+
+            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
+        },
+    },
 });
 </script>

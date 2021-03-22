@@ -1,5 +1,5 @@
 export interface ChatStateInterface {
-    joinConvInfo: any;
+    convStateInfo: any;
     convInfo: any;
     chatPanels: Array<string>; // holds opened chat panels
     selectedPanel: null | string;
@@ -7,11 +7,11 @@ export interface ChatStateInterface {
 }
 
 function state(): ChatStateInterface {
-    const joinConvInfo = localStorage.getItem('joinConvInfo');
+    const convStateInfo = localStorage.getItem('convStateInfo');
     const convInfo = localStorage.getItem('convInfo');
 
     return {
-        joinConvInfo: joinConvInfo ? JSON.parse(joinConvInfo) : {},
+        convStateInfo: convStateInfo ? JSON.parse(convStateInfo) : {},
         convInfo: convInfo ? JSON.parse(convInfo) : {},
         chatPanels: [],
         selectedPanel: null,

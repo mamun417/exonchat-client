@@ -10,8 +10,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         // your code
     },
 
-    joinConvInfo(context) {
-        return context.joinConvInfo;
+    convStateInfo(context) {
+        return context.convStateInfo;
     },
 
     convInfo(context) {

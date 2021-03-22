@@ -1,20 +1,15 @@
 import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
-import { date } from 'quasar';
 
 const mutation: MutationTree<ChatStateInterface> = {
     someMutation(/* state: ChatStateInterface */) {
         // your code
     },
 
-    storeJoinConversation(state: ChatStateInterface, payload: any) {
-        payload.data = {
-            convState: 'joined'
-        };
-
+    setConvState(state: ChatStateInterface, payload: any) {
         const data = JSON.stringify(payload.data);
-        localStorage.setItem('joinConvInfo', data);
-        state.joinConvInfo = payload.data;
+        localStorage.setItem('convStateInfo', data);
+        state.convStateInfo = payload.data;
     },
 
     storeChatInitiate(state: ChatStateInterface, payload: any) {

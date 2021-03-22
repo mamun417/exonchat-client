@@ -1,104 +1,106 @@
 <template>
-    <q-page class='tw-flex tw-flex-col'>
-        <div class='tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center'>
+    <q-page class="tw-flex tw-flex-col">
+        <div class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center">
             <div>Online - Chat With Us</div>
-            <div style='max-height: 100px; overflow: auto'>
+            <div style="max-height: 100px; overflow: auto">
                 <pre>{{ messages }}</pre>
             </div>
 
             <q-space></q-space>
-            <q-btn icon='expand_more' dense flat></q-btn>
+            <q-btn icon="expand_more" dense flat></q-btn>
         </div>
 
-        <div class='tw-flex-grow tw-flex tw-flex-col tw-p-1'>
-            <div v-if='convInfo.conv_id' id='webchat-container' class='tw-flex-grow tw-flex tw-flex-col'>
-                <q-scroll-area ref='msgScrollArea'
-                               class='tw-p-3 tw-flex-grow tw-text-xs'
-                               style='height: 1px'
-                               :bar-style="{
+        <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+            <div v-if="convInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
+                <q-scroll-area
+                    ref="msgScrollArea"
+                    class="tw-p-3 tw-flex-grow tw-text-xs"
+                    style="height: 1px"
+                    :bar-style="{
                         background: '#60A5FA',
                         width: '4px',
                         opacity: 0.2,
                         borderRadius: '10px',
                     }"
-                               :thumb-style="{
+                    :thumb-style="{
                         borderRadius: '9px',
                         backgroundColor: '#60A5FA',
                         width: '4px',
                         opacity: 0.7,
                     }"
-                               :content-style='{}'
+                    :content-style="{}"
                 >
                     <q-chat-message
-                        v-for='message in messages'
-                        :key='message'
-                        name='hasan'
-                        avatar='https://cdn.quasar.dev/img/avatar3.jpg'
-                        :text='[message.msg]'
-                        stamp='7 minutes ago'
+                        v-for="message in messages"
+                        :key="message"
+                        name="hasan"
+                        avatar="https://cdn.quasar.dev/img/avatar3.jpg"
+                        :text="[message.msg]"
+                        stamp="7 minutes ago"
                         :sent="message.return_type === 'own'"
                         :text-color="message.return_type === 'own' ? 'black' : 'white'"
                         :bg-color="message.return_type === 'own' ? 'gray-9' : 'blue-9'"
                     />
-                    <q-chat-message v-if='typingHandler.typing'
-                                    avatar='https://cdn.quasar.dev/img/avatar3.jpg'
-                                    bg-color='gray-9'
-                                    sent
-                                    text-color='black'
-                                    :text="['hasan is typing...']"
-                                    class='exonchat-is-typing'
+                    <q-chat-message
+                        v-if="typingHandler.typing"
+                        avatar="https://cdn.quasar.dev/img/avatar3.jpg"
+                        bg-color="gray-9"
+                        sent
+                        text-color="black"
+                        :text="['hasan is typing...']"
+                        class="exonchat-is-typing"
                     >
                     </q-chat-message>
                 </q-scroll-area>
 
-                <div class='tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-sm tw-rounded'>
-                    <q-btn flat color='green' icon='attachment' size='sm'></q-btn>
+                <div class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-sm tw-rounded">
+                    <q-btn flat color="green" icon="attachment" size="sm"></q-btn>
                     <q-input
-                        v-model.trim='msg'
-                        @keyup.enter.exact='sendMessage'
-                        @focus='inputFocusHandle'
-                        @blur='inputBlurHandle'
-                        debounce='0'
-                        placeholder='Write Message...'
-                        color='green-8'
-                        class='tw-flex-auto'
+                        v-model.trim="msg"
+                        @keyup.enter.exact="sendMessage"
+                        @focus="inputFocusHandle"
+                        @blur="inputBlurHandle"
+                        debounce="0"
+                        placeholder="Write Message..."
+                        color="green-8"
+                        class="tw-flex-auto"
                         autogrow
                         borderless
                         dense
                     ></q-input>
-                    <q-btn @click='sendMessage' v-model='msg' icon='send' flat color='green-8' size='sm'></q-btn>
+                    <q-btn @click="sendMessage" v-model="msg" icon="send" flat color="green-8" size="sm"></q-btn>
                 </div>
             </div>
-            <div v-else-if='userLogged' class='tw-flex tw-flex-col justify-center tw-flex-grow'>
-                <div class='tw-bg-white tw-shadow tw-m-5 tw-relative'>
-                    <div class='tw-absolute tw-m-auto full-width text-center' style='top: -25px'>
-                        <q-icon name='chat' size='xl' color='green'></q-icon>
+            <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
+                <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
+                    <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
+                        <q-icon name="chat" size="xl" color="green"></q-icon>
                     </div>
-                    <div class='tw-px-4 tw-py-16'>
-                        <q-select dense label='Chat Department' color='green' class='tw-mb-3'></q-select>
+                    <div class="tw-px-4 tw-py-16">
+                        <q-select dense label="Chat Department" color="green" class="tw-mb-3"></q-select>
 
-                        <q-btn dense color='green' class='full-width tw-mt-6'>Start Chat</q-btn>
+                        <q-btn dense color="green" class="full-width tw-mt-6">Start Chat</q-btn>
                     </div>
                 </div>
             </div>
-            <div v-else class='tw-flex tw-flex-col justify-center tw-flex-grow'>
-                <div class='tw-bg-white tw-shadow tw-m-5 tw-relative'>
-                    <div class='tw-absolute tw-m-auto full-width text-center' style='top: -25px'>
-                        <q-icon name='account_circle' size='xl' color='green'></q-icon>
+            <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
+                <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
+                    <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
+                        <q-icon name="account_circle" size="xl" color="green"></q-icon>
                     </div>
-                    <div class='tw-px-4 tw-py-16'>
-                        <q-input dense label='Your Name' color='green' class='tw-mb-3'>
+                    <div class="tw-px-4 tw-py-16">
+                        <q-input dense label="Your Name" color="green" class="tw-mb-3">
                             <template v-slot:prepend>
-                                <q-icon name='person' size='xs' color='green' />
+                                <q-icon name="person" size="xs" color="green" />
                             </template>
                         </q-input>
-                        <q-input dense class='tw-mb-3' label='Your Email' type='email'>
+                        <q-input dense class="tw-mb-3" label="Your Email" type="email">
                             <template v-slot:prepend>
-                                <q-icon name='email' size='xs' color='green' />
+                                <q-icon name="email" size="xs" color="green" />
                             </template>
                         </q-input>
-                        <q-btn dense color='green' class='full-width tw-mt-6' @click='chatInitialize'
-                        >Start Chat as Guest
+                        <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize"
+                            >Start Chat as Guest
                         </q-btn>
                         <pre>{{ convInfo }}</pre>
                     </div>
@@ -108,11 +110,10 @@
     </q-page>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
-import internal from 'stream';
 
 export default defineComponent({
     name: 'WebChat',
@@ -137,17 +138,17 @@ export default defineComponent({
             pageInFocus: false,
 
             typingHandler: {
-                typing: false
+                typing: false,
             },
-            pageVisitingHandler: null
+            pageVisitingHandler: null,
         };
     },
 
     computed: {
         ...mapGetters({
             messages: 'chat/messages',
-            convInfo: 'chat/convInfo'
-        })
+            convInfo: 'chat/convInfo',
+        }),
     },
 
     mounted() {
@@ -175,8 +176,8 @@ export default defineComponent({
             this.socket = io('http://localhost:3000', {
                 query: {
                     ses_id: this.sesId,
-                    api_key: '999'
-                }
+                    api_key: '999',
+                },
             });
             // localStorage.debug = '*';
             // console.log(this.socket);
@@ -194,8 +195,8 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_agent', (data: any) => {
-                this.$store.dispatch('chat/storeTemporaryMessage', data);
+            this.socket.on('ec_msg_from_agent', async (data: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', data);
                 console.log(`from ec_msg_from_agent ${data}`);
             });
 
@@ -212,7 +213,7 @@ export default defineComponent({
 
             this.socket.on('ec_is_typing_from_agent', (data: any) => {
                 console.log(data);
-                this.typingHandler.typing = true;
+                // this.typingHandler.typing = true;
                 console.log(`from ec_is_typing_from_agent ${data}`);
             });
 
@@ -238,8 +239,9 @@ export default defineComponent({
                 console.log(`from ec_is_leaved_from_conversation ${data}`);
             });
 
-            this.socket.on('ec_is_closed_conversation', (data: any) => {
-                console.log(`from ec_is_closed_conversation ${data}`);
+            this.socket.on('ec_is_closed_from_conversation', (data: any) => {
+                // remove all info from store which store after chat initialte till end
+                console.log(`from ec_is_closed_from_conversation ${data}`);
             });
 
             this.socket.on('ec_error', (data: any) => {
@@ -295,7 +297,7 @@ export default defineComponent({
             if (this.pageInFocus && this.socketId) {
                 this.socket.emit('ec_page_visit_info_from_client', {
                     url: '',
-                    sent_at: 'timestamp'
+                    sent_at: 'timestamp',
                 });
             }
         },
@@ -313,12 +315,11 @@ export default defineComponent({
 
                 this.socket.emit('ec_is_typing_from_client', {
                     msg: this.msg,
-                    sent_at: 'timestamp'
+                    sent_at: 'timestamp',
                 });
             }
         },
         sendMessage(): any {
-
             if (!this.msg.length) {
                 return false;
             }
@@ -328,7 +329,7 @@ export default defineComponent({
             // send event when current user is sending msg
             this.socket.emit('ec_msg_from_client', {
                 msg: this.msg,
-                sent_at: 'timestamp'
+                sent_at: 'timestamp',
             }); // sentAt will also mean as tempId
             // console.log(socket);
 
@@ -345,13 +346,13 @@ export default defineComponent({
         setTypingFalse() {
             setInterval(() => {
                 this.typingHandler.typing = false;
-            }, 2000)
-        }
-    }
+            }, 2000);
+        },
+    },
 });
 </script>
 
-<style lang='scss'>
+<style lang="scss">
 #webchat-container {
     .q-message {
         &.exonchat-is-typing {
