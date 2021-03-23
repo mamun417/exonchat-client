@@ -5,6 +5,7 @@ import { AuthStateInterface } from './state';
 const actions: ActionTree<AuthStateInterface, StateInterface> = {
     someAction(/* context */) {
         // your code
+        //test
     },
 
     register(context, payload) {
