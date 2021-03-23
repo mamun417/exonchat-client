@@ -1,10 +1,11 @@
 export interface AuthStateInterface {
-    prop: boolean;
+    token: any;
 }
 
 function state(): AuthStateInterface {
     return {
-        prop: false,
+        token: localStorage.getItem('token') || '',
+        //user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : {},
     };
 }
 

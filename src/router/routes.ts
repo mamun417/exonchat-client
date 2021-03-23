@@ -16,13 +16,11 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: 'departments',
-                component: () =>
-                    import('pages/subscriber/departments/Index.vue'),
+                component: () => import('pages/subscriber/departments/Index.vue'),
             },
             {
                 path: 'chat-templates',
-                component: () =>
-                    import('pages/subscriber/chat-templates/Index.vue'),
+                component: () => import('pages/subscriber/chat-templates/Index.vue'),
             },
             {
                 path: 'intents',
@@ -45,28 +43,23 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: 'speech-recognition',
-                component: () =>
-                    import('pages/super-admin/speech-recognition/Index.vue'),
+                component: () => import('pages/super-admin/speech-recognition/Index.vue'),
             },
             {
                 path: 'site-variables',
-                component: () =>
-                    import('pages/super-admin/site-variables/Index.vue'),
+                component: () => import('pages/super-admin/site-variables/Index.vue'),
             },
             {
                 path: 'subscribers',
-                component: () =>
-                    import('pages/super-admin/subscribers/Index.vue'),
+                component: () => import('pages/super-admin/subscribers/Index.vue'),
             },
             {
                 path: 'roles',
-                component: () =>
-                    import('pages/super-admin/role-permission/Roles.vue'),
+                component: () => import('pages/super-admin/role-permission/Roles.vue'),
             },
             {
                 path: 'permissions',
-                component: () =>
-                    import('pages/super-admin/role-permission/Permissions.vue'),
+                component: () => import('pages/super-admin/role-permission/Permissions.vue'),
             },
             {
                 path: 'packages',
@@ -74,8 +67,7 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: 'validity-periods',
-                component: () =>
-                    import('pages/super-admin/validity-periods/Index.vue'),
+                component: () => import('pages/super-admin/validity-periods/Index.vue'),
             },
         ],
     },
@@ -94,8 +86,7 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: 'agent-activate',
-                component: () =>
-                    import('pages/subscriber/auth/AgentActivate.vue'),
+                component: () => import('pages/subscriber/auth/AgentActivate.vue'),
             },
             {
                 path: 'reset-pass',

@@ -60,5 +60,6 @@
         "**/*.vue",
         "**/*.styl"
     ],
-    "workbench.iconTheme": "material-icon-theme"
+    "workbench.iconTheme": "material-icon-theme",
+    "editor.formatOnSave": true
 }

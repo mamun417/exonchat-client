@@ -5,7 +5,7 @@ import actions from './actions';
 import getters from './getters';
 import mutations from './mutations';
 
-const authModule: Module<AuthStateInterface, StateInterface> = {
+const chatModule: Module<AuthStateInterface, StateInterface> = {
     namespaced: true,
     actions,
     getters,
@@ -13,4 +13,4 @@ const authModule: Module<AuthStateInterface, StateInterface> = {
     state,
 };
 
-export default authModule;
+export default chatModule;

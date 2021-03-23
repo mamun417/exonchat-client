@@ -131,7 +131,7 @@ export default defineComponent({
 
             // get msg from me & also from other agents connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_agent', async (data: any) => {
+            this.socket.on('ec_msg_from_agent', (data: any) => {
                 console.log(`from ec_msg_from_agent ${data}`);
             });
 

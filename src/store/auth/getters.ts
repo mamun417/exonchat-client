@@ -6,6 +6,14 @@ const getters: GetterTree<AuthStateInterface, StateInterface> = {
     someAction(/* context */) {
         // your code
     },
+
+    token(state) {
+        return state.token;
+    },
+
+    isLoggedIn(state) {
+        return !!state.token;
+    },
 };
 
 export default getters;
