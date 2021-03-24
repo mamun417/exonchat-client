@@ -34,7 +34,8 @@
         "electron-devtools-installer": "^3.1.1",
         "eslint": "^7.14.0",
         "eslint-config-prettier": "^6.15.0",
-        "eslint-plugin-vue": "^7.0.0"
+        "eslint-plugin-vue": "^7.0.0",
+        "prettier": "2.2.1"
     },
     "browserslist": [
         "last 10 Chrome versions",
