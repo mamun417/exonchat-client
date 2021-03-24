@@ -5,7 +5,7 @@
                 <q-icon name="lock_open" size="50px" color="green"></q-icon>
             </div>
             <div class="tw-flex tw-mb-3">
-                <q-input label="Email" class="full-width" color="green">
+                <q-input label="Email" class="full-width" color="green" v-model="formData.email">
                     <template v-slot:prepend>
                         <q-icon name="mail" color="green" />
                     </template>
@@ -13,7 +13,7 @@
             </div>
 
             <div class="tw-flex tw-mb-3">
-                <q-input label="Password" class="full-width" color="green">
+                <q-input label="Password" class="full-width" color="green" v-model="formData.password">
                     <template v-slot:prepend> <q-icon name="password" color="green" /> </template
                 ></q-input>
             </div>
@@ -24,7 +24,7 @@
             </div>
 
             <div class="tw-mt-8 tw-mb-4">
-                <q-btn color="green" dense class="full-width">Login</q-btn>
+                <q-btn @click="loginButtonClicked" color="green" class="full-width" dense unelevated>Login</q-btn>
             </div>
 
             <div class="text-caption tw-text-gray-500">
@@ -35,52 +35,60 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     name: 'Login',
-    data() {
+    data(): any {
         return {
             formData: {
-                email: 'john@example.com',
+                email: 'test@test.test',
                 password: '123',
+                company_name: 'test',
             },
-            formErrors: {},
         };
     },
 
-    loginButtonClicked() {
-        this.$store
-            .dispatch('auth/login', {
-                vm: this,
-                inputs: this.formData,
-            })
-            .then((res) => {
-                if (res.data.unverified) {
-                    this.$router.push({ name: 'verify' });
-                    return;
-                }
+    methods: {
+        loginButtonClicked() {
+            const inputs = {
+                pass: this.formData.password,
+                login_info: JSON.stringify({
+                    email: this.formData.email,
+                    company_name: this.formData.company_name,
+                }),
+            };
 
-                this.$q.notify({
-                    color: 'positive',
-                    message: 'Login Successful',
-                    position: 'top',
-                });
-
-                this.$router.push('/projects');
-            })
-            .catch((err) => {
-                this.$singleLoaderFalse('loginLoader');
-
-                if (!err.response.data.errors) {
+            this.$store
+                .dispatch('auth/login', {
+                    inputs,
+                })
+                .then(() => {
                     this.$q.notify({
-                        color: 'negative',
-                        message: err.response.data.message,
+                        color: 'positive',
+                        message: 'Login Successful',
                         position: 'top',
                     });
-                } else {
-                    this.formErrors = err.response.data.errors;
-                }
-            });
+
+                    this.$router.push({ name: 'chats' });
+                })
+                .catch((err: any) => {
+                    console.log(err.response.data);
+
+                    if (!err.response.data.errors) {
+                        this.$q.notify({
+                            color: 'negative',
+                            message: err.response.data.message,
+                            position: 'top',
+                        });
+
+                        if (err.response.data.statusCode) {
+                            this.$router.push({ name: 'chats' });
+                        }
+                    }
+                });
+        },
     },
-};
+});
 </script>

@@ -9,11 +9,49 @@
                 <q-btn icon="star" flat />
                 <q-btn icon="send" flat />
                 <q-btn icon="drafts" flat />
+                <q-btn icon="info" flat>
+                    <q-menu class="tw-p-2" style="min-width: 350px">
+                        <div
+                            class="tw-p-2 tw-border-1 tw-shadow-md"
+                            v-for="(m, i) in Object.keys($store._modules.root.state)"
+                            :key="i"
+                        >
+                            <div class="text-green text-center">{{ m }}</div>
+                            <div class="tw-my-2" v-for="(mv, k) in Object.keys($store._modules.root.state[m])" :key="k">
+                                <span>{{ mv }}</span
+                                ><span class="tw-mx-2">=></span><span>{{ $store._modules.root.state[m][mv] }}</span>
+                            </div>
+                        </div>
+                    </q-menu>
+                </q-btn>
                 <q-space />
-                <q-avatar size="lg">
+                <q-avatar size="lg" class="cursor-pointer">
                     <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
 
                     <q-badge color="primary" floating rounded>2</q-badge>
+
+                    <q-menu>
+                        <div class="row no-wrap q-pa-md">
+                            <div class="column">
+                                <div class="text-h6 q-mb-md">Settings</div>
+                                <q-toggle v-model="mobileData" label="Use Mobile Data" />
+                                <q-toggle v-model="bluetooth" label="Bluetooth" />
+                            </div>
+
+                            <q-separator vertical inset class="q-mx-lg" />
+
+                            <div class="column items-center">
+                                <q-avatar size="72px">
+                                    <img src="https://cdn.quasar.dev/img/avatar4.jpg" />
+                                </q-avatar>
+
+                                <div class="tw-text-xs tw-mt-2 tw-mb-1">John Doe</div>
+                                <div class="tw-text-xxs tw-mb-2">{{ profile.email }}</div>
+
+                                <q-btn @click="logout" color="orange" label="Logout" size="sm" />
+                            </div>
+                        </div>
+                    </q-menu>
                 </q-avatar>
             </q-toolbar>
         </q-header>
@@ -51,7 +89,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-// import { mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
 import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
 
@@ -68,25 +106,31 @@ export default defineComponent({
             convIds: [],
 
             typingHandler: null,
+            mobileData: true,
+            bluetooth: true,
         };
     },
+
     setup() {
         const miniMode = ref(false);
 
         return { miniMode };
     },
-    mounted() {
-        console.log(this.$route);
 
+    computed: {
+        // ...mapGetters('socket', ['handshake']),
+        ...mapGetters({
+            profile: 'auth/profile',
+        }),
+    },
+
+    mounted() {
+        console.log(this.$store._modules.root.state);
         console.log('main layout mounted');
 
         if ('logged in') {
             this.socketInitialize();
         }
-    },
-
-    computed: {
-        // ...mapGetters('socket', ['handshake']),
     },
 
     methods: {
@@ -203,6 +247,23 @@ export default defineComponent({
             const scrollTarget = msgScrollArea.getScrollTarget();
 
             msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
+        },
+
+        logout() {
+            this.$store
+                .dispatch('auth/logOut')
+                .then(() => {
+                    this.$q.notify({
+                        color: 'positive',
+                        message: 'Logut Successful',
+                        position: 'top',
+                    });
+
+                    // this.$router.push({ name: 'login' });
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
         },
     },
 });

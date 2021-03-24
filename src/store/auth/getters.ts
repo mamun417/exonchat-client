@@ -14,6 +14,10 @@ const getters: GetterTree<AuthStateInterface, StateInterface> = {
     isLoggedIn(state) {
         return !!state.token;
     },
+
+    profile(state) {
+        return state.user;
+    },
 };
 
 export default getters;

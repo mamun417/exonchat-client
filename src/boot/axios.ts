@@ -4,18 +4,28 @@ import axios, { AxiosInstance } from 'axios';
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
         $axios: AxiosInstance;
+        $api: AxiosInstance;
+    }
+}
+declare global {
+    interface Window {
+        api: any;
     }
 }
 
-const api = function ({ store, Vue, router }: any) {
+const api = function (store: any, router: any) {
     // axios.defaults.baseURL = process.env.PROD ? process.env.PROD_API_ENDPOINT : process.env.API_ENDPOINT
-    axios.defaults.baseURL = 'https://api.example.com';
-    axios.defaults.withCredentials = false;
+
+    // Set config defaults when creating the instance
+    const insAxios = axios.create({
+        baseURL: 'http://127.0.0.1:3000',
+        withCredentials: true,
+    });
 
     let tokenRefreshing = false;
 
     // handle before req happen
-    axios.interceptors.request.use(
+    insAxios.interceptors.request.use(
         (req) => {
             const token = localStorage.getItem('token');
 
@@ -30,8 +40,8 @@ const api = function ({ store, Vue, router }: any) {
         }
     );
 
-    // handle before res is send to client
-    axios.interceptors.response.use(
+    // // handle before res is send to client
+    insAxios.interceptors.response.use(
         (res) => {
             return res;
         },
@@ -70,18 +80,22 @@ const api = function ({ store, Vue, router }: any) {
             }
         }
     );
+
+    return insAxios;
 };
 
-export default boot(({ app }) => {
+export default boot(({ app, router, store }) => {
     // for use inside Vue files (Options API) through this.$axios and this.$api
 
     app.config.globalProperties.$axios = axios;
     // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
     //       so you won't necessarily have to import axios in each vue file
 
-    app.config.globalProperties.$api = api;
+    app.config.globalProperties.$api = api(store, router);
     // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
     //       so you can easily perform requests against your app's API
+
+    window.api = api(store, router);
 });
 
 export { axios, api };

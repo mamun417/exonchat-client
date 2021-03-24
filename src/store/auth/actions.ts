@@ -8,12 +8,13 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
         //test
     },
 
-    register(context, payload) {
+    login(context, payload) {
         return new Promise((resolve, reject) => {
-            this.$api
-                .post('register', payload.inputs)
+            window.api
+                .post('auth/login', payload.inputs)
                 .then((res: any) => {
                     const userInfo = res.data;
+
                     context.commit('authSuccess', userInfo);
                     resolve(res);
                 })
@@ -22,25 +23,18 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
                 });
         });
     },
+
+    logOut(context) {
+        return new Promise((resolve) => {
+            context.commit('logOut');
+            resolve(true);
+        });
+    },
 };
 
 export default actions;
 
-// export function login(context, payload) {
-//     return new Promise((resolve, reject) => {
-//         axios
-//             .post('auth/login', payload.inputs)
-//             .then((res) => {
-//                 let userInfo = res.data;
-//                 context.commit('authSuccess', userInfo);
-//                 resolve(res);
-//             })
-//             .catch((err) => {
-//                 reject(err);
-//             });
-//     });
-// }
-
+// export function
 // export function refreshToken(context, payload) {
 //     return new Promise((resolve, reject) => {
 //         axios
@@ -52,13 +46,6 @@ export default actions;
 //             .catch((err) => {
 //                 reject(err);
 //             });
-//     });
-// }
-
-// export function logout(context) {
-//     return new Promise((resolve) => {
-//         context.commit('authOut');
-//         resolve(true);
 //     });
 // }
 

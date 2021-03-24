@@ -44,7 +44,7 @@ export default route<StateInterface>(function ({ store }) {
             return next({ name: 'login' });
         } else if (to.matched.some((record) => !record.meta.requiresAuth) && login) {
             // if authenticated and logged-in
-            return next({ name: 'home' });
+            return next({ name: 'chats' });
         }
 
         next(); // make sure to always call next()!
