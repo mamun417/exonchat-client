@@ -11,10 +11,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('setConvState', payload);
     },
 
-    storeChatInitiate(context, payload) {
-        context.commit('storeChatInitiate', payload);
-    },
-
     storeTemporaryMessage(context, payload) {
         return new Promise((resolve) => {
             context.commit('storeTemporaryMessage', payload);

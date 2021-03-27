@@ -134,19 +134,27 @@ export default defineComponent({
     },
 
     methods: {
-        socketInitialize() {
+        async socketInitialize() {
             if (this.handshake || 'logged') {
-                this.sesId = sessionStorage.getItem('exonchat-agent-ses-id');
+                this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
                 console.log(this.sesId);
 
                 if (!this.sesId) {
-                    this.sesId = new Date().getTime().toString();
+                    await window.api
+                        .post('/socket-sessions', {
+                            api_key: 'test',
+                        })
+                        .then((res: any) => {
+                            this.sesId = res.data.id;
 
-                    sessionStorage.setItem('exonchat-agent-ses-id', this.sesId);
+                            sessionStorage.setItem('ec_user_socket_ses_id', res.data.id);
+                        })
+                        .catch((err: any) => {
+                            console.log(err);
+                        });
                 }
-                // console.log(this.$socket);
 
-                this.$socket.io.opts.query = `api_key=999&ses_id=${this.sesId}&client_type=agent`;
+                this.$socket.io.opts.query = `api_key=test&ses_id=${this.sesId}&client_type=user`;
 
                 this.socket = this.$socket.connect();
 
@@ -157,7 +165,7 @@ export default defineComponent({
         },
         fireSocketListners() {
             this.socket.on('connect', () => {
-                console.log(`Your Agent Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
+                console.log(`Your user Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
                 this.socketId = this.socket.id;
             });
@@ -168,15 +176,15 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_to_agent', async (data: any) => {
+            this.socket.on('ec_msg_to_user', async (data: any) => {
                 await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                console.log(`from ec_msg_to_agent ${data}`);
+                console.log('from ec_msg_to_user', data);
             });
 
-            // get msg from me & also from other agents connected with this conv.
+            // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_agent', (data: any) => {
-                console.log(`from ec_msg_from_agent ${data}`);
+            this.socket.on('ec_msg_from_user', (data: any) => {
+                console.log('from ec_msg_from_user', data);
             });
 
             this.socket.on('ec_msg_from_client', (data: any) => {
@@ -188,16 +196,16 @@ export default defineComponent({
                     position: 'top-left',
                 });
 
-                console.log(`from ec_msg_from_client ${data}`);
+                console.log('from ec_msg_from_client', data);
             });
 
-            // handle only other agents typing
-            this.socket.on('ec_is_typing_from_agent', (data: any) => {
-                console.log(`from ec_is_typing_from_agent ${data}`);
+            // handle only other users typing
+            this.socket.on('ec_is_typing_from_user', (data: any) => {
+                console.log('from ec_is_typing_from_user', data);
             });
 
-            this.socket.on('ec_is_typing_to_agent', (data: any) => {
-                console.log(`from ec_is_typing_to_agent ${data}`);
+            this.socket.on('ec_is_typing_to_user', (data: any) => {
+                console.log('from ec_is_typing_to_user', data);
             });
 
             this.socket.on('ec_is_typing_from_client', (data: any) => {
@@ -205,7 +213,7 @@ export default defineComponent({
             });
 
             this.socket.on('ec_conv_initiated_from_client', (data: any) => {
-                console.log(`from ec_conv_initiated_from_client ${data}`);
+                console.log('from ec_conv_initiated_from_client', data);
 
                 if (data.status === 'success') {
                     //
@@ -218,7 +226,7 @@ export default defineComponent({
                 };
 
                 this.$store.dispatch('chat/setConvState', data);
-                console.log(`from ec_is_joined_from_conversation ${data}`);
+                console.log('from ec_is_joined_from_conversation', data);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
@@ -228,17 +236,17 @@ export default defineComponent({
 
                 this.$store.dispatch('chat/setConvState', data);
 
-                console.log(`from ec_is_leaved_from_conversation ${data}`);
+                console.log('from ec_is_leaved_from_conversation', data);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (data: any) => {
                 console.log('okk');
 
-                console.log(`from ec_is_closed_from_conversation ${data}`);
+                console.log('from ec_is_closed_from_conversation', data);
             });
 
             this.socket.on('ec_error', (data: any) => {
-                console.log(`from ec_error ${data.reason}`);
+                console.log('from ec_error', data);
             });
         },
 

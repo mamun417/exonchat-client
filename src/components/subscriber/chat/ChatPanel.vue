@@ -177,7 +177,7 @@ export default defineComponent({
         convStateHandle(type: string) {
             if (!type) return;
 
-            this[`${type}Conversation`]('123');
+            this[`${type}Conversation`](this.messages[0].conv_id);
         },
 
         joinConversation(conv_id: any) {
@@ -193,6 +193,8 @@ export default defineComponent({
         },
 
         closeConversation(conv_id: any) {
+            console.log('from close');
+
             this.$socket.emit('ec_close_conversation', {
                 conv_id: conv_id,
             });
@@ -200,7 +202,7 @@ export default defineComponent({
 
         inputFocusHandle() {
             this.typingHandler = setInterval(() => {
-                this.$socket.emit('ec_is_typing_from_agent', {
+                this.$socket.emit('ec_is_typing_from_user', {
                     conv_id: 123,
                     sentAt: 'timestamp',
                 });
@@ -214,8 +216,8 @@ export default defineComponent({
             console.log('sending the msg');
 
             // send event when current user is sending msg
-            this.$socket.emit('ec_msg_from_agent', {
-                conv_id: 123,
+            this.$socket.emit('ec_msg_from_user', {
+                conv_id: this.messages[0].conv_id,
                 msg: this.msg,
                 sentAt: 'timestamp',
             }); // sentAt will also mean as tempId

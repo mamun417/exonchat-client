@@ -13,6 +13,7 @@
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
             <div v-if="convInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
                 <q-scroll-area
+                    @scroll="scrollToBottom"
                     ref="msgScrollArea"
                     class="tw-p-3 tw-flex-grow tw-text-xs"
                     style="height: 1px"
@@ -31,7 +32,7 @@
                     :content-style="{}"
                 >
                     <q-chat-message
-                        v-for="message in messages"
+                        v-for="message in newMessages"
                         :key="message"
                         name="hasan"
                         avatar="https://cdn.quasar.dev/img/avatar3.jpg"
@@ -123,17 +124,19 @@ export default defineComponent({
     },
     data(): any {
         return {
+            gotoBottom: false,
             socket: null,
 
             socketId: null,
             sesId: null,
             covId: null,
+            convInfo: {},
 
             showChatForm: false,
             userLogged: false,
 
             msg: '',
-            // messages: [],
+            newMessages: [],
 
             pageInFocus: false,
 
@@ -147,15 +150,15 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             messages: 'chat/messages',
-            convInfo: 'chat/convInfo',
+            // convInfo: 'chat/convInfo',
         }),
     },
 
-    mounted() {
+    async mounted() {
         console.log(this.$store._modules.root.state.chat);
         console.log('WebChat Mounted');
 
-        this.initializeSocket();
+        await this.initializeSocket();
         this.fireSocketListners();
 
         this.firePageVisitListner();
@@ -163,25 +166,40 @@ export default defineComponent({
         // this.setTypingFalse();
     },
     methods: {
-        initializeSocket() {
-            this.sesId = sessionStorage.getItem('exonchat-ses-id');
+        async initializeSocket() {
+            // get conversation information
+            const convInfo: any = localStorage.getItem('convInfo');
+            this.convInfo = convInfo ? JSON.parse(convInfo) : {};
+
+            this.sesId = sessionStorage.getItem('ec_client_socket_ses_id');
+
             console.log(this.sesId);
 
             if (!this.sesId) {
-                this.sesId = new Date().getTime().toString();
+                await window.api
+                    .post('/socket-sessions', {
+                        api_key: 'test',
+                    })
+                    .then((res: any) => {
+                        this.sesId = res.data.id;
 
-                sessionStorage.setItem('exonchat-ses-id', this.sesId);
+                        sessionStorage.setItem('ec_client_socket_ses_id', res.data.id);
+                    })
+                    .catch((err: any) => {
+                        console.log(err);
+                    });
             }
 
             this.socket = io('http://localhost:3000', {
                 query: {
                     ses_id: this.sesId,
-                    api_key: '999',
+                    api_key: 'test',
                 },
             });
             // localStorage.debug = '*';
             // console.log(this.socket);
         },
+
         fireSocketListners() {
             this.socket.on('connect', () => {
                 console.log(`Your Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
@@ -195,34 +213,41 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_agent', async (data: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                console.log(`from ec_msg_from_agent ${data}`);
+            this.socket.on('ec_msg_from_user', async (data: any) => {
+                // await this.$store.dispatch('chat/storeTemporaryMessage', data);
+
+                this.newMessages.push(data);
+
+                console.log('from ec_msg_from_user', data);
             });
 
             this.socket.on('ec_is_typing_to_client', (data: any) => {
-                console.log(`from ec_is_typing_to_client ${data}`);
+                console.log('from ec_is_typing_to_client', data);
             });
 
-            // successfully sent to agent
+            // successfully sent to user
             this.socket.on('ec_msg_to_client', async (data: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                this.scrollToBottom();
-                console.log(`from ec_msg_to_client ${data}`);
+                this.newMessages.push(data);
+
+                // await this.$store.dispatch('chat/storeTemporaryMessage', data);
+                console.log('from ec_msg_to_client', data);
             });
 
-            this.socket.on('ec_is_typing_from_agent', (data: any) => {
+            this.socket.on('ec_is_typing_from_user', (data: any) => {
                 console.log(data);
                 // this.typingHandler.typing = true;
-                console.log(`from ec_is_typing_from_agent ${data}`);
+                console.log('from ec_is_typing_from_user', data);
             });
 
-            this.socket.on('ec_conv_initiated_from_client', (data: any) => {
-                console.log(`from ec_conv_initiated_from_client ${data}`);
+            this.socket.on('ec_conv_initiated_to_client', (data: any) => {
+                console.log(data);
+
+                console.log('from ec_conv_initiated_to_client', data);
 
                 if (data.status === 'success') {
                     if (!this.conv_id) {
-                        this.$store.dispatch('chat/storeChatInitiate', data);
+                        localStorage.setItem('convInfo', JSON.stringify(data.data));
+                        this.convInfo = data.data;
                     } else {
                         if (this.conv_id === data.data.conv_id) {
                             //no idea for now what to do if conv_id donst match
@@ -232,25 +257,27 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_joined_from_conversation', (data: any) => {
-                console.log(`from ec_is_joined_from_conversation ${data}`);
+                console.log('from ec_is_joined_from_conversation', data);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
-                console.log(`from ec_is_leaved_from_conversation ${data}`);
+                console.log('from ec_is_leaved_from_conversation', data);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (data: any) => {
                 // remove all info from store which store after chat initialte till end
-                console.log(`from ec_is_closed_from_conversation ${data}`);
+                console.log('from ec_is_closed_from_conversation', data);
             });
 
             this.socket.on('ec_error', (data: any) => {
-                console.log(`from ec_error ${data.reason}`);
+                console.log('from ec_error', data);
             });
         },
+
         chatInitialize() {
             this.socket.emit('ec_init_conv_from_client');
         },
+
         firePageVisitListner() {
             // Set the name of the hidden property and the change event for visibility
             // let hidden: string, visibilityChange: string;
@@ -286,6 +313,7 @@ export default defineComponent({
                 }
             }
         },
+
         handlePageVisibilityChange() {
             if (document.hidden) {
                 this.pageInFocus = false;
@@ -293,6 +321,7 @@ export default defineComponent({
                 this.pageInFocus = true;
             }
         },
+
         sendPageVisitingInfo() {
             if (this.pageInFocus && this.socketId) {
                 this.socket.emit('ec_page_visit_info_from_client', {
@@ -301,14 +330,17 @@ export default defineComponent({
                 });
             }
         },
+
         inputFocusHandle() {
             this.typingHandler = setInterval(() => {
                 this.sendTypingData();
             }, 1000);
         },
+
         inputBlurHandle() {
             clearInterval(this.typingHandler);
         },
+
         sendTypingData() {
             if (this.msg && this.socketId) {
                 // console.log('typing');
@@ -319,6 +351,7 @@ export default defineComponent({
                 });
             }
         },
+
         sendMessage(): any {
             if (!this.msg.length) {
                 return false;
@@ -337,16 +370,28 @@ export default defineComponent({
         },
 
         scrollToBottom() {
-            const msgScrollArea = this.$refs.msgScrollArea;
-            const scrollTarget = msgScrollArea.getScrollTarget();
+            if (this.gotoBottom) {
+                this.gotoBottom = false;
+                const msgScrollArea = this.$refs.msgScrollArea;
+                const scrollTarget = msgScrollArea.getScrollTarget();
 
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
+                msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 900);
+            }
         },
 
         setTypingFalse() {
             setInterval(() => {
                 this.typingHandler.typing = false;
             }, 2000);
+        },
+    },
+
+    watch: {
+        newMessages: {
+            handler: function () {
+                this.gotoBottom = true;
+            },
+            deep: true,
         },
     },
 });
