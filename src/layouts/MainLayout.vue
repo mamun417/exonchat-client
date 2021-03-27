@@ -42,7 +42,7 @@
 
                             <div class="column items-center">
                                 <q-avatar size="72px">
-                                    <img src="https://cdn.quasar.dev/img/avatar4.jpg" />
+                                    <img src="https://cdn.quasar.dev/img/avatar4.jpg" alt="" />
                                 </q-avatar>
 
                                 <div class="tw-text-xs tw-mt-2 tw-mb-1">John Doe</div>
@@ -255,11 +255,11 @@ export default defineComponent({
                 .then(() => {
                     this.$q.notify({
                         color: 'positive',
-                        message: 'Logut Successful',
+                        message: 'Logout Successful',
                         position: 'top',
                     });
 
-                    // this.$router.push({ name: 'login' });
+                    this.$router.push({ name: 'login' });
                 })
                 .catch((err: any) => {
                     console.log(err);

@@ -11,6 +11,8 @@
 
                     <q-item-section class="tw-w-full">
                         <q-item-label class="text-weight-bold tw-text-lg">Hasan</q-item-label>
+                        {{ gotoBottom }}
+
                         <q-item-label caption>
                             <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>
                         </q-item-label>
@@ -28,6 +30,7 @@
         </q-card>
         <!-- <div class=""> -->
         <q-scroll-area
+            @scroll="handleScroll"
             ref="msgScrollArea"
             class="tw-flex-1 tw-p-3"
             style="height: 1px"
@@ -61,10 +64,19 @@
             <!-- <q-chat-message avatar="https://cdn.quasar.dev/img/avatar5.jpg" bg-color="blue-9">
                 <q-spinner-dots color="white" size="2rem" />
             </q-chat-message> -->
+
+            <q-btn
+                v-show="gotoBottom"
+                class="tw-absolute tw-bottom-2 tw-opacity-75 tw-right-2"
+                color="green"
+                icon="keyboard_arrow_down"
+                size="sm"
+                round
+            />
         </q-scroll-area>
 
         <div
-            v-if="convStateInfo.convState == 'joined'"
+            v-if="convStateInfo.convState === 'joined'"
             class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
         >
             <q-btn flat color="green" icon="attachment"></q-btn>
@@ -132,6 +144,7 @@ export default defineComponent({
             msg: '',
             typingInstance: null,
             msgInputFocused: false,
+            gotoBottom: false,
         };
     },
 
@@ -210,9 +223,15 @@ export default defineComponent({
             this.msg = '';
         },
 
+        handleScroll(info: any) {
+            this.gotoBottom = info.verticalPercentage && info.verticalPercentage !== 0 && info.verticalPercentage < 0.9;
+        },
+
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;
             const scrollTarget = msgScrollArea.getScrollTarget();
+
+            console.log(scrollTarget.scrollHeight);
 
             msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
         },

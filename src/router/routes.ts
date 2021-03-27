@@ -122,7 +122,7 @@ const routes: RouteRecordRaw[] = [
     {
         path: '/web-chat',
         component: () => import('layouts/WebChatLayout.vue'),
-        children: [{ path: '', name: 'webchat.index', component: () => import('pages/WebChat.vue') }],
+        children: [{ path: '', name: 'web-chat.index', component: () => import('pages/WebChat.vue') }],
     },
 
     // Always leave this as last one,
