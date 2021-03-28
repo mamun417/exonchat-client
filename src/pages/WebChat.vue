@@ -2,10 +2,7 @@
     <q-page class="tw-flex tw-flex-col">
         <div class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center">
             <div>Online - Chat With Us</div>
-            <div style="max-height: 100px; overflow: auto">
-                <pre>{{ messages }}</pre>
-            </div>
-
+            <div style="max-height: 100px; overflow: auto"></div>
             <q-space></q-space>
             <q-btn icon="expand_more" dense flat></q-btn>
         </div>
@@ -13,7 +10,7 @@
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
             <div v-if="convInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
                 <q-scroll-area
-                    @scroll="scrollToBottom"
+                    @scroll="handleScroll"
                     ref="msgScrollArea"
                     class="tw-p-3 tw-flex-grow tw-text-xs"
                     style="height: 1px"
@@ -32,7 +29,7 @@
                     :content-style="{}"
                 >
                     <q-chat-message
-                        v-for="message in newMessages"
+                        v-for="message in messages"
                         :key="message"
                         name="hasan"
                         avatar="https://cdn.quasar.dev/img/avatar3.jpg"
@@ -52,6 +49,17 @@
                         class="exonchat-is-typing"
                     >
                     </q-chat-message>
+
+                    <q-btn
+                        v-if="gotoBottomBtnShow"
+                        @click="scrollToBottom"
+                        style="position: fixed; left: 50%; bottom: 60px"
+                        class="tw-bottom-2 tw-opacity-75 tw-right-2"
+                        color="black"
+                        icon="keyboard_arrow_down"
+                        size="sm"
+                        round
+                    />
                 </q-scroll-area>
 
                 <div class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-sm tw-rounded">
@@ -124,7 +132,6 @@ export default defineComponent({
     },
     data(): any {
         return {
-            gotoBottom: false,
             socket: null,
 
             socketId: null,
@@ -136,7 +143,7 @@ export default defineComponent({
             userLogged: false,
 
             msg: '',
-            newMessages: [],
+            messages: [],
 
             pageInFocus: false,
 
@@ -144,12 +151,13 @@ export default defineComponent({
                 typing: false,
             },
             pageVisitingHandler: null,
+            gotoBottomBtnShow: false,
         };
     },
 
     computed: {
         ...mapGetters({
-            messages: 'chat/messages',
+            // messages: 'chat/messages',
             // convInfo: 'chat/convInfo',
         }),
     },
@@ -213,11 +221,8 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_user', async (data: any) => {
-                // await this.$store.dispatch('chat/storeTemporaryMessage', data);
-
-                this.newMessages.push(data);
-
+            this.socket.on('ec_msg_from_user', (data: any) => {
+                this.messages.push(data);
                 console.log('from ec_msg_from_user', data);
             });
 
@@ -226,10 +231,8 @@ export default defineComponent({
             });
 
             // successfully sent to user
-            this.socket.on('ec_msg_to_client', async (data: any) => {
-                this.newMessages.push(data);
-
-                // await this.$store.dispatch('chat/storeTemporaryMessage', data);
+            this.socket.on('ec_msg_to_client', (data: any) => {
+                this.messages.push(data);
                 console.log('from ec_msg_to_client', data);
             });
 
@@ -315,11 +318,7 @@ export default defineComponent({
         },
 
         handlePageVisibilityChange() {
-            if (document.hidden) {
-                this.pageInFocus = false;
-            } else {
-                this.pageInFocus = true;
-            }
+            this.pageInFocus = !document.hidden;
         },
 
         sendPageVisitingInfo() {
@@ -370,13 +369,15 @@ export default defineComponent({
         },
 
         scrollToBottom() {
-            if (this.gotoBottom) {
-                this.gotoBottom = false;
-                const msgScrollArea = this.$refs.msgScrollArea;
-                const scrollTarget = msgScrollArea.getScrollTarget();
+            const msgScrollArea = this.$refs.msgScrollArea;
+            const scrollTarget = msgScrollArea.getScrollTarget();
 
-                msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 900);
-            }
+            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
+        },
+
+        handleScroll(info: any) {
+            let verticalPercentage = info.verticalPercentage;
+            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages.length > 0;
         },
 
         setTypingFalse() {
@@ -387,9 +388,9 @@ export default defineComponent({
     },
 
     watch: {
-        newMessages: {
+        messages: {
             handler: function () {
-                this.gotoBottom = true;
+                this.scrollToBottom();
             },
             deep: true,
         },

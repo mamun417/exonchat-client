@@ -1,5 +1,7 @@
-// import moment from 'moment';
-// import lodash from 'lodash';
+import moment from 'moment';
+import * as _ from 'lodash';
+
+console.log(_.padStart('Hello TypeScript!', 20, ' '));
 
 // export default function ({ Vue }) {
 // Vue.prototype.$moment = moment;

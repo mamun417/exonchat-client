@@ -15,6 +15,33 @@ const mutation: MutationTree<ChatStateInterface> = {
     storeTemporaryMessage(state: ChatStateInterface, payload: any) {
         state.messages.push(payload);
     },
+
+    storeChatRequest(state: ChatStateInterface, payload: any) {
+        // check already exit this conv id into this array
+        // [
+        //     '9043284nrhte': [
+        //     {},
+        //     {}
+        // ],
+        //
+        //     '9043284nrhte': [
+        //     {},
+        //     {}
+        // ]
+        // ]
+
+        const existingChatReq = state.chatRequest;
+        if (existingChatReq) {
+            _.each(existingChatReq, function () {});
+        }
+
+        const chatReqObj: { [k: string]: any } = {};
+
+        const convId = payload.conv_id;
+        chatReqObj[convId] = payload;
+
+        state.chatRequest.push(chatReqObj);
+    },
 };
 
 export default mutation;

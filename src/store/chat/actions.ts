@@ -17,6 +17,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             resolve(true);
         });
     },
-};
 
+    storeChatRequest(context, payload) {
+        return new Promise((resolve) => {
+            context.commit('storeChatRequest', payload);
+            resolve(true);
+        });
+    },
+};
 export default actions;

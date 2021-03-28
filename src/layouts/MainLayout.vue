@@ -26,7 +26,7 @@
                 </q-btn>
                 <q-space />
                 <q-avatar size="lg" class="cursor-pointer">
-                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
+                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
 
                     <q-badge color="primary" floating rounded>2</q-badge>
 
@@ -68,7 +68,7 @@
             <left-bar></left-bar>
         </q-drawer>
         <q-drawer
-            v-if="$route.path === '/chats'"
+            v-if="$route.path !== '/chats'"
             v-model="rightDrawer"
             class="tw-shadow-lgl"
             side="right"
@@ -187,8 +187,9 @@ export default defineComponent({
                 console.log('from ec_msg_from_user', data);
             });
 
-            this.socket.on('ec_msg_from_client', (data: any) => {
-                this.$store.dispatch('chat/storeTemporaryMessage', data);
+            this.socket.on('ec_msg_from_client', async (data: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', data);
+                await this.$store.dispatch('chat/storeChatRequest', data);
 
                 this.$q.notify({
                     message: 'Jim pinged you.',

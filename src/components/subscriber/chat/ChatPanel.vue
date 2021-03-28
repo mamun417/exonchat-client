@@ -66,9 +66,11 @@
             </q-chat-message> -->
 
             <q-btn
-                v-show="gotoBottom"
-                class="tw-absolute tw-bottom-2 tw-opacity-75 tw-right-2"
-                color="green"
+                v-if="gotoBottomBtnShow"
+                @click="scrollToBottom"
+                style="position: fixed; left: 200px; bottom: 60px"
+                class="tw-bottom-2 tw-opacity-75 tw-right-2"
+                color="black"
                 icon="keyboard_arrow_down"
                 size="sm"
                 round
@@ -82,7 +84,7 @@
             <q-btn flat color="green" icon="attachment"></q-btn>
             <q-btn flat color="green" icon="mood"></q-btn>
             <q-input
-                v-model="msg"
+                v-model.trim="msg"
                 @keyup.enter.exact="sendMessage"
                 @focus="inputFocusHandle"
                 @blur="inputBlurHandle"
@@ -144,7 +146,7 @@ export default defineComponent({
             msg: '',
             typingInstance: null,
             msgInputFocused: false,
-            gotoBottom: false,
+            gotoBottomBtnShow: false,
         };
     },
 
@@ -213,6 +215,10 @@ export default defineComponent({
             clearInterval(this.typingHandler);
         },
         sendMessage(): any {
+            if (!this.msg.length) {
+                return false;
+            }
+
             console.log('sending the msg');
 
             // send event when current user is sending msg
@@ -226,16 +232,15 @@ export default defineComponent({
         },
 
         handleScroll(info: any) {
-            this.gotoBottom = info.verticalPercentage && info.verticalPercentage !== 0 && info.verticalPercentage < 0.9;
+            let verticalPercentage = info.verticalPercentage;
+            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages.length > 0;
         },
 
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;
             const scrollTarget = msgScrollArea.getScrollTarget();
 
-            console.log(scrollTarget.scrollHeight);
-
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
+            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
         },
     },
 

@@ -21,6 +21,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     messages(context) {
         return context.messages;
     },
+
+    chatRequest(context) {
+        return context.chatRequest;
+    },
 };
 
 export default getters;
