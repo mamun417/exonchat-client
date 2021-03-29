@@ -1,23 +1,17 @@
+import { boot } from 'quasar/wrappers';
+import * as _l from 'lodash';
 import moment from 'moment';
-import * as _ from 'lodash';
 
-console.log(_.padStart('Hello TypeScript!', 20, ' '));
-
-// export default function ({ Vue }) {
-// Vue.prototype.$moment = moment;
-// Vue.prototype.$_ = lodash;
-// Vue.prototype.$intervalTime = 180000; // 3 min in milsec
-// Vue.prototype.$timestampToDate = function (timestamp, format = 'DD MM YYYY, h:mm:ss a') {
-//     return moment(parseInt(timestamp)).format(format);
-// };
-// Vue.prototype.$fromNowTime = function (timestamp) {
-//     return moment(parseInt(timestamp)).fromNow();
-// };
-// }
+declare module '@vue/runtime-core' {
+    interface ComponentCustomProperties {
+        $_: any;
+    }
+}
 
 declare global {
     interface Window {
         clog: any;
+        $_: any;
     }
 }
 
@@ -25,4 +19,18 @@ window.clog = function (text: any) {
     console.log(text);
 };
 
-export {};
+const getTempId = function () {
+    return new Date().getTime();
+};
+
+const fromNowTime = function (timestamp: string) {
+    return moment(timestamp).fromNow();
+};
+
+export default boot(({ app }) => {
+    app.config.globalProperties.$_ = _l;
+    app.config.globalProperties.$getTempId = getTempId();
+    app.config.globalProperties.$fromNowTime = fromNowTime;
+});
+
+export { _l, getTempId };

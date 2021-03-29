@@ -41,9 +41,14 @@
                     label="Incoming chat request"
                     header-class="text-weight-bold bg-green-1"
                 >
-                    <q-card v-if="chatRequest.length">
+                    <q-card v-if="Object.keys(chatRequest).length">
                         <q-list>
-                            <q-item v-for="(request, i) in chatRequest" :key="i" class="" clickable>
+                            <q-item
+                                v-for="(request, convId) in chatRequest"
+                                :to="{ name: 'chats', params: { convId } }"
+                                :key="convId"
+                                clickable
+                            >
                                 <q-item-section avatar>
                                     <q-avatar>
                                         <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
@@ -51,9 +56,9 @@
                                 </q-item-section>
 
                                 <q-item-section>
-                                    <q-item-label class="text-weight-bold">Hasan</q-item-label>
+                                    <q-item-label class="text-weight-bold text-dark">Hasan</q-item-label>
                                     <q-item-label caption lines="2" class="text-weight-bold">
-                                        How can i buy a bd domain name
+                                        {{ request.msg }}
                                     </q-item-label>
                                 </q-item-section>
                             </q-item>

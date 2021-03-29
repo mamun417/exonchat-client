@@ -11,6 +11,20 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('setConvState', payload);
     },
 
+    getConvMessages(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(`conversations/${payload.convId}/messages`)
+                .then((res: any) => {
+                    context.commit('storeConvMessages', res.data);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
     storeTemporaryMessage(context, payload) {
         return new Promise((resolve) => {
             context.commit('storeTemporaryMessage', payload);

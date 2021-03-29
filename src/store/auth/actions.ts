@@ -30,6 +30,20 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
             resolve(true);
         });
     },
+
+    refreshToken(context) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('auth/refresh')
+                .then((res: any) => {
+                    context.commit('updateToken', res.data.access_token);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;

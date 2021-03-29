@@ -14,7 +14,7 @@ function state(): ChatStateInterface {
         chatPanels: [],
         selectedPanel: null,
         messages: [],
-        chatRequest: [],
+        chatRequest: {},
     };
 }
 

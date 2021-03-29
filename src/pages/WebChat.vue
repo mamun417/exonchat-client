@@ -29,15 +29,15 @@
                     :content-style="{}"
                 >
                     <q-chat-message
-                        v-for="message in messages"
-                        :key="message"
+                        v-for="(message, i) in messages"
+                        :key="i"
                         name="hasan"
                         avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                         :text="[message.msg]"
-                        stamp="7 minutes ago"
-                        :sent="message.return_type === 'own'"
-                        :text-color="message.return_type === 'own' ? 'black' : 'white'"
-                        :bg-color="message.return_type === 'own' ? 'gray-9' : 'blue-9'"
+                        :stamp="$fromNowTime(message.created_at)"
+                        :sent="checkOwnMessage(message)"
+                        :text-color="checkOwnMessage(message) ? 'black' : 'white'"
+                        :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
                     />
                     <q-chat-message
                         v-if="typingHandler.typing"
@@ -166,6 +166,10 @@ export default defineComponent({
         console.log(this.$store._modules.root.state.chat);
         console.log('WebChat Mounted');
 
+        setInterval(() => {
+            this.$forceUpdate();
+        }, 30000);
+
         await this.initializeSocket();
         this.fireSocketListners();
 
@@ -221,59 +225,59 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_user', (data: any) => {
-                this.messages.push(data);
-                console.log('from ec_msg_from_user', data);
+            this.socket.on('ec_msg_from_user', (res: any) => {
+                this.messages.push(res);
+                console.log('from ec_msg_from_user', res);
             });
 
-            this.socket.on('ec_is_typing_to_client', (data: any) => {
-                console.log('from ec_is_typing_to_client', data);
+            this.socket.on('ec_is_typing_to_client', (res: any) => {
+                console.log('from ec_is_typing_to_client', res);
             });
 
             // successfully sent to user
-            this.socket.on('ec_msg_to_client', (data: any) => {
-                this.messages.push(data);
-                console.log('from ec_msg_to_client', data);
+            this.socket.on('ec_msg_to_client', (res: any) => {
+                this.messages.push(res);
+                console.log('from ec_msg_to_client', res);
             });
 
-            this.socket.on('ec_is_typing_from_user', (data: any) => {
-                console.log(data);
+            this.socket.on('ec_is_typing_from_user', (res: any) => {
+                console.log(res);
                 // this.typingHandler.typing = true;
-                console.log('from ec_is_typing_from_user', data);
+                console.log('from ec_is_typing_from_user', res);
             });
 
-            this.socket.on('ec_conv_initiated_to_client', (data: any) => {
-                console.log(data);
+            this.socket.on('ec_conv_initiated_to_client', (res: any) => {
+                console.log(res);
 
-                console.log('from ec_conv_initiated_to_client', data);
+                console.log('from ec_conv_initiated_to_client', res);
 
-                if (data.status === 'success') {
+                if (res.status === 'success') {
                     if (!this.conv_id) {
-                        localStorage.setItem('convInfo', JSON.stringify(data.data));
-                        this.convInfo = data.data;
+                        localStorage.setItem('convInfo', JSON.stringify(res.data));
+                        this.convInfo = res.data;
                     } else {
-                        if (this.conv_id === data.data.conv_id) {
+                        if (this.conv_id === res.data.conversation_id) {
                             //no idea for now what to do if conv_id donst match
                         }
                     }
                 }
             });
 
-            this.socket.on('ec_is_joined_from_conversation', (data: any) => {
-                console.log('from ec_is_joined_from_conversation', data);
+            this.socket.on('ec_is_joined_from_conversation', (res: any) => {
+                console.log('from ec_is_joined_from_conversation', res);
             });
 
-            this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
-                console.log('from ec_is_leaved_from_conversation', data);
+            this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
+                console.log('from ec_is_leaved_from_conversation', res);
             });
 
-            this.socket.on('ec_is_closed_from_conversation', (data: any) => {
+            this.socket.on('ec_is_closed_from_conversation', (res: any) => {
                 // remove all info from store which store after chat initialte till end
-                console.log('from ec_is_closed_from_conversation', data);
+                console.log('from ec_is_closed_from_conversation', res);
             });
 
-            this.socket.on('ec_error', (data: any) => {
-                console.log('from ec_error', data);
+            this.socket.on('ec_error', (res: any) => {
+                console.log('from ec_error', res);
             });
         },
 
@@ -361,9 +365,8 @@ export default defineComponent({
             // send event when current user is sending msg
             this.socket.emit('ec_msg_from_client', {
                 msg: this.msg,
-                sent_at: 'timestamp',
-            }); // sentAt will also mean as tempId
-            // console.log(socket);
+                temp_id: this.$getTempId,
+            });
 
             this.msg = '';
         },
@@ -384,6 +387,10 @@ export default defineComponent({
             setInterval(() => {
                 this.typingHandler.typing = false;
             }, 2000);
+        },
+
+        checkOwnMessage(message: any) {
+            return message.socket_session_id === this.sesId;
         },
     },
 

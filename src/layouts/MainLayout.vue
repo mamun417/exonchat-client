@@ -68,7 +68,7 @@
             <left-bar></left-bar>
         </q-drawer>
         <q-drawer
-            v-if="$route.path !== '/chats'"
+            v-if="1<0"
             v-model="rightDrawer"
             class="tw-shadow-lgl"
             side="right"

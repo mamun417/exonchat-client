@@ -11,8 +11,6 @@
 
                     <q-item-section class="tw-w-full">
                         <q-item-label class="text-weight-bold tw-text-lg">Hasan</q-item-label>
-                        {{ gotoBottom }}
-
                         <q-item-label caption>
                             <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>
                         </q-item-label>
@@ -55,10 +53,10 @@
                 name="hasan"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                 :text="[message.msg]"
-                stamp="7 minutes ago"
-                :sent="message.return_type === 'own'"
-                :text-color="message.return_type === 'own' ? 'black' : 'white'"
-                :bg-color="message.return_type === 'own' ? 'gray-9' : 'blue-9'"
+                :stamp="$fromNowTime(message.created_at)"
+                :sent="checkOwnMessage(message)"
+                :text-color="checkOwnMessage(message) ? 'black' : 'white'"
+                :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
             />
 
             <!-- <q-chat-message avatar="https://cdn.quasar.dev/img/avatar5.jpg" bg-color="blue-9">
@@ -141,6 +139,8 @@ export default defineComponent({
     },
     data(): any {
         return {
+            sesId: '',
+            convId: '',
             confirm: false,
             convState: '',
             msg: '',
@@ -152,6 +152,17 @@ export default defineComponent({
 
     mounted() {
         console.log('chat panel initiated');
+
+        setInterval(() => {
+            this.$forceUpdate();
+        }, 30000);
+
+        this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
+
+        this.convId = this.$route.params['convId'];
+
+        // get conversation messages
+        this.getConvMessages();
     },
 
     computed: {
@@ -178,8 +189,7 @@ export default defineComponent({
     methods: {
         convStateHandle(type: string) {
             if (!type) return;
-
-            this[`${type}Conversation`](this.messages[0].conv_id);
+            this[`${type}Conversation`](this.convId);
         },
 
         joinConversation(conv_id: any) {
@@ -205,8 +215,7 @@ export default defineComponent({
         inputFocusHandle() {
             this.typingHandler = setInterval(() => {
                 this.$socket.emit('ec_is_typing_from_user', {
-                    conv_id: 123,
-                    sentAt: 'timestamp',
+                    conv_id: this.convId,
                 });
             }, 1000);
         },
@@ -214,6 +223,7 @@ export default defineComponent({
         inputBlurHandle() {
             clearInterval(this.typingHandler);
         },
+
         sendMessage(): any {
             if (!this.msg.length) {
                 return false;
@@ -223,9 +233,8 @@ export default defineComponent({
 
             // send event when current user is sending msg
             this.$socket.emit('ec_msg_from_user', {
-                conv_id: this.messages[0].conv_id,
+                conv_id: this.convId,
                 msg: this.msg,
-                sentAt: 'timestamp',
             }); // sentAt will also mean as tempId
 
             this.msg = '';
@@ -241,6 +250,23 @@ export default defineComponent({
             const scrollTarget = msgScrollArea.getScrollTarget();
 
             msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
+        },
+
+        checkOwnMessage(message: any) {
+            return message.socket_session_id === this.sesId;
+        },
+
+        getConvMessages() {
+            this.$store
+                .dispatch('chat/getConvMessages', {
+                    convId: this.convId,
+                })
+                .then((result: any) => {
+                    console.log(result);
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
         },
     },
 

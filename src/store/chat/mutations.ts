@@ -1,3 +1,4 @@
+// import { _l } from 'src/boot/helpers';
 import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
 
@@ -16,31 +17,24 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.messages.push(payload);
     },
 
+    storeConvMessages(state: ChatStateInterface, payload: any) {
+        console.log(payload);
+
+        // state.chatRequest[convId] = {
+        //     msg: payload.msg,
+        //     createdAt: payload.created_at,
+        //     convId,
+        // };
+    },
+
     storeChatRequest(state: ChatStateInterface, payload: any) {
-        // check already exit this conv id into this array
-        // [
-        //     '9043284nrhte': [
-        //     {},
-        //     {}
-        // ],
-        //
-        //     '9043284nrhte': [
-        //     {},
-        //     {}
-        // ]
-        // ]
+        const convId = payload.conversation_id;
 
-        const existingChatReq = state.chatRequest;
-        if (existingChatReq) {
-            _.each(existingChatReq, function () {});
-        }
-
-        const chatReqObj: { [k: string]: any } = {};
-
-        const convId = payload.conv_id;
-        chatReqObj[convId] = payload;
-
-        state.chatRequest.push(chatReqObj);
+        state.chatRequest[convId] = {
+            msg: payload.msg,
+            createdAt: payload.created_at,
+            convId,
+        };
     },
 };
 
