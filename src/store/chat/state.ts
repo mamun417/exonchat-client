@@ -2,7 +2,7 @@ export interface ChatStateInterface {
     convStateInfo: any;
     chatPanels: Array<string>; // holds opened chat panels
     selectedPanel: null | string;
-    messages: Array<string>;
+    messages: Array<any>;
     chatRequest: any;
 }
 

@@ -159,8 +159,6 @@ export default defineComponent({
 
         this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
 
-        this.convId = this.$route.params['convId'];
-
         // get conversation messages
         this.getConvMessages();
     },
@@ -187,12 +185,18 @@ export default defineComponent({
     },
 
     methods: {
+        getConvId() {
+            return this.$route.params['conv_id'];
+        },
+
         convStateHandle(type: string) {
             if (!type) return;
-            this[`${type}Conversation`](this.convId);
+            this[`${type}Conversation`](this.getConvId());
         },
 
         joinConversation(conv_id: any) {
+            console.log(conv_id);
+
             this.$socket.emit('ec_join_conversation', {
                 conv_id: conv_id,
             });
@@ -215,7 +219,7 @@ export default defineComponent({
         inputFocusHandle() {
             this.typingHandler = setInterval(() => {
                 this.$socket.emit('ec_is_typing_from_user', {
-                    conv_id: this.convId,
+                    conv_id: this.getConvId(),
                 });
             }, 1000);
         },
@@ -233,7 +237,7 @@ export default defineComponent({
 
             // send event when current user is sending msg
             this.$socket.emit('ec_msg_from_user', {
-                conv_id: this.convId,
+                conv_id: this.getConvId(),
                 msg: this.msg,
             }); // sentAt will also mean as tempId
 
@@ -259,7 +263,7 @@ export default defineComponent({
         getConvMessages() {
             this.$store
                 .dispatch('chat/getConvMessages', {
-                    convId: this.convId,
+                    convId: this.getConvId(),
                 })
                 .then((result: any) => {
                     console.log(result);

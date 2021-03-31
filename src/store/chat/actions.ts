@@ -16,7 +16,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             window.api
                 .get(`conversations/${payload.convId}/messages`)
                 .then((res: any) => {
-                    context.commit('storeConvMessages', res.data);
+                    context.commit('storeConvMessages', res);
                     resolve(res);
                 })
                 .catch((err: any) => {

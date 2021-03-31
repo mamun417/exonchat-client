@@ -45,7 +45,7 @@
                         <q-list>
                             <q-item
                                 v-for="(request, convId) in chatRequest"
-                                :to="{ name: 'chats', params: { convId } }"
+                                :to="{ name: 'chats', params: { conv_id: convId } }"
                                 :key="convId"
                                 clickable
                             >

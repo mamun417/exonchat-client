@@ -36,7 +36,7 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
             window.api
                 .post('auth/refresh')
                 .then((res: any) => {
-                    context.commit('updateToken', res.data.access_token);
+                    context.commit('updateToken', res.data.bearerToken);
                     resolve(res);
                 })
                 .catch((err: any) => {

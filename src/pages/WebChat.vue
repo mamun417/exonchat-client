@@ -2,6 +2,7 @@
     <q-page class="tw-flex tw-flex-col">
         <div class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center">
             <div>Online - Chat With Us</div>
+            <q-btn @click="clearSession">Clear</q-btn>
             <div style="max-height: 100px; overflow: auto"></div>
             <q-space></q-space>
             <q-btn icon="expand_more" dense flat></q-btn>
@@ -178,6 +179,13 @@ export default defineComponent({
         // this.setTypingFalse();
     },
     methods: {
+        clearSession() {
+            localStorage.clear();
+            sessionStorage.clear();
+            this.convInfo = {};
+            location.reload();
+        },
+
         async initializeSocket() {
             // get conversation information
             const convInfo: any = localStorage.getItem('convInfo');

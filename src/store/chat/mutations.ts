@@ -18,13 +18,18 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     storeConvMessages(state: ChatStateInterface, payload: any) {
-        console.log(payload);
+        const getMessages = payload.data;
+        console.log(getMessages);
 
-        // state.chatRequest[convId] = {
-        //     msg: payload.msg,
-        //     createdAt: payload.created_at,
-        //     convId,
-        // };
+        getMessages.forEach((message: any) => {
+            const convId = message.conversation_id;
+
+            state.messages.push({
+                msg: message.msg,
+                createdAt: message.created_at,
+                convId,
+            });
+        });
     },
 
     storeChatRequest(state: ChatStateInterface, payload: any) {

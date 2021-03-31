@@ -36,7 +36,7 @@ const api = function (store: any, router: any) {
             return req;
         },
         (err) => {
-            return Promise.reject(err);
+            return Promise.reject(err).then(r => r);
         }
     );
 
@@ -54,21 +54,21 @@ const api = function (store: any, router: any) {
 
                     return store.dispatch('auth/refreshToken').then(() => {
                         tokenRefreshing = false;
-                        return axios(err.config);
+                        return insAxios(err.config);
                     });
                 } else {
                     return new Promise((resolve) => {
                         const interval = setInterval(() => {
                             if (!tokenRefreshing) {
                                 clearInterval(interval);
-                                resolve(axios(err.config));
+                                resolve(insAxios(err.config));
                             }
                         }, 300);
                     });
                 }
             } else if (
                 err.response.status === 422 &&
-                ['Bearer token invalid', 'Refresh token not found'].includes(err.response.data.message)
+                ['Invalid bearer token', 'Refresh token not found'].includes(err.response.data.message)
             ) {
                 store.dispatch('auth/logout').then(() => {
                     tokenRefreshing = false;
