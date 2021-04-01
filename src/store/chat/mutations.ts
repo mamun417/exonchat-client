@@ -13,23 +13,34 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.convStateInfo = payload.data;
     },
 
-    storeTemporaryMessage(state: ChatStateInterface, payload: any) {
-        state.messages.push(payload);
+    // get conversations messages from databases
+    storeConvMessages(state: ChatStateInterface, payload: any) {
+        const convMessages = { messages: payload.data, id: payload.data[0].conversation_id };
+        const convId = convMessages.id;
+
+        if (!state.messages.hasOwnProperty(convId)) {
+            state.messages[convId] = { messages: {} };
+        }
+
+        convMessages.messages.forEach((message: any) => {
+            state.messages[convId].messages[message.id] = message;
+        });
     },
 
-    storeConvMessages(state: ChatStateInterface, payload: any) {
-        const getMessages = payload.data;
-        console.log(getMessages);
+    // store tem message
+    storeTemporaryMessage(state: ChatStateInterface, payload: any) {
+        const convId = payload.conversation_id;
+        const msgId = payload.id;
 
-        getMessages.forEach((message: any) => {
-            const convId = message.conversation_id;
-
-            state.messages.push({
-                msg: message.msg,
-                createdAt: message.created_at,
-                convId,
-            });
-        });
+        if (!state.messages.hasOwnProperty(convId)) {
+            state.messages[convId] = {
+                messages: {
+                    [msgId]: { id: payload.tempId, ...payload },
+                },
+            };
+        } else {
+            state.messages[convId]['messages'][msgId] = payload;
+        }
     },
 
     storeChatRequest(state: ChatStateInterface, payload: any) {

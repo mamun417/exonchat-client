@@ -47,9 +47,10 @@
             :content-style="{}"
         >
             <pre>{{ messages }}</pre>
+            <!-- <pre v-for="m in messages" :key="m">{{ m }}</pre> -->
             <q-chat-message
                 v-for="message in messages"
-                :key="message"
+                :key="message.id"
                 name="hasan"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                 :text="[message.msg]"
@@ -158,16 +159,18 @@ export default defineComponent({
         }, 30000);
 
         this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
-
-        // get conversation messages
-        this.getConvMessages();
     },
 
     computed: {
         ...mapGetters({
             convStateInfo: 'chat/convStateInfo',
-            messages: 'chat/messages',
+            // messages: 'chat/messages',
         }),
+
+        messages(): any {
+            const convId = this.getConvId();
+            return this.$store.getters['chat/messages'](convId);
+        },
 
         convStateButtonInfo() {
             const convState = this.convStateInfo.convState;
@@ -246,7 +249,7 @@ export default defineComponent({
 
         handleScroll(info: any) {
             let verticalPercentage = info.verticalPercentage;
-            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages.length > 0;
+            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
         },
 
         scrollToBottom() {
@@ -260,26 +263,38 @@ export default defineComponent({
             return message.socket_session_id === this.sesId;
         },
 
-        getConvMessages() {
-            this.$store
-                .dispatch('chat/getConvMessages', {
-                    convId: this.getConvId(),
-                })
-                .then((result: any) => {
-                    console.log(result);
-                })
-                .catch((err: any) => {
-                    console.log(err);
-                });
+        getConvMessages(convId: string) {
+            this.$store.dispatch('chat/getConvMessages', {
+                convId,
+            });
+            // .then((result: any) => {
+            //     console.log(result);
+            // })
+            // .catch((err: any) => {
+            //     console.log(err);
+            // });
         },
     },
 
     watch: {
-        messages: {
-            handler: function () {
-                this.scrollToBottom();
+        // messages: {
+        //     handler: function () {
+        //         this.scrollToBottom();
+        //     },
+        //     deep: true,
+        // },
+
+        $route: {
+            handler: function (to, from) {
+                const convId = this.getConvId();
+
+                this.getConvMessages(convId);
+
+                console.log(to);
+                console.log(from);
             },
             deep: true,
+            immediate: true,
         },
     },
 });

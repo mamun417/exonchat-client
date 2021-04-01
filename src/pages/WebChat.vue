@@ -144,7 +144,6 @@ export default defineComponent({
             userLogged: false,
 
             msg: '',
-            messages: [],
 
             pageInFocus: false,
 
@@ -158,7 +157,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            // messages: 'chat/messages',
+            messages: 'chat/messages',
             // convInfo: 'chat/convInfo',
         }),
     },
@@ -172,7 +171,7 @@ export default defineComponent({
         }, 30000);
 
         await this.initializeSocket();
-        this.fireSocketListners();
+        this.fireSocketListeners();
 
         this.firePageVisitListner();
 
@@ -220,7 +219,7 @@ export default defineComponent({
             // console.log(this.socket);
         },
 
-        fireSocketListners() {
+        fireSocketListeners() {
             this.socket.on('connect', () => {
                 console.log(`Your Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
@@ -243,8 +242,8 @@ export default defineComponent({
             });
 
             // successfully sent to user
-            this.socket.on('ec_msg_to_client', (res: any) => {
-                this.messages.push(res);
+            this.socket.on('ec_msg_to_client', async (res: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', res);
                 console.log('from ec_msg_to_client', res);
             });
 

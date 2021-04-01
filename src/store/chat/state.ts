@@ -2,7 +2,7 @@ export interface ChatStateInterface {
     convStateInfo: any;
     chatPanels: Array<string>; // holds opened chat panels
     selectedPanel: null | string;
-    messages: Array<any>;
+    messages: any;
     chatRequest: any;
 }
 
@@ -13,7 +13,7 @@ function state(): ChatStateInterface {
         convStateInfo: convStateInfo ? JSON.parse(convStateInfo) : {},
         chatPanels: [],
         selectedPanel: null,
-        messages: [],
+        messages: {},
         chatRequest: {},
     };
 }

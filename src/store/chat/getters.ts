@@ -3,27 +3,33 @@ import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
-    someAction(/* context */) {
+    someAction(/* state */) {
         // your code
     },
-    auth(/* context */) {
+    auth(/* state */) {
         // your code
     },
 
-    convStateInfo(context) {
-        return context.convStateInfo;
+    convStateInfo(state) {
+        return state.convStateInfo;
     },
 
     // convInfo(context) {
     //     return context.convInfo;
     // },
 
-    messages(context) {
-        return context.messages;
+    messages: (state) => (convId: any) => {
+        const messages = state.messages;
+
+        if (!convId) {
+            return messages;
+        }
+
+        return messages[convId]?.messages;
     },
 
-    chatRequest(context) {
-        return context.chatRequest;
+    chatRequest(state) {
+        return state.chatRequest;
     },
 };
 
