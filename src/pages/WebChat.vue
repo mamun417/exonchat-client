@@ -137,6 +137,8 @@ export default defineComponent({
 
             socketId: null,
             sesId: null,
+            soketToken: null,
+
             covId: null,
             convInfo: {},
 
@@ -192,8 +194,7 @@ export default defineComponent({
             this.convInfo = convInfo ? JSON.parse(convInfo) : {};
 
             this.sesId = sessionStorage.getItem('ec_client_socket_ses_id');
-
-            console.log(this.sesId);
+            this.socketToken = sessionStorage.getItem('ec_client_socket_token');
 
             if (!this.sesId) {
                 await window.api
@@ -201,19 +202,30 @@ export default defineComponent({
                         api_key: 'test',
                     })
                     .then((res: any) => {
-                        this.sesId = res.data.id;
+                        console.log(res.data);
 
-                        sessionStorage.setItem('ec_client_socket_ses_id', res.data.id);
+                        this.sesId = res.data.data.id;
+                        this.socketToken = res.data.bearerToken;
+
+                        sessionStorage.setItem('ec_client_socket_ses_id', res.data.data.id);
+                        sessionStorage.setItem('ec_client_socket_token', res.data.bearerToken);
                     })
                     .catch((err: any) => {
                         console.log(err);
                     });
             }
 
+            console.log(this.sesId);
+
+            if (!this.socketToken) {
+                // handle error
+                console.log('socket token not found for this sesId');
+
+                return;
+            }
             this.socket = io('http://localhost:3000', {
                 query: {
-                    ses_id: this.sesId,
-                    api_key: 'test',
+                    token: this.socketToken,
                 },
             });
             // localStorage.debug = '*';
@@ -290,7 +302,7 @@ export default defineComponent({
         },
 
         chatInitialize() {
-            this.socket.emit('ec_init_conv_from_client');
+            this.socket.emit('ec_init_conv_from_client', {});
         },
 
         firePageVisitListner() {
@@ -335,10 +347,10 @@ export default defineComponent({
 
         sendPageVisitingInfo() {
             if (this.pageInFocus && this.socketId) {
-                this.socket.emit('ec_page_visit_info_from_client', {
-                    url: '',
-                    sent_at: 'timestamp',
-                });
+                // this.socket.emit('ec_page_visit_info_from_client', {
+                //     url: '',
+                //     sent_at: 'timestamp',
+                // });
             }
         },
 

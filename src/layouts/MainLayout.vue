@@ -68,7 +68,7 @@
             <left-bar></left-bar>
         </q-drawer>
         <q-drawer
-            v-if="1<0"
+            v-if="1 < 0"
             v-model="rightDrawer"
             class="tw-shadow-lgl"
             side="right"
@@ -103,6 +103,8 @@ export default defineComponent({
             socket: null,
 
             sesId: null,
+            socketToken: null,
+
             convIds: [],
 
             typingHandler: null,
@@ -137,24 +139,34 @@ export default defineComponent({
         async socketInitialize() {
             if (this.handshake || 'logged') {
                 this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
+                this.socketToken = sessionStorage.getItem('ec_user_socket_token');
                 console.log(this.sesId);
 
                 if (!this.sesId) {
                     await window.api
                         .post('/socket-sessions', {
                             api_key: 'test',
+                            user_id: this.profile.id,
                         })
                         .then((res: any) => {
-                            this.sesId = res.data.id;
+                            this.sesId = res.data.data.id;
+                            this.socketToken = res.data.bearerToken;
 
                             sessionStorage.setItem('ec_user_socket_ses_id', res.data.id);
+                            sessionStorage.setItem('ec_user_socket_token', res.data.bearerToken);
                         })
                         .catch((err: any) => {
                             console.log(err);
                         });
                 }
 
-                this.$socket.io.opts.query = `api_key=test&ses_id=${this.sesId}&client_type=user`;
+                if (!this.socketToken) {
+                    //handle error
+                    console.log('socket token not found for this sesId');
+                    return;
+                }
+
+                this.$socket.io.opts.query = `token=${this.socketToken}&client_type=user`;
 
                 this.socket = this.$socket.connect();
 
