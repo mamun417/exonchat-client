@@ -7,7 +7,6 @@
             <q-space></q-space>
             <q-btn icon="expand_more" dense flat></q-btn>
         </div>
-
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
             <div v-if="convInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
                 <q-scroll-area
@@ -139,9 +138,6 @@ export default defineComponent({
             sesId: null,
             soketToken: null,
 
-            covId: null,
-            convInfo: {},
-
             showChatForm: false,
             userLogged: false,
 
@@ -157,15 +153,7 @@ export default defineComponent({
         };
     },
 
-    computed: {
-        ...mapGetters({
-            messages: 'chat/messages',
-            // convInfo: 'chat/convInfo',
-        }),
-    },
-
     async mounted() {
-        console.log(this.$store._modules.root.state.chat);
         console.log('WebChat Mounted');
 
         setInterval(() => {
@@ -179,6 +167,17 @@ export default defineComponent({
 
         // this.setTypingFalse();
     },
+
+    computed: {
+        ...mapGetters({
+            convInfo: 'chat/convInfo',
+        }),
+
+        messages(): any {
+            return this.$store.getters['chat/messages'](this.convInfo.conv_id);
+        },
+    },
+
     methods: {
         clearSession() {
             localStorage.clear();
@@ -244,14 +243,14 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_user', (res: any) => {
-                this.messages.push(res);
+            this.socket.on('ec_msg_from_user', async (res: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', res);
                 console.log('from ec_msg_from_user', res);
             });
 
-            this.socket.on('ec_is_typing_to_client', (res: any) => {
-                console.log('from ec_is_typing_to_client', res);
-            });
+            // this.socket.on('ec_is_typing_to_client', (res: any) => {
+            //     console.log('from ec_is_typing_to_client', res);
+            // });
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', async (res: any) => {
@@ -259,25 +258,28 @@ export default defineComponent({
                 console.log('from ec_msg_to_client', res);
             });
 
-            this.socket.on('ec_is_typing_from_user', (res: any) => {
-                console.log(res);
-                // this.typingHandler.typing = true;
-                console.log('from ec_is_typing_from_user', res);
-            });
+            // this.socket.on('ec_is_typing_from_user', (res: any) => {
+            //     console.log(res);
+            //     // this.typingHandler.typing = true;
+            //     console.log('from ec_is_typing_from_user', res);
+            // });
 
-            this.socket.on('ec_conv_initiated_to_client', (res: any) => {
-                console.log(res);
-
+            this.socket.on('ec_conv_initiated_to_client', async (res: any) => {
                 console.log('from ec_conv_initiated_to_client', res);
 
+                const convInfo = localStorage.getItem('convInfo');
+
                 if (res.status === 'success') {
-                    if (!this.conv_id) {
-                        localStorage.setItem('convInfo', JSON.stringify(res.data));
-                        this.convInfo = res.data;
+                    console.log(!this.convInfo);
+
+                    if (!convInfo) {
+                        console.log(res);
+
+                        await this.$store.dispatch('chat/storeConvInfo', res);
                     } else {
-                        if (this.conv_id === res.data.conversation_id) {
-                            //no idea for now what to do if conv_id donst match
-                        }
+                        // if (this.conv_id === res.data.conversation_id) {
+                        //     //no idea for now what to do if conv_id donst match
+                        // }
                     }
                 }
             });
@@ -392,14 +394,16 @@ export default defineComponent({
 
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;
-            const scrollTarget = msgScrollArea.getScrollTarget();
-
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
+            
+            if (msgScrollArea) {
+                const scrollTarget = msgScrollArea.getScrollTarget();
+                msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
+            }
         },
 
         handleScroll(info: any) {
             let verticalPercentage = info.verticalPercentage;
-            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages.length > 0;
+            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
         },
 
         setTypingFalse() {

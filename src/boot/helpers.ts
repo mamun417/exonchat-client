@@ -1,7 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import * as _l from 'lodash';
 import moment from 'moment';
-
+require('colors');
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
         $_: any;
@@ -15,8 +15,8 @@ declare global {
     }
 }
 
-window.clog = function (text: any) {
-    console.log(text);
+window.clog = function (text: any, type = 'black') {
+    console.log(text[type]);
 };
 
 const getTempId = function () {

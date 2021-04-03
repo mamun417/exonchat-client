@@ -30,7 +30,7 @@
         <q-scroll-area
             @scroll="handleScroll"
             ref="msgScrollArea"
-            class="tw-flex-1 tw-p-3"
+            class="tw-flex-grow tw-p-3"
             style="height: 1px"
             :bar-style="{
                 background: '#60A5FA',
@@ -46,12 +46,14 @@
             }"
             :content-style="{}"
         >
-            <pre>{{ messages }}</pre>
-            <!-- <pre v-for="m in messages" :key="m">{{ m }}</pre> -->
             <q-chat-message
-                v-for="message in messages"
+                v-for="(message, index) in messages"
                 :key="message.id"
-                name="hasan"
+                :name="
+                    index === 0 || message.socket_session_id !== messages[index - 1].socket_session_id
+                        ? message.socket_session_id
+                        : ''
+                "
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                 :text="[message.msg]"
                 :stamp="$fromNowTime(message.created_at)"
@@ -254,12 +256,19 @@ export default defineComponent({
 
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;
-            const scrollTarget = msgScrollArea.getScrollTarget();
 
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
+            if (msgScrollArea) {
+                const scrollTarget = msgScrollArea.getScrollTarget();
+
+                msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
+                // setTimeout(function () {
+                // }, 2000);
+            }
         },
 
         checkOwnMessage(message: any) {
+            console.log(message.socket_session_id, message.msg);
+
             return message.socket_session_id === this.sesId;
         },
 
@@ -277,21 +286,17 @@ export default defineComponent({
     },
 
     watch: {
-        // messages: {
-        //     handler: function () {
-        //         this.scrollToBottom();
-        //     },
-        //     deep: true,
-        // },
+        messages: {
+            handler: function () {
+                this.scrollToBottom();
+            },
+            deep: true,
+        },
 
         $route: {
-            handler: function (to, from) {
+            handler: function () {
                 const convId = this.getConvId();
-
                 this.getConvMessages(convId);
-
-                console.log(to);
-                console.log(from);
             },
             deep: true,
             immediate: true,

@@ -1,3 +1,6 @@
+// import { _l } from 'src/boot/helpers';
+import moment from 'moment';
+import { _l } from 'src/boot/helpers';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
@@ -10,22 +13,28 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         // your code
     },
 
+    convInfo(state) {
+        return state.convInfo;
+    },
+
     convStateInfo(state) {
         return state.convStateInfo;
     },
 
-    // convInfo(context) {
-    //     return context.convInfo;
-    // },
-
     messages: (state) => (convId: any) => {
-        const messages = state.messages;
+        const allMessages = state.messages;
 
         if (!convId) {
-            return messages;
+            return allMessages;
         }
 
-        return messages[convId]?.messages;
+        const convMessages = allMessages[convId]?.messages;
+        
+        return _l.sortBy(convMessages, [
+            function (message) {
+                return moment(message.created_at).format('x');
+            },
+        ]);
     },
 
     chatRequest(state) {

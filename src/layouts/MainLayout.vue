@@ -18,8 +18,8 @@
                         >
                             <div class="text-green text-center">{{ m }}</div>
                             <div class="tw-my-2" v-for="(mv, k) in Object.keys($store._modules.root.state[m])" :key="k">
-                                <span>{{ mv }}</span
-                                ><span class="tw-mx-2">=></span><span>{{ $store._modules.root.state[m][mv] }}</span>
+                                <span><pre>{{ mv }}</pre></span
+                                ><span class="tw-mx-2">=></span><span><pre>{{ $store._modules.root.state[m][mv] }}</pre></span>
                             </div>
                         </div>
                     </q-menu>
@@ -143,7 +143,7 @@ export default defineComponent({
                 console.log(this.sesId);
 
                 if (!this.sesId) {
-                    await window.api
+                    await this.$api
                         .post('/socket-sessions', {
                             api_key: 'test',
                             user_id: this.profile.id,
@@ -152,7 +152,7 @@ export default defineComponent({
                             this.sesId = res.data.data.id;
                             this.socketToken = res.data.bearerToken;
 
-                            sessionStorage.setItem('ec_user_socket_ses_id', res.data.id);
+                            sessionStorage.setItem('ec_user_socket_ses_id', this.sesId);
                             sessionStorage.setItem('ec_user_socket_token', res.data.bearerToken);
                         })
                         .catch((err: any) => {
@@ -188,6 +188,7 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
+            // successfully sent to client
             this.socket.on('ec_msg_to_user', async (data: any) => {
                 await this.$store.dispatch('chat/storeTemporaryMessage', data);
                 console.log('from ec_msg_to_user', data);
@@ -213,17 +214,17 @@ export default defineComponent({
             });
 
             // handle only other users typing
-            this.socket.on('ec_is_typing_from_user', (data: any) => {
-                console.log('from ec_is_typing_from_user', data);
-            });
+            // this.socket.on('ec_is_typing_from_user', (data: any) => {
+            //     console.log('from ec_is_typing_from_user', data);
+            // });
 
-            this.socket.on('ec_is_typing_to_user', (data: any) => {
-                console.log('from ec_is_typing_to_user', data);
-            });
+            // this.socket.on('ec_is_typing_to_user', (data: any) => {
+            //     console.log('from ec_is_typing_to_user', data);
+            // });
 
-            this.socket.on('ec_is_typing_from_client', (data: any) => {
-                console.log('from ec_is_typing_from_client', data.msg);
-            });
+            // this.socket.on('ec_is_typing_from_client', (data: any) => {
+            //     console.log('from ec_is_typing_from_client', data.msg);
+            // });
 
             this.socket.on('ec_conv_initiated_from_client', (data: any) => {
                 console.log('from ec_conv_initiated_from_client', data);
@@ -261,13 +262,6 @@ export default defineComponent({
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
             });
-        },
-
-        scrollToBottom() {
-            const msgScrollArea = this.$refs.msgScrollArea;
-            const scrollTarget = msgScrollArea.getScrollTarget();
-
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
         },
 
         logout() {

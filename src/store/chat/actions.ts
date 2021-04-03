@@ -3,8 +3,8 @@ import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
-    someAction(/* context */) {
-        // your code
+    storeConvInfo(context, payload) {
+        context.commit('storeConvInfo', payload);
     },
 
     setConvState(context, payload) {

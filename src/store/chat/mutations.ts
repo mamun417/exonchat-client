@@ -7,6 +7,14 @@ const mutation: MutationTree<ChatStateInterface> = {
         // your code
     },
 
+    storeConvInfo(state: ChatStateInterface, payload: any) {
+        console.log(payload);
+
+        const data = JSON.stringify(payload.data);
+        localStorage.setItem('convInfo', data);
+        state.convInfo = payload.data;
+    },
+
     setConvState(state: ChatStateInterface, payload: any) {
         const data = JSON.stringify(payload.data);
         localStorage.setItem('convStateInfo', data);
