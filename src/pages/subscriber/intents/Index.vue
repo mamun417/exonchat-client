@@ -1,17 +1,8 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div
-            class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
-        >
-            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
-                Intents List
-            </div>
-            <q-btn
-                color="green"
-                icon="add"
-                label="Add New"
-                @click="newIntentModal = true"
-            ></q-btn>
+        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Intents List</div>
+            <q-btn color="green" icon="add" label="Add New" @click="newIntentModal = true"></q-btn>
         </div>
 
         <div class="tw-flex-grow">
@@ -25,13 +16,7 @@
                     flat
                 >
                     <template v-slot:top-right>
-                        <q-input
-                            borderless
-                            dense
-                            debounce="300"
-                            placeholder="Search"
-                            color="green"
-                        >
+                        <q-input borderless dense debounce="300" placeholder="Search" color="green">
                             <template v-slot:append>
                                 <q-icon name="search" />
                             </template>
@@ -55,11 +40,7 @@
                         <q-td :props="props">
                             <q-badge color="green" class="text-italic"
                                 >{{ props.row.intent.name
-                                }}<q-tooltip
-                                    class=""
-                                    anchor="center right"
-                                    :offset="[50, 14]"
-                                >
+                                }}<q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ props.row.intent.desc }}
                                 </q-tooltip></q-badge
                             >
@@ -68,9 +49,7 @@
 
                     <template v-slot:body-cell-map_to="props">
                         <q-td :props="props">
-                            <div
-                                class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700"
-                            >
+                            <div class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700">
                                 {{ props.row.map_to }}
                             </div>
                         </q-td>
@@ -78,9 +57,7 @@
 
                     <template v-slot:body-cell-parent_intent="props">
                         <q-td :props="props">
-                            <div
-                                class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700"
-                            >
+                            <div class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700">
                                 {{ props.row.parent_intent }}
                             </div>
                         </q-td>
@@ -102,27 +79,13 @@
                                 dense
                                 flat
                             ></q-btn>
-                            <q-btn
-                                icon="settings"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn
-                                icon="delete"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
+                            <q-btn icon="settings" text-color="green" size="sm" dense flat></q-btn>
+                            <q-btn icon="delete" text-color="red" size="sm" dense flat></q-btn>
                         </q-td>
                     </template>
 
                     <template v-slot:no-data="{ message }">
-                        <div
-                            class="full-width row flex-center text-red q-gutter-sm"
-                        >
+                        <div class="full-width row flex-center text-red q-gutter-sm">
                             <q-icon size="2em" name="sentiment_dissatisfied" />
                             <span> Well this is sad... {{ message }} </span>
                         </div>
@@ -131,248 +94,111 @@
             </div>
         </div>
 
-        <q-dialog
-            v-model="newIntentModal"
-            @update:modelValue="(value) => (newIntentModal = value)"
-            persistent
-        >
+        <q-dialog v-model="newIntentModal" @update:modelValue="(value) => (newIntentModal = value)" persistent>
             <q-card style="max-width: 500px">
-                <q-card-section
-                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
-                >
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">Add New Intent</div>
                     <q-space></q-space>
-                    <q-btn
-                        icon="close"
-                        color="orange"
-                        flat
-                        round
-                        dense
-                        v-close-popup
-                    ></q-btn>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        label="Intent Name"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="label" color="green" /> </template
+                    <q-input label="Intent Name" color="green" prefix="@" class="tw-my-2" dense
+                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
                     ></q-input>
 
                     <q-select
-                        label="Select a Parent Intent"
-                        :options="[
-                            {
-                                label: '@price/hosting',
-                                value: '@price/hosting',
-                                description: 'Get the hosting price',
-                            },
-                            {
-                                label: '@info/user',
-                                value: '@info/user',
-                                description: 'Get user info',
-                            },
-                        ]"
-                        class="tw-my-2"
-                        color="green"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="ballot" color="green" /> </template
-                        ><template v-slot:option="scope">
-                            <q-item
-                                v-bind="scope.itemProps"
-                                v-on="scope.itemEvents"
-                                dense
-                            >
-                                <q-item-section class="tw-py-1">
-                                    <q-item-label v-html="scope.opt.label" />
-                                    <q-item-label class="tw-text-xxs" caption>{{
-                                        scope.opt.description
-                                    }}</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                        </template></q-select
-                    >
-
-                    <q-select
                         label="Content Type"
-                        :options="['action', 'static']"
+                        :options="['action', 'static', 'external']"
                         class="tw-my-2"
                         color="green"
                         v-model="newIntentType"
                         dense
-                        ><template v-slot:prepend>
-                            <q-icon name="ballot" color="green" /> </template
+                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
                     ></q-select>
 
                     <q-input
-                        :label="
-                            newIntentType === 'action'
-                                ? 'Action Name'
-                                : 'Static Content'
-                        "
+                        :label="newIntentType === 'action' ? 'Action Name' : 'Static Content'"
                         class="tw-my-2"
                         color="green"
                         options-selected-class="text-green"
                         v-model="intentChoosed"
                         :autogrow="newIntentType === 'static'"
                         dense
-                        ><template v-slot:prepend>
-                            <q-icon name="work" color="green" /></template
+                        ><template v-slot:prepend> <q-icon name="work" color="green" /></template
                     ></q-input>
 
-                    <q-input
-                        label="Description"
-                        color="green"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon
-                                name="description"
-                                color="green"
-                            /> </template
+                    <q-input label="Description" color="green" class="tw-my-2" dense
+                        ><template v-slot:prepend> <q-icon name="description" color="green" /> </template
                     ></q-input>
 
-                    <q-checkbox
-                        class="tw-mt-2"
-                        label="Activate This Intent"
-                        color="green"
-                        dense
-                    />
+                    <q-checkbox class="tw-mt-2" label="Activate This Intent" color="green" dense />
 
-                    <div
-                        class="tw-text-xxs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold"
-                    >
-                        <div>
-                            When a msg is parsed by ai it will return the parent
-                            intent. Then it will resolve to your intents action
-                            or content.
-                        </div>
+                    <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div>When a msg is parsed by ai it will resolve to your intents action or content.</div>
                     </div>
                 </q-card-section>
 
-                <q-card-actions class="tw-mx-6 tw-my-4">
-                    <q-btn color="green" label="submit" class="full-width" />
+                <q-card-actions class="tw-mx-6 tw-mb-4 tw-mt-2">
+                    <q-btn color="green" label="submit" class="full-width" @click="saveIntent" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
 
-        <q-dialog
-            v-model="editIntent"
-            @update:modelValue="(value) => (editIntent = value)"
-            persistent
-        >
+        <q-dialog v-model="editIntent" @update:modelValue="(value) => (editIntent = value)" persistent>
             <!-- load parent intents all content -->
             <!--  -->
             <q-card style="max-width: 500px">
-                <q-card-section
-                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
-                >
-                    <div class="tw-text-lg text-green">
-                        Edit Intent @get_lowest_hosting_price
-                    </div>
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
+                    <div class="tw-text-lg text-green">Edit Intent <b>@get_lowest_hosting_price</b></div>
                     <q-space></q-space>
-                    <q-btn
-                        icon="close"
-                        color="orange"
-                        flat
-                        round
-                        dense
-                        v-close-popup
-                    ></q-btn>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        label="Parent Intent is using for this"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        readonly
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="label" color="green" /> </template
-                    ></q-input>
-
-                    <q-input
-                        label="Intent Name"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="label" color="green" /> </template
+                    <q-input label="Intent Name" color="green" prefix="@" class="tw-my-2" dense readonly
+                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
                     ></q-input>
 
                     <q-select
                         label="Content Type"
-                        :options="['action', 'static']"
+                        :options="['action', 'static', 'external']"
                         class="tw-my-2"
                         color="green"
                         v-model="newIntentType"
                         dense
-                        ><template v-slot:prepend>
-                            <q-icon name="ballot" color="green" /> </template
+                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
                     ></q-select>
 
                     <q-input
-                        :label="
-                            newIntentType === 'action'
-                                ? 'Action Name'
-                                : 'Static Content'
-                        "
+                        :label="newIntentType === 'action' ? 'Action Name' : 'Static Content'"
                         class="tw-my-2"
                         color="green"
                         options-selected-class="text-green"
                         v-model="intentChoosed"
                         :autogrow="newIntentType === 'static'"
                         dense
-                        ><template v-slot:prepend>
-                            <q-icon name="work" color="green" /></template
+                        ><template v-slot:prepend> <q-icon name="work" color="green" /></template
                     ></q-input>
 
-                    <q-input
-                        label="Description"
-                        color="green"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon
-                                name="description"
-                                color="green"
-                            /> </template
+                    <q-input label="Description" color="green" class="tw-my-2" dense
+                        ><template v-slot:prepend> <q-icon name="description" color="green" /> </template
                     ></q-input>
 
-                    <q-checkbox
-                        class="tw-mt-2"
-                        label="Activate This Intent"
-                        color="green"
-                        dense
-                    />
-
-                    <div
-                        class="tw-text-xxs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold"
-                    >
-                        <div>
-                            If you change a global intent it will create a new
-                            one with the associated intent.
-                        </div>
-                    </div>
+                    <q-checkbox class="tw-mt-2" label="Activate This Intent" color="green" dense />
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-6 tw-my-4">
-                    <q-btn color="green" label="submit" class="full-width" />
+                    <q-btn color="green" label="update" class="full-width" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue';
+
 const columns = [
     { name: 'intent', align: 'left', label: 'Intent Name', field: 'intent' },
     {
@@ -438,7 +264,7 @@ const dynamicVariables = [
     { name: 'user_name', des: 'will print assigned name else guest' },
     { name: 'user_id', des: 'will print logged users id' },
 ];
-export default {
+export default defineComponent({
     data() {
         return {
             newIntentModal: false,
@@ -455,6 +281,21 @@ export default {
             dynamicVariables,
         };
     },
-    methods: {},
-};
+    methods: {
+        saveIntent() {
+            this.$api
+                .post('intents', {
+                    tag: 'aaa',
+                    description: 'a',
+                    type: 'action',
+                    active: true,
+                    action_name: 'lll',
+                })
+                .then((res: any) => {
+                    console.log(res);
+                })
+                .catch((e: any) => console.log(e));
+        },
+    },
+});
 </script>

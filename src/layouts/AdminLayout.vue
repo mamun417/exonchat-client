@@ -1,6 +1,14 @@
 <template>
     <q-layout view="hhh LpR fff" class="bg-white">
-        <q-drawer :model-value="true" :mini="true" mini-width="80"
+        <q-drawer
+            :model-value="true"
+            :mini="true"
+            class="tw-shadow-lgr"
+            mini-width="80"
+            breakpoint="xs"
+            persistent
+            no-swipe-close
+            show-if-above
             ><admin-left-bar></admin-left-bar
         ></q-drawer>
         <q-page-container>
