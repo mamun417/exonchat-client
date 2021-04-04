@@ -165,6 +165,7 @@ export default defineComponent({
 
         this.firePageVisitListner();
 
+        this.getConvMessages(this.convInfo.conv_id);
         // this.setTypingFalse();
     },
 
@@ -184,6 +185,12 @@ export default defineComponent({
             sessionStorage.clear();
             this.convInfo = {};
             location.reload();
+        },
+
+        getConvMessages(convId: string) {
+            this.$store.dispatch('chat/getConvMessages', {
+                convId,
+            });
         },
 
         async initializeSocket() {
@@ -394,7 +401,7 @@ export default defineComponent({
 
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;
-            
+
             if (msgScrollArea) {
                 const scrollTarget = msgScrollArea.getScrollTarget();
                 msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);

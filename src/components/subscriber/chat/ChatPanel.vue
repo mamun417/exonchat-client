@@ -5,7 +5,7 @@
                 <q-item class="">
                     <q-item-section avatar>
                         <q-avatar size="xl">
-                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
+                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="" />
                         </q-avatar>
                     </q-item-section>
 
@@ -69,7 +69,7 @@
             <q-btn
                 v-if="gotoBottomBtnShow"
                 @click="scrollToBottom"
-                style="position: fixed; left: 200px; bottom: 60px"
+                style="position: fixed; left: 50%; bottom: 60px"
                 class="tw-bottom-2 tw-opacity-75 tw-right-2"
                 color="black"
                 icon="keyboard_arrow_down"
@@ -166,7 +166,6 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             convStateInfo: 'chat/convStateInfo',
-            // messages: 'chat/messages',
         }),
 
         messages(): any {
@@ -267,8 +266,6 @@ export default defineComponent({
         },
 
         checkOwnMessage(message: any) {
-            console.log(message.socket_session_id, message.msg);
-
             return message.socket_session_id === this.sesId;
         },
 
@@ -296,7 +293,10 @@ export default defineComponent({
         $route: {
             handler: function () {
                 const convId = this.getConvId();
-                this.getConvMessages(convId);
+
+                if (convId) {
+                    this.getConvMessages(convId);
+                }
             },
             deep: true,
             immediate: true,

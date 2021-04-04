@@ -21,7 +21,7 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.convStateInfo = payload.data;
     },
 
-    // get conversations messages from databases
+    // get conversations messages into state which come from db
     storeConvMessages(state: ChatStateInterface, payload: any) {
         const convMessages = { messages: payload.data, id: payload.data[0].conversation_id };
         const convId = convMessages.id;
@@ -35,7 +35,7 @@ const mutation: MutationTree<ChatStateInterface> = {
         });
     },
 
-    // store tem message
+    // store temp message
     storeTemporaryMessage(state: ChatStateInterface, payload: any) {
         const convId = payload.conversation_id;
         const msgId = payload.id;
@@ -51,14 +51,35 @@ const mutation: MutationTree<ChatStateInterface> = {
         }
     },
 
-    storeChatRequest(state: ChatStateInterface, payload: any) {
+    // store chat requests into state which come from db
+    storeChatRequests(state: ChatStateInterface, payload: any) {
+        const chatRequests = payload.data;
+
+        chatRequests.forEach((chatRequest: any) => {
+            const convId = chatRequest.id;
+
+            state.chatRequests[convId] = {
+                msg: chatRequest.messages[0].msg,
+                createdAt: chatRequest.created_at,
+                convId,
+            };
+        });
+    },
+
+    // store temp chat request
+    storeTempChatRequest(state: ChatStateInterface, payload: any) {
         const convId = payload.conversation_id;
 
-        state.chatRequest[convId] = {
+        state.chatRequests[convId] = {
             msg: payload.msg,
             createdAt: payload.created_at,
             convId,
         };
+    },
+
+    // store agents into state which come from db
+    storeAgents(state: ChatStateInterface, payload: any) {
+        state.chatAgents = payload.data;
     },
 };
 

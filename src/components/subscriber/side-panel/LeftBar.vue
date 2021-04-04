@@ -41,12 +41,12 @@
                     label="Incoming chat request"
                     header-class="text-weight-bold bg-green-1"
                 >
-                    <q-card v-if="Object.keys(chatRequest).length">
+                    <q-card v-if="Object.keys(chatRequests).length">
                         <q-list>
                             <q-item
-                                v-for="(request, convId) in chatRequest"
-                                :to="{ name: 'chats', params: { conv_id: convId } }"
-                                :key="convId"
+                                v-for="(request, index) in chatRequests"
+                                :to="{ name: 'chats', params: { conv_id: request.convId } }"
+                                :key="index"
                                 clickable
                             >
                                 <q-item-section avatar>
@@ -56,7 +56,9 @@
                                 </q-item-section>
 
                                 <q-item-section>
-                                    <q-item-label class="text-weight-bold text-dark">Hasan</q-item-label>
+                                    <q-item-label class="text-weight-bold text-dark" style="word-break: break-all">{{
+                                        request.convId
+                                    }}</q-item-label>
                                     <q-item-label caption lines="2" class="text-weight-bold">
                                         {{ request.msg }}
                                     </q-item-label>
@@ -74,34 +76,19 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item class="" clickable>
+                                <q-item class="" clickable v-for="(agent, index) in chatAgents" :key="index">
                                     <q-item-section avatar>
                                         <q-avatar>
-                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" />
+                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" alt="" />
                                         </q-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold">Mamun</q-item-label>
+                                        <q-item-label class="text-weight-bold">{{ agent.email }}</q-item-label>
                                     </q-item-section>
 
                                     <q-item-section side>
                                         <q-icon name="fiber_manual_record" color="green" size="xs" />
-                                    </q-item-section>
-                                </q-item>
-                                <q-item class="" clickable>
-                                    <q-item-section avatar>
-                                        <q-avatar>
-                                            <img :src="`https://cdn.quasar.dev/img/avatar6.jpg`" />
-                                        </q-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-bold">Noman</q-item-label>
-                                    </q-item-section>
-
-                                    <q-item-section side>
-                                        <q-icon name="fiber_manual_record" color="grey" size="xs" />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -216,14 +203,25 @@ export default defineComponent({
 
     mounted() {
         console.log('left bar initiated');
+        this.getChatRequest();
+        this.getAgents();
     },
 
     computed: {
         ...mapGetters({
-            chatRequest: 'chat/chatRequest',
+            chatRequests: 'chat/chatRequests',
+            chatAgents: 'chat/chatAgents',
         }),
     },
 
-    methods: {},
+    methods: {
+        getChatRequest() {
+            this.$store.dispatch('chat/getChatRequests');
+        },
+
+        getAgents() {
+            this.$store.dispatch('chat/getAgents');
+        },
+    },
 });
 </script>

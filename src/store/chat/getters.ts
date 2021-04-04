@@ -24,12 +24,15 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     messages: (state) => (convId: any) => {
         const allMessages = state.messages;
 
+        window.clog('check----', 'red');
+        console.log(allMessages);
+
         if (!convId) {
             return allMessages;
         }
 
         const convMessages = allMessages[convId]?.messages;
-        
+
         return _l.sortBy(convMessages, [
             function (message) {
                 return moment(message.created_at).format('x');
@@ -37,8 +40,19 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         ]);
     },
 
-    chatRequest(state) {
-        return state.chatRequest;
+    chatRequests(state) {
+        // return state.chatRequests;
+        return _l
+            .sortBy(state.chatRequests, [
+                function (chatRequest) {
+                    return moment(chatRequest.createdAt).format('x');
+                },
+            ])
+            .reverse();
+    },
+
+    chatAgents(state) {
+        return state.chatAgents;
     },
 };
 

@@ -4,7 +4,8 @@ export interface ChatStateInterface {
     chatPanels: Array<string>; // holds opened chat panels
     selectedPanel: null | string;
     messages: any;
-    chatRequest: any;
+    chatRequests: any;
+    chatAgents: any;
 }
 
 function state(): ChatStateInterface {
@@ -17,7 +18,8 @@ function state(): ChatStateInterface {
         chatPanels: [],
         selectedPanel: null,
         messages: {},
-        chatRequest: {},
+        chatRequests: {},
+        chatAgents: {},
     };
 }
 

@@ -18,8 +18,13 @@
                         >
                             <div class="text-green text-center">{{ m }}</div>
                             <div class="tw-my-2" v-for="(mv, k) in Object.keys($store._modules.root.state[m])" :key="k">
-                                <span><pre>{{ mv }}</pre></span
-                                ><span class="tw-mx-2">=></span><span><pre>{{ $store._modules.root.state[m][mv] }}</pre></span>
+                                <span>
+                                    <pre>{{ mv }}</pre>
+                                </span>
+                                <span class="tw-mx-2">=></span>
+                                <span>
+                                    <pre>{{ $store._modules.root.state[m][mv] }}</pre>
+                                </span>
                             </div>
                         </div>
                     </q-menu>
@@ -172,10 +177,10 @@ export default defineComponent({
 
                 console.log(this.socket);
 
-                this.fireSocketListners();
+                this.fireSocketListeners();
             }
         },
-        fireSocketListners() {
+        fireSocketListeners() {
             this.socket.on('connect', () => {
                 console.log(`Your user Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
@@ -202,7 +207,7 @@ export default defineComponent({
 
             this.socket.on('ec_msg_from_client', async (data: any) => {
                 await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                await this.$store.dispatch('chat/storeChatRequest', data);
+                await this.$store.dispatch('chat/storeTempChatRequest', data);
 
                 this.$q.notify({
                     message: 'Jim pinged you.',
