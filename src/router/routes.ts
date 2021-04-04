@@ -28,6 +28,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/chat-templates/Index.vue'),
             },
             {
+                path: 'speech-recognition',
+                name: 'speech-recognition',
+                component: () => import('pages/subscriber/speech-recognition/Index.vue'),
+            },
+            {
                 path: 'intents',
                 name: 'intents',
                 component: () => import('pages/subscriber/intents/Index.vue'),

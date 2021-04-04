@@ -283,18 +283,43 @@ export default defineComponent({
     },
     methods: {
         saveIntent() {
-            this.$api
-                .post('intents', {
-                    tag: 'aaa',
-                    description: 'a',
-                    type: 'action',
-                    active: true,
-                    action_name: 'lll',
-                })
-                .then((res: any) => {
-                    console.log(res);
-                })
-                .catch((e: any) => console.log(e));
+            // this.$api
+            //     .post('intents', {
+            //         tag: 'bbb',
+            //         description: 'b',
+            //         type: 'action',
+            //         active: true,
+            //         action_name: 'bbb',
+            //     })
+            //     .then((res: any) => {
+            //         console.log(res);
+            //     })
+            //     .catch((e: any) => console.log(e));
+            // this.$api
+            //     .post('intents/intent-id', {
+            //         description: 'b',
+            //         type: 'action',
+            //         active: true,
+            //         action_name: 'bbb',
+            //     })
+            //     .then((res: any) => {
+            //         console.log(res);
+            //     })
+            //     .catch((e: any) => console.log(e));
+            // this.$api
+            //     .post('intents/intent-id/active-status', {
+            //         active: true,
+            //     })
+            //     .then((res: any) => {
+            //         console.log(res);
+            //     })
+            //     .catch((e: any) => console.log(e));
+            // this.$api
+            //     .get('intents')
+            //     .then((res: any) => {
+            //         console.log(res);
+            //     })
+            //     .catch((e: any) => console.log(e));
         },
     },
 });
