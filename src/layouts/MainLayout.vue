@@ -138,12 +138,14 @@ export default defineComponent({
         if ('logged in') {
             this.socketInitialize();
         }
+
+        this.$socket.emit('ec_get_logged_users', {});
     },
 
     methods: {
         async socketInitialize() {
             if (this.handshake || 'logged') {
-                this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
+                this.sesId = this.$getMySocketSessionId;
                 this.socketToken = sessionStorage.getItem('ec_user_socket_token');
                 console.log(this.sesId);
 
@@ -201,7 +203,8 @@ export default defineComponent({
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_user', (data: any) => {
+            this.socket.on('ec_msg_from_user', async (data: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', data);
                 console.log('from ec_msg_from_user', data);
             });
 
@@ -240,11 +243,10 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_joined_from_conversation', (data: any) => {
-                data.data = {
-                    convState: 'joined',
-                };
+                data.status = 'joined';
 
-                this.$store.dispatch('chat/setConvState', data);
+                this.$store.dispatch('chat/storeConvState', data);
+
                 console.log('from ec_is_joined_from_conversation', data);
             });
 
@@ -253,7 +255,7 @@ export default defineComponent({
                     convState: 'left',
                 };
 
-                this.$store.dispatch('chat/setConvState', data);
+                this.$store.dispatch('chat/storeConvState', data);
 
                 console.log('from ec_is_leaved_from_conversation', data);
             });
@@ -262,6 +264,12 @@ export default defineComponent({
                 console.log('okk');
 
                 console.log('from ec_is_closed_from_conversation', data);
+            });
+
+            // get online users list
+            this.socket.on('ec_logged_users_res', (data: any) => {
+                this.$store.dispatch('chat/storeOnlineAgents', data);
+                console.log(`from ec_logged_users_res ${data}`);
             });
 
             this.socket.on('ec_error', (data: any) => {

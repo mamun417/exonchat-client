@@ -6,6 +6,7 @@ export interface ChatStateInterface {
     messages: any;
     chatRequests: any;
     chatAgents: any;
+    onlineChatAgents: any;
 }
 
 function state(): ChatStateInterface {
@@ -20,6 +21,7 @@ function state(): ChatStateInterface {
         messages: {},
         chatRequests: {},
         chatAgents: {},
+        onlineChatAgents: {},
     };
 }
 

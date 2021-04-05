@@ -7,8 +7,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('storeConvInfo', payload);
     },
 
-    setConvState(context, payload) {
-        context.commit('setConvState', payload);
+    storeConvState(context, payload) {
+        context.commit('storeConvState', payload);
     },
 
     // get conversation messages from db
@@ -68,6 +68,14 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .catch((err: any) => {
                     reject(err);
                 });
+        });
+    },
+
+    // get online agents form db
+    storeOnlineAgents(context, payload) {
+        return new Promise((resolve) => {
+            context.commit('storeOnlineAgents', payload);
+            resolve(true);
         });
     },
 };

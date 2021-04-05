@@ -31,7 +31,11 @@
                     <q-chat-message
                         v-for="(message, i) in messages"
                         :key="i"
-                        name="hasan"
+                        :name="
+                            index === 0 || message.socket_session_id !== messages[index - 1].socket_session_id
+                                ? message.socket_session_id
+                                : ''
+                        "
                         avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                         :text="[message.msg]"
                         :stamp="$fromNowTime(message.created_at)"
@@ -165,7 +169,7 @@ export default defineComponent({
 
         this.firePageVisitListner();
 
-        this.getConvMessages(this.convInfo.conv_id);
+        // this.getConvMessages(this.convInfo.conv_id);
         // this.setTypingFalse();
     },
 

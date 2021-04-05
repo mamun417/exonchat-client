@@ -1,18 +1,10 @@
-// import { _l } from 'src/boot/helpers';
 import moment from 'moment';
-import { _l } from 'src/boot/helpers';
+import { _l, getMySocketSessionId } from 'src/boot/helpers';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
-    someAction(/* state */) {
-        // your code
-    },
-    auth(/* state */) {
-        // your code
-    },
-
     convInfo(state) {
         return state.convInfo;
     },
@@ -23,9 +15,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     messages: (state) => (convId: any) => {
         const allMessages = state.messages;
-
-        window.clog('check----', 'red');
-        console.log(allMessages);
 
         if (!convId) {
             return allMessages;
@@ -41,7 +30,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     chatRequests(state) {
-        // return state.chatRequests;
         return _l
             .sortBy(state.chatRequests, [
                 function (chatRequest) {
@@ -52,7 +40,22 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     chatAgents(state) {
-        return state.chatAgents;
+        const allChatAgents = state.chatAgents;
+        const mySocketSessionId = getMySocketSessionId();
+
+        return _l.filter(allChatAgents, (agent: any) => {
+            if (!agent.socket_sessions.length) return false;
+
+            let socketSessions = _l.mapValues(agent.socket_sessions, 'id');
+
+            socketSessions = Object.values(socketSessions);
+
+            return !socketSessions.includes(mySocketSessionId);
+        });
+    },
+
+    onlineChatAgents(state) {
+        return state.onlineChatAgents;
     },
 };
 

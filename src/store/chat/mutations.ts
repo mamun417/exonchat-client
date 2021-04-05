@@ -3,10 +3,6 @@ import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
 
 const mutation: MutationTree<ChatStateInterface> = {
-    someMutation(/* state: ChatStateInterface */) {
-        // your code
-    },
-
     storeConvInfo(state: ChatStateInterface, payload: any) {
         console.log(payload);
 
@@ -15,10 +11,19 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.convInfo = payload.data;
     },
 
-    setConvState(state: ChatStateInterface, payload: any) {
-        const data = JSON.stringify(payload.data);
-        localStorage.setItem('convStateInfo', data);
-        state.convStateInfo = payload.data;
+    storeConvState(state: ChatStateInterface, payload: any) {
+        const convId = payload.data.conv_ses_data.conversation_id;
+
+        const convStateInfo = {
+            [convId]: {
+                info: payload.data.cond_ses_data,
+                status: payload.status,
+            },
+        };
+
+        localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
+
+        state.convStateInfo = convStateInfo;
     },
 
     // get conversations messages into state which come from db
@@ -77,9 +82,14 @@ const mutation: MutationTree<ChatStateInterface> = {
         };
     },
 
-    // store agents into state which come from db
+    // store all agents into state which come from db
     storeAgents(state: ChatStateInterface, payload: any) {
         state.chatAgents = payload.data;
+    },
+
+    // store online agents into state which come from db
+    storeOnlineAgents(state: ChatStateInterface, payload: any) {
+        state.onlineChatAgents = payload.users;
     },
 };
 

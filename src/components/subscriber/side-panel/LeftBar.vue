@@ -84,11 +84,18 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold">{{ agent.email }}</q-item-label>
+                                        <q-item-label class="text-weight-bold">{{ agent.email }} </q-item-label>
+                                        <!-- <q-item-label class="text-weight-bold">
+                                            <pre>{{ agent }}</pre>
+                                        </q-item-label>-->
                                     </q-item-section>
 
                                     <q-item-section side>
-                                        <q-icon name="fiber_manual_record" color="green" size="xs" />
+                                        <q-icon
+                                            name="fiber_manual_record"
+                                            :color="checkOnlineStatus(agent) ? 'green' : 'grey'"
+                                            size="xs"
+                                        />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -211,6 +218,7 @@ export default defineComponent({
         ...mapGetters({
             chatRequests: 'chat/chatRequests',
             chatAgents: 'chat/chatAgents',
+            onlineChatAgents: 'chat/onlineChatAgents',
         }),
     },
 
@@ -221,6 +229,18 @@ export default defineComponent({
 
         getAgents() {
             this.$store.dispatch('chat/getAgents');
+        },
+
+        checkOnlineStatus(agent: any) {
+            const onlineAgents = this.onlineChatAgents;
+
+            if (!onlineAgents.length) return false;
+
+            const filterSocketSessions = this.$_.filter(agent.socket_sessions, (socket_session: any) => {
+                return onlineAgents.includes(socket_session.id);
+            });
+
+            return !!filterSocketSessions.length;
         },
     },
 });
