@@ -5,12 +5,12 @@ import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
-    convInfo(state) {
-        return state.convInfo;
+    clientInitiateConvInfo(state) {
+        return state.clientInitiateConvInfo;
     },
 
-    convStateInfo(state) {
-        return state.convStateInfo;
+    convStateInfo: (state) => (convId: any) => {
+        return state.convStateInfo[convId];
     },
 
     messages: (state) => (convId: any) => {

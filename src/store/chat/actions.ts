@@ -3,10 +3,16 @@ import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
-    storeConvInfo(context, payload) {
-        context.commit('storeConvInfo', payload);
+    storeClientInitiateConvInfo(context, payload) {
+        context.commit('storeClientInitiateConvInfo', payload);
     },
 
+    // get conversations which joined by me
+    getJoinedConversations(context, payload) {
+        context.commit('storeJoinedConversation', payload);
+    },
+
+    // conversation state like (joined, left, close)
     storeConvState(context, payload) {
         context.commit('storeConvState', payload);
     },
@@ -37,7 +43,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     getChatRequests(context) {
         return new Promise((resolve, reject) => {
             window.api
-                .get('conversations/t/m')
+                .get('conversations/requests/list')
                 .then((res: any) => {
                     context.commit('storeChatRequests', res);
                     resolve(res);

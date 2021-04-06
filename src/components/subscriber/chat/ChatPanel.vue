@@ -47,10 +47,11 @@
             :content-style="{}"
         >
             <q-chat-message
+                v-if="messages.length"
                 v-for="(message, index) in messages"
                 :key="message.id"
                 :name="
-                    index === 0 || message.socket_session_id !== messages[index - 1].socket_session_id
+                    index === 0 || message?.socket_session_id !== messages[index - 1].socket_session_id
                         ? message.socket_session_id
                         : ''
                 "
@@ -174,7 +175,7 @@ export default defineComponent({
         },
 
         convStateButtonInfo() {
-            const convState = this.convStateInfo.convState;
+            const convState = this.convStateInfo(this.getConvId())?.status;
 
             if (convState === 'left') {
                 return { name: 'Close', action: 'close' };

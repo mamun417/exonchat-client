@@ -8,7 +8,7 @@
             <q-btn icon="expand_more" dense flat></q-btn>
         </div>
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
-            <div v-if="convInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
+            <div v-if="clientInitiateConvInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
                 <q-scroll-area
                     @scroll="handleScroll"
                     ref="msgScrollArea"
@@ -115,7 +115,7 @@
                         <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize"
                             >Start Chat as Guest
                         </q-btn>
-                        <pre>{{ convInfo }}</pre>
+                        <pre>{{ clientInitiateConvInfo }}</pre>
                     </div>
                 </div>
             </div>
@@ -169,17 +169,17 @@ export default defineComponent({
 
         this.firePageVisitListner();
 
-        // this.getConvMessages(this.convInfo.conv_id);
+        // this.getConvMessages(this.clientInitiateConvInfo.conv_id);
         // this.setTypingFalse();
     },
 
     computed: {
         ...mapGetters({
-            convInfo: 'chat/convInfo',
+            clientInitiateConvInfo: 'chat/clientInitiateConvInfo',
         }),
 
         messages(): any {
-            return this.$store.getters['chat/messages'](this.convInfo.conv_id);
+            return this.$store.getters['chat/messages'](this.clientInitiateConvInfo.conv_id);
         },
     },
 
@@ -187,7 +187,7 @@ export default defineComponent({
         clearSession() {
             localStorage.clear();
             sessionStorage.clear();
-            this.convInfo = {};
+            this.clientInitiateConvInfo = {};
             location.reload();
         },
 
@@ -199,8 +199,8 @@ export default defineComponent({
 
         async initializeSocket() {
             // get conversation information
-            const convInfo: any = localStorage.getItem('convInfo');
-            this.convInfo = convInfo ? JSON.parse(convInfo) : {};
+            const clientInitiateConvInfo: any = localStorage.getItem('clientInitiateConvInfo');
+            this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
 
             this.sesId = sessionStorage.getItem('ec_client_socket_ses_id');
             this.socketToken = sessionStorage.getItem('ec_client_socket_token');
@@ -278,15 +278,11 @@ export default defineComponent({
             this.socket.on('ec_conv_initiated_to_client', async (res: any) => {
                 console.log('from ec_conv_initiated_to_client', res);
 
-                const convInfo = localStorage.getItem('convInfo');
+                const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
 
                 if (res.status === 'success') {
-                    console.log(!this.convInfo);
-
-                    if (!convInfo) {
-                        console.log(res);
-
-                        await this.$store.dispatch('chat/storeConvInfo', res);
+                    if (!clientInitiateConvInfo) {
+                        await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
                     } else {
                         // if (this.conv_id === res.data.conversation_id) {
                         //     //no idea for now what to do if conv_id donst match

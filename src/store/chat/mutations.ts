@@ -3,20 +3,37 @@ import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
 
 const mutation: MutationTree<ChatStateInterface> = {
-    storeConvInfo(state: ChatStateInterface, payload: any) {
+    storeClientInitiateConvInfo(state: ChatStateInterface, payload: any) {
         console.log(payload);
 
         const data = JSON.stringify(payload.data);
-        localStorage.setItem('convInfo', data);
-        state.convInfo = payload.data;
+        localStorage.setItem('clientInitiateConvInfo', data);
+        state.clientInitiateConvInfo = payload.data;
     },
 
+    // get conversations which joined by me
+    storeJoinedConversation(state: ChatStateInterface, payload: any) {
+        const convId = payload.data.conv_ses_data.conversation_id;
+
+        const convStateInfo = {
+            [convId]: {
+                info: payload.data.conv_ses_data,
+                status: payload.status,
+            },
+        };
+
+        localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
+
+        state.convStateInfo = convStateInfo;
+    },
+
+    // conversation state like (joined, left, close)
     storeConvState(state: ChatStateInterface, payload: any) {
         const convId = payload.data.conv_ses_data.conversation_id;
 
         const convStateInfo = {
             [convId]: {
-                info: payload.data.cond_ses_data,
+                info: payload.data.conv_ses_data,
                 status: payload.status,
             },
         };
