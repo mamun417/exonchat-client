@@ -16,7 +16,7 @@ const mutation: MutationTree<AuthStateInterface> = {
 
     logOut(state) {
         localStorage.clear();
-        // sessionStorage.clear();
+        sessionStorage.clear();
         state.token = '';
         state.user = {};
     },

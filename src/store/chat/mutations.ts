@@ -101,12 +101,24 @@ const mutation: MutationTree<ChatStateInterface> = {
 
     // store all agents into state which come from db
     storeAgents(state: ChatStateInterface, payload: any) {
-        state.chatAgents = payload.data;
+        const chatAgents = payload.data;
+
+        chatAgents.forEach((chatAgent: any) => {
+            const agentId = chatAgent.id;
+
+            state.chatAgents[agentId] = chatAgent;
+        });
     },
 
     // store online agents into state which come from db
     storeOnlineAgents(state: ChatStateInterface, payload: any) {
         state.onlineChatAgents = payload.users;
+    },
+
+    // store online agents into state which come from db
+    storeTempOnlineAgents(state: ChatStateInterface, payload: any) {
+        console.log(state.onlineChatAgents);
+        // state.onlineChatAgents = payload.users;
     },
 };
 

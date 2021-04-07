@@ -76,7 +76,7 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item class="" clickable v-for="(agent, index) in chatAgents" :key="index">
+                                <q-item class="" clickable v-for="(agent, id) in chatAgents" :key="id">
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" alt="" />
@@ -211,7 +211,6 @@ export default defineComponent({
     mounted() {
         console.log('left bar initiated');
         this.getChatRequest();
-        this.getAgents();
     },
 
     computed: {
@@ -225,10 +224,6 @@ export default defineComponent({
     methods: {
         getChatRequest() {
             this.$store.dispatch('chat/getChatRequests');
-        },
-
-        getAgents() {
-            this.$store.dispatch('chat/getAgents');
         },
 
         checkOnlineStatus(agent: any) {

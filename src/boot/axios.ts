@@ -7,20 +7,22 @@ declare module '@vue/runtime-core' {
         $api: AxiosInstance;
     }
 }
+
 declare global {
     interface Window {
         api: any;
+        clientApi: any;
     }
 }
 
 const api = function (store: any, router: any) {
-    // axios.defaults.baseURL = process.env.PROD ? process.env.PROD_API_ENDPOINT : process.env.API_ENDPOINT
-
     // Set config defaults when creating the instance
     const insAxios = axios.create({
         baseURL: 'http://127.0.0.1:3000',
         withCredentials: true,
     });
+
+    // insAxios.defaults.baseURL = process.env.PROD ? process.env.PROD_API_ENDPOINT : process.env.API_ENDPOINT
 
     let tokenRefreshing = false;
 
@@ -36,11 +38,11 @@ const api = function (store: any, router: any) {
             return req;
         },
         (err) => {
-            return Promise.reject(err).then(r => r);
+            return Promise.reject(err).then((r) => r);
         }
     );
 
-    // // handle before res is send to client
+    // handle before res is send to client
     insAxios.interceptors.response.use(
         (res) => {
             return res;
@@ -84,6 +86,41 @@ const api = function (store: any, router: any) {
     return insAxios;
 };
 
+export const clientApi = function () {
+    const insAxios = axios.create({
+        baseURL: 'http://127.0.0.1:3000',
+        withCredentials: true,
+    });
+
+    // insAxios.defaults.baseURL = process.env.PROD ? process.env.PROD_API_ENDPOINT : process.env.API_ENDPOINT
+
+    insAxios.interceptors.request.use(
+        (req) => {
+            const token = sessionStorage.getItem('ec_client_socket_token');
+
+            if (token) {
+                req.headers['Authorization'] = 'Bearer ' + token;
+            }
+
+            return req;
+        },
+        (err) => {
+            return Promise.reject(err).then((r) => r);
+        }
+    );
+
+    insAxios.interceptors.response.use(
+        (res) => {
+            return res;
+        },
+        (err) => {
+            return Promise.reject(err);
+        }
+    );
+
+    return insAxios;
+};
+
 export default boot(({ app, router, store }) => {
     // for use inside Vue files (Options API) through this.$axios and this.$api
 
@@ -94,8 +131,12 @@ export default boot(({ app, router, store }) => {
     app.config.globalProperties.$api = api(store, router);
     // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
     //       so you can easily perform requests against your app's API
-
     window.api = api(store, router);
+
+    app.config.globalProperties.$clientApi = clientApi();
+    // this will allow you to use this.$clientApi (for client api with socket token)
+
+    window.clientApi = clientApi();
 });
 
 export { axios, api };

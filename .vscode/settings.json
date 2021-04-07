@@ -61,5 +61,21 @@
         "**/*.styl"
     ],
     "workbench.iconTheme": "material-icon-theme",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "workbench.colorCustomizations": {
+        "[Community Material Theme]": {
+            "gitDecoration.modifiedResourceForeground": "#80CBC4",
+            "gitDecoration.ignoredResourceForeground": "#AB7967",
+            "list.activeSelectionForeground": "#ffff",
+            "list.activeSelectionBackground": "#263238",
+            "list.inactiveSelectionForeground": "#ffff",
+            "sideBar.border": "#2a373e",
+            "tab.activeBackground": "#314549",
+            "panel.border": "#2a373e"
+        }
+    },
+    "workbench.tree.renderIndentGuides": "none",
+    "editor.smoothScrolling": true,
+    "workbench.list.smoothScrolling": true,
+    "terminal.integrated.fontSize": 12
 }

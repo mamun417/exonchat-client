@@ -135,6 +135,8 @@ export default defineComponent({
         console.log(this.$store._modules.root.state);
         console.log('main layout mounted');
 
+        this.getAgents();
+
         if ('logged in') {
             this.socketInitialize();
         }
@@ -143,6 +145,10 @@ export default defineComponent({
     },
 
     methods: {
+        getAgents() {
+            this.$store.dispatch('chat/getAgents');
+        },
+
         async socketInitialize() {
             if (this.handshake || 'logged') {
                 this.sesId = this.$getMySocketSessionId;
@@ -272,6 +278,18 @@ export default defineComponent({
                 console.log(`from ec_logged_users_res ${data}`);
             });
 
+            this.socket.on('ec_user_logged_in', (data: any) => {
+                this.getAgents();
+                this.$socket.emit('ec_get_logged_users', {});
+                console.log(`from ec_user_logged_in ${data}`);
+            });
+
+            this.socket.on('ec_user_logged_out', (data: any) => {
+                this.getAgents();
+                this.$socket.emit('ec_get_logged_users', {});
+                console.log(`from ec_user_logged_out ${data}`);
+            });
+
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
             });
@@ -287,6 +305,7 @@ export default defineComponent({
                         position: 'top',
                     });
 
+                    this.$socket.close();
                     this.$router.push({ name: 'login' });
                 })
                 .catch((err: any) => {

@@ -28,6 +28,7 @@
         </q-card>
         <!-- <div class=""> -->
         <q-scroll-area
+            v-if="messages.length"
             @scroll="handleScroll"
             ref="msgScrollArea"
             class="tw-flex-grow tw-p-3"
@@ -47,7 +48,6 @@
             :content-style="{}"
         >
             <q-chat-message
-                v-if="messages.length"
                 v-for="(message, index) in messages"
                 :key="message.id"
                 :name="
@@ -80,7 +80,7 @@
         </q-scroll-area>
 
         <div
-            v-if="convStateInfo.convState === 'joined'"
+            v-if="convStateInfo1.status === 'joined'"
             class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
         >
             <q-btn flat color="green" icon="attachment"></q-btn>
@@ -169,13 +169,18 @@ export default defineComponent({
             convStateInfo: 'chat/convStateInfo',
         }),
 
+        convStateInfo1(): any {
+            const convId = this.getConvId();
+            return this.$store.getters['chat/convStateInfo'](convId) || {};
+        },
+
         messages(): any {
             const convId = this.getConvId();
             return this.$store.getters['chat/messages'](convId);
         },
 
         convStateButtonInfo() {
-            const convState = this.convStateInfo(this.getConvId())?.status;
+            const convState = this.convStateInfo1.status;
 
             if (convState === 'left') {
                 return { name: 'Close', action: 'close' };

@@ -32,6 +32,21 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
     },
 
+    // get client conversation messages from db
+    getClientConvMessages(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.clientApi
+                .get(`conversations/${payload.convId}/messages`)
+                .then((res: any) => {
+                    context.commit('storeConvMessages', res);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
     storeTemporaryMessage(context, payload) {
         return new Promise((resolve) => {
             context.commit('storeTemporaryMessage', payload);
@@ -81,6 +96,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeOnlineAgents(context, payload) {
         return new Promise((resolve) => {
             context.commit('storeOnlineAgents', payload);
+            resolve(true);
+        });
+    },
+
+    storeTempOnlineAgents(context, payload) {
+        return new Promise((resolve) => {
+            context.commit('storeTempOnlineAgents', payload);
             resolve(true);
         });
     },

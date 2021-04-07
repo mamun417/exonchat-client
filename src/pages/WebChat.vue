@@ -3,6 +3,26 @@
         <div class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center">
             <div>Online - Chat With Us</div>
             <q-btn @click="clearSession">Clear</q-btn>
+            <q-btn icon="info" flat>
+                <q-menu class="tw-p-2" style="min-width: 350px">
+                    <div
+                        class="tw-p-2 tw-border-1 tw-shadow-md"
+                        v-for="(m, i) in Object.keys($store._modules.root.state)"
+                        :key="i"
+                    >
+                        <div class="text-green text-center">{{ m }}</div>
+                        <div class="tw-my-2" v-for="(mv, k) in Object.keys($store._modules.root.state[m])" :key="k">
+                            <span>
+                                <pre>{{ mv }}</pre>
+                            </span>
+                            <span class="tw-mx-2">=></span>
+                            <span>
+                                <pre>{{ $store._modules.root.state[m][mv] }}</pre>
+                            </span>
+                        </div>
+                    </div>
+                </q-menu>
+            </q-btn>
             <div style="max-height: 100px; overflow: auto"></div>
             <q-space></q-space>
             <q-btn icon="expand_more" dense flat></q-btn>
@@ -32,7 +52,7 @@
                         v-for="(message, i) in messages"
                         :key="i"
                         :name="
-                            index === 0 || message.socket_session_id !== messages[index - 1].socket_session_id
+                            index === 0 || message?.socket_session_id !== messages[index - 1]?.socket_session_id
                                 ? message.socket_session_id
                                 : ''
                         "
@@ -169,7 +189,7 @@ export default defineComponent({
 
         this.firePageVisitListner();
 
-        // this.getConvMessages(this.clientInitiateConvInfo.conv_id);
+        this.getConvMessages(this.clientInitiateConvInfo.conv_id);
         // this.setTypingFalse();
     },
 
@@ -192,7 +212,7 @@ export default defineComponent({
         },
 
         getConvMessages(convId: string) {
-            this.$store.dispatch('chat/getConvMessages', {
+            this.$store.dispatch('chat/getClientConvMessages', {
                 convId,
             });
         },
