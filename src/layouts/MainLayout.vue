@@ -84,6 +84,108 @@
                 <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
             </q-page>
         </q-page-container>
+
+        <div v-if="false">
+            <!-- add style pointer event none for accessing the underlying parent elements -->
+            <!-- and also add opacity if user moved to parent -->
+            <div class="tw-fixed tw-bottom-0" style="z-index: 99999; right: 75px">
+                <q-card
+                    class="bg-white shadow-5 tw-flex tw-flex-col"
+                    style="width: 300px"
+                    :style="{ height: '!mini' ? '450px' : 'auto' }"
+                >
+                    <!-- change bg color by status -->
+                    <q-card-section class="row no-wrap bg-green items-center tw-p-0">
+                        <q-item class="">
+                            <q-item-section avatar>
+                                <q-avatar size="lg">
+                                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
+
+                                    <!-- <q-badge label="." color="green" text-color="green" rounded floating /> -->
+                                </q-avatar>
+                            </q-item-section>
+
+                            <q-item-section class="tw-w-full">
+                                <q-item-label class="text-weight-bold text-white tw-text-md">Hasan</q-item-label>
+                                <!-- <q-item-label caption>
+                                    <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>
+                                </q-item-label> -->
+                            </q-item-section>
+                        </q-item>
+
+                        <q-space />
+
+                        <q-btn class="tw-px-2" icon="more_horiz" color="green" unelevated />
+                        <q-btn
+                            class="tw-px-2"
+                            :icon="!'mini' ? 'arrow_drop_up' : 'arrow_drop_down'"
+                            color="green"
+                            unelevated
+                        />
+                        <!-- <q-btn class="tw-mr-2 tw-px-2" icon="close" color="white" flat /> -->
+                    </q-card-section>
+
+                    <q-card-section v-if="'!mini'" class="tw-p-0 tw-flex-1 tw-flex tw-flex-col">
+                        <q-scroll-area
+                            @scroll="handleScroll"
+                            ref="msgScrollArea"
+                            class="tw-flex-1 tw-px-1 tw-py-2"
+                            style="height: 1px"
+                            :bar-style="{
+                                background: '#60A5FA',
+                                width: '4px',
+                                opacity: 0.2,
+                                borderRadius: '10px',
+                            }"
+                            :thumb-style="{
+                                borderRadius: '9px',
+                                backgroundColor: '#60A5FA',
+                                width: '4px',
+                                opacity: 0.7,
+                            }"
+                            :content-style="{}"
+                        >
+                        </q-scroll-area>
+
+                        <div class="tw-w-full tw-flex tw-px-1 tw-self-end">
+                            <q-btn flat color="green" icon="attachment"></q-btn>
+                            <q-btn flat color="green" icon="mood"></q-btn>
+                            <q-input
+                                debounce="0"
+                                placeholder="Write Message..."
+                                color="green-8"
+                                class="tw-flex-auto"
+                                autogrow
+                                borderless
+                                dense
+                            ></q-input>
+                            <q-btn icon="send" flat color="green-8"></q-btn>
+                        </div>
+                    </q-card-section>
+
+                    <q-badge v-if="!'!mini'" label="5" color="orange" text-color="black" rounded floating />
+                </q-card>
+            </div>
+
+            <q-fab
+                color="green"
+                icon="chat"
+                direction="up"
+                class="tw-fixed tw-bottom-4"
+                style="z-index: 99999; right: 10px"
+                persistent
+            >
+                <q-fab-action
+                    v-for="(a, i) in [1, 2, 3]"
+                    :key="i"
+                    padding="1px"
+                    label="a new message"
+                    anchor="start"
+                    color="green"
+                    ><q-avatar><img :src="`https://cdn.quasar.dev/img/avatar${i + 1}.jpg`" /></q-avatar
+                ></q-fab-action>
+            </q-fab>
+        </div>
     </q-layout>
 </template>
 
