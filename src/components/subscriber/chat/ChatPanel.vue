@@ -47,21 +47,20 @@
             }"
             :content-style="{}"
         >
-            <q-chat-message
-                v-for="(message, index) in messages"
-                :key="message.id"
-                :name="
-                    index === 0 || message?.socket_session_id !== messages[index - 1].socket_session_id
-                        ? message.socket_session_id
-                        : ''
-                "
-                avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                :text="[message.msg]"
-                :stamp="$fromNowTime(message.created_at)"
-                :sent="checkOwnMessage(message)"
-                :text-color="checkOwnMessage(message) ? 'black' : 'white'"
-                :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
-            />
+            <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
+                <q-chat-message
+                    v-if="message.msg"
+                    :name="handleNameForMultipleSelfMessage(index, message)"
+                    avatar="https://cdn.quasar.dev/img/avatar3.jpg"
+                    :text="[message.msg]"
+                    :stamp="$fromNowTime(message.created_at)"
+                    :sent="checkOwnMessage(message)"
+                    :text-color="checkOwnMessage(message) ? 'black' : 'white'"
+                    :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
+                />
+                <!--<pre v-else>{{ message }}</pre>-->
+                <q-chat-message v-else :label="getConvStateInfo(message)" />
+            </template>
 
             <!-- <q-chat-message avatar="https://cdn.quasar.dev/img/avatar5.jpg" bg-color="blue-9">
                 <q-spinner-dots color="white" size="2rem" />
@@ -195,8 +194,32 @@ export default defineComponent({
     },
 
     methods: {
+        getConvMessages(convId: string) {
+            this.$store.dispatch('chat/getConvMessages', {
+                convId,
+            });
+        },
+
+        checkOwnMessage(message: any) {
+            return message.socket_session_id === this.sesId;
+        },
+
         getConvId() {
             return this.$route.params['conv_id'];
+        },
+
+        handleNameForMultipleSelfMessage(index: any, message: any) {
+            return index === 0 || message?.socket_session_id !== this.messages[index - 1].socket_session_id
+                ? message.socket_session_id
+                : '';
+        },
+
+        getConvStateInfo(message: any) {
+            // const onOrAt = message.conv_state_status === 'join' ? 'on' : 'at';
+
+            return `${message.socket_session.user.email} ${message.conv_state_status} ${this.$fromNowTime(
+                message.joined_at
+            )}`;
         },
 
         convStateHandle(type: string) {
@@ -269,22 +292,6 @@ export default defineComponent({
                 // setTimeout(function () {
                 // }, 2000);
             }
-        },
-
-        checkOwnMessage(message: any) {
-            return message.socket_session_id === this.sesId;
-        },
-
-        getConvMessages(convId: string) {
-            this.$store.dispatch('chat/getConvMessages', {
-                convId,
-            });
-            // .then((result: any) => {
-            //     console.log(result);
-            // })
-            // .catch((err: any) => {
-            //     console.log(err);
-            // });
         },
     },
 

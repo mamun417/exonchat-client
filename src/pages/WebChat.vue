@@ -189,7 +189,9 @@ export default defineComponent({
 
         this.firePageVisitListner();
 
-        this.getConvMessages(this.clientInitiateConvInfo.conv_id);
+        if (this.clientInitiateConvInfo.length) {
+            this.getConvMessages(this.clientInitiateConvInfo.conv_id);
+        }
         // this.setTypingFalse();
     },
 

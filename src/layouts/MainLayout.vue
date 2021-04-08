@@ -61,34 +61,40 @@
             </q-toolbar>
         </q-header>
 
-        <q-drawer
-            v-model="leftDrawer"
-            class="tw-shadow-lgr"
-            side="left"
-            breakpoint="xs"
-            width="250"
-            persistent
-            show-if-above
-        >
-            <left-bar></left-bar>
-        </q-drawer>
-        <q-drawer
-            v-if="1 < 0"
-            v-model="rightDrawer"
-            class="tw-shadow-lgl"
-            side="right"
-            breakpoint="xs"
-            width="250"
-            persistent
-            show-if-above
-        >
-            <right-bar></right-bar>
-        </q-drawer>
-        <q-page-container>
-            <q-page class="tw-flex">
-                <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
-            </q-page>
-        </q-page-container>
+        <template v-if="domReady">
+            <q-drawer
+                v-model="leftDrawer"
+                class="tw-shadow-lgr"
+                side="left"
+                breakpoint="xs"
+                width="250"
+                persistent
+                show-if-above
+            >
+                <left-bar></left-bar>
+            </q-drawer>
+            <q-drawer
+                v-if="1 < 0"
+                v-model="rightDrawer"
+                class="tw-shadow-lgl"
+                side="right"
+                breakpoint="xs"
+                width="250"
+                persistent
+                show-if-above
+            >
+                <right-bar></right-bar>
+            </q-drawer>
+            <q-page-container>
+                <q-page class="tw-flex">
+                    <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
+                </q-page>
+            </q-page-container>
+        </template>
+
+        <q-inner-loading :showing="!domReady">
+            <q-spinner-facebook size="50px" color="primary" />
+        </q-inner-loading>
     </q-layout>
 </template>
 
@@ -103,6 +109,7 @@ export default defineComponent({
     components: { LeftBar, RightBar },
     data(): any {
         return {
+            domReady: false,
             leftDrawer: true,
             rightDrawer: true,
             socket: null,
@@ -131,17 +138,18 @@ export default defineComponent({
         }),
     },
 
-    mounted() {
-        console.log(this.$store._modules.root.state);
+    async mounted() {
         console.log('main layout mounted');
+
+        // if ('logged in') {
+        await this.socketInitialize();
+        // }
 
         this.getAgents();
 
-        if ('logged in') {
-            this.socketInitialize();
-        }
-
         this.$socket.emit('ec_get_logged_users', {});
+
+        this.domReady = true;
     },
 
     methods: {
@@ -150,43 +158,42 @@ export default defineComponent({
         },
 
         async socketInitialize() {
-            if (this.handshake || 'logged') {
-                this.sesId = this.$getMySocketSessionId;
-                this.socketToken = sessionStorage.getItem('ec_user_socket_token');
-                console.log(this.sesId);
+            // if (this.handshake || 'logged') {
+            this.sesId = this.$getMySocketSessionId;
+            this.socketToken = sessionStorage.getItem('ec_user_socket_token');
+            console.log(this.sesId);
 
-                if (!this.sesId) {
-                    await this.$api
-                        .post('/socket-sessions', {
-                            api_key: 'test',
-                            user_id: this.profile.id,
-                        })
-                        .then((res: any) => {
-                            this.sesId = res.data.data.id;
-                            this.socketToken = res.data.bearerToken;
+            if (!this.sesId) {
+                try {
+                    const res = await this.$api.post('/socket-sessions', {
+                        api_key: 'test',
+                        user_id: this.profile.id,
+                    });
 
-                            sessionStorage.setItem('ec_user_socket_ses_id', this.sesId);
-                            sessionStorage.setItem('ec_user_socket_token', res.data.bearerToken);
-                        })
-                        .catch((err: any) => {
-                            console.log(err);
-                        });
+                    this.sesId = res.data.data.id;
+                    this.socketToken = res.data.bearerToken;
+
+                    sessionStorage.setItem('ec_user_socket_ses_id', this.sesId);
+                    sessionStorage.setItem('ec_user_socket_token', res.data.bearerToken);
+                } catch (err: any) {
+                    console.log(err);
                 }
-
-                if (!this.socketToken) {
-                    //handle error
-                    console.log('socket token not found for this sesId');
-                    return;
-                }
-
-                this.$socket.io.opts.query = `token=${this.socketToken}&client_type=user`;
-
-                this.socket = this.$socket.connect();
-
-                console.log(this.socket);
-
-                this.fireSocketListeners();
             }
+
+            if (!this.socketToken) {
+                //handle error
+                console.log('socket token not found for this sesId');
+                return;
+            }
+
+            this.$socket.io.opts.query = `token=${this.socketToken}&client_type=user`;
+
+            this.socket = this.$socket.connect();
+
+            console.log(this.socket);
+
+            this.fireSocketListeners();
+            // }
         },
         fireSocketListeners() {
             this.socket.on('connect', () => {

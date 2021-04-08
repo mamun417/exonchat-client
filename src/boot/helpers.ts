@@ -27,6 +27,10 @@ export const fromNowTime = function (timestamp: string) {
     return moment(timestamp).fromNow();
 };
 
+export const myDate = function (timestamp: string, format = 'MMMM Do YYYY') {
+    return moment(timestamp).format(format);
+};
+
 export const getMySocketSessionId = function () {
     return sessionStorage.getItem('ec_user_socket_ses_id');
 };
@@ -35,6 +39,7 @@ export default boot(({ app }) => {
     app.config.globalProperties.$_ = _l;
     app.config.globalProperties.$getTempId = getTempId();
     app.config.globalProperties.$fromNowTime = fromNowTime;
+    app.config.globalProperties.$myDate = myDate;
     app.config.globalProperties.$getMySocketSessionId = getMySocketSessionId();
 });
 

@@ -20,10 +20,29 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     // get conversation messages from db
     getConvMessages(context, payload) {
         return new Promise((resolve, reject) => {
-            window.api
-                .get(`conversations/${payload.convId}/messages`)
-                .then((res: any) => {
-                    context.commit('storeConvMessages', res);
+            const getConvJoinInfo = window.api.get(`conversations/${payload.convId}/status`),
+                getConvMessages = window.api.get(`conversations/${payload.convId}/messages`);
+
+            Promise.all([getConvJoinInfo, getConvMessages])
+                .then((res) => {
+                    const joinRes = res[0];
+                    const messagesRes = res[1];
+
+                    // remove client joining information
+                    // set conversation state status (join/left)
+                    // Note: need to manage conversation close status
+                    const onlyAgentJoinInfo = joinRes.data.conversation_sessions
+                        .filter((convSession: any) => convSession.socket_session.user)
+                        .map((filteredConvSession: any) => {
+                            return {
+                                conv_state_status: filteredConvSession.left_at ? 'left' : 'joined',
+                                ...filteredConvSession,
+                            };
+                        });
+
+                    messagesRes.data = messagesRes.data.concat(onlyAgentJoinInfo);
+
+                    context.commit('storeConvMessages', messagesRes);
                     resolve(res);
                 })
                 .catch((err: any) => {
@@ -96,13 +115,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeOnlineAgents(context, payload) {
         return new Promise((resolve) => {
             context.commit('storeOnlineAgents', payload);
-            resolve(true);
-        });
-    },
-
-    storeTempOnlineAgents(context, payload) {
-        return new Promise((resolve) => {
-            context.commit('storeTempOnlineAgents', payload);
             resolve(true);
         });
     },

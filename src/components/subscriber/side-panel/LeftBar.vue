@@ -48,6 +48,9 @@
                                 :to="{ name: 'chats', params: { conv_id: request.convId } }"
                                 :key="index"
                                 clickable
+                                v-ripple
+                                :active="true"
+                                active-class="text-white bg-blue-9"
                             >
                                 <q-item-section avatar>
                                     <q-avatar>
@@ -56,10 +59,10 @@
                                 </q-item-section>
 
                                 <q-item-section>
-                                    <q-item-label class="text-weight-bold text-dark" style="word-break: break-all">{{
-                                        request.convId
-                                    }}</q-item-label>
-                                    <q-item-label caption lines="2" class="text-weight-bold">
+                                    <q-item-label class="text-weight-bold" style="word-break: break-all">
+                                        {{ request.convId }}
+                                    </q-item-label>
+                                    <q-item-label lines="2">
                                         {{ request.msg }}
                                     </q-item-label>
                                 </q-item-section>

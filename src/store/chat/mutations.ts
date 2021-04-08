@@ -4,8 +4,6 @@ import { ChatStateInterface } from './state';
 
 const mutation: MutationTree<ChatStateInterface> = {
     storeClientInitiateConvInfo(state: ChatStateInterface, payload: any) {
-        console.log(payload);
-
         const data = JSON.stringify(payload.data);
         localStorage.setItem('clientInitiateConvInfo', data);
         state.clientInitiateConvInfo = payload.data;
@@ -45,6 +43,8 @@ const mutation: MutationTree<ChatStateInterface> = {
 
     // get conversations messages into state which come from db
     storeConvMessages(state: ChatStateInterface, payload: any) {
+        if (!payload.data.length) return false;
+
         const convMessages = { messages: payload.data, id: payload.data[0].conversation_id };
         const convId = convMessages.id;
 
@@ -113,12 +113,6 @@ const mutation: MutationTree<ChatStateInterface> = {
     // store online agents into state which come from db
     storeOnlineAgents(state: ChatStateInterface, payload: any) {
         state.onlineChatAgents = payload.users;
-    },
-
-    // store online agents into state which come from db
-    storeTempOnlineAgents(state: ChatStateInterface, payload: any) {
-        console.log(state.onlineChatAgents);
-        // state.onlineChatAgents = payload.users;
     },
 };
 
