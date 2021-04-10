@@ -29,7 +29,7 @@
         </div>
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
             <div v-if="clientInitiateConvInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
-                <q-scroll-area
+                <!--<q-scroll-area
                     @scroll="handleScroll"
                     ref="msgScrollArea"
                     class="tw-p-3 tw-flex-grow tw-text-xs"
@@ -102,8 +102,10 @@
                         dense
                     ></q-input>
                     <q-btn @click="sendMessage" v-model="msg" icon="send" flat color="green-8" size="sm"></q-btn>
-                </div>
+                </div>-->
+                <message :socket="socket" chat-panel-type="client" :messages="messages"></message>
             </div>
+
             <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
                     <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
@@ -147,10 +149,11 @@
 import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
+import Message from 'components/common/Message.vue';
 
 export default defineComponent({
     name: 'WebChat',
-    components: {},
+    components: { Message },
     setup() {
         return {};
     },
@@ -180,16 +183,12 @@ export default defineComponent({
     async mounted() {
         console.log('WebChat Mounted');
 
-        setInterval(() => {
-            this.$forceUpdate();
-        }, 30000);
-
         await this.initializeSocket();
         this.fireSocketListeners();
 
         this.firePageVisitListner();
 
-        if (this.clientInitiateConvInfo.length) {
+        if (this.clientInitiateConvInfo) {
             this.getConvMessages(this.clientInitiateConvInfo.conv_id);
         }
         // this.setTypingFalse();
@@ -200,6 +199,7 @@ export default defineComponent({
             clientInitiateConvInfo: 'chat/clientInitiateConvInfo',
         }),
 
+        // which messages store by getConvMessages()
         messages(): any {
             return this.$store.getters['chat/messages'](this.clientInitiateConvInfo.conv_id);
         },
@@ -213,6 +213,7 @@ export default defineComponent({
             location.reload();
         },
 
+        // store conversation messages and get the messages by getters (messages)
         getConvMessages(convId: string) {
             this.$store.dispatch('chat/getClientConvMessages', {
                 convId,
@@ -405,59 +406,16 @@ export default defineComponent({
             }
         },
 
-        sendMessage(): any {
-            if (!this.msg.length) {
-                return false;
-            }
-
-            console.log('sending the msg');
-
-            // send event when current user is sending msg
-            this.socket.emit('ec_msg_from_client', {
-                msg: this.msg,
-                temp_id: this.$getTempId,
-            });
-
-            this.msg = '';
-        },
-
-        scrollToBottom() {
-            const msgScrollArea = this.$refs.msgScrollArea;
-
-            if (msgScrollArea) {
-                const scrollTarget = msgScrollArea.getScrollTarget();
-                msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
-            }
-        },
-
-        handleScroll(info: any) {
-            let verticalPercentage = info.verticalPercentage;
-            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
-        },
-
         setTypingFalse() {
             setInterval(() => {
                 this.typingHandler.typing = false;
             }, 2000);
         },
-
-        checkOwnMessage(message: any) {
-            return message.socket_session_id === this.sesId;
-        },
-    },
-
-    watch: {
-        messages: {
-            handler: function () {
-                this.scrollToBottom();
-            },
-            deep: true,
-        },
     },
 });
 </script>
 
-<style lang="scss">
+<!--<style lang="scss">
 #webchat-container {
     .q-message {
         &.exonchat-is-typing {
@@ -479,4 +437,4 @@ export default defineComponent({
         }
     }
 }
-</style>
+</style>-->
