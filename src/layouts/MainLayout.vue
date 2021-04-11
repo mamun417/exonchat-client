@@ -18,8 +18,13 @@
                         >
                             <div class="text-green text-center">{{ m }}</div>
                             <div class="tw-my-2" v-for="(mv, k) in Object.keys($store._modules.root.state[m])" :key="k">
-                                <span>{{ mv }}</span
-                                ><span class="tw-mx-2">=></span><span>{{ $store._modules.root.state[m][mv] }}</span>
+                                <span>
+                                    <pre>{{ mv }}</pre>
+                                </span>
+                                <span class="tw-mx-2">=></span>
+                                <span>
+                                    <pre>{{ $store._modules.root.state[m][mv] }}</pre>
+                                </span>
                             </div>
                         </div>
                     </q-menu>
@@ -56,6 +61,40 @@
             </q-toolbar>
         </q-header>
 
+        <template v-if="domReady">
+            <q-drawer
+                v-model="leftDrawer"
+                class="tw-shadow-lgr"
+                side="left"
+                breakpoint="xs"
+                width="250"
+                persistent
+                show-if-above
+            >
+                <left-bar></left-bar>
+            </q-drawer>
+            <q-drawer
+                v-if="1 < 0"
+                v-model="rightDrawer"
+                class="tw-shadow-lgl"
+                side="right"
+                breakpoint="xs"
+                width="250"
+                persistent
+                show-if-above
+            >
+                <right-bar></right-bar>
+            </q-drawer>
+            <q-page-container>
+                <q-page class="tw-flex">
+                    <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
+                </q-page>
+            </q-page-container>
+        </template>
+
+        <q-inner-loading :showing="!domReady">
+            <q-spinner-facebook size="50px" color="primary" />
+        </q-inner-loading>
         <q-drawer
             v-model="leftDrawer"
             class="tw-shadow-lgr"
@@ -200,6 +239,7 @@ export default defineComponent({
     components: { LeftBar, RightBar },
     data(): any {
         return {
+            domReady: false,
             leftDrawer: true,
             rightDrawer: true,
             socket: null,
@@ -228,56 +268,64 @@ export default defineComponent({
         }),
     },
 
-    mounted() {
-        console.log(this.$store._modules.root.state);
+    async mounted() {
         console.log('main layout mounted');
 
-        if ('logged in') {
-            // this.socketInitialize();
-        }
+        // if ('logged in') {
+        await this.socketInitialize();
+        // }
+
+        this.getAgents();
+
+        this.$socket.emit('ec_get_logged_users', {});
+
+        this.domReady = true;
     },
 
     methods: {
-        async socketInitialize() {
-            if (this.handshake || 'logged') {
-                this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
-                this.socketToken = sessionStorage.getItem('ec_user_socket_token');
-                console.log(this.sesId);
-
-                if (!this.sesId) {
-                    await window.api
-                        .post('/socket-sessions', {
-                            api_key: 'test',
-                            user_id: this.profile.id,
-                        })
-                        .then((res: any) => {
-                            this.sesId = res.data.data.id;
-                            this.socketToken = res.data.bearerToken;
-
-                            sessionStorage.setItem('ec_user_socket_ses_id', res.data.id);
-                            sessionStorage.setItem('ec_user_socket_token', res.data.bearerToken);
-                        })
-                        .catch((err: any) => {
-                            console.log(err);
-                        });
-                }
-
-                if (!this.socketToken) {
-                    //handle error
-                    console.log('socket token not found for this sesId');
-                    return;
-                }
-
-                this.$socket.io.opts.query = `token=${this.socketToken}&client_type=user`;
-
-                this.socket = this.$socket.connect();
-
-                console.log(this.socket);
-
-                this.fireSocketListners();
-            }
+        getAgents() {
+            this.$store.dispatch('chat/getAgents');
         },
-        fireSocketListners() {
+
+        async socketInitialize() {
+            // if (this.handshake || 'logged') {
+            this.sesId = this.$getMySocketSessionId;
+            this.socketToken = sessionStorage.getItem('ec_user_socket_token');
+            console.log(this.sesId);
+
+            if (!this.sesId) {
+                try {
+                    const res = await this.$api.post('/socket-sessions', {
+                        api_key: 'test',
+                        user_id: this.profile.id,
+                    });
+
+                    this.sesId = res.data.data.id;
+                    this.socketToken = res.data.bearerToken;
+
+                    sessionStorage.setItem('ec_user_socket_ses_id', this.sesId);
+                    sessionStorage.setItem('ec_user_socket_token', res.data.bearerToken);
+                } catch (err: any) {
+                    console.log(err);
+                }
+            }
+
+            if (!this.socketToken) {
+                //handle error
+                console.log('socket token not found for this sesId');
+                return;
+            }
+
+            this.$socket.io.opts.query = `token=${this.socketToken}&client_type=user`;
+
+            this.socket = this.$socket.connect();
+
+            console.log(this.socket);
+
+            this.fireSocketListeners();
+            // }
+        },
+        fireSocketListeners() {
             this.socket.on('connect', () => {
                 console.log(`Your user Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
@@ -290,6 +338,7 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
+            // successfully sent to client
             this.socket.on('ec_msg_to_user', async (data: any) => {
                 await this.$store.dispatch('chat/storeTemporaryMessage', data);
                 console.log('from ec_msg_to_user', data);
@@ -297,13 +346,14 @@ export default defineComponent({
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_user', (data: any) => {
+            this.socket.on('ec_msg_from_user', async (data: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', data);
                 console.log('from ec_msg_from_user', data);
             });
 
             this.socket.on('ec_msg_from_client', async (data: any) => {
                 await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                await this.$store.dispatch('chat/storeChatRequest', data);
+                await this.$store.dispatch('chat/storeTempChatRequest', data);
 
                 this.$q.notify({
                     message: 'Jim pinged you.',
@@ -315,17 +365,17 @@ export default defineComponent({
             });
 
             // handle only other users typing
-            this.socket.on('ec_is_typing_from_user', (data: any) => {
-                console.log('from ec_is_typing_from_user', data);
-            });
+            // this.socket.on('ec_is_typing_from_user', (data: any) => {
+            //     console.log('from ec_is_typing_from_user', data);
+            // });
 
-            this.socket.on('ec_is_typing_to_user', (data: any) => {
-                console.log('from ec_is_typing_to_user', data);
-            });
+            // this.socket.on('ec_is_typing_to_user', (data: any) => {
+            //     console.log('from ec_is_typing_to_user', data);
+            // });
 
-            this.socket.on('ec_is_typing_from_client', (data: any) => {
-                console.log('from ec_is_typing_from_client', data.msg);
-            });
+            // this.socket.on('ec_is_typing_from_client', (data: any) => {
+            //     console.log('from ec_is_typing_from_client', data.msg);
+            // });
 
             this.socket.on('ec_conv_initiated_from_client', (data: any) => {
                 console.log('from ec_conv_initiated_from_client', data);
@@ -336,20 +386,18 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_joined_from_conversation', (data: any) => {
-                data.data = {
-                    convState: 'joined',
-                };
+                data.status = 'joined';
 
-                this.$store.dispatch('chat/setConvState', data);
+                this.$store.dispatch('chat/storeConvState', data);
+
                 console.log('from ec_is_joined_from_conversation', data);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
-                data.data = {
-                    convState: 'left',
-                };
-
-                this.$store.dispatch('chat/setConvState', data);
+                data.status = 'joined';
+                console.log(data);
+                window.clog('test conv id', 'green');
+                this.$store.dispatch('chat/storeConvState', data);
 
                 console.log('from ec_is_leaved_from_conversation', data);
             });
@@ -360,16 +408,27 @@ export default defineComponent({
                 console.log('from ec_is_closed_from_conversation', data);
             });
 
+            // get online users list
+            this.socket.on('ec_logged_users_res', (data: any) => {
+                this.$store.dispatch('chat/storeOnlineAgents', data);
+                console.log(`from ec_logged_users_res ${data}`);
+            });
+
+            this.socket.on('ec_user_logged_in', (data: any) => {
+                this.getAgents();
+                this.$socket.emit('ec_get_logged_users', {});
+                console.log(`from ec_user_logged_in ${data}`);
+            });
+
+            this.socket.on('ec_user_logged_out', (data: any) => {
+                this.getAgents();
+                this.$socket.emit('ec_get_logged_users', {});
+                console.log(`from ec_user_logged_out ${data}`);
+            });
+
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
             });
-        },
-
-        scrollToBottom() {
-            const msgScrollArea = this.$refs.msgScrollArea;
-            const scrollTarget = msgScrollArea.getScrollTarget();
-
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight);
         },
 
         logout() {
@@ -382,6 +441,7 @@ export default defineComponent({
                         position: 'top',
                     });
 
+                    this.$socket.close();
                     this.$router.push({ name: 'login' });
                 })
                 .catch((err: any) => {

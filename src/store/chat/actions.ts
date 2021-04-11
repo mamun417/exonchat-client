@@ -1,28 +1,44 @@
 import { ActionTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
+import { rejects } from 'assert';
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
-    someAction(/* context */) {
-        // your code
+    storeClientInitiateConvInfo(context, payload) {
+        context.commit('storeClientInitiateConvInfo', payload);
     },
 
-    setConvState(context, payload) {
-        context.commit('setConvState', payload);
+    // get conversations which joined by me
+    getJoinedConversations(context, payload) {
+        context.commit('storeJoinedConversation', payload);
     },
 
-    getConvMessages(context, payload) {
-        return new Promise((resolve, reject) => {
-            window.api
-                .get(`conversations/${payload.convId}/messages`)
-                .then((res: any) => {
-                    context.commit('storeConvMessages', res);
-                    resolve(res);
-                })
-                .catch((err: any) => {
-                    reject(err);
-                });
-        });
+    // conversation state like (joined, left, close)
+    storeConvState(context, payload) {
+        context.commit('storeConvState', payload);
+    },
+
+    // get conversation messages from db
+    async getConvMessages(context, payload) {
+        const getConvJoinInfo = window.api.get(`conversations/${payload.convId}/sessions`),
+            getConvMessages = window.api.get(`conversations/${payload.convId}/messages`);
+
+        try {
+            const messagesRes = await manageConvMessages(getConvJoinInfo, getConvMessages);
+            context.commit('storeConvMessages', messagesRes);
+        } catch (e) {
+            return Promise.reject(e);
+        }
+    },
+
+    // get client conversation messages from db
+    async getClientConvMessages(context, payload) {
+        const getConvJoinInfo = window.clientApi.get(`conversations/${payload.convId}/sessions`),
+            getConvMessages = window.clientApi.get(`conversations/${payload.convId}/messages`);
+
+        const messagesRes = await manageConvMessages(getConvJoinInfo, getConvMessages);
+
+        context.commit('storeConvMessages', messagesRes);
     },
 
     storeTemporaryMessage(context, payload) {
@@ -32,11 +48,96 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
     },
 
-    storeChatRequest(context, payload) {
+    // get chat requests form db
+    getChatRequests(context) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get('conversations/requests/list')
+                .then((res: any) => {
+                    context.commit('storeChatRequests', res);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    window.clog(err, 'green');
+                    reject(err);
+                });
+        });
+    },
+
+    storeTempChatRequest(context, payload) {
         return new Promise((resolve) => {
-            context.commit('storeChatRequest', payload);
+            context.commit('storeTempChatRequest', payload);
+            resolve(true);
+        });
+    },
+
+    // get chat requests form db
+    getAgents(context) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get('users/active')
+                .then((res: any) => {
+                    context.commit('storeAgents', res);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    // get online agents form db
+    storeOnlineAgents(context, payload) {
+        return new Promise((resolve) => {
+            context.commit('storeOnlineAgents', payload);
             resolve(true);
         });
     },
 };
+
 export default actions;
+
+function manageConvMessages(getConvJoinInfo: any, getConvMessages: any) {
+    return new Promise((resolve, reject) => {
+        Promise.all([getConvJoinInfo, getConvMessages])
+            .then((res) => {
+                const convStateRes = res[0]; // join/left/close
+                const messagesRes = res[1];
+
+                // remove client joining information
+                // set conversation state status (join/left)
+                // Note: need to manage conversation close status
+                const onlyAgentConvStateRes = convStateRes.data.conversation_sessions
+                    .filter((convSession: any) => convSession.socket_session.user)
+                    .map((filteredConvSession: any) => {
+                        const agentConvStateInfo: any = [];
+                        const convStates = ['joined', 'left'];
+
+                        convStates.forEach((convState) => {
+                            if (filteredConvSession[`${convState}_at`]) {
+                                //add left state created_at suffix cause join and left data come from same resource
+                                const leftStateSuffix = `${convState == 'left' ? '_left' : ''}`;
+
+                                agentConvStateInfo.push({
+                                    ...filteredConvSession,
+                                    id: `${filteredConvSession.id}${leftStateSuffix}`, // unique id to sort for left state
+                                    actual_id: filteredConvSession.id, // if need later
+                                    conv_state_status: convState,
+                                    created_at: filteredConvSession[`${convState}_at`],
+                                });
+                            }
+                        });
+
+                        return agentConvStateInfo;
+                    })
+                    .flat(); // 1 level flat
+
+                messagesRes.data = messagesRes.data.concat(onlyAgentConvStateRes);
+
+                resolve(messagesRes);
+            })
+            .catch((err: any) => {
+                reject(err);
+            });
+    });
+}

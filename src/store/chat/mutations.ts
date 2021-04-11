@@ -3,18 +3,48 @@ import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
 
 const mutation: MutationTree<ChatStateInterface> = {
-    someMutation(/* state: ChatStateInterface */) {
-        // your code
-    },
-
-    setConvState(state: ChatStateInterface, payload: any) {
+    storeClientInitiateConvInfo(state: ChatStateInterface, payload: any) {
         const data = JSON.stringify(payload.data);
-        localStorage.setItem('convStateInfo', data);
-        state.convStateInfo = payload.data;
+        localStorage.setItem('clientInitiateConvInfo', data);
+        state.clientInitiateConvInfo = payload.data;
     },
 
-    // get conversations messages from databases
+    // get conversations which joined by me
+    storeJoinedConversation(state: ChatStateInterface, payload: any) {
+        const convId = payload.data.conv_ses_data.conversation_id;
+
+        const convStateInfo = {
+            [convId]: {
+                info: payload.data.conv_ses_data,
+                status: payload.status,
+            },
+        };
+
+        localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
+
+        state.convStateInfo = convStateInfo;
+    },
+
+    // conversation state like (joined, left, close)
+    storeConvState(state: ChatStateInterface, payload: any) {
+        const convId = payload.data.conv_ses_data.conversation_id;
+
+        const convStateInfo = {
+            [convId]: {
+                info: payload.data.conv_ses_data,
+                status: payload.status,
+            },
+        };
+
+        localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
+
+        state.convStateInfo = convStateInfo;
+    },
+
+    // get conversations messages into state which come from db
     storeConvMessages(state: ChatStateInterface, payload: any) {
+        if (!payload.data.length) return false;
+
         const convMessages = { messages: payload.data, id: payload.data[0].conversation_id };
         const convId = convMessages.id;
 
@@ -27,7 +57,7 @@ const mutation: MutationTree<ChatStateInterface> = {
         });
     },
 
-    // store tem message
+    // store temp message
     storeTemporaryMessage(state: ChatStateInterface, payload: any) {
         const convId = payload.conversation_id;
         const msgId = payload.id;
@@ -43,14 +73,46 @@ const mutation: MutationTree<ChatStateInterface> = {
         }
     },
 
-    storeChatRequest(state: ChatStateInterface, payload: any) {
+    // store chat requests into state which come from db
+    storeChatRequests(state: ChatStateInterface, payload: any) {
+        const chatRequests = payload.data;
+
+        chatRequests.forEach((chatRequest: any) => {
+            const convId = chatRequest.id;
+
+            state.chatRequests[convId] = {
+                msg: chatRequest.messages[0].msg,
+                createdAt: chatRequest.created_at,
+                convId,
+            };
+        });
+    },
+
+    // store temp chat request
+    storeTempChatRequest(state: ChatStateInterface, payload: any) {
         const convId = payload.conversation_id;
 
-        state.chatRequest[convId] = {
+        state.chatRequests[convId] = {
             msg: payload.msg,
             createdAt: payload.created_at,
             convId,
         };
+    },
+
+    // store all agents into state which come from db
+    storeAgents(state: ChatStateInterface, payload: any) {
+        const chatAgents = payload.data;
+
+        chatAgents.forEach((chatAgent: any) => {
+            const agentId = chatAgent.id;
+
+            state.chatAgents[agentId] = chatAgent;
+        });
+    },
+
+    // store online agents into state which come from db
+    storeOnlineAgents(state: ChatStateInterface, payload: any) {
+        state.onlineChatAgents = payload.users;
     },
 };
 

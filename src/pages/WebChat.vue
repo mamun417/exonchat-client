@@ -3,14 +3,33 @@
         <div class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center">
             <div>Online - Chat With Us</div>
             <q-btn @click="clearSession">Clear</q-btn>
+            <q-btn icon="info" flat>
+                <q-menu class="tw-p-2" style="min-width: 350px">
+                    <div
+                        class="tw-p-2 tw-border-1 tw-shadow-md"
+                        v-for="(m, i) in Object.keys($store._modules.root.state)"
+                        :key="i"
+                    >
+                        <div class="text-green text-center">{{ m }}</div>
+                        <div class="tw-my-2" v-for="(mv, k) in Object.keys($store._modules.root.state[m])" :key="k">
+                            <span>
+                                <pre>{{ mv }}</pre>
+                            </span>
+                            <span class="tw-mx-2">=></span>
+                            <span>
+                                <pre>{{ $store._modules.root.state[m][mv] }}</pre>
+                            </span>
+                        </div>
+                    </div>
+                </q-menu>
+            </q-btn>
             <div style="max-height: 100px; overflow: auto"></div>
             <q-space></q-space>
             <q-btn icon="expand_more" dense flat></q-btn>
         </div>
-
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
-            <div v-if="convInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
-                <q-scroll-area
+            <div v-if="clientInitiateConvInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
+                <!--<q-scroll-area
                     @scroll="handleScroll"
                     ref="msgScrollArea"
                     class="tw-p-3 tw-flex-grow tw-text-xs"
@@ -32,7 +51,11 @@
                     <q-chat-message
                         v-for="(message, i) in messages"
                         :key="i"
-                        name="hasan"
+                        :name="
+                            index === 0 || message?.socket_session_id !== messages[index - 1]?.socket_session_id
+                                ? message.socket_session_id
+                                : ''
+                        "
                         avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                         :text="[message.msg]"
                         :stamp="$fromNowTime(message.created_at)"
@@ -79,8 +102,10 @@
                         dense
                     ></q-input>
                     <q-btn @click="sendMessage" v-model="msg" icon="send" flat color="green-8" size="sm"></q-btn>
-                </div>
+                </div>-->
+                <message :socket="socket" chat-panel-type="client" :messages="messages"></message>
             </div>
+
             <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
                     <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
@@ -112,7 +137,7 @@
                         <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize"
                             >Start Chat as Guest
                         </q-btn>
-                        <pre>{{ convInfo }}</pre>
+                        <pre>{{ clientInitiateConvInfo }}</pre>
                     </div>
                 </div>
             </div>
@@ -124,10 +149,11 @@
 import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
+import Message from 'components/common/Message.vue';
 
 export default defineComponent({
     name: 'WebChat',
-    components: {},
+    components: { Message },
     setup() {
         return {};
     },
@@ -138,9 +164,6 @@ export default defineComponent({
             socketId: null,
             sesId: null,
             soketToken: null,
-
-            covId: null,
-            convInfo: {},
 
             showChatForm: false,
             userLogged: false,
@@ -157,40 +180,50 @@ export default defineComponent({
         };
     },
 
-    computed: {
-        ...mapGetters({
-            messages: 'chat/messages',
-            // convInfo: 'chat/convInfo',
-        }),
-    },
-
     async mounted() {
-        console.log(this.$store._modules.root.state.chat);
         console.log('WebChat Mounted');
-
-        setInterval(() => {
-            this.$forceUpdate();
-        }, 30000);
 
         await this.initializeSocket();
         this.fireSocketListeners();
 
         this.firePageVisitListner();
 
+        if (this.clientInitiateConvInfo) {
+            this.getConvMessages(this.clientInitiateConvInfo.conv_id);
+        }
         // this.setTypingFalse();
     },
+
+    computed: {
+        ...mapGetters({
+            clientInitiateConvInfo: 'chat/clientInitiateConvInfo',
+        }),
+
+        // which messages store by getConvMessages()
+        messages(): any {
+            return this.$store.getters['chat/messages'](this.clientInitiateConvInfo.conv_id);
+        },
+    },
+
     methods: {
         clearSession() {
             localStorage.clear();
             sessionStorage.clear();
-            this.convInfo = {};
+            this.clientInitiateConvInfo = {};
             location.reload();
+        },
+
+        // store conversation messages and get the messages by getters (messages)
+        getConvMessages(convId: string) {
+            this.$store.dispatch('chat/getClientConvMessages', {
+                convId,
+            });
         },
 
         async initializeSocket() {
             // get conversation information
-            const convInfo: any = localStorage.getItem('convInfo');
-            this.convInfo = convInfo ? JSON.parse(convInfo) : {};
+            const clientInitiateConvInfo: any = localStorage.getItem('clientInitiateConvInfo');
+            this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
 
             this.sesId = sessionStorage.getItem('ec_client_socket_ses_id');
             this.socketToken = sessionStorage.getItem('ec_client_socket_token');
@@ -244,14 +277,14 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_user', (res: any) => {
-                this.messages.push(res);
+            this.socket.on('ec_msg_from_user', async (res: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', res);
                 console.log('from ec_msg_from_user', res);
             });
 
-            this.socket.on('ec_is_typing_to_client', (res: any) => {
-                console.log('from ec_is_typing_to_client', res);
-            });
+            // this.socket.on('ec_is_typing_to_client', (res: any) => {
+            //     console.log('from ec_is_typing_to_client', res);
+            // });
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', async (res: any) => {
@@ -259,25 +292,24 @@ export default defineComponent({
                 console.log('from ec_msg_to_client', res);
             });
 
-            this.socket.on('ec_is_typing_from_user', (res: any) => {
-                console.log(res);
-                // this.typingHandler.typing = true;
-                console.log('from ec_is_typing_from_user', res);
-            });
+            // this.socket.on('ec_is_typing_from_user', (res: any) => {
+            //     console.log(res);
+            //     // this.typingHandler.typing = true;
+            //     console.log('from ec_is_typing_from_user', res);
+            // });
 
-            this.socket.on('ec_conv_initiated_to_client', (res: any) => {
-                console.log(res);
-
+            this.socket.on('ec_conv_initiated_to_client', async (res: any) => {
                 console.log('from ec_conv_initiated_to_client', res);
 
+                const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
+
                 if (res.status === 'success') {
-                    if (!this.conv_id) {
-                        localStorage.setItem('convInfo', JSON.stringify(res.data));
-                        this.convInfo = res.data;
+                    if (!clientInitiateConvInfo) {
+                        await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
                     } else {
-                        if (this.conv_id === res.data.conversation_id) {
-                            //no idea for now what to do if conv_id donst match
-                        }
+                        // if (this.conv_id === res.data.conversation_id) {
+                        //     //no idea for now what to do if conv_id donst match
+                        // }
                     }
                 }
             });
@@ -374,57 +406,16 @@ export default defineComponent({
             }
         },
 
-        sendMessage(): any {
-            if (!this.msg.length) {
-                return false;
-            }
-
-            console.log('sending the msg');
-
-            // send event when current user is sending msg
-            this.socket.emit('ec_msg_from_client', {
-                msg: this.msg,
-                temp_id: this.$getTempId,
-            });
-
-            this.msg = '';
-        },
-
-        scrollToBottom() {
-            const msgScrollArea = this.$refs.msgScrollArea;
-            const scrollTarget = msgScrollArea.getScrollTarget();
-
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
-        },
-
-        handleScroll(info: any) {
-            let verticalPercentage = info.verticalPercentage;
-            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages.length > 0;
-        },
-
         setTypingFalse() {
             setInterval(() => {
                 this.typingHandler.typing = false;
             }, 2000);
         },
-
-        checkOwnMessage(message: any) {
-            return message.socket_session_id === this.sesId;
-        },
-    },
-
-    watch: {
-        messages: {
-            handler: function () {
-                this.scrollToBottom();
-            },
-            deep: true,
-        },
     },
 });
 </script>
 
-<style lang="scss">
+<!--<style lang="scss">
 #webchat-container {
     .q-message {
         &.exonchat-is-typing {
@@ -446,4 +437,4 @@ export default defineComponent({
         }
     }
 }
-</style>
+</style>-->

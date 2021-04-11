@@ -1,7 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import * as _l from 'lodash';
 import moment from 'moment';
-
+require('colors');
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
         $_: any;
@@ -15,22 +15,32 @@ declare global {
     }
 }
 
-window.clog = function (text: any) {
-    console.log(text);
+window.clog = function (text: any, type = 'black') {
+    console.log(text[type]);
 };
 
-const getTempId = function () {
+export const getTempId = function () {
     return new Date().getTime();
 };
 
-const fromNowTime = function (timestamp: string) {
+export const fromNowTime = function (timestamp: string) {
     return moment(timestamp).fromNow();
+};
+
+export const myDate = function (timestamp: string, format = 'MMMM Do YYYY') {
+    return moment(timestamp).format(format);
+};
+
+export const getMySocketSessionId = function () {
+    return sessionStorage.getItem('ec_user_socket_ses_id');
 };
 
 export default boot(({ app }) => {
     app.config.globalProperties.$_ = _l;
     app.config.globalProperties.$getTempId = getTempId();
     app.config.globalProperties.$fromNowTime = fromNowTime;
+    app.config.globalProperties.$myDate = myDate;
+    app.config.globalProperties.$getMySocketSessionId = getMySocketSessionId();
 });
 
-export { _l, getTempId };
+export { _l };

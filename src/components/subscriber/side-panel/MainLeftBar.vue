@@ -48,15 +48,8 @@
                 <q-item-section class="content-center" avatar>
                     <q-avatar size="xl">
                         <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
-
-                        <q-badge
-                            color="green"
-                            floating
-                            style="background: unset !important"
-                            ><q-icon
-                                name="fiber_manual_record"
-                                color="green"
-                            ></q-icon
+                        <q-badge color="green" floating style="background: unset !important"
+                            ><q-icon name="fiber_manual_record" color="green"></q-icon
                         ></q-badge>
                     </q-avatar>
                 </q-item-section> </q-item

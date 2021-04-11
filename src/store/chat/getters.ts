@@ -1,35 +1,61 @@
+import moment from 'moment';
+import { _l, getMySocketSessionId } from 'src/boot/helpers';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
-    someAction(/* state */) {
-        // your code
-    },
-    auth(/* state */) {
-        // your code
+    clientInitiateConvInfo(state) {
+        return state.clientInitiateConvInfo;
     },
 
-    convStateInfo(state) {
-        return state.convStateInfo;
+    convStateInfo: (state) => (convId: any) => {
+        return state.convStateInfo[convId];
     },
-
-    // convInfo(context) {
-    //     return context.convInfo;
-    // },
 
     messages: (state) => (convId: any) => {
-        const messages = state.messages;
+        const allMessages = state.messages;
 
         if (!convId) {
-            return messages;
+            return allMessages;
         }
 
-        return messages[convId]?.messages;
+        const convMessages = allMessages[convId]?.messages;
+
+        return _l.sortBy(convMessages, [
+            function (message) {
+                return moment(message.created_at).format('x');
+            },
+        ]);
     },
 
-    chatRequest(state) {
-        return state.chatRequest;
+    chatRequests(state) {
+        return _l
+            .sortBy(state.chatRequests, [
+                function (chatRequest) {
+                    return moment(chatRequest.createdAt).format('x');
+                },
+            ])
+            .reverse();
+    },
+
+    chatAgents(state) {
+        const allChatAgents = state.chatAgents;
+        const mySocketSessionId = getMySocketSessionId();
+
+        return _l.filter(allChatAgents, (agent: any) => {
+            if (!agent.socket_sessions.length) return false;
+
+            let socketSessions = _l.mapValues(agent.socket_sessions, 'id');
+
+            socketSessions = Object.values(socketSessions);
+
+            return !socketSessions.includes(mySocketSessionId);
+        });
+    },
+
+    onlineChatAgents(state) {
+        return state.onlineChatAgents;
     },
 };
 

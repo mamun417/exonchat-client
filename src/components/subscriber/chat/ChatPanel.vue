@@ -5,7 +5,7 @@
                 <q-item class="">
                     <q-item-section avatar>
                         <q-avatar size="xl">
-                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
+                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="" />
                         </q-avatar>
                     </q-item-section>
 
@@ -26,78 +26,8 @@
                 ></q-btn>
             </q-card-section>
         </q-card>
-        <!-- <div class=""> -->
-        <q-scroll-area
-            @scroll="handleScroll"
-            ref="msgScrollArea"
-            class="tw-flex-1 tw-p-3"
-            style="height: 1px"
-            :bar-style="{
-                background: '#60A5FA',
-                width: '4px',
-                opacity: 0.2,
-                borderRadius: '10px',
-            }"
-            :thumb-style="{
-                borderRadius: '9px',
-                backgroundColor: '#60A5FA',
-                width: '4px',
-                opacity: 0.7,
-            }"
-            :content-style="{}"
-        >
-            <pre>{{ messages }}</pre>
-            <!-- <pre v-for="m in messages" :key="m">{{ m }}</pre> -->
-            <q-chat-message
-                v-for="message in messages"
-                :key="message.id"
-                name="hasan"
-                avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                :text="[message.msg]"
-                :stamp="$fromNowTime(message.created_at)"
-                :sent="checkOwnMessage(message)"
-                :text-color="checkOwnMessage(message) ? 'black' : 'white'"
-                :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
-            />
 
-            <!-- <q-chat-message avatar="https://cdn.quasar.dev/img/avatar5.jpg" bg-color="blue-9">
-                <q-spinner-dots color="white" size="2rem" />
-            </q-chat-message> -->
-
-            <q-btn
-                v-if="gotoBottomBtnShow"
-                @click="scrollToBottom"
-                style="position: fixed; left: 200px; bottom: 60px"
-                class="tw-bottom-2 tw-opacity-75 tw-right-2"
-                color="black"
-                icon="keyboard_arrow_down"
-                size="sm"
-                round
-            />
-        </q-scroll-area>
-
-        <div
-            v-if="convStateInfo.convState === 'joined'"
-            class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
-        >
-            <q-btn flat color="green" icon="attachment"></q-btn>
-            <q-btn flat color="green" icon="mood"></q-btn>
-            <q-input
-                v-model.trim="msg"
-                @keyup.enter.exact="sendMessage"
-                @focus="inputFocusHandle"
-                @blur="inputBlurHandle"
-                debounce="0"
-                placeholder="Write Message..."
-                color="green-8"
-                class="tw-flex-auto"
-                autogrow
-                borderless
-                dense
-            ></q-input>
-            <q-btn icon="send" flat color="green-8"></q-btn>
-        </div>
-        <!-- </div> -->
+        <message chat-panel-type="user" :messages="messages"></message>
 
         <q-dialog v-model="confirm" persistent>
             <q-card style="min-width: 350px">
@@ -125,10 +55,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
+import Message from 'components/common/Message.vue';
 
 export default defineComponent({
     name: 'ChatPanel',
-    components: {},
+    components: { Message },
     setup() {
         return {};
     },
@@ -153,19 +84,18 @@ export default defineComponent({
 
     mounted() {
         console.log('chat panel initiated');
-
-        setInterval(() => {
-            this.$forceUpdate();
-        }, 30000);
-
         this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
     },
 
     computed: {
         ...mapGetters({
             convStateInfo: 'chat/convStateInfo',
-            // messages: 'chat/messages',
         }),
+
+        convStateInfo(): any {
+            const convId = this.getConvId();
+            return this.$store.getters['chat/convStateInfo'](convId) || {};
+        },
 
         messages(): any {
             const convId = this.getConvId();
@@ -173,7 +103,7 @@ export default defineComponent({
         },
 
         convStateButtonInfo() {
-            const convState = this.convStateInfo.convState;
+            const convState = this.convStateInfo.status;
 
             if (convState === 'left') {
                 return { name: 'Close', action: 'close' };
@@ -188,6 +118,12 @@ export default defineComponent({
     },
 
     methods: {
+        async getConvMessages(convId: string) {
+            await this.$store.dispatch('chat/getConvMessages', {
+                convId,
+            });
+        },
+
         getConvId() {
             return this.$route.params['conv_id'];
         },
@@ -218,80 +154,16 @@ export default defineComponent({
                 conv_id: conv_id,
             });
         },
-
-        inputFocusHandle() {
-            this.typingHandler = setInterval(() => {
-                this.$socket.emit('ec_is_typing_from_user', {
-                    conv_id: this.getConvId(),
-                });
-            }, 1000);
-        },
-
-        inputBlurHandle() {
-            clearInterval(this.typingHandler);
-        },
-
-        sendMessage(): any {
-            if (!this.msg.length) {
-                return false;
-            }
-
-            console.log('sending the msg');
-
-            // send event when current user is sending msg
-            this.$socket.emit('ec_msg_from_user', {
-                conv_id: this.getConvId(),
-                msg: this.msg,
-            }); // sentAt will also mean as tempId
-
-            this.msg = '';
-        },
-
-        handleScroll(info: any) {
-            let verticalPercentage = info.verticalPercentage;
-            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
-        },
-
-        scrollToBottom() {
-            const msgScrollArea = this.$refs.msgScrollArea;
-            const scrollTarget = msgScrollArea.getScrollTarget();
-
-            msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 200);
-        },
-
-        checkOwnMessage(message: any) {
-            return message.socket_session_id === this.sesId;
-        },
-
-        getConvMessages(convId: string) {
-            this.$store.dispatch('chat/getConvMessages', {
-                convId,
-            });
-            // .then((result: any) => {
-            //     console.log(result);
-            // })
-            // .catch((err: any) => {
-            //     console.log(err);
-            // });
-        },
     },
 
     watch: {
-        // messages: {
-        //     handler: function () {
-        //         this.scrollToBottom();
-        //     },
-        //     deep: true,
-        // },
-
         $route: {
-            handler: function (to, from) {
+            handler: function () {
                 const convId = this.getConvId();
 
-                this.getConvMessages(convId);
-
-                console.log(to);
-                console.log(from);
+                if (convId) {
+                    this.getConvMessages(convId);
+                }
             },
             deep: true,
             immediate: true,

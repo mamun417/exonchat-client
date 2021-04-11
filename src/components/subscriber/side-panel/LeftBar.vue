@@ -41,13 +41,16 @@
                     label="Incoming chat request"
                     header-class="text-weight-bold bg-green-1"
                 >
-                    <q-card v-if="Object.keys(chatRequest).length">
+                    <q-card v-if="Object.keys(chatRequests).length">
                         <q-list>
                             <q-item
-                                v-for="(request, convId) in chatRequest"
-                                :to="{ name: 'chats', params: { conv_id: convId } }"
-                                :key="convId"
+                                v-for="(request, index) in chatRequests"
+                                :to="{ name: 'chats', params: { conv_id: request.convId } }"
+                                :key="index"
                                 clickable
+                                v-ripple
+                                :active="true"
+                                active-class="text-white bg-blue-9"
                             >
                                 <q-item-section avatar>
                                     <q-avatar>
@@ -56,8 +59,10 @@
                                 </q-item-section>
 
                                 <q-item-section>
-                                    <q-item-label class="text-weight-bold text-dark">Hasan</q-item-label>
-                                    <q-item-label caption lines="2" class="text-weight-bold">
+                                    <q-item-label class="text-weight-bold" style="word-break: break-all">
+                                        {{ request.convId }}
+                                    </q-item-label>
+                                    <q-item-label lines="2">
                                         {{ request.msg }}
                                     </q-item-label>
                                 </q-item-section>
@@ -74,34 +79,26 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item class="" clickable>
+                                <q-item class="" clickable v-for="(agent, id) in chatAgents" :key="id">
                                     <q-item-section avatar>
                                         <q-avatar>
-                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" />
+                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" alt="" />
                                         </q-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold">Mamun</q-item-label>
+                                        <q-item-label class="text-weight-bold">{{ agent.email }} </q-item-label>
+                                        <!-- <q-item-label class="text-weight-bold">
+                                            <pre>{{ agent }}</pre>
+                                        </q-item-label>-->
                                     </q-item-section>
 
                                     <q-item-section side>
-                                        <q-icon name="fiber_manual_record" color="green" size="xs" />
-                                    </q-item-section>
-                                </q-item>
-                                <q-item class="" clickable>
-                                    <q-item-section avatar>
-                                        <q-avatar>
-                                            <img :src="`https://cdn.quasar.dev/img/avatar6.jpg`" />
-                                        </q-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-bold">Noman</q-item-label>
-                                    </q-item-section>
-
-                                    <q-item-section side>
-                                        <q-icon name="fiber_manual_record" color="grey" size="xs" />
+                                        <q-icon
+                                            name="fiber_manual_record"
+                                            :color="checkOnlineStatus(agent) ? 'green' : 'grey'"
+                                            size="xs"
+                                        />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -216,14 +213,33 @@ export default defineComponent({
 
     mounted() {
         console.log('left bar initiated');
+        this.getChatRequest();
     },
 
     computed: {
         ...mapGetters({
-            chatRequest: 'chat/chatRequest',
+            chatRequests: 'chat/chatRequests',
+            chatAgents: 'chat/chatAgents',
+            onlineChatAgents: 'chat/onlineChatAgents',
         }),
     },
 
-    methods: {},
+    methods: {
+        getChatRequest() {
+            this.$store.dispatch('chat/getChatRequests');
+        },
+
+        checkOnlineStatus(agent: any) {
+            const onlineAgents = this.onlineChatAgents;
+
+            if (!onlineAgents.length) return false;
+
+            const filterSocketSessions = this.$_.filter(agent.socket_sessions, (socket_session: any) => {
+                return onlineAgents.includes(socket_session.id);
+            });
+
+            return !!filterSocketSessions.length;
+        },
+    },
 });
 </script>
