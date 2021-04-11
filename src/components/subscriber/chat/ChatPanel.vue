@@ -118,8 +118,8 @@ export default defineComponent({
     },
 
     methods: {
-        getConvMessages(convId: string) {
-            this.$store.dispatch('chat/getConvMessages', {
+        async getConvMessages(convId: string) {
+            await this.$store.dispatch('chat/getConvMessages', {
                 convId,
             });
         },

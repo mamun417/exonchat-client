@@ -264,10 +264,9 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
-                data.data = {
-                    convState: 'left',
-                };
-
+                data.status = 'joined';
+                console.log(data);
+                window.clog('test conv id', 'green');
                 this.$store.dispatch('chat/storeConvState', data);
 
                 console.log('from ec_is_leaved_from_conversation', data);
