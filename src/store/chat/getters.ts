@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { _l, getMySocketSessionId } from 'src/boot/helpers';
+import helpers from 'boot/helpers/helpers';
+import * as _l from 'lodash';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
@@ -41,7 +42,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     chatAgents(state) {
         const allChatAgents = state.chatAgents;
-        const mySocketSessionId = getMySocketSessionId();
+        const mySocketSessionId = helpers.getMySocketSessionId();
 
         return _l.filter(allChatAgents, (agent: any) => {
             if (!agent.socket_sessions.length) return false;

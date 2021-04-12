@@ -257,7 +257,8 @@ export default defineComponent({
 
             this.socket.on('ec_is_joined_from_conversation', (data: any) => {
                 data.status = 'joined';
-
+                window.clog('testttttttttt', 'red');
+                console.dir(data);
                 this.$store.dispatch('chat/storeConvState', data);
 
                 console.log('from ec_is_joined_from_conversation', data);

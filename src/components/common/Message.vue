@@ -24,7 +24,7 @@
                 :name="handleNameForMultipleSelfMessage(index, message)"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                 :text="[message.msg]"
-                :stamp="$fromNowTime(message.created_at)"
+                :stamp="$helpers.fromNowTime(message.created_at)"
                 :sent="checkOwnMessage(message)"
                 :text-color="checkOwnMessage(message) ? 'black' : 'white'"
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
@@ -155,7 +155,7 @@ export default defineComponent({
         getConvStateInfo(message: any) {
             // const onOrAt = message.conv_state_status === 'join' ? 'on' : 'at';
 
-            return `${message.socket_session.user.email} ${message.conv_state_status} ${this.$fromNowTime(
+            return `${message.socket_session.user.email} ${message.conv_state_status} ${this.$helpers.fromNowTime(
                 message.joined_at
             )}`;
         },
@@ -180,9 +180,10 @@ export default defineComponent({
             console.log('sending the msg');
 
             const emitType = this.isUserPanel() ? 'user' : 'client';
-            const userBodyParams = { conv_id: this.getConvId() };
-            const clientBodyParams = { temp_id: this.$getTempId };
-            const dynamicBody = this.isUserPanel() ? userBodyParams : clientBodyParams;
+            const dynamicBody = this.isUserPanel()
+                ? { conv_id: this.getConvId() }
+                : { temp_id: this.$helpers.getTempId() };
+
             const dynamicSocket = this.socket || this.$socket;
 
             dynamicSocket.emit(`ec_msg_from_${emitType}`, {

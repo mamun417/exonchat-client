@@ -9,6 +9,7 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.clientInitiateConvInfo = payload.data;
     },
 
+    // not done
     // get conversations which joined by me
     storeJoinedConversation(state: ChatStateInterface, payload: any) {
         const convId = payload.data.conv_ses_data.conversation_id;
@@ -25,6 +26,7 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.convStateInfo = convStateInfo;
     },
 
+    // not done
     // conversation state like (joined, left, close)
     storeConvState(state: ChatStateInterface, payload: any) {
         const convId = payload.data.conv_ses_data.conversation_id;
@@ -36,6 +38,7 @@ const mutation: MutationTree<ChatStateInterface> = {
             },
         };
 
+        // get data from db
         localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
 
         state.convStateInfo = convStateInfo;
