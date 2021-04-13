@@ -7,22 +7,28 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('storeClientInitiateConvInfo', payload);
     },
 
-    // get conversations which joined by me
-    getJoinedConversations(context, payload) {
-        context.commit('storeJoinedConversation', payload);
-    },
-
     // conversation state like (joined, left, close)
     storeConvState(context, payload) {
-        context.commit('storeConvState', payload);
+        const convSession = payload.data.conv_ses_data;
+        let agentConvStateInfo = '';
+
+        if (payload.stateStatus == 'close') {
+            // manage close conversation state
+        } else {
+            agentConvStateInfo = getConStateInfoArray(convSession);
+        }
+
+        payload.data = agentConvStateInfo;
+
+        context.commit('storeConvMessages', payload);
     },
 
     // get conversation messages from db
-    async getConvMessages(context, payload) {
+    async getAgentConvMessages(context, payload) {
         const getConvJoinInfo = window.api.get(`conversations/${payload.convId}/sessions`),
             getConvMessages = window.api.get(`conversations/${payload.convId}/messages`);
 
-        return await context.dispatch('manageConvMessages', { getConvJoinInfo, getConvMessages });
+        return await context.dispatch('storeConvMessages', { getConvJoinInfo, getConvMessages });
     },
 
     // get client conversation messages from db
@@ -30,10 +36,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         const getConvJoinInfo = window.clientApi.get(`conversations/${payload.convId}/sessions`),
             getConvMessages = window.clientApi.get(`conversations/${payload.convId}/messages`);
 
-        return await context.dispatch('manageConvMessages', { getConvJoinInfo, getConvMessages });
+        return await context.dispatch('storeConvMessages', { getConvJoinInfo, getConvMessages });
     },
 
-    manageConvMessages(context, { getConvJoinInfo, getConvMessages }) {
+    storeConvMessages(context, { getConvJoinInfo, getConvMessages }) {
         return new Promise((resolve, reject) => {
             Promise.all([getConvJoinInfo, getConvMessages])
                 .then((res) => {
@@ -46,25 +52,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     const onlyAgentConvStateRes = convStateRes.data.conversation_sessions
                         .filter((convSession: any) => convSession.socket_session.user)
                         .map((filteredConvSession: any) => {
-                            const agentConvStateInfo: any = [];
-                            const convStates = ['joined', 'left'];
-
-                            convStates.forEach((convState) => {
-                                if (filteredConvSession[`${convState}_at`]) {
-                                    //add left state created_at suffix cause join and left data come from same resource
-                                    const leftStateSuffix = `${convState == 'left' ? '_left' : ''}`;
-
-                                    agentConvStateInfo.push({
-                                        ...filteredConvSession,
-                                        id: `${filteredConvSession.id}${leftStateSuffix}`, // unique id to sort for left state
-                                        actual_id: filteredConvSession.id, // if need later
-                                        conv_state_status: convState,
-                                        created_at: filteredConvSession[`${convState}_at`],
-                                    });
-                                }
-                            });
-
-                            return agentConvStateInfo;
+                            return getConStateInfoArray(filteredConvSession);
                         })
                         .flat(); // 1 level flat
 
@@ -80,6 +68,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
     },
 
+    // using for both user and client
     storeTemporaryMessage(context, payload) {
         return new Promise((resolve) => {
             context.commit('storeTemporaryMessage', payload);
@@ -133,5 +122,28 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
     },
 };
+
+// join/left/close information as array
+function getConStateInfoArray(conversationSession: any) {
+    const agentConvStateInfoArray: any = [];
+    const convStates = ['joined', 'left'];
+
+    convStates.forEach((convState) => {
+        if (conversationSession[`${convState}_at`]) {
+            //add left state created_at suffix cause join and left data come from same resource
+            const leftStateSuffix = `${convState == 'left' ? '_left' : ''}`;
+
+            agentConvStateInfoArray.push({
+                ...conversationSession,
+                id: `${conversationSession.id}${leftStateSuffix}`, // unique id to sort for left state
+                actual_id: conversationSession.id, // if need later
+                conv_state_status: convState,
+                created_at: conversationSession[`${convState}_at`],
+            });
+        }
+    });
+
+    return agentConvStateInfoArray;
+}
 
 export default actions;

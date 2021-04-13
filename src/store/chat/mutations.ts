@@ -1,4 +1,3 @@
-// import { _l } from 'src/boot/helpers';
 import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
 
@@ -7,23 +6,6 @@ const mutation: MutationTree<ChatStateInterface> = {
         const data = JSON.stringify(payload.data);
         localStorage.setItem('clientInitiateConvInfo', data);
         state.clientInitiateConvInfo = payload.data;
-    },
-
-    // not done
-    // get conversations which joined by me
-    storeJoinedConversation(state: ChatStateInterface, payload: any) {
-        const convId = payload.data.conv_ses_data.conversation_id;
-
-        const convStateInfo = {
-            [convId]: {
-                info: payload.data.conv_ses_data,
-                status: payload.status,
-            },
-        };
-
-        localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
-
-        state.convStateInfo = convStateInfo;
     },
 
     // not done
@@ -38,7 +20,7 @@ const mutation: MutationTree<ChatStateInterface> = {
             },
         };
 
-        // get data from db
+        // need change to state where already stored the conversation messages
         localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
 
         state.convStateInfo = convStateInfo;

@@ -255,22 +255,20 @@ export default defineComponent({
                 }
             });
 
-            this.socket.on('ec_is_joined_from_conversation', (data: any) => {
-                data.status = 'joined';
-                window.clog('testttttttttt', 'red');
-                console.dir(data);
-                this.$store.dispatch('chat/storeConvState', data);
+            this.socket.on('ec_is_joined_from_conversation', (res: any) => {
+                res.status = 'joined';
 
-                console.log('from ec_is_joined_from_conversation', data);
+                this.$store.dispatch('chat/storeConvState', res);
+
+                console.log('from ec_is_joined_from_conversation', res);
             });
 
-            this.socket.on('ec_is_leaved_from_conversation', (data: any) => {
-                data.status = 'joined';
-                console.log(data);
-                window.clog('test conv id', 'green');
-                this.$store.dispatch('chat/storeConvState', data);
+            this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
+                res.status = 'left';
 
-                console.log('from ec_is_leaved_from_conversation', data);
+                this.$store.dispatch('chat/storeConvState', res);
+
+                console.log('from ec_is_leaved_from_conversation', res);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (data: any) => {

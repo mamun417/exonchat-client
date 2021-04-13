@@ -27,7 +27,7 @@
             </q-card-section>
         </q-card>
 
-        <message chat-panel-type="user" :messages="messages"></message>
+        <message :ses-id="sesId" chat-panel-type="user" :messages="messages"></message>
 
         <q-dialog v-model="confirm" persistent>
             <q-card style="min-width: 350px">
@@ -46,6 +46,7 @@
                         v-close-popup
                         flat
                     />
+                    <q-btn @click="convStateHandle('leave')" label="Leave" color="warning" v-close-popup flat />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -119,7 +120,7 @@ export default defineComponent({
 
     methods: {
         async getConvMessages(convId: string) {
-            await this.$store.dispatch('chat/getConvMessages', {
+            await this.$store.dispatch('chat/getAgentConvMessages', {
                 convId,
             });
         },

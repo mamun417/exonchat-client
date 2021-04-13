@@ -86,9 +86,8 @@ export default defineComponent({
     name: 'Message',
     components: {},
     props: {
-        conversationId: {
+        sesId: {
             type: String,
-            default: '',
         },
 
         socket: {
@@ -108,7 +107,6 @@ export default defineComponent({
 
     data(): any {
         return {
-            sesId: '',
             convId: '',
             confirm: false,
             convState: '',
@@ -126,8 +124,6 @@ export default defineComponent({
         setInterval(() => {
             this.$forceUpdate();
         }, 30000);
-
-        this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
     },
 
     computed: {
