@@ -159,7 +159,7 @@ export default defineComponent({
 
         async socketInitialize() {
             // if (this.handshake || 'logged') {
-            this.sesId = this.$getMySocketSessionId;
+            this.sesId = this.$helpers.getMySocketSessionId();
             this.socketToken = sessionStorage.getItem('ec_user_socket_token');
             console.log(this.sesId);
 
@@ -256,25 +256,31 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_joined_from_conversation', (res: any) => {
-                res.status = 'joined';
+                const convInfo = res.data.conv_ses_data;
+                convInfo.state_status = 'joined';
 
-                this.$store.dispatch('chat/storeConvState', res);
+                this.$store.dispatch('chat/storeConvState', convInfo);
 
-                console.log('from ec_is_joined_from_conversation', res);
+                console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
-                res.status = 'left';
+                const convInfo = res.data.conv_ses_data;
+                convInfo.state_status = 'left';
 
-                this.$store.dispatch('chat/storeConvState', res);
+                this.$store.dispatch('chat/storeConvState', convInfo);
 
-                console.log('from ec_is_leaved_from_conversation', res);
+                console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
-            this.socket.on('ec_is_closed_from_conversation', (data: any) => {
-                console.log('okk');
+            this.socket.on('ec_is_closed_from_conversation', (res: any) => {
+                const convInfo = res.data.conv_data;
+                convInfo.state_status = 'closed';
+                convInfo.conversation_id = res.data.conv_id; // need to same  object pattern
 
-                console.log('from ec_is_closed_from_conversation', data);
+                this.$store.dispatch('chat/storeConvState', convInfo);
+
+                console.log('from ec_is_closed_from_conversation', convInfo);
             });
 
             // get online users list

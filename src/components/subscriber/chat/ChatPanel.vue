@@ -1,5 +1,5 @@
 <template>
-    <div class="tw-flex tw-flex-col">
+    <div class="tw-flex tw-flex-col" v-if="messages.length">
         <q-card class="tw-shadow-lg">
             <q-card-section class="row no-wrap items-center">
                 <q-item class="">
@@ -47,6 +47,7 @@
                         flat
                     />
                     <q-btn @click="convStateHandle('leave')" label="Leave" color="warning" v-close-popup flat />
+                    <q-btn @click="convStateHandle('close')" label="Close" color="danger" v-close-popup flat />
                 </q-card-actions>
             </q-card>
         </q-dialog>

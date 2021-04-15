@@ -8,19 +8,14 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     // conversation state like (joined, left, close)
-    storeConvState(context, payload) {
-        const convSession = payload.data.conv_ses_data;
+    storeConvState(context, convInfo) {
         let agentConvStateInfo = '';
 
-        if (payload.stateStatus == 'close') {
-            // manage close conversation state
-        } else {
-            agentConvStateInfo = getConStateInfoArray(convSession);
-        }
+        agentConvStateInfo = getConStateInfoArray(convInfo);
 
-        payload.data = agentConvStateInfo;
+        convInfo.data = agentConvStateInfo;
 
-        context.commit('storeConvMessages', payload);
+        context.commit('storeConvMessages', convInfo);
     },
 
     // get conversation messages from db
@@ -121,24 +116,29 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             resolve(true);
         });
     },
+
+    clearClientChatInitiate(context) {
+        context.commit('clearClientChatInitiate');
+    },
 };
 
 // join/left/close information as array
-function getConStateInfoArray(conversationSession: any) {
+function getConStateInfoArray(convSess: any) {
     const agentConvStateInfoArray: any = [];
-    const convStates = ['joined', 'left'];
+    const convStates = ['joined', 'left', 'closed'];
 
     convStates.forEach((convState) => {
-        if (conversationSession[`${convState}_at`]) {
+        console.log(convSess[`${convState}_at`]);
+        if (convSess[`${convState}_at`]) {
             //add left state created_at suffix cause join and left data come from same resource
-            const leftStateSuffix = `${convState == 'left' ? '_left' : ''}`;
+            const leftStateSuffix = convState == 'left' ? '_left' : '';
 
             agentConvStateInfoArray.push({
-                ...conversationSession,
-                id: `${conversationSession.id}${leftStateSuffix}`, // unique id to sort for left state
-                actual_id: conversationSession.id, // if need later
+                ...convSess,
+                id: `${convSess.id}${leftStateSuffix}`, // unique id to sort for left state
+                actual_id: convSess.id, // if need later
                 conv_state_status: convState,
-                created_at: conversationSession[`${convState}_at`],
+                created_at: convSess[`${convState}_at`],
             });
         }
     });

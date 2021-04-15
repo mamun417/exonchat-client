@@ -76,6 +76,7 @@ import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
+import { session } from 'electron';
 
 export default defineComponent({
     name: 'WebChat',
@@ -243,23 +244,25 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_joined_from_conversation', (res: any) => {
-                res.status = 'joined';
+                const convInfo = res.data.conv_ses_data;
+                convInfo.state_status = 'joined';
 
-                this.$store.dispatch('chat/storeConvState', res);
+                this.$store.dispatch('chat/storeConvState', convInfo);
 
-                console.log('from ec_is_joined_from_conversation', res);
+                console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
-                res.status = 'left';
+                const convInfo = res.data.conv_ses_data;
+                convInfo.state_status = 'left';
 
-                this.$store.dispatch('chat/storeConvState', res);
+                this.$store.dispatch('chat/storeConvState', convInfo);
 
-                console.log('from ec_is_leaved_from_conversation', res);
+                console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
-                // remove all info from store which store after chat initialte till end
+                this.$store.dispatch('chat/clearClientChatInitiate');
                 console.log('from ec_is_closed_from_conversation', res);
             });
 

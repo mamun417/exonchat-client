@@ -99,6 +99,12 @@ const mutation: MutationTree<ChatStateInterface> = {
     storeOnlineAgents(state: ChatStateInterface, payload: any) {
         state.onlineChatAgents = payload.users;
     },
+
+    clearClientChatInitiate(state: ChatStateInterface) {
+        localStorage.clear();
+        sessionStorage.clear();
+        state.clientInitiateConvInfo = {};
+    },
 };
 
 export default mutation;

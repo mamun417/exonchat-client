@@ -151,7 +151,9 @@ export default defineComponent({
         getConvStateInfo(message: any) {
             // const onOrAt = message.conv_state_status === 'join' ? 'on' : 'at';
 
-            return `${message.socket_session.user.email} ${message.conv_state_status} ${this.$helpers.fromNowTime(
+            const infoKey = message.conv_state_status === 'closed' ? 'closed_by' : 'socket_session';
+
+            return `${message[infoKey].user.email} ${message.conv_state_status} ${this.$helpers.fromNowTime(
                 message.joined_at
             )}`;
         },
