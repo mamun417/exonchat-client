@@ -1,5 +1,5 @@
 <template>
-    <div class="tw-flex tw-flex-col" v-if="messages.length">
+    <div class="tw-flex tw-flex-col" v-if="conversationInfo.messages.length">
         <q-card class="tw-shadow-lg">
             <q-card-section class="row no-wrap items-center">
                 <q-item class="">
@@ -27,7 +27,7 @@
             </q-card-section>
         </q-card>
 
-        <message :ses-id="sesId" chat-panel-type="user" :messages="messages"></message>
+        <message :ses-id="sesId" chat-panel-type="user" :conversationInfo="conversationInfo"></message>
 
         <q-dialog v-model="confirm" persistent>
             <q-card style="min-width: 350px">
@@ -94,18 +94,13 @@ export default defineComponent({
             convStateInfo: 'chat/convStateInfo',
         }),
 
-        convStateInfo(): any {
+        conversationInfo(): any {
             const convId = this.getConvId();
-            return this.$store.getters['chat/convStateInfo'](convId) || {};
-        },
-
-        messages(): any {
-            const convId = this.getConvId();
-            return this.$store.getters['chat/messages'](convId);
+            return this.$store.getters['chat/conversationInfo'](convId);
         },
 
         convStateButtonInfo() {
-            const convState = this.convStateInfo.status;
+            const convState = this.conversationInfo.state.status;
 
             if (convState === 'left') {
                 return { name: 'Close', action: 'close' };

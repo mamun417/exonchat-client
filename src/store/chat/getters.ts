@@ -9,18 +9,16 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return state.clientInitiateConvInfo;
     },
 
-    convStateInfo: (state) => (convId: any) => {
-        return state.convStateInfo[convId];
-    },
+    conversationInfo: (state) => (convId: any) => {
+        const allConvInfo = state.conversationInfo;
+        const convInfo = allConvInfo[convId] || {};
 
-    messages: (state) => (convId: any) => {
-        const allMessages = state.messages;
+        const messages = _l.sortBy(convInfo.messages, [(message) => moment(message.created_at).format('x')]);
 
-        if (!convId) return allMessages;
-
-        const convMessages = allMessages[convId]?.messages;
-
-        return _l.sortBy(convMessages, [(message) => moment(message.created_at).format('x')]);
+        return {
+            messages,
+            state: convInfo.stateInfo || {},
+        };
     },
 
     chatRequests(state) {

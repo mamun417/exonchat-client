@@ -29,7 +29,12 @@
         </div>
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
             <div v-if="clientInitiateConvInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
-                <message :ses-id="sesId" :socket="socket" chat-panel-type="client" :messages="messages"></message>
+                <message
+                    :ses-id="sesId"
+                    :socket="socket"
+                    chat-panel-type="client"
+                    :conversationInfo="conversationInfo"
+                ></message>
             </div>
 
             <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
@@ -76,7 +81,6 @@ import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
-import { session } from 'electron';
 
 export default defineComponent({
     name: 'WebChat',
@@ -129,8 +133,8 @@ export default defineComponent({
         }),
 
         // which messages store by getConvMessages()
-        messages(): any {
-            return this.$store.getters['chat/messages'](this.clientInitiateConvInfo.conv_id);
+        conversationInfo(): any {
+            return this.$store.getters['chat/conversationInfo'](this.clientInitiateConvInfo.conv_id);
         },
     },
 

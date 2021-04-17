@@ -1,6 +1,8 @@
 import { ActionTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
+import helpers from 'boot/helpers/helpers';
+import * as _ from 'lodash';
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -11,9 +13,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeConvState(context, convInfo) {
         let agentConvStateInfo = '';
 
-        agentConvStateInfo = getConStateInfoArray(convInfo);
+        agentConvStateInfo = getConStateInfoAsMessageArray(convInfo);
 
-        convInfo.data = agentConvStateInfo;
+        convInfo.messages = agentConvStateInfo;
 
         context.commit('storeConvMessages', convInfo);
     },
@@ -42,16 +44,41 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     const messagesRes = res[1];
 
                     // remove client joining information
-                    // set conversation state status (join/left)
-                    // Note: need to manage conversation close status
-                    const onlyAgentConvStateRes = convStateRes.data.conversation_sessions
-                        .filter((convSession: any) => convSession.socket_session.user)
+                    const agentState = convStateRes.data.conversation_sessions.filter(
+                        (convSession: any) => convSession.socket_session.user
+                    );
+
+                    let onlyAgentConvStateRes = agentState
                         .map((filteredConvSession: any) => {
-                            return getConStateInfoArray(filteredConvSession);
+                            return getConStateInfoAsMessageArray(filteredConvSession);
                         })
                         .flat(); // 1 level flat
 
-                    messagesRes.data = messagesRes.data.concat(onlyAgentConvStateRes);
+                    if (agentState.length) {
+                        // set conversation state status (closed)
+                        // need create function
+                        if (convStateRes.data.closed_at) {
+                            const closedStateRes = _.cloneDeep(convStateRes.data);
+                            delete closedStateRes.conversation_sessions;
+
+                            closedStateRes.conversation_id = closedStateRes.id;
+                            closedStateRes.created_at = closedStateRes.closed_at;
+
+                            onlyAgentConvStateRes = onlyAgentConvStateRes.concat(
+                                getConStateInfoAsMessageArray(closedStateRes)
+                            );
+
+                            // set state status
+                            messagesRes.convStateInfo = {
+                                status: 'closed',
+                            };
+                        } else {
+                            // getConvJoinAndLeftStateStatus return an object like { status: 'joined/left'}
+                            messagesRes.convStateInfo = getConvJoinAndLeftStateStatus(convStateRes);
+                        }
+                    }
+
+                    messagesRes.messages = messagesRes.data.concat(onlyAgentConvStateRes);
 
                     context.commit('storeConvMessages', messagesRes);
 
@@ -122,8 +149,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 };
 
-// join/left/close information as array
-function getConStateInfoArray(convSess: any) {
+// join/left/close like message information as array
+function getConStateInfoAsMessageArray(convSess: any) {
     const agentConvStateInfoArray: any = [];
     const convStates = ['joined', 'left', 'closed'];
 
@@ -131,7 +158,7 @@ function getConStateInfoArray(convSess: any) {
         console.log(convSess[`${convState}_at`]);
         if (convSess[`${convState}_at`]) {
             //add left state created_at suffix cause join and left data come from same resource
-            const leftStateSuffix = convState == 'left' ? '_left' : '';
+            const leftStateSuffix = convState !== 'joined' ? `_${convState}` : '';
 
             agentConvStateInfoArray.push({
                 ...convSess,
@@ -144,6 +171,26 @@ function getConStateInfoArray(convSess: any) {
     });
 
     return agentConvStateInfoArray;
+}
+
+function getConvJoinAndLeftStateStatus(convStateRes: any) {
+    let convStateStatus = {};
+    const mySocketSessionId = helpers.getMySocketSessionId();
+
+    const convStates = ['joined', 'left'];
+    convStates.forEach((convState) => {
+        const findMyConvStateStatus = convStateRes.data.conversation_sessions.find(
+            (convSession: any) => convSession[`${convState}_at`] && convSession.socket_session_id === mySocketSessionId
+        );
+
+        if (findMyConvStateStatus) {
+            convStateStatus = {
+                status: convState,
+            };
+        }
+    });
+
+    return convStateStatus;
 }
 
 export default actions;

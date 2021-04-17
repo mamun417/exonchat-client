@@ -18,7 +18,7 @@
         }"
         :content-style="{}"
     >
-        <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
+        <template v-for="(message, index) in conversationInfo.messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg"
                 :name="handleNameForMultipleSelfMessage(index, message)"
@@ -30,7 +30,7 @@
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
             />
 
-            <q-chat-message v-else :label="getConvStateInfo(message)" />
+            <q-chat-message v-else :label="getConvStateStatusMessage(message)" />
         </template>
 
         <q-chat-message
@@ -57,7 +57,7 @@
     </q-scroll-area>
 
     <div
-        v-if="chatPanelType === 'client' || convStateInfo.status === 'joined'"
+        v-if="chatPanelType === 'client' || conversationInfo.state.status === 'joined'"
         class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
     >
         <q-btn flat color="green" icon="attachment"></q-btn>
@@ -100,7 +100,7 @@ export default defineComponent({
             default: 'user',
         },
 
-        messages: {
+        conversationInfo: {
             type: Object,
         },
     },
@@ -126,13 +126,6 @@ export default defineComponent({
         }, 30000);
     },
 
-    computed: {
-        convStateInfo(): any {
-            const convId = this.getConvId();
-            return this.$store.getters['chat/convStateInfo'](convId) || {};
-        },
-    },
-
     methods: {
         checkOwnMessage(message: any) {
             return message.socket_session_id === this.sesId;
@@ -143,12 +136,13 @@ export default defineComponent({
         },
 
         handleNameForMultipleSelfMessage(index: any, message: any) {
-            return index === 0 || message?.socket_session_id !== this.messages[index - 1].socket_session_id
+            return index === 0 ||
+                message?.socket_session_id !== this.conversationInfo.messages[index - 1].socket_session_id
                 ? message.socket_session_id
                 : '';
         },
 
-        getConvStateInfo(message: any) {
+        getConvStateStatusMessage(message: any) {
             // const onOrAt = message.conv_state_status === 'join' ? 'on' : 'at';
 
             const infoKey = message.conv_state_status === 'closed' ? 'closed_by' : 'socket_session';

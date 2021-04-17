@@ -28,18 +28,23 @@ const mutation: MutationTree<ChatStateInterface> = {
 
     // get conversations messages into state which come from db
     storeConvMessages(state: ChatStateInterface, payload: any) {
-        if (!payload.data.length) return false;
-
-        const convMessages = { messages: payload.data, id: payload.data[0].conversation_id };
+        const convMessages = { messages: payload.messages, id: payload.messages[0].conversation_id };
         const convId = convMessages.id;
 
-        if (!state.messages.hasOwnProperty(convId)) {
-            state.messages[convId] = { messages: {} };
+        if (!state.conversationInfo.hasOwnProperty(convId)) {
+            state.conversationInfo[convId] = { messages: {} };
         }
 
+        // store conversation messages
         convMessages.messages.forEach((message: any) => {
-            state.messages[convId].messages[message.id] = message;
+            state.conversationInfo[convId].messages[message.id] = message;
         });
+
+        // store conversation state information (join/left/close)
+        if (payload.convStateInfo) {
+            // no need check later
+            state.conversationInfo[convId].stateInfo = payload.convStateInfo;
+        }
     },
 
     // store temp message
@@ -47,14 +52,14 @@ const mutation: MutationTree<ChatStateInterface> = {
         const convId = payload.conversation_id;
         const msgId = payload.id;
 
-        if (!state.messages.hasOwnProperty(convId)) {
-            state.messages[convId] = {
+        if (!state.conversationInfo.hasOwnProperty(convId)) {
+            state.conversationInfo[convId] = {
                 messages: {
                     [msgId]: { id: payload.tempId, ...payload },
                 },
             };
         } else {
-            state.messages[convId]['messages'][msgId] = payload;
+            state.conversationInfo[convId]['messages'][msgId] = payload;
         }
     },
 
