@@ -9,13 +9,16 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('storeClientInitiateConvInfo', payload);
     },
 
-    // conversation state like (joined, left, close)
+    // conversation state (joined, left, close) like message
     storeConvState(context, convInfo) {
         let agentConvStateInfo = '';
 
         agentConvStateInfo = getConStateInfoAsMessageArray(convInfo);
 
         convInfo.messages = agentConvStateInfo;
+        convInfo.convStateInfo = {
+            status: convInfo.state_status,
+        };
 
         context.commit('storeConvMessages', convInfo);
     },
@@ -52,28 +55,18 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         .map((filteredConvSession: any) => {
                             return getConStateInfoAsMessageArray(filteredConvSession);
                         })
-                        .flat(); // 1 level flat
+                        .flat();
 
+                    // some time state will be null, cause when client send message but no agent join the conversation
+                    // then client reload the page no need this functionality to create state information
                     if (agentState.length) {
-                        // set conversation state status (closed)
-                        // need create function
                         if (convStateRes.data.closed_at) {
-                            const closedStateRes = _.cloneDeep(convStateRes.data);
-                            delete closedStateRes.conversation_sessions;
-
-                            closedStateRes.conversation_id = closedStateRes.id;
-                            closedStateRes.created_at = closedStateRes.closed_at;
-
                             onlyAgentConvStateRes = onlyAgentConvStateRes.concat(
-                                getConStateInfoAsMessageArray(closedStateRes)
+                                getClosedInfoAsMessageArray(convStateRes)
                             );
 
-                            // set state status
-                            messagesRes.convStateInfo = {
-                                status: 'closed',
-                            };
+                            messagesRes.convStateInfo = { status: 'closed' };
                         } else {
-                            // getConvJoinAndLeftStateStatus return an object like { status: 'joined/left'}
                             messagesRes.convStateInfo = getConvJoinAndLeftStateStatus(convStateRes);
                         }
                     }
@@ -93,7 +86,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     // using for both user and client
     storeTemporaryMessage(context, payload) {
         return new Promise((resolve) => {
-            context.commit('storeTemporaryMessage', payload);
+            payload.messages = [payload];
+
+            context.commit('storeConvMessages', payload);
             resolve(true);
         });
     },
@@ -171,6 +166,18 @@ function getConStateInfoAsMessageArray(convSess: any) {
     });
 
     return agentConvStateInfoArray;
+}
+
+function getClosedInfoAsMessageArray(convStateRes: any) {
+    const closedStateRes = _.cloneDeep(convStateRes.data);
+    delete closedStateRes.conversation_sessions;
+
+    window.clog('dsds', 'green');
+    console.log(closedStateRes);
+
+    closedStateRes.conversation_id = closedStateRes.id;
+
+    return getConStateInfoAsMessageArray(closedStateRes);
 }
 
 function getConvJoinAndLeftStateStatus(convStateRes: any) {

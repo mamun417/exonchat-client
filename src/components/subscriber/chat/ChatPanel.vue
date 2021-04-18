@@ -46,8 +46,6 @@
                         v-close-popup
                         flat
                     />
-                    <q-btn @click="convStateHandle('leave')" label="Leave" color="warning" v-close-popup flat />
-                    <q-btn @click="convStateHandle('close')" label="Close" color="danger" v-close-popup flat />
                 </q-card-actions>
             </q-card>
         </q-dialog>

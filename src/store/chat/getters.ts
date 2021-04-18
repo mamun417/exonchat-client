@@ -22,7 +22,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     chatRequests(state) {
-        return _l.sortBy(state.chatRequests, [(chatRequest) => moment(chatRequest.createdAt).format('x')]).reverse();
+        return _l.sortBy(state.chatRequests, [(chatRequest) => moment(chatRequest.created_at).format('x')]).reverse();
     },
 
     chatAgents(state, getters, rootState, rootGetters) {

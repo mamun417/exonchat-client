@@ -221,9 +221,9 @@ export default defineComponent({
                 console.log('from ec_msg_from_user', data);
             });
 
-            this.socket.on('ec_msg_from_client', async (data: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                await this.$store.dispatch('chat/storeTempChatRequest', data);
+            this.socket.on('ec_msg_from_client', async (res: any) => {
+                await this.$store.dispatch('chat/storeTemporaryMessage', res);
+                await this.$store.dispatch('chat/storeTempChatRequest', res);
 
                 this.$q.notify({
                     message: 'Jim pinged you.',
@@ -231,7 +231,7 @@ export default defineComponent({
                     position: 'top-left',
                 });
 
-                console.log('from ec_msg_from_client', data);
+                console.log('from ec_msg_from_client', res);
             });
 
             // handle only other users typing

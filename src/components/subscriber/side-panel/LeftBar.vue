@@ -44,9 +44,9 @@
                     <q-card v-if="Object.keys(chatRequests).length">
                         <q-list>
                             <q-item
-                                v-for="(request, index) in chatRequests"
-                                :to="{ name: 'chats', params: { conv_id: request.convId } }"
-                                :key="index"
+                                v-for="request in chatRequests"
+                                :to="{ name: 'chats', params: { conv_id: request.conv_id } }"
+                                :key="request.conv_id"
                                 clickable
                                 v-ripple
                                 :active="true"
@@ -60,10 +60,10 @@
 
                                 <q-item-section>
                                     <q-item-label class="text-weight-bold" style="word-break: break-all">
-                                        {{ request.convId }}
+                                        {{ request.conv_id }}
                                     </q-item-label>
                                     <q-item-label lines="2">
-                                        {{ request.msg }}
+                                        {{ request.messages.msg }}
                                     </q-item-label>
                                 </q-item-section>
                             </q-item>

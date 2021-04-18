@@ -267,6 +267,7 @@ export default defineComponent({
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
                 this.$store.dispatch('chat/clearClientChatInitiate');
+                location.reload();
                 console.log('from ec_is_closed_from_conversation', res);
             });
 
@@ -357,27 +358,3 @@ export default defineComponent({
     },
 });
 </script>
-
-<!--<style lang="scss">
-#webchat-container {
-    .q-message {
-        &.exonchat-is-typing {
-            .q-message-text {
-                min-height: unset;
-            }
-        }
-
-        .q-message-container {
-            .q-message-avatar {
-                height: 32px;
-                width: 32px;
-                min-width: 32px;
-            }
-        }
-
-        .q-message-text {
-            padding: 7px;
-        }
-    }
-}
-</style>-->

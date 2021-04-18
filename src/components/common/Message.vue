@@ -136,9 +136,14 @@ export default defineComponent({
         },
 
         handleNameForMultipleSelfMessage(index: any, message: any) {
+            const previousMessage = this.conversationInfo.messages[index - 1];
+
             return index === 0 ||
-                message?.socket_session_id !== this.conversationInfo.messages[index - 1].socket_session_id
-                ? message.socket_session_id
+                previousMessage.hasOwnProperty('conv_state_status') ||
+                message?.socket_session_id !== previousMessage.socket_session_id
+                ? message.hasOwnProperty('socket_session')
+                    ? message.socket_session.user?.email ?? 'init email address'
+                    : ''
                 : '';
         },
 
@@ -148,7 +153,7 @@ export default defineComponent({
             const infoKey = message.conv_state_status === 'closed' ? 'closed_by' : 'socket_session';
 
             return `${message[infoKey].user.email} ${message.conv_state_status} ${this.$helpers.fromNowTime(
-                message.joined_at
+                message.created_at
             )}`;
         },
 
@@ -207,7 +212,7 @@ export default defineComponent({
     },
 
     watch: {
-        messages: {
+        conversationInfo: {
             handler: function () {
                 this.scrollToBottom();
             },
