@@ -267,6 +267,8 @@ export default defineComponent({
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
                 this.$store.dispatch('chat/clearClientChatInitiate');
+                this.socket.close();
+                // force reload dom
                 location.reload();
                 console.log('from ec_is_closed_from_conversation', res);
             });

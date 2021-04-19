@@ -32,26 +32,16 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     // store chat requests into state which come from db
-    storeChatRequests(state: ChatStateInterface, payload: any) {
-        const chatRequests = payload.data;
-
+    // and store temp chat req from client
+    storeChatRequests(state: ChatStateInterface, chatRequests: any) {
         chatRequests.forEach((chatRequest: any) => {
-            const convId = chatRequest.id;
+            const convId = chatRequest.conversation_id || chatRequest.id;
+
             chatRequest.messages = chatRequest.messages[0];
             chatRequest.conv_id = convId;
 
             state.chatRequests[convId] = chatRequest;
         });
-    },
-
-    // store temp chat request
-    storeTempChatRequest(state: ChatStateInterface, payload: any) {
-        const convId = payload.conversation_id;
-
-        payload.messages = payload.messages[0];
-        payload.conv_id = convId;
-
-        state.chatRequests[convId] = payload;
     },
 
     // store all agents into state which come from db

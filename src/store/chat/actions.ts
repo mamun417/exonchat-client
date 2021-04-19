@@ -86,9 +86,11 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     // using for both user and client
     storeTemporaryMessage(context, payload) {
         return new Promise((resolve) => {
-            payload.messages = [payload];
+            const data = {
+                messages: [payload],
+            };
 
-            context.commit('storeConvMessages', payload);
+            context.commit('storeConvMessages', data);
             resolve(true);
         });
     },
@@ -99,7 +101,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             window.api
                 .get('conversations/requests/list')
                 .then((res: any) => {
-                    context.commit('storeChatRequests', res);
+                    context.commit('storeChatRequests', res.data);
                     resolve(res);
                 })
                 .catch((err: any) => {
@@ -111,7 +113,17 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     storeTempChatRequest(context, payload) {
         return new Promise((resolve) => {
-            context.commit('storeTempChatRequest', payload);
+            // make same pattern as like as get chat request from db
+            const data = {
+                ...payload,
+                messages: [
+                    {
+                        ...payload,
+                    },
+                ],
+            };
+
+            context.commit('storeChatRequests', [data]);
             resolve(true);
         });
     },
