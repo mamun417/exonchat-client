@@ -209,6 +209,8 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
+
 const columns = [
     {
         name: 'dep_name',
@@ -259,16 +261,18 @@ const dynamicVariables = [
     { name: 'user_name', des: 'will print assigned name else guest' },
     { name: 'user_id', des: 'will print logged users id' },
 ];
-export default {
+
+export default defineComponent({
     data() {
         return {
-            newDepartmentModal: true,
+            newDepartmentModal: false,
             editModal: false,
             newIntentType: 'action',
             variableListModal: false,
             intentChoosed: '',
         };
     },
+
     setup() {
         return {
             columns,
@@ -296,5 +300,5 @@ export default {
                 .catch((e: any) => console.log(e));
         },
     },
-};
+});
 </script>

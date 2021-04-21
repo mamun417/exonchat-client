@@ -33,8 +33,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // get client conversation messages from db
     async getClientConvMessages(context, payload) {
-        const getConvJoinInfo = window.clientApi.get(`conversations/${payload.convId}/sessions`),
-            getConvMessages = window.clientApi.get(`conversations/${payload.convId}/messages`);
+        const getConvJoinInfo = window.clientSocketApi.get(`conversations/${payload.convId}/sessions`),
+            getConvMessages = window.clientSocketApi.get(`conversations/${payload.convId}/messages`);
 
         return await context.dispatch('storeConvMessages', { getConvJoinInfo, getConvMessages });
     },
@@ -132,30 +132,39 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     // get chat requests form db
     getAgents(context) {
         return new Promise(() => {
-            const getAllUserToUserConvWithMe = window.clientApi.get('conversations/user-to-user/me'),
+            const getAllUserToUserConvWithMe = window.userSocketApi.get('conversations/user-to-user/me'),
                 getAgents = window.api.get('users/active');
 
             Promise.all([getAllUserToUserConvWithMe, getAgents]).then(([allUserToUserConvWithMe, agents]) => {
-                context.commit('storeAgents', agents);
-                console.log({ allUserToUserConvWithMe, agents });
-            });
+                // collect convSessions array
+                const convSessions = allUserToUserConvWithMe.data
+                    .map((singleConvWithMe: any) => {
+                        return singleConvWithMe.conversation_sessions;
+                    })
+                    .flat();
 
-            // window.api
-            //     .get('users/active')
-            //     .then((res: any) => {
-            //         context.commit('storeAgents', res);
-            //         resolve(res);
-            //     })
-            //     .catch((err: any) => {
-            //         reject(err);
-            //     });
+                // set agent conversation_id
+                const chatAgents = agents.data.map((agent: any) => {
+                    const agentConvSession = convSessions.find(
+                        (convSession: any) => convSession.socket_session_id == agent.socket_sessions[0].id
+                    );
+
+                    if (agentConvSession) {
+                        agent.conversation_id = agentConvSession.conversation_id;
+                    }
+
+                    return agent;
+                });
+
+                context.commit('storeAgents', chatAgents);
+            });
         });
     },
 
     // get online agents form db
-    storeOnlineAgents(context, onlineAgentRes) {
+    getOnlineAgents(context, onlineAgentRes) {
         return new Promise((resolve) => {
-            context.commit('storeOnlineAgents', onlineAgentRes);
+            context.commit('getOnlineAgents', onlineAgentRes);
             resolve(true);
         });
     },

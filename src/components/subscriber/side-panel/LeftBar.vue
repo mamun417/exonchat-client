@@ -77,37 +77,37 @@
 
                 <q-expansion-item default-opened label="Agents" header-class="text-weight-bold bg-green-1">
                     <q-card>
-                        <q-card-section class="tw-p-0">
-                            <q-list>
-                                <q-item
-                                    v-for="(agent, id) in chatAgents"
-                                    @click="openUserToUserConversation(agent)"
-                                    clickable
-                                    :key="id"
-                                >
-                                    <q-item-section avatar>
-                                        <q-avatar>
-                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" alt="" />
-                                        </q-avatar>
-                                    </q-item-section>
+                        <q-list>
+                            <q-item
+                                @click="openUserToUserConversation(agent)"
+                                v-for="(agent, index) in chatAgents"
+                                active-class="text-white bg-blue-9"
+                                :active="agent.conversation_id === $route.params.conv_id"
+                                :key="index"
+                                clickable
+                            >
+                                <q-item-section avatar>
+                                    <q-avatar>
+                                        <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" alt="" />
+                                    </q-avatar>
+                                </q-item-section>
 
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-bold">{{ agent.email }} </q-item-label>
-                                        <!-- <q-item-label class="text-weight-bold">
+                                <q-item-section>
+                                    <q-item-label class="text-weight-bold">{{ agent.email }} </q-item-label>
+                                    <!-- <q-item-label class="text-weight-bold">
                                             <pre>{{ agent }}</pre>
                                         </q-item-label>-->
-                                    </q-item-section>
+                                </q-item-section>
 
-                                    <q-item-section side>
-                                        <q-icon
-                                            name="fiber_manual_record"
-                                            :color="checkOnlineStatus(agent) ? 'green' : 'grey'"
-                                            size="xs"
-                                        />
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-card-section>
+                                <q-item-section side>
+                                    <q-icon
+                                        name="fiber_manual_record"
+                                        :color="checkOnlineStatus(agent) ? 'green' : 'grey'"
+                                        size="xs"
+                                    />
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
                     </q-card>
                 </q-expansion-item>
 
@@ -129,7 +129,7 @@
                             <q-item class="" clickable>
                                 <q-item-section avatar>
                                     <q-avatar>
-                                        <img :src="`https://cdn.quasar.dev/img/avatar3.jpg`" />
+                                        <img :src="`https://cdn.quasar.dev/img/avatar3.jpg`" alt="" />
                                     </q-avatar>
                                 </q-item-section>
 
@@ -233,8 +233,13 @@ export default defineComponent({
 
     methods: {
         fireSocketListeners() {
-            this.$socket.on('ec_conv_initiated_from_user', (res: any) => {
-                console.log(res);
+            this.$socket.on('ec_conv_initiated_from_user', async (res: any) => {
+                this.$socket.emit('ec_init_user_to_user_chat', {});
+
+                await this.$store.dispatch('chat/getAgents');
+                await this.$store.dispatch('chat/getOnlineAgents');
+
+                await this.$router.push({ name: 'chats', params: { conv_id: res.data.conv_id } });
                 console.log('from ec_conv_initiated_from_user', res);
             });
         },
@@ -256,22 +261,23 @@ export default defineComponent({
         },
 
         openUserToUserConversation(agent: any) {
-            // check any conversation created before
-            // not create hit create api
+            console.log(agent);
 
-            // if already create reload the get agent list api
-
-            if ('not create conversation before') {
-                const targetUserSocketSessId = agent.socket_sessions[0].id;
-
-                console.log(targetUserSocketSessId);
-
-                this.$socket.emit('ec_init_conv_from_user', {
-                    ses_ids: [targetUserSocketSessId],
-                    chat_type: 'user_to_user_chat',
-                    users_only: true,
-                });
+            if (agent.conversation_id) {
+                this.$router.push({ name: 'chats', params: { conv_id: agent.conversation_id } });
+                return;
             }
+
+            // if already create reload the get agent list api (error step check)
+
+            const targetUserSocketSessId = agent.socket_sessions[0].id;
+
+            // create user to user conversation
+            this.$socket.emit('ec_init_conv_from_user', {
+                ses_ids: [targetUserSocketSessId],
+                chat_type: 'user_to_user_chat',
+                users_only: true,
+            });
         },
     },
 });
