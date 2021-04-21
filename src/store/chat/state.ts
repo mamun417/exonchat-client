@@ -3,7 +3,7 @@ export interface ChatStateInterface {
     convStateInfo: any;
     chatPanels: Array<string>; // holds opened chat panels
     selectedPanel: null | string;
-    messages: any;
+    conversationInfo: any;
     chatRequests: any;
     chatAgents: any;
     onlineChatAgents: any;
@@ -18,7 +18,7 @@ function state(): ChatStateInterface {
         convStateInfo: convStateInfo ? JSON.parse(convStateInfo) : {},
         chatPanels: [],
         selectedPanel: null,
-        messages: {},
+        conversationInfo: {},
         chatRequests: {},
         chatAgents: {},
         onlineChatAgents: {},

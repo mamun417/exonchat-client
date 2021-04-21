@@ -1,4 +1,3 @@
-// import { _l } from 'src/boot/helpers';
 import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
 
@@ -9,94 +8,40 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.clientInitiateConvInfo = payload.data;
     },
 
-    // get conversations which joined by me
-    storeJoinedConversation(state: ChatStateInterface, payload: any) {
-        const convId = payload.data.conv_ses_data.conversation_id;
-
-        const convStateInfo = {
-            [convId]: {
-                info: payload.data.conv_ses_data,
-                status: payload.status,
-            },
-        };
-
-        localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
-
-        state.convStateInfo = convStateInfo;
-    },
-
-    // conversation state like (joined, left, close)
-    storeConvState(state: ChatStateInterface, payload: any) {
-        const convId = payload.data.conv_ses_data.conversation_id;
-
-        const convStateInfo = {
-            [convId]: {
-                info: payload.data.conv_ses_data,
-                status: payload.status,
-            },
-        };
-
-        localStorage.setItem('convStateInfo', JSON.stringify(convStateInfo));
-
-        state.convStateInfo = convStateInfo;
-    },
-
-    // get conversations messages into state which come from db
+    // get conversations messages and store into state which come from db
+    // and store temp message from client and agent
     storeConvMessages(state: ChatStateInterface, payload: any) {
-        if (!payload.data.length) return false;
+        if (!payload.messages.length) return;
 
-        const convMessages = { messages: payload.data, id: payload.data[0].conversation_id };
+        const convMessages = { messages: payload.messages, id: payload.messages[0].conversation_id };
         const convId = convMessages.id;
 
-        if (!state.messages.hasOwnProperty(convId)) {
-            state.messages[convId] = { messages: {} };
+        if (!state.conversationInfo.hasOwnProperty(convId)) {
+            state.conversationInfo[convId] = { messages: {} };
         }
 
+        // store conversation messages
         convMessages.messages.forEach((message: any) => {
-            state.messages[convId].messages[message.id] = message;
+            state.conversationInfo[convId].messages[message.id] = message;
         });
-    },
 
-    // store temp message
-    storeTemporaryMessage(state: ChatStateInterface, payload: any) {
-        const convId = payload.conversation_id;
-        const msgId = payload.id;
-
-        if (!state.messages.hasOwnProperty(convId)) {
-            state.messages[convId] = {
-                messages: {
-                    [msgId]: { id: payload.tempId, ...payload },
-                },
-            };
-        } else {
-            state.messages[convId]['messages'][msgId] = payload;
+        // store conversation state information (join/left/close)
+        if (payload.convStateInfo) {
+            state.conversationInfo[convId].stateInfo = payload.convStateInfo;
         }
     },
 
     // store chat requests into state which come from db
-    storeChatRequests(state: ChatStateInterface, payload: any) {
-        const chatRequests = payload.data;
-
+    // and store temp chat req from client
+    storeChatRequests(state: ChatStateInterface, chatRequests: any) {
         chatRequests.forEach((chatRequest: any) => {
-            const convId = chatRequest.id;
+            const convId = chatRequest.conversation_id || chatRequest.id;
 
-            state.chatRequests[convId] = {
-                msg: chatRequest.messages[0].msg,
-                createdAt: chatRequest.created_at,
-                convId,
-            };
+            chatRequest.messages = chatRequest.messages[0];
+            chatRequest.conv_id = convId;
+
+            state.chatRequests[convId] = chatRequest;
         });
-    },
-
-    // store temp chat request
-    storeTempChatRequest(state: ChatStateInterface, payload: any) {
-        const convId = payload.conversation_id;
-
-        state.chatRequests[convId] = {
-            msg: payload.msg,
-            createdAt: payload.created_at,
-            convId,
-        };
     },
 
     // store all agents into state which come from db
@@ -111,8 +56,14 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     // store online agents into state which come from db
-    storeOnlineAgents(state: ChatStateInterface, payload: any) {
-        state.onlineChatAgents = payload.users;
+    storeOnlineAgents(state: ChatStateInterface, onlineAgentRes: any) {
+        state.onlineChatAgents = onlineAgentRes.users;
+    },
+
+    clearClientChatInitiate(state: ChatStateInterface) {
+        localStorage.clear();
+        sessionStorage.clear();
+        state.clientInitiateConvInfo = {};
     },
 };
 

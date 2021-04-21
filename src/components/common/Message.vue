@@ -18,19 +18,19 @@
         }"
         :content-style="{}"
     >
-        <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
+        <template v-for="(message, index) in conversationInfo.messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg"
                 :name="handleNameForMultipleSelfMessage(index, message)"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                 :text="[message.msg]"
-                :stamp="$fromNowTime(message.created_at)"
+                :stamp="$helpers.fromNowTime(message.created_at)"
                 :sent="checkOwnMessage(message)"
                 :text-color="checkOwnMessage(message) ? 'black' : 'white'"
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
             />
 
-            <q-chat-message v-else :label="getConvStateInfo(message)" />
+            <q-chat-message v-else :label="getConvStateStatusMessage(message)" />
         </template>
 
         <q-chat-message
@@ -57,7 +57,7 @@
     </q-scroll-area>
 
     <div
-        v-if="chatPanelType === 'client' || convStateInfo.status === 'joined'"
+        v-if="chatPanelType === 'client' || conversationInfo.state.status === 'joined'"
         class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
     >
         <q-btn flat color="green" icon="attachment"></q-btn>
@@ -86,9 +86,8 @@ export default defineComponent({
     name: 'Message',
     components: {},
     props: {
-        conversationId: {
+        sesId: {
             type: String,
-            default: '',
         },
 
         socket: {
@@ -101,14 +100,13 @@ export default defineComponent({
             default: 'user',
         },
 
-        messages: {
+        conversationInfo: {
             type: Object,
         },
     },
 
     data(): any {
         return {
-            sesId: '',
             convId: '',
             confirm: false,
             convState: '',
@@ -126,15 +124,6 @@ export default defineComponent({
         setInterval(() => {
             this.$forceUpdate();
         }, 30000);
-
-        this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
-    },
-
-    computed: {
-        convStateInfo(): any {
-            const convId = this.getConvId();
-            return this.$store.getters['chat/convStateInfo'](convId) || {};
-        },
     },
 
     methods: {
@@ -147,16 +136,24 @@ export default defineComponent({
         },
 
         handleNameForMultipleSelfMessage(index: any, message: any) {
-            return index === 0 || message?.socket_session_id !== this.messages[index - 1].socket_session_id
-                ? message.socket_session_id
+            const previousMessage = this.conversationInfo.messages[index - 1];
+
+            return index === 0 ||
+                previousMessage.hasOwnProperty('conv_state_status') ||
+                message?.socket_session_id !== previousMessage.socket_session_id
+                ? message.hasOwnProperty('socket_session')
+                    ? message.socket_session.user?.email ?? 'init email address'
+                    : ''
                 : '';
         },
 
-        getConvStateInfo(message: any) {
+        getConvStateStatusMessage(message: any) {
             // const onOrAt = message.conv_state_status === 'join' ? 'on' : 'at';
 
-            return `${message.socket_session.user.email} ${message.conv_state_status} ${this.$fromNowTime(
-                message.joined_at
+            const infoKey = message.conv_state_status === 'closed' ? 'closed_by' : 'socket_session';
+
+            return `${message[infoKey].user.email} ${message.conv_state_status} ${this.$helpers.fromNowTime(
+                message.created_at
             )}`;
         },
 
@@ -180,9 +177,10 @@ export default defineComponent({
             console.log('sending the msg');
 
             const emitType = this.isUserPanel() ? 'user' : 'client';
-            const userBodyParams = { conv_id: this.getConvId() };
-            const clientBodyParams = { temp_id: this.$getTempId };
-            const dynamicBody = this.isUserPanel() ? userBodyParams : clientBodyParams;
+            const dynamicBody = this.isUserPanel()
+                ? { conv_id: this.getConvId() }
+                : { temp_id: this.$helpers.getTempId() };
+
             const dynamicSocket = this.socket || this.$socket;
 
             dynamicSocket.emit(`ec_msg_from_${emitType}`, {
@@ -214,7 +212,7 @@ export default defineComponent({
     },
 
     watch: {
-        messages: {
+        conversationInfo: {
             handler: function () {
                 this.scrollToBottom();
             },

@@ -29,81 +29,12 @@
         </div>
         <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
             <div v-if="clientInitiateConvInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
-                <!--<q-scroll-area
-                    @scroll="handleScroll"
-                    ref="msgScrollArea"
-                    class="tw-p-3 tw-flex-grow tw-text-xs"
-                    style="height: 1px"
-                    :bar-style="{
-                        background: '#60A5FA',
-                        width: '4px',
-                        opacity: 0.2,
-                        borderRadius: '10px',
-                    }"
-                    :thumb-style="{
-                        borderRadius: '9px',
-                        backgroundColor: '#60A5FA',
-                        width: '4px',
-                        opacity: 0.7,
-                    }"
-                    :content-style="{}"
-                >
-                    <q-chat-message
-                        v-for="(message, i) in messages"
-                        :key="i"
-                        :name="
-                            index === 0 || message?.socket_session_id !== messages[index - 1]?.socket_session_id
-                                ? message.socket_session_id
-                                : ''
-                        "
-                        avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                        :text="[message.msg]"
-                        :stamp="$fromNowTime(message.created_at)"
-                        :sent="checkOwnMessage(message)"
-                        :text-color="checkOwnMessage(message) ? 'black' : 'white'"
-                        :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
-                    />
-                    <q-chat-message
-                        v-if="typingHandler.typing"
-                        avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                        bg-color="gray-9"
-                        sent
-                        text-color="black"
-                        :text="['hasan is typing...']"
-                        class="exonchat-is-typing"
-                    >
-                    </q-chat-message>
-
-                    <q-btn
-                        v-if="gotoBottomBtnShow"
-                        @click="scrollToBottom"
-                        style="position: fixed; left: 50%; bottom: 60px"
-                        class="tw-bottom-2 tw-opacity-75 tw-right-2"
-                        color="black"
-                        icon="keyboard_arrow_down"
-                        size="sm"
-                        round
-                    />
-                </q-scroll-area>
-
-                <div class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-sm tw-rounded">
-                    <q-btn flat color="green" icon="attachment" size="sm"></q-btn>
-                    <q-input
-                        v-model.trim="msg"
-                        @keyup.enter.exact="sendMessage"
-                        @focus="inputFocusHandle"
-                        @blur="inputBlurHandle"
-                        debounce="0"
-                        placeholder="Write Message..."
-                        color="green-8"
-                        class="tw-flex-auto"
-                        autogrow
-                        borderless
-                        dense
-                    ></q-input>
-                    <q-btn @click="sendMessage" v-model="msg" icon="send" flat color="green-8" size="sm"></q-btn>
-                </div>-->
-                <message :socket="socket" chat-panel-type="client" :messages="messages"></message>
+                <message
+                    :ses-id="sesId"
+                    :socket="socket"
+                    chat-panel-type="client"
+                    :conversationInfo="conversationInfo"
+                ></message>
             </div>
 
             <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
@@ -183,12 +114,14 @@ export default defineComponent({
     async mounted() {
         console.log('WebChat Mounted');
 
+        this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
+
         await this.initializeSocket();
         this.fireSocketListeners();
 
         this.firePageVisitListner();
 
-        if (this.clientInitiateConvInfo) {
+        if (this.clientInitiateConvInfo.conv_id) {
             this.getConvMessages(this.clientInitiateConvInfo.conv_id);
         }
         // this.setTypingFalse();
@@ -200,8 +133,8 @@ export default defineComponent({
         }),
 
         // which messages store by getConvMessages()
-        messages(): any {
-            return this.$store.getters['chat/messages'](this.clientInitiateConvInfo.conv_id);
+        conversationInfo(): any {
+            return this.$store.getters['chat/conversationInfo'](this.clientInitiateConvInfo.conv_id);
         },
     },
 
@@ -315,15 +248,28 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_joined_from_conversation', (res: any) => {
-                console.log('from ec_is_joined_from_conversation', res);
+                const convInfo = res.data.conv_ses_data;
+                convInfo.state_status = 'joined';
+
+                this.$store.dispatch('chat/storeConvState', convInfo);
+
+                console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
-                console.log('from ec_is_leaved_from_conversation', res);
+                const convInfo = res.data.conv_ses_data;
+                convInfo.state_status = 'left';
+
+                this.$store.dispatch('chat/storeConvState', convInfo);
+
+                console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
-                // remove all info from store which store after chat initialte till end
+                this.$store.dispatch('chat/clearClientChatInitiate');
+                this.socket.close();
+                // force reload dom
+                location.reload();
                 console.log('from ec_is_closed_from_conversation', res);
             });
 
@@ -414,27 +360,3 @@ export default defineComponent({
     },
 });
 </script>
-
-<!--<style lang="scss">
-#webchat-container {
-    .q-message {
-        &.exonchat-is-typing {
-            .q-message-text {
-                min-height: unset;
-            }
-        }
-
-        .q-message-container {
-            .q-message-avatar {
-                height: 32px;
-                width: 32px;
-                min-width: 32px;
-            }
-        }
-
-        .q-message-text {
-            padding: 7px;
-        }
-    }
-}
-</style>-->

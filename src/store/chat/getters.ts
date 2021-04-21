@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { _l, getMySocketSessionId } from 'src/boot/helpers';
+import * as _l from 'lodash';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
@@ -9,49 +9,27 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return state.clientInitiateConvInfo;
     },
 
-    convStateInfo: (state) => (convId: any) => {
-        return state.convStateInfo[convId];
-    },
+    conversationInfo: (state) => (convId: any) => {
+        const allConvInfo = state.conversationInfo;
+        const convInfo = allConvInfo[convId] || {};
 
-    messages: (state) => (convId: any) => {
-        const allMessages = state.messages;
+        const messages = _l.sortBy(convInfo.messages, [(message) => moment(message.created_at).format('x')]);
 
-        if (!convId) {
-            return allMessages;
-        }
-
-        const convMessages = allMessages[convId]?.messages;
-
-        return _l.sortBy(convMessages, [
-            function (message) {
-                return moment(message.created_at).format('x');
-            },
-        ]);
+        return {
+            messages,
+            state: convInfo.stateInfo || {},
+        };
     },
 
     chatRequests(state) {
-        return _l
-            .sortBy(state.chatRequests, [
-                function (chatRequest) {
-                    return moment(chatRequest.createdAt).format('x');
-                },
-            ])
-            .reverse();
+        return _l.sortBy(state.chatRequests, [(chatRequest) => moment(chatRequest.created_at).format('x')]).reverse();
     },
 
-    chatAgents(state) {
+    chatAgents(state, getters, rootState, rootGetters) {
         const allChatAgents = state.chatAgents;
-        const mySocketSessionId = getMySocketSessionId();
+        const authInfo = rootGetters['auth/profile'];
 
-        return _l.filter(allChatAgents, (agent: any) => {
-            if (!agent.socket_sessions.length) return false;
-
-            let socketSessions = _l.mapValues(agent.socket_sessions, 'id');
-
-            socketSessions = Object.values(socketSessions);
-
-            return !socketSessions.includes(mySocketSessionId);
-        });
+        return Object.values(allChatAgents).filter((agent: any) => authInfo.email !== agent.email);
     },
 
     onlineChatAgents(state) {
