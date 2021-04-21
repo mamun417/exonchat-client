@@ -79,7 +79,12 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item class="" clickable v-for="(agent, id) in chatAgents" :key="id">
+                                <q-item
+                                    v-for="(agent, id) in chatAgents"
+                                    @click="openUserToUserConversation(agent)"
+                                    clickable
+                                    :key="id"
+                                >
                                     <q-item-section avatar>
                                         <q-avatar>
                                             <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" alt="" />
@@ -214,6 +219,8 @@ export default defineComponent({
     mounted() {
         console.log('left bar initiated');
         this.getChatRequest();
+
+        this.fireSocketListeners();
     },
 
     computed: {
@@ -225,6 +232,13 @@ export default defineComponent({
     },
 
     methods: {
+        fireSocketListeners() {
+            this.$socket.on('ec_conv_initiated_from_user', (res: any) => {
+                console.log(res);
+                console.log('from ec_conv_initiated_from_user', res);
+            });
+        },
+
         getChatRequest() {
             this.$store.dispatch('chat/getChatRequests');
         },
@@ -239,6 +253,25 @@ export default defineComponent({
             });
 
             return !!filterSocketSessions.length;
+        },
+
+        openUserToUserConversation(agent: any) {
+            // check any conversation created before
+            // not create hit create api
+
+            // if already create reload the get agent list api
+
+            if ('not create conversation before') {
+                const targetUserSocketSessId = agent.socket_sessions[0].id;
+
+                console.log(targetUserSocketSessId);
+
+                this.$socket.emit('ec_init_conv_from_user', {
+                    ses_ids: [targetUserSocketSessId],
+                    chat_type: 'user_to_user_chat',
+                    users_only: true,
+                });
+            }
         },
     },
 });

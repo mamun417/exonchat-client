@@ -39,6 +39,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return await context.dispatch('storeConvMessages', { getConvJoinInfo, getConvMessages });
     },
 
+    // store conversation messages into state, so that getters can get the result
     storeConvMessages(context, { getConvJoinInfo, getConvMessages }) {
         return new Promise((resolve, reject) => {
             Promise.all([getConvJoinInfo, getConvMessages])
@@ -67,6 +68,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
                             messagesRes.convStateInfo = { status: 'closed' };
                         } else {
+                            // getConvJoinAndLeftStateStatus return object like { status: join/left }
                             messagesRes.convStateInfo = getConvJoinAndLeftStateStatus(convStateRes);
                         }
                     }
@@ -105,7 +107,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     resolve(res);
                 })
                 .catch((err: any) => {
-                    window.clog(err, 'green');
                     reject(err);
                 });
         });
@@ -130,23 +131,31 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // get chat requests form db
     getAgents(context) {
-        return new Promise((resolve, reject) => {
-            window.api
-                .get('users/active')
-                .then((res: any) => {
-                    context.commit('storeAgents', res);
-                    resolve(res);
-                })
-                .catch((err: any) => {
-                    reject(err);
-                });
+        return new Promise(() => {
+            const getAllUserToUserConvWithMe = window.clientApi.get('conversations/user-to-user/me'),
+                getAgents = window.api.get('users/active');
+
+            Promise.all([getAllUserToUserConvWithMe, getAgents]).then(([allUserToUserConvWithMe, agents]) => {
+                context.commit('storeAgents', agents);
+                console.log({ allUserToUserConvWithMe, agents });
+            });
+
+            // window.api
+            //     .get('users/active')
+            //     .then((res: any) => {
+            //         context.commit('storeAgents', res);
+            //         resolve(res);
+            //     })
+            //     .catch((err: any) => {
+            //         reject(err);
+            //     });
         });
     },
 
     // get online agents form db
-    storeOnlineAgents(context, payload) {
+    storeOnlineAgents(context, onlineAgentRes) {
         return new Promise((resolve) => {
-            context.commit('storeOnlineAgents', payload);
+            context.commit('storeOnlineAgents', onlineAgentRes);
             resolve(true);
         });
     },
@@ -154,7 +163,26 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     clearClientChatInitiate(context) {
         context.commit('clearClientChatInitiate');
     },
+
+    // if need later
+    // createUserToUserConversation(context, payload) {
+    //     return new Promise((resolve, reject) => {
+    //         window.api
+    //             .post('conversations', payload.params)
+    //             .then((res: any) => {
+    //                 window.clog('response paici', 'green');
+    //                 console.log(res);
+    //                 // context.commit('createUserToUserConversation', res.data);
+    //                 // resolve(res);
+    //             })
+    //             .catch((err: any) => {
+    //                 reject(err);
+    //             });
+    //     });
+    // },
 };
+
+export default actions;
 
 // join/left/close like message information as array
 function getConStateInfoAsMessageArray(convSess: any) {
@@ -184,14 +212,12 @@ function getClosedInfoAsMessageArray(convStateRes: any) {
     const closedStateRes = _.cloneDeep(convStateRes.data);
     delete closedStateRes.conversation_sessions;
 
-    window.clog('dsds', 'green');
-    console.log(closedStateRes);
-
     closedStateRes.conversation_id = closedStateRes.id;
 
     return getConStateInfoAsMessageArray(closedStateRes);
 }
 
+// get what the state status by me (join/left)
 function getConvJoinAndLeftStateStatus(convStateRes: any) {
     let convStateStatus = {};
     const mySocketSessionId = helpers.getMySocketSessionId();
@@ -211,5 +237,3 @@ function getConvJoinAndLeftStateStatus(convStateRes: any) {
 
     return convStateStatus;
 }
-
-export default actions;

@@ -149,6 +149,9 @@ export default defineComponent({
 
         this.$socket.emit('ec_get_logged_users', {});
 
+        // this.$socket.emit('ec_reload_user_to_user_chat', {});
+        this.$socket.emit('ec_init_user_to_user_chat', {});
+
         this.domReady = true;
     },
 

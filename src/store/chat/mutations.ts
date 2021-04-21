@@ -56,8 +56,8 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     // store online agents into state which come from db
-    storeOnlineAgents(state: ChatStateInterface, payload: any) {
-        state.onlineChatAgents = payload.users;
+    storeOnlineAgents(state: ChatStateInterface, onlineAgentRes: any) {
+        state.onlineChatAgents = onlineAgentRes.users;
     },
 
     clearClientChatInitiate(state: ChatStateInterface) {
