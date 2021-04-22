@@ -408,6 +408,8 @@ export default defineComponent({
 
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
+                // check if has if not then new event
+                this.$emitter.emit(`listened_error_${data.step}`);
             });
         },
 

@@ -129,9 +129,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
     },
 
-    // get chat requests form db
+    // get agents with conversation_id form db
     getAgents(context) {
-        return new Promise(() => {
+        return new Promise((resolve) => {
             const getAllUserToUserConvWithMe = window.userSocketApi.get('conversations/user-to-user/me'),
                 getAgents = window.api.get('users/active');
 
@@ -157,6 +157,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 });
 
                 context.commit('storeAgents', chatAgents);
+
+                resolve(chatAgents);
             });
         });
     },

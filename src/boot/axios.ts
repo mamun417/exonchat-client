@@ -73,9 +73,9 @@ const api = function (store: any, router: any) {
                 err.response.status === 422 &&
                 ['Invalid bearer token', 'Refresh token not found'].includes(err.response.data.message)
             ) {
-                store.dispatch('auth/logout').then(() => {
+                store.dispatch('auth/logOut').then(() => {
                     tokenRefreshing = false;
-                    return router.push('login');
+                    return router.push({ name: 'login' });
                 });
             } else {
                 tokenRefreshing = false;

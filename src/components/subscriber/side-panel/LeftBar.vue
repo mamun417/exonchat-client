@@ -117,7 +117,7 @@
                             <q-item class="" clickable>
                                 <q-item-section avatar>
                                     <q-avatar>
-                                        <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
+                                        <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="" />
                                     </q-avatar>
                                 </q-item-section>
 
@@ -234,13 +234,12 @@ export default defineComponent({
     methods: {
         fireSocketListeners() {
             this.$socket.on('ec_conv_initiated_from_user', async (res: any) => {
+                // server conversation construct
                 this.$socket.emit('ec_init_user_to_user_chat', {});
 
                 await this.$store.dispatch('chat/getAgents');
-                await this.$store.dispatch('chat/getOnlineAgents');
 
                 await this.$router.push({ name: 'chats', params: { conv_id: res.data.conv_id } });
-                console.log('from ec_conv_initiated_from_user', res);
             });
         },
 
@@ -261,14 +260,10 @@ export default defineComponent({
         },
 
         openUserToUserConversation(agent: any) {
-            console.log(agent);
-
             if (agent.conversation_id) {
                 this.$router.push({ name: 'chats', params: { conv_id: agent.conversation_id } });
                 return;
             }
-
-            // if already create reload the get agent list api (error step check)
 
             const targetUserSocketSessId = agent.socket_sessions[0].id;
 
@@ -278,6 +273,26 @@ export default defineComponent({
                 chat_type: 'user_to_user_chat',
                 users_only: true,
             });
+
+            this.handleAlreadyCreatedConversation(targetUserSocketSessId);
+        },
+
+        handleAlreadyCreatedConversation(targetUserSocketSessId: any) {
+            // find already created conversation_id from agents
+            const fn = (e: any) => {
+                this.$store.dispatch('chat/getAgents').then((chatAgents: any) => {
+                    const findAgent = chatAgents.find(
+                        (agent: any) => targetUserSocketSessId === agent.socket_sessions[0].id
+                    );
+
+                    this.$router.push({ name: 'chats', params: { conv_id: findAgent.conversation_id } });
+                });
+
+                this.$emitter.off('listened_error_ec_init_conv_from_user', fn);
+            };
+
+            // this event fire from MainLayout if any error
+            this.$emitter.on('listened_error_ec_init_conv_from_user', fn);
         },
     },
 });
