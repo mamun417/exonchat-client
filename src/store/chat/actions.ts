@@ -25,27 +25,27 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // get conversation messages from db
     async getAgentConvMessages(context, payload) {
-        const getConvJoinInfo = window.api.get(`conversations/${payload.convId}/sessions`),
+        const getConvStateInfo = window.api.get(`conversations/${payload.convId}/sessions`),
             getConvMessages = window.api.get(`conversations/${payload.convId}/messages`);
 
-        return await context.dispatch('storeConvMessages', { getConvJoinInfo, getConvMessages });
+        return await context.dispatch('storeConvMessages', { getConvStateInfo, getConvMessages });
     },
 
     // get client conversation messages from db
     async getClientConvMessages(context, payload) {
-        const getConvJoinInfo = window.clientSocketApi.get(`conversations/${payload.convId}/sessions`),
+        const getConvStateInfo = window.clientSocketApi.get(`conversations/${payload.convId}/sessions`),
             getConvMessages = window.clientSocketApi.get(`conversations/${payload.convId}/messages`);
 
-        return await context.dispatch('storeConvMessages', { getConvJoinInfo, getConvMessages });
+        return await context.dispatch('storeConvMessages', { getConvStateInfo, getConvMessages });
     },
 
     // store conversation messages into state, so that getters can get the result
-    storeConvMessages(context, { getConvJoinInfo, getConvMessages }) {
+    storeConvMessages(context, { getConvStateInfo, getConvMessages }) {
         return new Promise((resolve, reject) => {
-            Promise.all([getConvJoinInfo, getConvMessages])
-                .then((res) => {
-                    const convStateRes = res[0]; // join/left/close
-                    const messagesRes = res[1];
+            Promise.all([getConvStateInfo, getConvMessages])
+                .then(([convStateRes, messagesRes]) => {
+                    // messagesRes contain messages []
+                    const conversationInfo = _.cloneDeep(messagesRes);
 
                     // remove client joining information
                     const agentState = convStateRes.data.conversation_sessions.filter(
@@ -66,16 +66,17 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 getClosedInfoAsMessageArray(convStateRes)
                             );
 
-                            messagesRes.convStateInfo = { status: 'closed' };
+                            conversationInfo.convStateInfo = { status: 'closed' };
                         } else {
                             // getConvJoinAndLeftStateStatus return object like { status: join/left }
-                            messagesRes.convStateInfo = getConvJoinAndLeftStateStatus(convStateRes);
+                            conversationInfo.convStateInfo = getConvJoinAndLeftStateStatus(convStateRes);
                         }
                     }
 
-                    messagesRes.messages = messagesRes.data.concat(onlyAgentConvStateRes);
+                    conversationInfo.convStateInfo.users_only = convStateRes.data?.users_only;
+                    conversationInfo.messages = conversationInfo.data.concat(onlyAgentConvStateRes);
 
-                    context.commit('storeConvMessages', messagesRes);
+                    context.commit('storeConvMessages', conversationInfo);
 
                     resolve(messagesRes);
                 })

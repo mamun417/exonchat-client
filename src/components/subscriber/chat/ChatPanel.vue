@@ -18,11 +18,12 @@
                 </q-item>
                 <q-space></q-space>
                 <q-btn
-                    @click="confirm = !confirm"
-                    :label="`${convStateButtonInfo.name} Chat`"
-                    color="orange-8"
-                    no-caps
                     flat
+                    no-caps
+                    color="orange-8"
+                    @click="confirm = !confirm"
+                    v-if="!isAgentToAgentConversation"
+                    :label="`${convStateButtonInfo.name} Chat`"
                 ></q-btn>
             </q-card-section>
         </q-card>
@@ -98,7 +99,7 @@ export default defineComponent({
         },
 
         convStateButtonInfo() {
-            const convState = this.conversationInfo.state.status;
+            const convState = this.conversationInfo.stateInfo.status;
 
             if (convState === 'left') {
                 return { name: 'Close', action: 'close' };
@@ -109,6 +110,10 @@ export default defineComponent({
             }
 
             return { name: 'Join', action: 'join' };
+        },
+
+        isAgentToAgentConversation(): any {
+            return !!this.$route.query['ata'];
         },
     },
 

@@ -261,7 +261,11 @@ export default defineComponent({
 
         openUserToUserConversation(agent: any) {
             if (agent.conversation_id) {
-                this.$router.push({ name: 'chats', params: { conv_id: agent.conversation_id } });
+                this.$router.push({
+                    name: 'chats',
+                    params: { conv_id: agent.conversation_id },
+                    query: { ata: true },
+                });
                 return;
             }
 
@@ -279,7 +283,7 @@ export default defineComponent({
 
         handleAlreadyCreatedConversation(targetUserSocketSessId: any) {
             // find already created conversation_id from agents
-            const fn = (e: any) => {
+            const fn = () => {
                 this.$store.dispatch('chat/getAgents').then((chatAgents: any) => {
                     const findAgent = chatAgents.find(
                         (agent: any) => targetUserSocketSessId === agent.socket_sessions[0].id

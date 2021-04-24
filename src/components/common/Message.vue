@@ -30,7 +30,10 @@
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
             />
 
-            <q-chat-message v-else :label="getConvStateStatusMessage(message)" />
+            <q-chat-message
+                v-else-if="!message.msg && !isAgentToAgentConversation"
+                :label="getConvStateStatusMessage(message)"
+            />
         </template>
 
         <q-chat-message
@@ -55,9 +58,10 @@
             round
         />
     </q-scroll-area>
-
     <div
-        v-if="chatPanelType === 'client' || conversationInfo.state.status === 'joined'"
+        v-if="
+            chatPanelType === 'client' || conversationInfo.stateInfo.status === 'joined' || isAgentToAgentConversation
+        "
         class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
     >
         <q-btn flat color="green" icon="attachment"></q-btn>
@@ -126,6 +130,12 @@ export default defineComponent({
         }, 30000);
     },
 
+    computed: {
+        isAgentToAgentConversation(): any {
+            return this.conversationInfo.stateInfo.users_only;
+        },
+    },
+
     methods: {
         checkOwnMessage(message: any) {
             return message.socket_session_id === this.sesId;
@@ -158,11 +168,11 @@ export default defineComponent({
         },
 
         inputFocusHandle() {
-            this.typingHandler = setInterval(() => {
-                this.$socket.emit('ec_is_typing_from_user', {
-                    conv_id: this.getConvId(),
-                });
-            }, 1000);
+            // this.typingHandler = setInterval(() => {
+            //     this.$socket.emit('ec_is_typing_from_user', {
+            //         conv_id: this.getConvId(),
+            //     });
+            // }, 1000);
         },
 
         inputBlurHandle() {

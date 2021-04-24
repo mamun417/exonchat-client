@@ -17,7 +17,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         return {
             messages,
-            state: convInfo.stateInfo || {},
+            stateInfo: convInfo.stateInfo || {},
         };
     },
 
