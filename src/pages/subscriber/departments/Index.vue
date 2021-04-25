@@ -288,12 +288,12 @@ export default {
             //             console.log(res);
             //         })
             //         .catch((e: any) => console.log(e));
-            this.$api
-                .get('departments')
-                .then((res: any) => {
-                    console.log(res);
-                })
-                .catch((e: any) => console.log(e));
+            // this.$api
+            //     .get('departments')
+            //     .then((res: any) => {
+            //         console.log(res);
+            //     })
+            //     .catch((e: any) => console.log(e));
         },
     },
 };

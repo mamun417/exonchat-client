@@ -56,31 +56,81 @@
         />
     </q-scroll-area>
 
+    <div>{{ attachments }} {{ finalAttachments }}</div>
     <div
         v-if="chatPanelType === 'client' || conversationInfo.state.status === 'joined'"
-        class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
+        class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded tw-p-1"
     >
-        <q-btn flat color="green" icon="attachment"></q-btn>
-        <q-btn flat color="green" icon="mood"></q-btn>
-        <q-input
-            v-model.trim="msg"
-            @keyup.enter.exact="sendMessage"
-            @focus="inputFocusHandle"
-            @blur="inputBlurHandle"
-            debounce="0"
-            placeholder="Write Message..."
-            color="green-8"
-            class="tw-flex-auto"
-            autogrow
-            borderless
-            dense
-        ></q-input>
-        <q-btn icon="send" flat color="green-8"></q-btn>
+        <q-file
+            v-model="attachments"
+            name="attachment-uploader"
+            ref="attachment_uploader"
+            class="hidden"
+            accept=".jpg, .jpeg, .png, .gif"
+            max-files="5"
+            :max-file-size="1024 * 1024 * 1"
+            multiple
+            append
+            @update:model-value="attachmentUploaderHandle"
+            @rejected="handleAttachmentReject"
+        />
+
+        <div class="tw-flex tw-flex-col tw-justify-end">
+            <q-btn flat color="green" icon="attachment" @click="$refs.attachment_uploader.pickFiles($event)"></q-btn>
+        </div>
+        <div class="tw-flex tw-flex-col tw-justify-end"><q-btn flat color="green" icon="mood"></q-btn></div>
+        <div class="tw-flex-auto tw-px-3">
+            <q-input
+                v-model.trim="msg"
+                @keyup.enter.exact="sendMessage"
+                @focus="inputFocusHandle"
+                @blur="inputBlurHandle"
+                debounce="0"
+                placeholder="Write Message..."
+                color="green-8"
+                class=""
+                autogrow
+                borderless
+                dense
+            ></q-input>
+            <div v-if="finalAttachments && finalAttachments.length" class="tw-my-3">
+                <q-avatar
+                    v-for="(attachmentObj, key) in finalAttachments"
+                    :key="key"
+                    size="80px"
+                    class="each-attachment shadow-3 tw-relative"
+                    rounded
+                    ><img :src="attachmentObj.src" />
+                    <div
+                        v-show="attachmentObj.status !== 'done'"
+                        class="tw-absolute tw-h-full tw-w-full tw-bg-gray-900 tw-opacity-25"
+                    ></div>
+                    <div
+                        v-show="attachmentObj.status !== 'done'"
+                        class="tw-absolute tw-flex tw-justify-items-center text-green tw-font-bold tw-text-xs tw-text-center"
+                    >
+                        {{ attachmentObj.status }}
+                    </div>
+                    <q-badge
+                        class="attachment-remove-btn hidden"
+                        floating
+                        color="red"
+                        @click="attachmentRemoveHandle(attachmentObj)"
+                        ><q-icon name="close" />
+                    </q-badge>
+                </q-avatar>
+            </div>
+        </div>
+        <div class="tw-flex tw-flex-col tw-justify-end">
+            <q-btn icon="send" flat color="green-8" :disable="getSendBtnStatus"></q-btn>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+
+import * as _l from 'lodash';
 
 export default defineComponent({
     name: 'Message',
@@ -117,6 +167,8 @@ export default defineComponent({
             typingHandler: {
                 typing: false,
             },
+            attachments: [],
+            finalAttachments: [],
         };
     },
 
@@ -124,6 +176,12 @@ export default defineComponent({
         setInterval(() => {
             this.$forceUpdate();
         }, 30000);
+    },
+
+    computed: {
+        getSendBtnStatus(): any {
+            return this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
+        },
     },
 
     methods: {
@@ -209,6 +267,82 @@ export default defineComponent({
         isUserPanel() {
             return this.chatPanelType === 'user';
         },
+
+        attachmentUploaderHandle(val: any) {
+            console.log(val);
+            console.log(this.attachments);
+
+            val.forEach((img: any) => {
+                if (_l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1) {
+                    this.finalAttachments.push({
+                        temp_id: new Date().getTime(),
+                        original_name: img.name,
+                        size: img.size,
+                        status: 'pending',
+                        src: URL.createObjectURL(img),
+                    });
+
+                    let formData = new FormData();
+                    formData.append('attachments', img, img.name);
+
+                    window.clientApi
+                        .post('messages/attachments', formData)
+                        .then((res: any) => {
+                            console.log(res.data);
+                            const attachment = res.data.data[0];
+
+                            const afterPushedFinalAttachmentIndex = _l.findIndex(this.finalAttachments, {
+                                original_name: img.name,
+                                size: img.size,
+                            });
+
+                            const finalAttachment = this.finalAttachments[afterPushedFinalAttachmentIndex];
+
+                            finalAttachment.status = 'uploading';
+
+                            window.clientApi
+                                .get(attachment.src)
+                                .then((res: any) => {
+                                    finalAttachment.id = attachment.attachment_info.id;
+                                    finalAttachment.status = 'done';
+                                    finalAttachment.src = URL.createObjectURL(res); // its giving a warning so after this line nothing will work
+                                })
+                                .catch((e: any) => {
+                                    console.log(e);
+                                });
+                        })
+                        .catch((e: any) => {
+                            console.log(e);
+                        });
+                }
+            });
+        },
+        attachmentRemoveHandle(attachmentObj: any) {
+            const localCopy = _l.cloneDeep(attachmentObj);
+
+            _l.remove(
+                this.finalAttachments,
+                (a: any) => a.original_name === attachmentObj.original_name && a.size === attachmentObj.size
+            );
+
+            _l.remove(
+                this.attachments,
+                (a: any) => a.name === attachmentObj.original_name && a.size === attachmentObj.size
+            );
+            console.log(localCopy);
+
+            if (localCopy.id) {
+                window.clientApi.delete(`messages/attachments/${localCopy.id}`);
+            }
+        },
+        handleAttachmentReject(entries: any) {
+            // show toast
+            console.log('before upload error', entries);
+
+            entries.forEach((attachment: any) => {
+                console.log(attachment.file.name, attachment.failedPropValidation, 'error');
+            });
+        },
     },
 
     watch: {
@@ -221,3 +355,13 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="scss" scoped>
+.each-attachment {
+    &:hover {
+        .attachment-remove-btn {
+            display: inline-flex !important;
+        }
+    }
+}
+</style>

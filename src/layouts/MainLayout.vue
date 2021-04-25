@@ -106,23 +106,6 @@
         >
             <left-bar></left-bar>
         </q-drawer>
-        <q-drawer
-            v-if="1 < 0"
-            v-model="rightDrawer"
-            class="tw-shadow-lgl"
-            side="right"
-            breakpoint="xs"
-            width="250"
-            persistent
-            show-if-above
-        >
-            <right-bar></right-bar>
-        </q-drawer>
-        <q-page-container>
-            <q-page class="tw-flex">
-                <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
-            </q-page>
-        </q-page-container>
 
         <div v-if="false">
             <!-- add style pointer event none for accessing the underlying parent elements -->
