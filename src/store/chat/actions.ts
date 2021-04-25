@@ -58,6 +58,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         })
                         .flat();
 
+                    // define convStateInfo empty obj to avoid unexpected error
+                    conversationInfo.convStateInfo = {};
+
                     // some time state will be null, cause when client send message but no agent join the conversation
                     // then client reload the page no need this functionality to create state information
                     if (agentState.length) {
@@ -88,6 +91,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // using for both user and client
     storeTemporaryMessage(context, payload) {
+        console.log(payload);
+        window.clog('ddf', 'green');
+
         return new Promise((resolve) => {
             const data = {
                 messages: [payload],

@@ -79,10 +79,10 @@
                     <q-card>
                         <q-list>
                             <q-item
-                                @click="openUserToUserConversation(agent)"
                                 v-for="(agent, index) in chatAgents"
+                                @click="openUserToUserConversation(agent)"
                                 active-class="text-white bg-blue-9"
-                                :active="agent.conversation_id === $route.params.conv_id"
+                                :active="agent.conversation_id === $route.params?.conv_id"
                                 :key="index"
                                 clickable
                             >
@@ -261,11 +261,7 @@ export default defineComponent({
 
         openUserToUserConversation(agent: any) {
             if (agent.conversation_id) {
-                this.$router.push({
-                    name: 'chats',
-                    params: { conv_id: agent.conversation_id },
-                    query: { ata: true },
-                });
+                this.$router.push({ name: 'chats', params: { conv_id: agent.conversation_id } });
                 return;
             }
 

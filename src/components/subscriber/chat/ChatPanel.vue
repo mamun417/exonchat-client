@@ -89,10 +89,6 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapGetters({
-            convStateInfo: 'chat/convStateInfo',
-        }),
-
         conversationInfo(): any {
             const convId = this.getConvId();
             return this.$store.getters['chat/conversationInfo'](convId);
@@ -113,7 +109,7 @@ export default defineComponent({
         },
 
         isAgentToAgentConversation(): any {
-            return !!this.$route.query['ata'];
+            return this.conversationInfo.stateInfo.users_only;
         },
     },
 
