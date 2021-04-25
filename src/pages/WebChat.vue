@@ -169,10 +169,10 @@ export default defineComponent({
                     .then((res: any) => {
                         console.log(res.data);
 
-                        this.sesId = res.data.data.id;
+                        this.sesId = res.data.data.socket_session.id;
                         this.socketToken = res.data.bearerToken;
 
-                        sessionStorage.setItem('ec_client_socket_ses_id', res.data.data.id);
+                        sessionStorage.setItem('ec_client_socket_ses_id', res.data.data.socket_session.id);
                         sessionStorage.setItem('ec_client_socket_token', res.data.bearerToken);
                     })
                     .catch((err: any) => {

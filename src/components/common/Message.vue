@@ -18,17 +18,37 @@
         }"
         :content-style="{}"
     >
-        <template v-for="(message, index) in conversationInfo.messages" :key="message.id" class="justify-center">
+        <template v-for="(message, index) in conversationInfoLocal.messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg"
                 :name="handleNameForMultipleSelfMessage(index, message)"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                :text="[message.msg]"
                 :stamp="$helpers.fromNowTime(message.created_at)"
                 :sent="checkOwnMessage(message)"
                 :text-color="checkOwnMessage(message) ? 'black' : 'white'"
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
-            />
+            >
+                <div>
+                    <div>{{ message.msg }}</div>
+                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3">
+                        <q-avatar
+                            v-for="attachment in message.attachments"
+                            :key="attachment.id"
+                            size="100px"
+                            class="shadow-3"
+                            :class="{ 'tw-mr-2': !checkOwnMessage(message), 'tw-ml-2': checkOwnMessage(message) }"
+                            rounded
+                        >
+                            <q-inner-loading
+                                v-if="!attachment.hasOwnProperty('loading') || attachment.loading"
+                                :showing="true"
+                            >
+                                <q-spinner-dots size="30px" color="green" />
+                            </q-inner-loading>
+                            <img v-else :src="attachment.src" />
+                        </q-avatar>
+                    </div></div
+            ></q-chat-message>
 
             <q-chat-message v-else :label="getConvStateStatusMessage(message)" />
         </template>
@@ -169,6 +189,7 @@ export default defineComponent({
             },
             attachments: [],
             finalAttachments: [],
+            conversationInfoLocal: null,
         };
     },
 
@@ -244,6 +265,7 @@ export default defineComponent({
             dynamicSocket.emit(`ec_msg_from_${emitType}`, {
                 ...dynamicBody,
                 msg: this.msg,
+                attachments: _l.map(this.finalAttachments, 'id'),
             });
 
             this.msg = '';
@@ -301,11 +323,18 @@ export default defineComponent({
                             finalAttachment.status = 'uploading';
 
                             window.clientApi
-                                .get(attachment.src)
+                                .get(attachment.src, {
+                                    responseType: 'arraybuffer',
+                                })
                                 .then((res: any) => {
+                                    console.log(res);
+                                    console.log(typeof res.data);
+
                                     finalAttachment.id = attachment.attachment_info.id;
                                     finalAttachment.status = 'done';
-                                    finalAttachment.src = URL.createObjectURL(res); // its giving a warning so after this line nothing will work
+                                    finalAttachment.src = URL.createObjectURL(
+                                        new Blob([res.data], { type: res.headers['content-type'] })
+                                    ); // its giving a warning so after this line nothing will work
                                 })
                                 .catch((e: any) => {
                                     console.log(e);
@@ -329,7 +358,6 @@ export default defineComponent({
                 this.attachments,
                 (a: any) => a.name === attachmentObj.original_name && a.size === attachmentObj.size
             );
-            console.log(localCopy);
 
             if (localCopy.id) {
                 window.clientApi.delete(`messages/attachments/${localCopy.id}`);
@@ -343,14 +371,52 @@ export default defineComponent({
                 console.log(attachment.file.name, attachment.failedPropValidation, 'error');
             });
         },
+
+        async handleAttachmentLoading() {
+            console.log('called handle attch loader');
+
+            this.conversationInfoLocal = _l.cloneDeep(this.conversationInfo);
+
+            if (
+                !this.conversationInfoLocal ||
+                !this.conversationInfoLocal.messages ||
+                !this.conversationInfoLocal.messages.length
+            )
+                return;
+
+            for (const msg of this.conversationInfoLocal.messages) {
+                console.log(msg);
+
+                if (msg.attachments && msg.attachments.length) {
+                    for (const attch of msg.attachments) {
+                        if (!attch.hasOwnProperty('loading')) {
+                            try {
+                                attch.loading = false;
+                                const imgRes = await window.clientApi.get(`messages/attachments/${attch.id}`, {
+                                    responseType: 'arraybuffer',
+                                });
+
+                                attch.src = URL.createObjectURL(
+                                    new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                );
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }
+                    }
+                }
+            }
+        },
     },
 
     watch: {
         conversationInfo: {
             handler: function () {
+                this.handleAttachmentLoading();
                 this.scrollToBottom();
             },
             deep: true,
+            immediate: true,
         },
     },
 });

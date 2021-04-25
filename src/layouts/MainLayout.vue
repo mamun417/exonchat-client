@@ -286,7 +286,7 @@ export default defineComponent({
                         user_id: this.profile.id,
                     });
 
-                    this.sesId = res.data.data.id;
+                    this.sesId = res.data.data.socket_session.id;
                     this.socketToken = res.data.bearerToken;
 
                     sessionStorage.setItem('ec_user_socket_ses_id', this.sesId);
