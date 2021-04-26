@@ -174,7 +174,7 @@ export default defineComponent({
 
                         sessionStorage.setItem('ec_client_socket_ses_id', this.sesId);
                         sessionStorage.setItem('ec_client_socket_token', this.socketToken);
-                    })
+                      })
                     .catch((err: any) => {
                         console.log(err);
                     });

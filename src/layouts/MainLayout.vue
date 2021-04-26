@@ -95,6 +95,18 @@
         <q-inner-loading :showing="!domReady">
             <q-spinner-facebook size="50px" color="primary" />
         </q-inner-loading>
+        <q-drawer
+            v-model="leftDrawer"
+            class="tw-shadow-lgr"
+            side="left"
+            breakpoint="xs"
+            width="250"
+            persistent
+            show-if-above
+        >
+            <left-bar></left-bar>
+        </q-drawer>
+
         <div v-if="false">
             <!-- add style pointer event none for accessing the underlying parent elements -->
             <!-- and also add opacity if user moved to parent -->
