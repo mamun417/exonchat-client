@@ -316,7 +316,7 @@ export default defineComponent({
                     let formData = new FormData();
                     formData.append('attachments', img, img.name);
 
-                    this.$clientSocketApi
+                    this.$userSocketApi
                         .post('messages/attachments', formData)
                         .then((res: any) => {
                             console.log(res.data);
@@ -331,7 +331,7 @@ export default defineComponent({
 
                             finalAttachment.status = 'uploading';
 
-                            this.$clientSocketApi
+                            this.$userSocketApi
                                 .get(attachment.src, {
                                     responseType: 'arraybuffer',
                                 })
@@ -369,7 +369,7 @@ export default defineComponent({
             );
 
             if (localCopy.id) {
-                this.$clientSocketApi.delete(`messages/attachments/${localCopy.id}`);
+                this.$userSocketApi.delete(`messages/attachments/${localCopy.id}`);
             }
         },
         handleAttachmentReject(entries: any) {
@@ -401,7 +401,7 @@ export default defineComponent({
                         if (!attch.hasOwnProperty('loading')) {
                             try {
                                 attch.loading = false;
-                                const imgRes = await this.$clientSocketApi.get(`messages/attachments/${attch.id}`, {
+                                const imgRes = await this.$userSocketApi.get(`messages/attachments/${attch.id}`, {
                                     responseType: 'arraybuffer',
                                 });
 
