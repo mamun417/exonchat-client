@@ -91,9 +91,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // using for both user and client
     storeTemporaryMessage(context, payload) {
-        console.log(payload);
-        window.clog('ddf', 'green');
-
         return new Promise((resolve) => {
             const data = {
                 messages: [payload],
