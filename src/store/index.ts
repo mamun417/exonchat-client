@@ -15,6 +15,9 @@ import { UiStateInterface } from './ui/state';
 import chat from './chat';
 import { ChatStateInterface } from './chat/state';
 
+import intent from './intent';
+import { IntentStateInterface } from './intent/state';
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -32,6 +35,7 @@ export interface StateInterface {
     socket: SocketStateInterface;
     chat: ChatStateInterface;
     ui: UiStateInterface;
+    intent: IntentStateInterface;
 }
 
 export default store(function (/* { ssrContext } */) {
@@ -42,6 +46,7 @@ export default store(function (/* { ssrContext } */) {
             socket,
             ui,
             chat,
+            intent,
         },
 
         // enable strict mode (adds overhead!)

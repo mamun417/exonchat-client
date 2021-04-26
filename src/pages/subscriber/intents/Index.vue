@@ -38,12 +38,12 @@
 
                     <template v-slot:body-cell-intent="props">
                         <q-td :props="props">
-                            <q-badge color="green" class="text-italic"
-                                >{{ props.row.intent.name
-                                }}<q-tooltip class="" anchor="center right" :offset="[50, 14]">
+                            <q-badge color="green" class="text-italic">
+                                {{ props.row.intent.name }}
+                                <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ props.row.intent.desc }}
-                                </q-tooltip></q-badge
-                            >
+                                </q-tooltip>
+                            </q-badge>
                         </q-td>
                     </template>
 
@@ -103,9 +103,21 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Intent Name" color="green" prefix="@" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input
+                        label="Intent Name"
+                        color="green"
+                        prefix="@"
+                        class="tw-my-2"
+                        v-model="addIntentData.name"
+                        :error-message="addIntentDataErrors[0]"
+                        :error="!!addIntentDataErrors[0]"
+                        @input="addIntentDataErrors[0] = ''"
+                        dense
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-select
                         label="Content Type"
@@ -114,8 +126,11 @@
                         color="green"
                         v-model="newIntentType"
                         dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                    ></q-select>
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="ballot" color="green" />
+                        </template>
+                    </q-select>
 
                     <q-input
                         :label="newIntentType === 'action' ? 'Action Name' : 'Static Content'"
@@ -125,14 +140,25 @@
                         v-model="intentChoosed"
                         :autogrow="newIntentType === 'static'"
                         dense
-                        ><template v-slot:prepend> <q-icon name="work" color="green" /></template
-                    ></q-input>
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="work" color="green" />
+                        </template>
+                    </q-input>
 
-                    <q-input label="Description" color="green" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="description" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Description" color="green" class="tw-my-2" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="description" color="green" />
+                        </template>
+                    </q-input>
 
-                    <q-checkbox class="tw-mt-2" label="Activate This Intent" color="green" dense />
+                    <q-checkbox
+                        v-model="addIntentData.active"
+                        class="tw-mt-2"
+                        label="Activate This Intent"
+                        color="green"
+                        dense
+                    />
 
                     <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
                         <div>When a msg is parsed by ai it will resolve to your intents action or content.</div>
@@ -156,9 +182,11 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Intent Name" color="green" prefix="@" class="tw-my-2" dense readonly
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Intent Name" color="green" prefix="@" class="tw-my-2" dense readonly>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-select
                         label="Content Type"
@@ -167,8 +195,11 @@
                         color="green"
                         v-model="newIntentType"
                         dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                    ></q-select>
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="ballot" color="green" />
+                        </template>
+                    </q-select>
 
                     <q-input
                         :label="newIntentType === 'action' ? 'Action Name' : 'Static Content'"
@@ -178,12 +209,17 @@
                         v-model="intentChoosed"
                         :autogrow="newIntentType === 'static'"
                         dense
-                        ><template v-slot:prepend> <q-icon name="work" color="green" /></template
-                    ></q-input>
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="work" color="green" />
+                        </template>
+                    </q-input>
 
-                    <q-input label="Description" color="green" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="description" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Description" color="green" class="tw-my-2" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="description" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-checkbox class="tw-mt-2" label="Activate This Intent" color="green" dense />
                 </q-card-section>
@@ -199,128 +235,171 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-const columns = [
-    { name: 'intent', align: 'left', label: 'Intent Name', field: 'intent' },
-    {
-        name: 'map_to',
-        align: 'center',
-        label: 'Map to Action/Content',
-        field: 'map_to',
-    },
-    {
-        name: 'parent_intent',
-        align: 'center',
-        label: 'Intent Mapped To',
-        field: 'parent_intent',
-    },
-    {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
-    },
-    {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
-    },
-];
-
-const rows = [
-    {
-        intent: { name: '@get/hosting/low/price', desc: 'message hi' },
-        map_to: 'get_lowest_hosting_price',
-        parent_intent: 'nill',
-        status: 'active',
-    },
-    {
-        intent: { name: '@del/order', desc: 'message hello' },
-        map_to: 'delte_order_by_id',
-        parent_intent: 'nill',
-        status: 'inactive',
-    },
-    {
-        intent: {
-            name: '@post/profile/name',
-            desc: 'give shared hosting price',
-        },
-        map_to: 'update_profile_name',
-        parent_intent: 'nill',
-        status: 'pending',
-    },
-    {
-        intent: {
-            name: '@post/user/name',
-            desc: 'give shared hosting price',
-        },
-        map_to: 'update_user_name',
-        parent_intent: '@post/profile/name',
-        status: 'pending',
-    },
-];
-
-const dynamicVariables = [
-    { name: 'user_name', des: 'will print assigned name else guest' },
-    { name: 'user_id', des: 'will print logged users id' },
-];
 export default defineComponent({
+    name: 'Intents',
     data() {
         return {
+            addIntentData: {
+                name: '',
+                tag: '',
+                description: '',
+                type: '',
+                active: true,
+                action_name: '',
+            },
+            addIntentDataErrors: {},
             newIntentModal: false,
             editIntent: false,
             newIntentType: 'action',
             variableListModal: false,
             intentChoosed: '',
+            columns: [
+                { name: 'intent', align: 'left', label: 'Intent Name', field: 'intent' },
+                {
+                    name: 'map_to',
+                    align: 'center',
+                    label: 'Map to Action/Content',
+                    field: 'map_to',
+                },
+                {
+                    name: 'parent_intent',
+                    align: 'center',
+                    label: 'Intent Mapped To',
+                    field: 'parent_intent',
+                },
+                {
+                    name: 'status',
+                    label: 'Status',
+                    field: 'status',
+                    align: 'center',
+                },
+                {
+                    name: 'action',
+                    label: 'Actions',
+                    field: 'action',
+                    align: 'center',
+                },
+            ],
+            rows: [
+                {
+                    intent: { name: '@get/hosting/low/price', desc: 'message hi' },
+                    map_to: 'get_lowest_hosting_price',
+                    parent_intent: 'nill',
+                    status: 'active',
+                },
+                {
+                    intent: { name: '@del/order', desc: 'message hello' },
+                    map_to: 'delte_order_by_id',
+                    parent_intent: 'nill',
+                    status: 'inactive',
+                },
+                {
+                    intent: {
+                        name: '@post/profile/name',
+                        desc: 'give shared hosting price',
+                    },
+                    map_to: 'update_profile_name',
+                    parent_intent: 'nill',
+                    status: 'pending',
+                },
+                {
+                    intent: {
+                        name: '@post/user/name',
+                        desc: 'give shared hosting price',
+                    },
+                    map_to: 'update_user_name',
+                    parent_intent: '@post/profile/name',
+                    status: 'pending',
+                },
+            ],
+            dynamicVariables: [
+                { name: 'user_name', des: 'will print assigned name else guest' },
+                { name: 'user_id', des: 'will print logged users id' },
+            ],
         };
     },
+
     setup() {
-        return {
-            columns,
-            rows,
-            dynamicVariables,
-        };
+        return {};
     },
+
+    mounted() {
+        console.log('get intents');
+        this.getIntents();
+    },
+
     methods: {
-        saveIntent() {
-            // this.$api
-            //     .post('intents', {
-            //         tag: 'bbb',
-            //         description: 'b',
-            //         type: 'action',
-            //         active: true,
-            //         action_name: 'bbb',
-            //     })
-            //     .then((res: any) => {
-            //         console.log(res);
-            //     })
-            //     .catch((e: any) => console.log(e));
-            // this.$api
-            //     .post('intents/intent-id', {
-            //         description: 'b',
-            //         type: 'action',
-            //         active: true,
-            //         action_name: 'bbb',
-            //     })
-            //     .then((res: any) => {
-            //         console.log(res);
-            //     })
-            //     .catch((e: any) => console.log(e));
-            // this.$api
-            //     .post('intents/intent-id/active-status', {
-            //         active: true,
-            //     })
-            //     .then((res: any) => {
-            //         console.log(res);
-            //     })
-            //     .catch((e: any) => console.log(e));
-            // this.$api
-            //     .get('intents')
-            //     .then((res: any) => {
-            //         console.log(res);
-            //     })
-            //     .catch((e: any) => console.log(e));
+        getIntents() {
+            this.$store
+                .dispatch('intent/getIntents')
+                .then((res: any) => {
+                    console.log(res);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         },
+
+        saveIntent() {
+            this.$store
+                .dispatch('intent/saveIntent', {
+                    inputs: this.formData,
+                })
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((err) => {
+                    if (!err.response.data.message.length) {
+                        this.$q.notify({
+                            color: 'negative',
+                            message: err.response.data.message,
+                            position: 'top',
+                        });
+                    } else {
+                        this.addIntentDataErrors = err.response.data.message;
+                    }
+                });
+        },
+
+        // saveIntent() {
+        //     this.$api
+        //         .post('intents', {
+        //             tag: 'bbb',
+        //             description: 'b',
+        //             type: 'action',
+        //             active: true,
+        //             action_name: 'bbb',
+        //         })
+        //         .then((res: any) => {
+        //             console.log(res);
+        //         })
+        //         .catch((e: any) => console.log(e));
+        //     this.$api
+        //         .post('intents/intent-id', {
+        //             description: 'b',
+        //             type: 'action',
+        //             active: true,
+        //             action_name: 'bbb',
+        //         })
+        //         .then((res: any) => {
+        //             console.log(res);
+        //         })
+        //         .catch((e: any) => console.log(e));
+        //     this.$api
+        //         .post('intents/intent-id/active-status', {
+        //             active: true,
+        //         })
+        //         .then((res: any) => {
+        //             console.log(res);
+        //         })
+        //         .catch((e: any) => console.log(e));
+        //     this.$api
+        //         .get('intents')
+        //         .then((res: any) => {
+        //             console.log(res);
+        //         })
+        //         .catch((e: any) => console.log(e));
+        // },
     },
 });
 </script>
