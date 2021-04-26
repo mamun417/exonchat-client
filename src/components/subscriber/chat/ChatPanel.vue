@@ -55,7 +55,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
 
 export default defineComponent({

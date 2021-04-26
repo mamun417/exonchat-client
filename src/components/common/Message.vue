@@ -81,7 +81,7 @@
 
     <div>{{ attachments }} {{ finalAttachments }}</div>
     <div
-     v-if="
+        v-if="
             chatPanelType === 'client' || conversationInfo.stateInfo.status === 'joined' || isAgentToAgentConversation
         "
         class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
@@ -316,7 +316,7 @@ export default defineComponent({
                     let formData = new FormData();
                     formData.append('attachments', img, img.name);
 
-                    window.clientApi
+                    this.$clientSocketApi
                         .post('messages/attachments', formData)
                         .then((res: any) => {
                             console.log(res.data);
@@ -331,7 +331,7 @@ export default defineComponent({
 
                             finalAttachment.status = 'uploading';
 
-                            window.clientApi
+                            this.$clientSocketApi
                                 .get(attachment.src, {
                                     responseType: 'arraybuffer',
                                 })
@@ -369,7 +369,7 @@ export default defineComponent({
             );
 
             if (localCopy.id) {
-                window.clientApi.delete(`messages/attachments/${localCopy.id}`);
+                this.$clientSocketApi.delete(`messages/attachments/${localCopy.id}`);
             }
         },
         handleAttachmentReject(entries: any) {
@@ -401,7 +401,7 @@ export default defineComponent({
                         if (!attch.hasOwnProperty('loading')) {
                             try {
                                 attch.loading = false;
-                                const imgRes = await window.clientApi.get(`messages/attachments/${attch.id}`, {
+                                const imgRes = await this.$clientSocketApi.get(`messages/attachments/${attch.id}`, {
                                     responseType: 'arraybuffer',
                                 });
 
