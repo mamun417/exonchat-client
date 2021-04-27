@@ -33,8 +33,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // get client conversation messages from db
     async getClientConvMessages(context, payload) {
-        const getConvStateInfo = window.clientSocketApi.get(`conversations/${payload.convId}/sessions`),
-            getConvMessages = window.clientSocketApi.get(`conversations/${payload.convId}/messages`);
+        const getConvStateInfo = window.socketSessionApi.get(`conversations/${payload.convId}/sessions`),
+            getConvMessages = window.socketSessionApi.get(`conversations/${payload.convId}/messages`);
 
         return await context.dispatch('storeConvMessages', { getConvStateInfo, getConvMessages });
     },
@@ -136,7 +136,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     // get agents with conversation_id form db
     getAgents(context) {
         return new Promise((resolve) => {
-            const getAllUserToUserConvWithMe = window.userSocketApi.get('conversations/user-to-user/me'),
+            const getAllUserToUserConvWithMe = window.socketSessionApi.get('conversations/user-to-user/me'),
                 getAgents = window.api.get('users/active');
 
             Promise.all([getAllUserToUserConvWithMe, getAgents]).then(([allUserToUserConvWithMe, agents]) => {
