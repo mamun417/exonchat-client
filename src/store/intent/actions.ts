@@ -28,6 +28,32 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
                 });
         });
     },
+
+    updateIntent(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post(`intents/${payload.inputs.id}`, payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    deleteIntent(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .delete(`intents/${payload.id}`)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;
