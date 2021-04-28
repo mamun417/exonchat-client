@@ -2,12 +2,14 @@
     <div class="tw-flex tw-flex-col">
         <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Intents List</div>
-            <q-btn color="green" icon="add" label="Add New" @click="newIntentModal = true"></q-btn>
+            <q-btn color="green" icon="add" label="Add New" @click="addEditIntentModal = true"></q-btn>
         </div>
+
+        <!--intent list-->
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="intents"
+                    :rows="mappingIntents"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -36,6 +38,8 @@
                             <q-btn size="xs" icon="close" class="tw-ml-1 tw-p-0" round flat />
                         </q-badge>
                     </template>
+
+                    <!--<intent-list></intent-list>-->
 
                     <template v-slot:header="props">
                         <q-tr :props="props">
@@ -122,180 +126,113 @@
 
         <q-dialog
             @before-hide="resetForm"
-            v-model="newIntentModal"
-            @update:modelValue="(value) => (newIntentModal = value)"
+            v-model="addEditIntentModal"
+            @update:modelValue="(value) => (addEditIntentModal = value)"
             persistent
         >
-            <q-card style="max-width: 500px">
-                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                    <div class="tw-text-lg text-green">Add New Intent</div>
-                    <q-space></q-space>
-                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
-                </q-card-section>
-
-                <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        label="Intent Tag"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        v-model="intentFormData.tag"
-                        :error-message="intentFormDataErrors[0]"
-                        :error="!!intentFormDataErrors[0]"
-                        @input="intentFormDataErrors[0] = ''"
-                        autofocus
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="label" color="green" />
-                        </template>
-                    </q-input>
-
-                    <q-select
-                        label="Content Type"
-                        :options="['action', 'static', 'external']"
-                        class="tw-my-2"
-                        color="green"
-                        v-model="intentFormData.type"
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="ballot" color="green" />
-                        </template>
-                    </q-select>
-
-                    <q-input
-                        :label="getContentTypeUtility"
-                        class="tw-my-2"
-                        color="green"
-                        options-selected-class="text-green"
-                        v-model="intentChosen"
-                        :autogrow="intentFormData.type === 'static'"
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="work" color="green" />
-                        </template>
-                    </q-input>
-
-                    <q-input
-                        label="Description"
-                        v-model="intentFormData.description"
-                        color="green"
-                        class="tw-my-2"
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="description" color="green" />
-                        </template>
-                    </q-input>
-
-                    <q-checkbox
-                        v-model="intentFormData.active"
-                        class="tw-mt-2"
-                        label="Activate This Intent"
-                        color="green"
-                        dense
-                    />
-
-                    <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
-                        <div>When a msg is parsed by ai it will resolve to your intents action or content.</div>
-                    </div>
-                </q-card-section>
-
-                <q-card-actions class="tw-mx-6 tw-mb-4 tw-mt-2">
-                    <q-btn color="green" label="submit" class="full-width" @click="saveIntent" />
-                </q-card-actions>
-            </q-card>
-        </q-dialog>
-
-        <q-dialog
-            @before-hide="resetForm"
-            v-model="editIntent"
-            @update:modelValue="(value) => (editIntent = value)"
-            persistent
-        >
-            <!-- load parent intents all content -->
-            <!--  -->
             <q-card style="max-width: 500px">
                 <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">
-                        Edit Intent <b>@{{ intentFormData.tag }}</b>
+                        <div v-if="updateIntentModal">
+                            Edit Intent <b>@{{ addEditIntentFormData.tag }}</b>
+                        </div>
+                        <div v-else>Add New Intent</div>
                     </div>
                     <q-space></q-space>
                     <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
-                <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        v-model="intentFormData.tag"
-                        :error-message="intentFormDataErrors[0]"
-                        :error="!!intentFormDataErrors[0]"
-                        @input="intentFormDataErrors[0] = ''"
-                        autofocus
-                        label="Intent Tag"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        dense
-                        readonly
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="label" color="green" />
-                        </template>
-                    </q-input>
+                <form @submit.prevent="createIntent">
+                    <q-card-section class="q-py-2 tw-mx-6">
+                        <q-input
+                            label="Intent Tag"
+                            color="green"
+                            prefix="@"
+                            class="tw-my-2"
+                            v-model="addEditIntentFormData.tag"
+                            :error-message="intentFormDataErrors.tag"
+                            :error="!!intentFormDataErrors.tag"
+                            @update:model-value="intentFormDataErrors.tag = ''"
+                            autofocus
+                            fill-mask="_"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="label" color="green" />
+                            </template>
+                        </q-input>
 
-                    <q-select
-                        label="Content Type"
-                        :options="['action', 'static', 'external']"
-                        class="tw-my-2"
-                        color="green"
-                        v-model="intentFormData.type"
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="ballot" color="green" />
-                        </template>
-                    </q-select>
+                        <q-select
+                            label="Content Type"
+                            :options="['action', 'static', 'external']"
+                            class="tw-my-2"
+                            color="green"
+                            :error-message="intentFormDataErrors.type"
+                            :error="!!intentFormDataErrors.type"
+                            @update:model-value="intentFormDataErrors.external_path = ''"
+                            v-model="addEditIntentFormData.type"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="ballot" color="green" />
+                            </template>
+                        </q-select>
 
-                    <q-input
-                        :label="getContentTypeUtility"
-                        class="tw-my-2"
-                        color="green"
-                        options-selected-class="text-green"
-                        v-model="intentChosen"
-                        :autogrow="intentChosen.type === 'static'"
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="work" color="green" />
-                        </template>
-                    </q-input>
+                        <q-input
+                            :label="getContentTypeUtility"
+                            class="tw-my-2"
+                            color="green"
+                            options-selected-class="text-green"
+                            :error-message="intentFormDataErrors.external_path"
+                            :error="!!intentFormDataErrors.external_path"
+                            @update:model-value="intentFormDataErrors.external_path = ''"
+                            v-model="intentChosen"
+                            :autogrow="addEditIntentFormData.type === 'static'"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="work" color="green" />
+                            </template>
+                        </q-input>
 
-                    <q-input
-                        v-model="intentFormData.description"
-                        label="Description"
-                        color="green"
-                        class="tw-my-2"
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="description" color="green" />
-                        </template>
-                    </q-input>
+                        <q-input
+                            label="Description"
+                            v-model="addEditIntentFormData.description"
+                            :error-message="intentFormDataErrors.description"
+                            :error="!!intentFormDataErrors.description"
+                            @update:model-value="intentFormDataErrors.description = ''"
+                            color="green"
+                            class="tw-my-2"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="description" color="green" />
+                            </template>
+                        </q-input>
 
-                    <q-checkbox
-                        v-model="intentFormData.active"
-                        class="tw-mt-2"
-                        label="Activate This Intent"
-                        color="green"
-                        dense
-                    />
-                </q-card-section>
+                        <q-checkbox
+                            v-model="addEditIntentFormData.active"
+                            class="tw-mt-2"
+                            label="Activate This Intent"
+                            color="green"
+                            dense
+                        />
 
-                <q-card-actions class="tw-mx-6 tw-my-4">
-                    <q-btn color="green" label="update" class="full-width" @click="updateIntent" />
-                </q-card-actions>
+                        <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
+                            <div>When a msg is parsed by ai it will resolve to your intents action or content.</div>
+                        </div>
+                    </q-card-section>
+
+                    <q-card-actions class="tw-mx-6 tw-mb-4 tw-mt-2">
+                        <q-btn
+                            type="submit"
+                            color="green"
+                            label="submit"
+                            class="full-width"
+                            @click="updateIntentModal ? updateIntent() : createIntent()"
+                        />
+                    </q-card-actions>
+                </form>
             </q-card>
         </q-dialog>
 
@@ -315,14 +252,17 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash';
 import { defineComponent } from 'vue';
+// import IntentList from 'pages/subscriber/intents/IntentList.vue';
 
 export default defineComponent({
     name: 'Intents',
+    // components: { IntentList },
     data(): any {
         return {
             intents: [],
-            intentFormData: {
+            addEditIntentFormData: {
                 tag: '',
                 description: '',
                 type: 'action',
@@ -332,12 +272,10 @@ export default defineComponent({
                 active: true,
             },
             intentFormDataErrors: {},
-            newIntentModal: false,
-            editIntent: false,
-            newIntentType: 'action',
+            addEditIntentModal: false,
+            updateIntentModal: false,
             confirmDelete: false,
             deleteIntentId: '',
-            variableListModal: false,
             intentChosen: '',
             columns: [
                 { name: 'intent_tag', align: 'left', label: 'Intent Tag', field: 'tag' },
@@ -378,15 +316,39 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log('get intents');
         this.getIntents();
     },
 
     computed: {
+        mappingIntents(): any {
+            const intents = _.cloneDeep(this.intents);
+
+            intents.map((e: any) => {
+                e.url_path =
+                    e.intent_action.type === 'external'
+                        ? e.intent_action.external_path
+                        : e.intent_action.type === 'action'
+                        ? 'apisiteurl.com/action_resolver?action' + e.intent_action.action_name
+                        : 'nil';
+
+                e.content = {
+                    content: e.intent_action.type === 'static' ? e.intent_action.content : '',
+                    loading: e.intent_action.type !== 'static',
+                    type: e.intent_action.type,
+                };
+
+                if (e.type !== 'static') {
+                    // call e.url_path get res & assign to e.content.content & e.content.loading = false
+                }
+            });
+
+            return intents;
+        },
+
         getContentTypeUtility(): any {
-            return this.intentFormData.type === 'action'
+            return this.addEditIntentFormData.type === 'action'
                 ? 'Action Name'
-                : this.intentFormData.type === 'static'
+                : this.addEditIntentFormData.type === 'static'
                 ? 'Static Content'
                 : 'External Path';
         },
@@ -397,26 +359,6 @@ export default defineComponent({
             this.$store
                 .dispatch('intent/getIntents')
                 .then((res: any) => {
-                    res.data.map((e: any) => {
-                        console.log(e);
-
-                        e.url_path =
-                            e.intent_action.type === 'external'
-                                ? e.intent_action.external_path
-                                : e.intent_action.type === 'action'
-                                ? 'apisiteurl.com/action_resolver?action' + e.intent_action.action_name
-                                : 'nil';
-
-                        e.content = {
-                            content: e.intent_action.type === 'static' ? e.intent_action.content : '',
-                            loading: e.intent_action.type !== 'static',
-                            type: e.intent_action.type,
-                        };
-
-                        if (e.type !== 'static') {
-                            // call e.url_path get res & assign to e.content.content & e.content.loading = false
-                        }
-                    });
                     this.intents = res.data;
                 })
                 .catch((err: any) => {
@@ -424,85 +366,56 @@ export default defineComponent({
                 });
         },
 
-        saveIntent() {
+        createIntent() {
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
-                this.intentFormData[item] = this.intentChosen;
+                this.addEditIntentFormData[item] = this.intentChosen;
             });
 
             this.$store
-                .dispatch('intent/saveIntent', {
-                    inputs: this.intentFormData,
+                .dispatch('intent/createIntent', {
+                    inputs: this.addEditIntentFormData,
                 })
                 .then((res: any) => {
-                    this.newIntentModal = false;
-                    this.getIntents();
+                    this.addEditIntentModal = false;
+                    this.intents.unshift(res.data);
 
-                    this.$q.notify({
-                        color: 'positive',
-                        message: 'Intent created successful',
-                        position: 'top',
-                    });
+                    this.$helpers.showSuccessNotification(this, 'Intent created successful');
                 })
-                .catch((err: any) => {
-                    console.log(err.response.data.message);
-                    if (Array.isArray(err.response.data.message)) {
-                        this.intentFormDataErrors = err.response.data.message;
-                    } else {
-                        this.$q.notify({
-                            color: 'negative',
-                            message: err.response.data.message,
-                            position: 'top',
-                        });
-                    }
-                });
+                .catch((err: any) => this.addEditIntentErrorHandle(err));
         },
 
         handleEditIntent(intent: any) {
-            this.editIntent = true;
+            this.updateIntentModal = true;
+            this.addEditIntentModal = true;
 
-            this.intentFormData.id = intent.id;
-            this.intentFormData.tag = intent.tag;
-            this.intentFormData.description = intent.description;
-            this.intentFormData.type = intent.intent_action.type;
+            this.addEditIntentFormData.id = intent.id;
+            this.addEditIntentFormData.tag = intent.tag;
+            this.addEditIntentFormData.description = intent.description;
+            this.addEditIntentFormData.type = intent.intent_action.type;
             this.intentChosen = intent.intent_action.content;
-            this.intentFormData.action_name = intent.intent_action.action_name;
-            this.intentFormData.external_path = intent.url_path;
-            this.intentFormData.active = intent.active;
+            this.addEditIntentFormData.action_name = intent.intent_action.action_name;
+            this.addEditIntentFormData.external_path = intent.url_path;
+            this.addEditIntentFormData.active = intent.active;
         },
 
         updateIntent() {
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
-                this.intentFormData[item] = this.intentChosen;
+                this.addEditIntentFormData[item] = this.intentChosen;
             });
 
             this.$store
                 .dispatch('intent/updateIntent', {
-                    inputs: this.intentFormData,
+                    inputs: this.addEditIntentFormData,
                 })
                 .then((res: any) => {
-                    this.editIntent = false;
-                    this.getIntents();
+                    this.addEditIntentModal = false;
 
-                    this.$q.notify({
-                        color: 'positive',
-                        message: 'Intent updated successful',
-                        position: 'top',
-                    });
+                    const intentIndex = this.intents.findIndex((intent: any) => intent.id === res.data.id);
+                    this.intents[intentIndex] = res.data;
+
+                    this.$helpers.showSuccessNotification(this, 'Intent updated successful');
                 })
-                .catch((err: any) => {
-                    console.log(err.response.data.message);
-                    if (Array.isArray(err.response.data.message)) {
-                        this.intentFormDataErrors = err.response.data.message;
-                    } else {
-                        this.$q.notify({
-                            color: 'negative',
-                            message: err.response.data.message,
-                            position: 'top',
-                        });
-                    }
-                });
-
-            console.log(this.intentFormData);
+                .catch((err: any) => this.addEditIntentErrorHandle(err));
         },
 
         showConfirmDeleteModal(intent: any) {
@@ -515,30 +428,30 @@ export default defineComponent({
                 .dispatch('intent/deleteIntent', {
                     id: this.deleteIntentId,
                 })
-                .then((res: any) => {
+                .then(() => {
                     this.confirmDelete = false;
                     this.getIntents();
+                    // remove the item from intents array
 
-                    this.$q.notify({
-                        color: 'positive',
-                        message: 'Intent deleted successful',
-                        position: 'top',
-                    });
+                    this.$helpers.showSuccessNotification(this, 'Intent deleted successful');
                 })
                 .catch((err: any) => {
-                    console.log(err);
-
-                    // this.$q.notify({
-                    //     color: 'negative',
-                    //     message: err.response.data.message,
-                    //     position: 'top',
-                    // });
+                    this.$helpers.showErrorNotification(this, err.response.data.message);
                 });
         },
 
+        addEditIntentErrorHandle(err: any) {
+            if (_.isObject(err.response.data.message)) {
+                this.intentFormDataErrors = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
+        },
+
         resetForm() {
-            this.intentFormData = {};
-            this.intentFormData.active = true;
+            this.updateIntentModal = false;
+            this.addEditIntentFormData = {};
+            this.addEditIntentFormData.active = true;
             this.intentFormDataErrors = {};
             this.intentChosen = '';
         },

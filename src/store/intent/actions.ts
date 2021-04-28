@@ -16,7 +16,7 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
         });
     },
 
-    saveIntent(context, payload) {
+    createIntent(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
                 .post('intents', payload.inputs)

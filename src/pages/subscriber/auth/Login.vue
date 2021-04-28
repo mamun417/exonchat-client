@@ -69,28 +69,12 @@ export default defineComponent({
                     inputs,
                 })
                 .then(() => {
-                    this.$q.notify({
-                        color: 'positive',
-                        message: 'Login Successful',
-                        position: 'top',
-                    });
-
+                    this.$helpers.showSuccessNotification(this, 'Login successful');
                     this.$router.push({ name: 'chats' });
                 })
                 .catch((err: any) => {
                     console.log(err.response.data);
-
-                    if (!err.response.data.errors) {
-                        this.$q.notify({
-                            color: 'negative',
-                            message: err.response.data.message,
-                            position: 'top',
-                        });
-
-                        if (err.response.data.statusCode) {
-                            this.$router.push({ name: 'chats' });
-                        }
-                    }
+                    this.$helpers.showErrorNotification(this, err.response.data.message);
                 });
         },
     },
