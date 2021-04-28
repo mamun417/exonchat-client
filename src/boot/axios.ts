@@ -1,5 +1,6 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
+import _ from 'lodash';
 
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
@@ -79,6 +80,20 @@ const api = function (store: any, router: any) {
                 });
             } else {
                 tokenRefreshing = false;
+
+                // make errors response object from array
+                if (_.isArray(err.response.data.message)) {
+                    const msgObj: any = {};
+
+                    err.response.data.message.forEach((singleMsg: string) => {
+                        const msgKey = singleMsg.split(' ')[0];
+
+                        msgObj[msgKey] = singleMsg;
+                    });
+
+                    err.response.data.message = msgObj;
+                }
+
                 return Promise.reject(err);
             }
         }

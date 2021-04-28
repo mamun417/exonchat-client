@@ -16,6 +16,22 @@ const helpers = {
     getMySocketSessionId() {
         return sessionStorage.getItem('ec_user_socket_ses_id');
     },
+
+    showErrorNotification(vm: any, message: any) {
+        vm.$q.notify({
+            color: 'negative',
+            message: message,
+            position: 'top',
+        });
+    },
+
+    showSuccessNotification(vm: any, message: any) {
+        vm.$q.notify({
+            color: 'positive',
+            message: message,
+            position: 'top',
+        });
+    },
 };
 
 export default helpers;
