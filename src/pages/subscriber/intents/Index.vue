@@ -264,13 +264,13 @@
 
 <script lang="ts">
 import _ from 'lodash';
-import EcTable from 'src/components/common/table/EcTable.vue';
+// import EcTable from 'src/components/common/table/EcTable.vue';
 import { defineComponent } from 'vue';
 // import IntentList from 'pages/subscriber/intents/IntentList.vue';
 
 export default defineComponent({
     name: 'Intents',
-    components: { EcTable },
+    // components: { EcTable },
     data(): any {
         return {
             intents: [],
@@ -441,6 +441,11 @@ export default defineComponent({
         },
 
         deleteIntent() {
+            // id dnt know wy u need
+            // include: {
+            //     intent_action: true,
+            // },
+            // but if u need let me know
             this.$store
                 .dispatch('intent/deleteIntent', {
                     id: this.deleteIntentId,
