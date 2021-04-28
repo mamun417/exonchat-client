@@ -9,7 +9,7 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="mappingIntents"
+                    :rows="mappedIntents"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -121,6 +121,17 @@
                         </div>
                     </template>
                 </q-table>
+
+                <!-- just uncomment me for see the work and changes -->
+                <!-- <ec-table :rows="mappedIntents" :columns="columns"> -->
+                <!-- style less cz i want to modify this -->
+                <!-- for all col select dynamix v-slot:[header-cell-itemName from loop] -->
+                <!-- <template v-slot:header-cell-intent_tag="slotProps">{{ slotProps.col.name }}</template> -->
+
+                <!-- <template v-slot:action-at-start><q-btn icon="settings" size="sm" dense flat /></template> -->
+                <!-- <template v-slot:action-at-middle="slotProps">{{ slotProps.row.id }}</template> -->
+                <!-- <template v-slot:action-at-end><q-badge>i am badge</q-badge></template> -->
+                <!-- </ec-table> -->
             </div>
         </div>
 
@@ -253,12 +264,13 @@
 
 <script lang="ts">
 import _ from 'lodash';
+import EcTable from 'src/components/common/table/EcTable.vue';
 import { defineComponent } from 'vue';
 // import IntentList from 'pages/subscriber/intents/IntentList.vue';
 
 export default defineComponent({
     name: 'Intents',
-    // components: { IntentList },
+    components: { EcTable },
     data(): any {
         return {
             intents: [],
@@ -320,7 +332,7 @@ export default defineComponent({
     },
 
     computed: {
-        mappingIntents(): any {
+        mappedIntents(): any {
             const intents = _.cloneDeep(this.intents);
 
             intents.map((e: any) => {
@@ -328,7 +340,7 @@ export default defineComponent({
                     e.intent_action.type === 'external'
                         ? e.intent_action.external_path
                         : e.intent_action.type === 'action'
-                        ? 'apisiteurl.com/action_resolver?action' + e.intent_action.action_name
+                        ? `apisiteurl.com/action_resolver?action${e.intent_action.action_name}`
                         : 'nil';
 
                 e.content = {
@@ -370,6 +382,11 @@ export default defineComponent({
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
                 this.addEditIntentFormData[item] = this.intentChosen;
             });
+
+            // note: check error carefully,
+            // after add/delete reload intent list. now um thining it will cause prb if unshift
+            // but edit dont need reload
+            // cz if a user in other page or filter its a prb
 
             this.$store
                 .dispatch('intent/createIntent', {
