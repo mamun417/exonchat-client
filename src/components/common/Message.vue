@@ -107,7 +107,6 @@
         />
     </q-scroll-area>
 
-    <div>{{ attachments }} {{ finalAttachments }}</div>
     <div
         v-if="
             chatPanelType === 'client' || conversationInfo.stateInfo.status === 'joined' || isAgentToAgentConversation
@@ -129,9 +128,17 @@
         />
 
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn flat color="green" icon="attachment" @click="$refs.attachment_uploader.pickFiles($event)"></q-btn>
+            <q-btn
+                flat
+                color="green"
+                icon="attachment"
+                class="tw-px-2"
+                @click="$refs.attachment_uploader.pickFiles($event)"
+            ></q-btn>
         </div>
-        <div class="tw-flex tw-flex-col tw-justify-end"><q-btn flat color="green" icon="mood"></q-btn></div>
+        <div class="tw-flex tw-flex-col tw-justify-end">
+            <q-btn flat color="green" icon="mood" class="tw-px-2"></q-btn>
+        </div>
         <div class="tw-flex-auto tw-px-3">
             <q-input
                 v-model.trim="msg"
@@ -141,12 +148,13 @@
                 debounce="0"
                 placeholder="Write Message..."
                 color="green-8"
-                class=""
+                hide-bottom-space
+                class="ec-msg-input"
                 autogrow
                 borderless
                 dense
             ></q-input>
-            <div v-if="finalAttachments && finalAttachments.length" class="tw-my-3">
+            <div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
                 <q-avatar
                     v-for="(attachmentObj, key) in finalAttachments"
                     :key="key"
@@ -328,7 +336,7 @@ export default defineComponent({
 
             const emitType = this.isUserPanel() ? 'user' : 'client';
             const dynamicBody = this.isUserPanel()
-                ? { conv_id: this.getConvId() }
+                ? { conv_id: this.getConvId(), temp_id: this.$helpers.getTempId() }
                 : { temp_id: this.$helpers.getTempId() };
 
             const dynamicSocket = this.socket || this.$socket;
@@ -340,6 +348,8 @@ export default defineComponent({
             });
 
             this.msg = '';
+            this.attachments = [];
+            this.finalAttachments = [];
         },
 
         handleScroll(info: any) {
@@ -490,7 +500,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .each-attachment {
     &:hover {
         .attachment-remove-btn {
@@ -503,6 +513,12 @@ export default defineComponent({
     img {
         width: min-content;
         margin: auto;
+    }
+}
+
+.ec-msg-input.q-textarea {
+    .q-field__control-container {
+        padding: 0;
     }
 }
 </style>

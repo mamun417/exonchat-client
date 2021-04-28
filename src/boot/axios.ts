@@ -98,11 +98,11 @@ export const socketSessionApi = function (router: any) {
 
     insAxios.interceptors.request.use(
         (req) => {
-            console.log(router.currentRoute._value);
-
-            const socketTokenType =
-                router.currentRoute._value.path === '/web-chat' ? 'ec_client_socket_token' : 'ec_user_socket_token';
-            const token = sessionStorage.getItem(socketTokenType);
+            // ec_client_socket_token is from local cz now we are supporting cient can resume after restarting browser
+            const token =
+                router.currentRoute._value.path === '/web-chat'
+                    ? localStorage.getItem('ec_client_socket_token')
+                    : sessionStorage.getItem('ec_user_socket_token');
 
             if (token) {
                 req.headers['Authorization'] = 'Bearer ' + token;
