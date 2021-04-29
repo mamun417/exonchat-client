@@ -29,14 +29,41 @@
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
             >
                 <div>
-                    <div>{{ message.msg }}</div>
-                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3">
-                        <q-avatar
-                            v-for="attachment in message.attachments"
+                    <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
+                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
+                        <div
+                            v-for="(attachment, key) in message.attachments"
+                            :key="attachment.id"
+                            style="width: 100px; max-height: 100px"
+                            class="shadow-3 tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                            :class="{
+                                'tw-mr-2': !msgForRightSide(message) && key !== message.attachments.length - 1,
+                                'tw-ml-2': msgForRightSide(message) && key !== message.attachments.length - 1,
+                            }"
+                        >
+                            <q-img
+                                fit="cover"
+                                spinner-color="green"
+                                @click="
+                                    attachmentPreview = attachment;
+                                    attachmentPreviewModal = true;
+                                "
+                                :src="attachment.src"
+                            >
+                                <q-tooltip class="bg-green" anchor="bottom middle" :offset="[10, 10]">{{
+                                    attachment.original_name
+                                }}</q-tooltip>
+                            </q-img>
+                        </div>
+                        <!-- <q-avatar
+                            v-for="(attachment, key) in message.attachments"
                             :key="attachment.id"
                             size="100px"
                             class="shadow-3"
-                            :class="{ 'tw-mr-2': !checkOwnMessage(message), 'tw-ml-2': checkOwnMessage(message) }"
+                            :class="{
+                                'tw-mr-2': !msgForRightSide(message) && key !== message.attachments.length - 1,
+                                'tw-ml-2': msgForRightSide(message) && key !== message.attachments.length - 1,
+                            }"
                             rounded
                         >
                             <q-inner-loading
@@ -45,10 +72,11 @@
                             >
                                 <q-spinner-dots size="30px" color="green" />
                             </q-inner-loading>
-                            <img v-else :src="attachment.src" />
-                        </q-avatar>
-                    </div></div
-            ></q-chat-message>
+                            <img v-else class="tw-cursor-pointer" :src="attachment.src" />
+                        </q-avatar> -->
+                    </div>
+                </div></q-chat-message
+            >
 
             <q-chat-message
                 v-else-if="!message.msg && !isAgentToAgentConversation"
@@ -79,7 +107,6 @@
         />
     </q-scroll-area>
 
-    <div>{{ attachments }} {{ finalAttachments }}</div>
     <div
         v-if="
             chatPanelType === 'client' || conversationInfo.stateInfo.status === 'joined' || isAgentToAgentConversation
@@ -101,9 +128,17 @@
         />
 
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn flat color="green" icon="attachment" @click="$refs.attachment_uploader.pickFiles($event)"></q-btn>
+            <q-btn
+                flat
+                color="green"
+                icon="attachment"
+                class="tw-px-2"
+                @click="$refs.attachment_uploader.pickFiles($event)"
+            ></q-btn>
         </div>
-        <div class="tw-flex tw-flex-col tw-justify-end"><q-btn flat color="green" icon="mood"></q-btn></div>
+        <div class="tw-flex tw-flex-col tw-justify-end">
+            <q-btn flat color="green" icon="mood" class="tw-px-2"></q-btn>
+        </div>
         <div class="tw-flex-auto tw-px-3">
             <q-input
                 v-model.trim="msg"
@@ -113,42 +148,62 @@
                 debounce="0"
                 placeholder="Write Message..."
                 color="green-8"
-                class=""
+                hide-bottom-space
+                class="ec-msg-input"
                 autogrow
                 borderless
                 dense
             ></q-input>
-            <div v-if="finalAttachments && finalAttachments.length" class="tw-my-3">
+            <div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
                 <q-avatar
                     v-for="(attachmentObj, key) in finalAttachments"
                     :key="key"
                     size="80px"
                     class="each-attachment shadow-3 tw-relative"
+                    :class="{ 'tw-mr-2': key !== finalAttachments.length - 1 }"
                     rounded
-                    ><img :src="attachmentObj.src" />
+                    ><img class="cursor-pointer" :src="attachmentObj.src" />
                     <div
                         v-show="attachmentObj.status !== 'done'"
                         class="tw-absolute tw-h-full tw-w-full tw-bg-gray-900 tw-opacity-25"
                     ></div>
                     <div
                         v-show="attachmentObj.status !== 'done'"
-                        class="tw-absolute tw-flex tw-justify-items-center text-green tw-font-bold tw-text-xs tw-text-center"
+                        class="tw-absolute tw-flex tw-justify-items-center text-green tw-font-bold tw-text-xs tw-text-center tw-cursor-default"
                     >
                         {{ attachmentObj.status }}
                     </div>
                     <q-badge
-                        class="attachment-remove-btn hidden"
+                        class="attachment-remove-btn hidden tw-cursor-pointer"
                         floating
                         color="red"
                         @click="attachmentRemoveHandle(attachmentObj)"
                         ><q-icon name="close" />
                     </q-badge>
+                    <q-tooltip class="bg-green" anchor="top middle" self="bottom middle" :offset="[10, 10]">{{
+                        attachmentObj.original_name
+                    }}</q-tooltip>
                 </q-avatar>
             </div>
         </div>
         <div class="tw-flex tw-flex-col tw-justify-end">
             <q-btn icon="send" flat color="green-8" :disable="getSendBtnStatus"></q-btn>
         </div>
+
+        <q-dialog v-model="attachmentPreviewModal" full-width>
+            <q-responsive class="no-shadow" :ratio="1">
+                <q-img fit="contain" :src="attachmentPreview.src" spinner-color="green" class="attachment-preview">
+                    <div class="absolute-bottom text-subtitle1 text-center">
+                        {{ attachmentPreview.original_name }}
+                    </div>
+                    <q-badge class="tw-cursor-pointer" floating v-close-popup
+                        ><q-icon name="close" class="text-orange tw-text-lg"
+                    /></q-badge>
+                </q-img>
+            </q-responsive>
+
+            <q-btn class="hidden" />
+        </q-dialog>
     </div>
 </template>
 
@@ -195,6 +250,9 @@ export default defineComponent({
             attachments: [],
             finalAttachments: [],
             conversationInfoLocal: null,
+
+            attachmentPreview: null,
+            attachmentPreviewModal: false,
         };
     },
 
@@ -217,6 +275,18 @@ export default defineComponent({
     methods: {
         checkOwnMessage(message: any) {
             return message.socket_session_id === this.sesId;
+        },
+
+        msgForRightSide(message: any) {
+            if (this.checkOwnMessage(message)) {
+                return true;
+            } else {
+                if (!this.isUserPanel) {
+                    return !!message.socket_session.user_id;
+                }
+            }
+
+            return false;
         },
 
         getConvId() {
@@ -266,7 +336,7 @@ export default defineComponent({
 
             const emitType = this.isUserPanel() ? 'user' : 'client';
             const dynamicBody = this.isUserPanel()
-                ? { conv_id: this.getConvId() }
+                ? { conv_id: this.getConvId(), temp_id: this.$helpers.getTempId() }
                 : { temp_id: this.$helpers.getTempId() };
 
             const dynamicSocket = this.socket || this.$socket;
@@ -278,6 +348,8 @@ export default defineComponent({
             });
 
             this.msg = '';
+            this.attachments = [];
+            this.finalAttachments = [];
         },
 
         handleScroll(info: any) {
@@ -300,9 +372,6 @@ export default defineComponent({
         },
 
         attachmentUploaderHandle(val: any) {
-            console.log(val);
-            console.log(this.attachments);
-
             val.forEach((img: any) => {
                 if (_l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1) {
                     this.finalAttachments.push({
@@ -316,7 +385,7 @@ export default defineComponent({
                     let formData = new FormData();
                     formData.append('attachments', img, img.name);
 
-                    this.$userSocketApi
+                    this.$socketSessionApi
                         .post('messages/attachments', formData)
                         .then((res: any) => {
                             console.log(res.data);
@@ -331,7 +400,7 @@ export default defineComponent({
 
                             finalAttachment.status = 'uploading';
 
-                            this.$userSocketApi
+                            this.$socketSessionApi
                                 .get(attachment.src, {
                                     responseType: 'arraybuffer',
                                 })
@@ -369,7 +438,7 @@ export default defineComponent({
             );
 
             if (localCopy.id) {
-                this.$userSocketApi.delete(`messages/attachments/${localCopy.id}`);
+                this.$socketSessionApi.delete(`messages/attachments/${localCopy.id}`);
             }
         },
         handleAttachmentReject(entries: any) {
@@ -401,7 +470,7 @@ export default defineComponent({
                         if (!attch.hasOwnProperty('loading')) {
                             try {
                                 attch.loading = false;
-                                const imgRes = await this.$userSocketApi.get(`messages/attachments/${attch.id}`, {
+                                const imgRes = await this.$socketSessionApi.get(`messages/attachments/${attch.id}`, {
                                     responseType: 'arraybuffer',
                                 });
 
@@ -431,12 +500,25 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .each-attachment {
     &:hover {
         .attachment-remove-btn {
             display: inline-flex !important;
         }
+    }
+}
+
+.attachment-preview {
+    img {
+        width: min-content;
+        margin: auto;
+    }
+}
+
+.ec-msg-input.q-textarea {
+    .q-field__control-container {
+        padding: 0;
     }
 }
 </style>

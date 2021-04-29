@@ -114,8 +114,6 @@ export default defineComponent({
     async mounted() {
         console.log('WebChat Mounted');
 
-        this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
-
         await this.initializeSocket();
         this.fireSocketListeners();
 
@@ -158,8 +156,9 @@ export default defineComponent({
             const clientInitiateConvInfo: any = localStorage.getItem('clientInitiateConvInfo');
             this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
 
-            this.sesId = sessionStorage.getItem('ec_client_socket_ses_id');
-            this.socketToken = sessionStorage.getItem('ec_client_socket_token');
+            // we are now supporting client chat after browser restart
+            this.sesId = localStorage.getItem('ec_client_socket_ses_id');
+            this.socketToken = localStorage.getItem('ec_client_socket_token');
 
             if (!this.sesId) {
                 await window.api
@@ -172,9 +171,9 @@ export default defineComponent({
                         this.sesId = res.data.data.socket_session.id;
                         this.socketToken = res.data.bearerToken;
 
-                        sessionStorage.setItem('ec_client_socket_ses_id', this.sesId);
-                        sessionStorage.setItem('ec_client_socket_token', this.socketToken);
-                      })
+                        localStorage.setItem('ec_client_socket_ses_id', this.sesId);
+                        localStorage.setItem('ec_client_socket_token', this.socketToken);
+                    })
                     .catch((err: any) => {
                         console.log(err);
                     });

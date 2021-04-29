@@ -37,6 +37,11 @@ const routes: RouteRecordRaw[] = [
                 name: 'intents',
                 component: () => import('pages/subscriber/intents/Index.vue'),
             },
+            {
+                path: 'uploads',
+                name: 'uploads',
+                component: () => import('pages/subscriber/uploads/Index.vue'),
+            },
         ],
     },
 

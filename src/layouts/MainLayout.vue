@@ -262,9 +262,6 @@ export default defineComponent({
 
         this.$socket.emit('ec_get_logged_users', {});
 
-        // this.$socket.emit('ec_reload_user_to_user_chat', {});
-        this.$socket.emit('ec_init_user_to_user_chat', {});
-
         this.domReady = true;
     },
 
@@ -403,7 +400,7 @@ export default defineComponent({
             // get online users list
             this.socket.on('ec_logged_users_res', (data: any) => {
                 this.$store.dispatch('chat/getOnlineAgents', data);
-                console.log(`from ec_logged_users_res ${data}`);
+                console.log('from ec_logged_users_res', data);
             });
 
             this.socket.on('ec_user_logged_in', (data: any) => {

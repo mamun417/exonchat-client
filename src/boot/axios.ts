@@ -12,8 +12,7 @@ declare module '@vue/runtime-core' {
 declare global {
     interface Window {
         api: any;
-        clientSocketApi: any;
-        userSocketApi: any;
+        socketSessionApi: any;
     }
 }
 
@@ -104,7 +103,7 @@ const api = function (store: any, router: any) {
 
 // socketUserApi
 // socketClientApi
-export const clientSocketApi = function (socketTokenType = 'ec_client_socket_token') {
+export const socketSessionApi = function (router: any) {
     const insAxios = axios.create({
         baseURL: 'http://127.0.0.1:3000',
         withCredentials: true,
@@ -114,7 +113,11 @@ export const clientSocketApi = function (socketTokenType = 'ec_client_socket_tok
 
     insAxios.interceptors.request.use(
         (req) => {
-            const token = sessionStorage.getItem(socketTokenType);
+            // ec_client_socket_token is from local cz now we are supporting cient can resume after restarting browser
+            const token =
+                router.currentRoute._value.path === '/web-chat'
+                    ? localStorage.getItem('ec_client_socket_token')
+                    : sessionStorage.getItem('ec_user_socket_token');
 
             if (token) {
                 req.headers['Authorization'] = 'Bearer ' + token;
@@ -139,11 +142,13 @@ export const clientSocketApi = function (socketTokenType = 'ec_client_socket_tok
     return insAxios;
 };
 
-export const userSocketApi = function () {
-    return clientSocketApi('ec_user_socket_token');
-};
+// export const userSocketApi = function () {
+//     return clientSocketApi('ec_user_socket_token');
+// };
 
 export default boot(({ app, router, store }) => {
+    console.log(router);
+
     // for use inside Vue files (Options API) through this.$axios and this.$api
 
     app.config.globalProperties.$axios = axios;
@@ -155,13 +160,13 @@ export default boot(({ app, router, store }) => {
     //       so you can easily perform requests against your app's API
     window.api = api(store, router);
 
-    app.config.globalProperties.$clientSocketApi = clientSocketApi();
+    // app.config.globalProperties.$clientSocketApi = clientSocketApi();
     // this will allow you to use this.$clientSocketApi (for client api with socket token
-    window.clientSocketApi = clientSocketApi();
+    // window.clientSocketApi = clientSocketApi();
 
-    app.config.globalProperties.$userSocketApi = userSocketApi();
-    // this will allow you to use this.$userSocketApi (for client api with socket token)
-    window.userSocketApi = userSocketApi();
+    app.config.globalProperties.$socketSessionApi = socketSessionApi(router);
+    // this will allow you to use this.$socketSessionApi (for socket apis)
+    window.socketSessionApi = socketSessionApi(router);
 });
 
 export { axios, api };
