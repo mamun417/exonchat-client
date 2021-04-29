@@ -193,6 +193,7 @@ export default defineComponent({
                     align: 'center',
                 },
             ],
+
             // dynamicVariables: [
             //     { name: 'user_name', des: 'will print assigned name else guest' },
             //     { name: 'user_id', des: 'will print logged users id' },
