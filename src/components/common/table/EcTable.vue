@@ -29,11 +29,11 @@
             </q-tr>
         </template>
 
-        <template v-slot:body="props">
-            <q-tr :props="props">
+        <template v-slot:body="props"
+            ><q-tr :props="props">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!-- if you want you can change status or any by following rules -->
-                    <slot :name="`cell-${col.name}`">
+                    <slot :name="`cell-{col.name}`">
                         <template v-if="col.name === statusColumnName">
                             <!-- make data/row key to status and make value & change col field to status also or ignore -->
                             <!-- you can make this component -->
@@ -83,13 +83,8 @@
                         <template v-else>
                             <!-- if a col name is has design same across all then -->
                             <!-- if check [names].includes(name) then show this component -->
-                            <!--<template v-if="Object.keys(bodyCelTemplate.includes(col.name))">-->
-                            <!--    <component :is="bodyCelTemplate[col.name]"></component>-->
-                            <!--</template>-->
-                            <!--<template v-else>-->
-                            {{ props.row[col.name] }}
-                            <!--</template>-->
-                        </template>
+                            {{ props.row[col.name] }}</template
+                        >
                     </slot>
                 </q-td></q-tr
             ></template
@@ -105,7 +100,7 @@
 </template>
 
 <script lang="ts">
-// import _ from 'lodash';
+import _ from 'lodash';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -118,10 +113,6 @@ export default defineComponent({
         hideSearch: { type: Boolean, default: false },
         statusColumnName: { type: String, default: 'status' },
         statusSuccessValues: { type: Array, default: () => ['active'] },
-        // bodyCelTemplate: {
-        //     type: Object,
-        //     default: () => ({}),
-        // },
     },
     data(): any {
         return {};
