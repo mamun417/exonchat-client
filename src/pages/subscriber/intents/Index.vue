@@ -39,8 +39,6 @@
                         </q-badge>
                     </template>
 
-                    <!--<intent-list></intent-list>-->
-
                     <template v-slot:header="props">
                         <q-tr :props="props">
                             <q-th
