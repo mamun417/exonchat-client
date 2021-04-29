@@ -169,6 +169,7 @@ export default defineComponent({
                 .catch((err: any) => this.addEditIntentErrorHandle(err));
         },
 
+        // test
         updateIntent() {
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
                 this.addEditIntentFormData[item] = this.intentChosen;
