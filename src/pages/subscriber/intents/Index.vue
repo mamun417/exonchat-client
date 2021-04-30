@@ -157,7 +157,7 @@ import AddEditIntentForm from 'pages/subscriber/intents/AddEditIntentForm.vue';
 
 export default defineComponent({
     name: 'Intents',
-    components: { AddEditIntentForm, DeleteConfirmModal, EcTable },
+    components: { AddEditIntentForm, DeleteConfirmModal },
     data(): any {
         return {
             intents: [],
