@@ -33,12 +33,12 @@
             ><q-tr :props="props">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!-- if you want you can change status or any by following rules -->
-                    <slot :name="`cell-{col.name}`">
+                    <slot :name="`cell-${col.name}`" :row="props.row">
                         <template v-if="col.name === statusColumnName">
                             <!-- make data/row key to status and make value & change col field to status also or ignore -->
                             <!-- you can make this component -->
                             <q-badge :color="statusSuccessValues.includes(props.row[col.name]) ? 'green' : 'orange'">
-                                {{ props.row[col.name] }}
+                                {{ $_.upperFirst(props.row[col.name]) }}
                             </q-badge>
                         </template>
                         <template v-if="col.name === 'action'">
@@ -50,14 +50,14 @@
                             </slot>
 
                             <!-- use emit at edit -->
-                            <q-btn
+                            <!--                            <q-btn
                                 icon="create"
                                 text-color="green"
                                 size="sm"
                                 @click="$emit('handleEdit', props.row)"
                                 dense
                                 flat
-                            ></q-btn>
+                            ></q-btn>-->
                             <slot name="action-at-middle" :row="props.row">
                                 <!-- use btns or anything at start position -->
                                 <!-- you will get row data by writing -->
@@ -66,14 +66,14 @@
                             <!-- delete modal component use here and pass reloadData func -->
                             <!-- make sure reloadData func is common in parent also so that -->
                             <!-- future filter, serach, pagination n data reload can happen -->
-                            <q-btn
+                            <!--                            <q-btn
                                 @click="showConfirmDeleteModal(props.row)"
                                 icon="delete"
                                 text-color="red"
                                 size="sm"
                                 dense
                                 flat
-                            ></q-btn>
+                            ></q-btn>-->
                             <slot name="action-at-end" :row="props.row">
                                 <!-- use btns or anything at start position -->
                                 <!-- you will get row data by writing -->
@@ -83,12 +83,12 @@
                         <template v-else>
                             <!-- if a col name is has design same across all then -->
                             <!-- if check [names].includes(name) then show this component -->
-                            {{ props.row[col.name] }}</template
-                        >
+                            {{ props.row[col.name] }} ppp
+                        </template>
                     </slot>
-                </q-td></q-tr
-            ></template
-        >
+                </q-td>
+            </q-tr>
+        </template>
 
         <template v-slot:no-data>
             <div class="full-width row flex-center text-red q-gutter-sm">

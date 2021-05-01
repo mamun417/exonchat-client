@@ -52,7 +52,7 @@
                         </q-tr>
                     </template>
 
-                    <template v-slot:body-cell-intent_tag="props">
+                    <template v-slot:body-cell-tag="props">
                         <q-td :props="props">
                             <q-badge color="green" class="text-italic">
                                 @{{ props.row.tag }}
@@ -120,28 +120,72 @@
                     </template>
                 </q-table>
 
-                <!--&lt;!&ndash;just uncomment me for see the work and changes &ndash;&gt;-->
-                <!--<ec-table :rows="mappedIntents" :columns="columns" :bodyCelTemplate="{ intent_tag: 'italic-bold' }">-->
-                <!--    &lt;!&ndash;style less cz i want to modify this &ndash;&gt;-->
-                <!--    &lt;!&ndash;for all col select dynamix v-slot:[header-cell-itemName from loop] &ndash;&gt;-->
-                <!--    <template v-slot:header-cell-intent_tag="slotProps">{{ slotProps.col.name }}</template>-->
+                <!--just uncomment me for see the work and changes -->
+                <ec-table :rows="mappedIntents" :columns="columns" :bodyCelTemplate="{ intent_tag: 'italic-bold' }">
+                    <!--style less cz i want to modify this -->
+                    <!--for all col select dynamix v-slot:[header-cell-itemName from loop] -->
+                    <!--                    <template v-slot:header-cell-intent_tag="slotProps">{{ slotProps.col.name }}</template>-->
+                    <template v-slot:cell-tag="slotProps">
+                        <q-badge color="green" class="text-italic">
+                            @{{ slotProps.row.tag }}
+                            <q-tooltip class="" anchor="center right" :offset="[50, 14]">
+                                {{ slotProps.row.description }}
+                            </q-tooltip>
+                        </q-badge>
+                    </template>
 
-                <!--    <template v-slot:action-at-start><q-btn icon="settings" size="sm" dense flat /></template>-->
-                <!--    <template v-slot:action-at-middle="slotProps">{{ slotProps.row.id }}</template>-->
-                <!--    <template v-slot:action-at-end><q-badge>i am badge</q-badge></template>-->
-                <!--</ec-table>-->
+                    <template v-slot:cell-url_path="slotProps">
+                        <italic-bold :content="slotProps.row.url_path" />
+                    </template>
+
+                    <template v-slot:cell-content="slotProps">
+                        <div class="tw-text-xxs tw-text-gray-700">
+                            {{ slotProps.row.content.content }}
+                            <q-inner-loading :showing="!!slotProps.row.content.loading">
+                                <q-spinner-dots size="sm" color="green" />
+                            </q-inner-loading>
+                        </div>
+                    </template>
+
+                    <template v-slot:action-at-start="slotProps">
+                        <q-btn
+                            icon="create"
+                            text-color="green"
+                            size="sm"
+                            @click="showEditIntentModal(slotProps.row)"
+                            dense
+                            flat
+                        >
+                        </q-btn>
+                    </template>
+
+                    <template v-slot:action-at-middle>
+                        <q-btn icon="settings" text-color="green" size="sm" dense flat></q-btn>
+                    </template>
+                    <template v-slot:action-at-end="sloProps">
+                        <q-btn
+                            @click="showConfirmDeleteModal(sloProps.row)"
+                            icon="delete"
+                            text-color="red"
+                            size="sm"
+                            dense
+                            flat
+                        ></q-btn>
+                    </template>
+                </ec-table>
             </div>
         </div>
 
         <add-edit-intent-form
-            v-model:showAddEditIntentModal="showAddEditIntentModal"
-            :modalTypeUpdate="modalTypeUpdate"
+            :showAddEditIntentModal="showAddEditIntentModal"
+            :updateModal="updateModal"
             :selectedForEditData="selectedForEditData"
             @createdIntent="getIntents"
             @updatedIntent="handleUpdatedIntent"
+            @hideModal="handleHideModal"
         />
 
-        <!--<add-edit-intent-form v-if="showAddEditIntentModal" @hide="showAddEditIntentModal = false" :modalTypeUpdate="modalTypeUpdate" />-->
+        <!--<add-edit-intent-form v-if="showAddEditIntentModal" @hide="showAddEditIntentModal = false" :updateModal="updateModal" />-->
 
         <delete-confirm-modal v-if="showDeleteModal" @confirmDelete="deleteIntent" @hide="showDeleteModal = false" />
     </div>
@@ -153,21 +197,22 @@ import EcTable from 'src/components/common/table/EcTable.vue';
 import { defineComponent } from 'vue';
 import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
 import AddEditIntentForm from 'pages/subscriber/intents/AddEditIntentForm.vue';
+import ItalicBold from 'components/common/table/utilities/ItalicBold.vue';
 // import IntentList from 'pages/subscriber/intents/IntentList.vue';
 
 export default defineComponent({
     name: 'Intents',
-    components: { AddEditIntentForm, DeleteConfirmModal },
+    components: { ItalicBold, AddEditIntentForm, DeleteConfirmModal, EcTable },
     data(): any {
         return {
             intents: [],
             showAddEditIntentModal: false,
-            modalTypeUpdate: false,
-            selectedForEditData: '',
+            updateModal: false,
+            selectedForEditData: {},
             deleteIntentId: '',
             showDeleteModal: false,
             columns: [
-                { name: 'intent_tag', align: 'left', label: 'Intent Tag', field: 'tag' },
+                { name: 'tag', align: 'left', label: 'Intent Tag', field: 'tag' },
                 {
                     name: 'url_path',
                     align: 'center',
@@ -212,21 +257,23 @@ export default defineComponent({
         mappedIntents(): any {
             const intents = _.cloneDeep(this.intents);
 
-            intents.map((e: any) => {
-                e.url_path =
-                    e.intent_action.type === 'external'
-                        ? e.intent_action.external_path
-                        : e.intent_action.type === 'action'
-                        ? `apisiteurl.com/action_resolver?action${e.intent_action.action_name}`
+            intents.map((intent: any) => {
+                intent.url_path =
+                    intent.intent_action.type === 'external'
+                        ? intent.intent_action.external_path
+                        : intent.intent_action.type === 'action'
+                        ? `apisiteurl.com/action_resolver?action${intent.intent_action.action_name}`
                         : 'nil';
 
-                e.content = {
-                    content: e.intent_action.type === 'static' ? e.intent_action.content : '',
-                    loading: e.intent_action.type !== 'static',
-                    type: e.intent_action.type,
+                intent.content = {
+                    content: intent.intent_action.type === 'static' ? intent.intent_action.content : '',
+                    loading: intent.intent_action.type !== 'static',
+                    type: intent.intent_action.type,
                 };
 
-                if (e.type !== 'static') {
+                intent.status = intent.active ? 'active' : 'inactive';
+
+                if (intent.type !== 'static') {
                     // call e.url_path get res & assign to e.content.content & e.content.loading = false
                 }
             });
@@ -249,11 +296,11 @@ export default defineComponent({
 
         showCreateIntentModal() {
             this.showAddEditIntentModal = true;
-            this.modalTypeUpdate = false;
+            this.updateModal = false;
         },
 
         showEditIntentModal(intent: any) {
-            this.modalTypeUpdate = true;
+            this.updateModal = true;
             this.showAddEditIntentModal = true;
             this.selectedForEditData = intent;
         },
@@ -290,6 +337,11 @@ export default defineComponent({
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);
                 });
+        },
+
+        handleHideModal() {
+            this.showAddEditIntentModal = false;
+            this.selectedForEditData = {};
         },
     },
 });
