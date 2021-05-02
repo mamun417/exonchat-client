@@ -121,7 +121,13 @@
                 </q-table>
 
                 <!--just uncomment me for see the work and changes -->
-                <ec-table :rows="mappedIntents" :columns="columns" :bodyCelTemplate="{ intent_tag: 'italic-bold' }">
+                <ec-table
+                    :rows="mappedIntents"
+                    :columns="columns"
+                    :bodyCelTemplate="bodyCelTemplate"
+                    @handleEdit="showEditIntentModal($event)"
+                    @handleDelete="showConfirmDeleteModal($event)"
+                >
                     <!--style less cz i want to modify this -->
                     <!--for all col select dynamix v-slot:[header-cell-itemName from loop] -->
                     <!--                    <template v-slot:header-cell-intent_tag="slotProps">{{ slotProps.col.name }}</template>-->
@@ -134,10 +140,6 @@
                         </q-badge>
                     </template>
 
-                    <template v-slot:cell-url_path="slotProps">
-                        <italic-bold :content="slotProps.row.url_path" />
-                    </template>
-
                     <template v-slot:cell-content="slotProps">
                         <div class="tw-text-xxs tw-text-gray-700">
                             {{ slotProps.row.content.content }}
@@ -147,30 +149,21 @@
                         </div>
                     </template>
 
-                    <template v-slot:action-at-start="slotProps">
-                        <q-btn
-                            icon="create"
-                            text-color="green"
-                            size="sm"
-                            @click="showEditIntentModal(slotProps.row)"
-                            dense
-                            flat
-                        >
+                    <template v-slot:action-at-middle="slotProps">
+                        <q-btn icon="settings" text-color="green" size="sm" dense flat>
+                            <q-menu>
+                                <div class="row no-wrap q-pa-md">
+                                    <div class="column">
+                                        <div class="text-h7 q-mb-md">Settings</div>
+                                        <q-toggle
+                                            @click="changeIntentActiveStatus(slotProps.row)"
+                                            v-model="slotProps.row.active"
+                                            label="Status"
+                                        />
+                                    </div>
+                                </div>
+                            </q-menu>
                         </q-btn>
-                    </template>
-
-                    <template v-slot:action-at-middle>
-                        <q-btn icon="settings" text-color="green" size="sm" dense flat></q-btn>
-                    </template>
-                    <template v-slot:action-at-end="sloProps">
-                        <q-btn
-                            @click="showConfirmDeleteModal(sloProps.row)"
-                            icon="delete"
-                            text-color="red"
-                            size="sm"
-                            dense
-                            flat
-                        ></q-btn>
                     </template>
                 </ec-table>
             </div>
@@ -197,12 +190,11 @@ import EcTable from 'src/components/common/table/EcTable.vue';
 import { defineComponent } from 'vue';
 import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
 import AddEditIntentForm from 'pages/subscriber/intents/AddEditIntentForm.vue';
-import ItalicBold from 'components/common/table/utilities/ItalicBold.vue';
 // import IntentList from 'pages/subscriber/intents/IntentList.vue';
 
 export default defineComponent({
     name: 'Intents',
-    components: { ItalicBold, AddEditIntentForm, DeleteConfirmModal, EcTable },
+    components: { AddEditIntentForm, DeleteConfirmModal, EcTable },
     data(): any {
         return {
             intents: [],
@@ -211,6 +203,7 @@ export default defineComponent({
             selectedForEditData: {},
             deleteIntentId: '',
             showDeleteModal: false,
+            bodyCelTemplate: { url_path: 'italic-bold' },
             columns: [
                 { name: 'tag', align: 'left', label: 'Intent Tag', field: 'tag' },
                 {
@@ -333,6 +326,24 @@ export default defineComponent({
                     this.getIntents();
 
                     this.$helpers.showSuccessNotification(this, 'Intent deleted successful');
+                })
+                .catch((err: any) => {
+                    this.$helpers.showErrorNotification(this, err.response.data.message);
+                });
+        },
+
+        changeIntentActiveStatus(intent: any) {
+            this.$store
+                .dispatch('intent/changeIntentActiveStatus', {
+                    id: intent.id,
+                    active: intent.active,
+                })
+                .then((res: any) => {
+                    const intentIndex = this.intents.findIndex((intent: any) => intent.id === res.data.id);
+
+                    this.intents[intentIndex] = res.data;
+
+                    this.$helpers.showSuccessNotification(this, 'Intent active status change successful');
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);

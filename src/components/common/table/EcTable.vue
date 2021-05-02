@@ -29,8 +29,8 @@
             </q-tr>
         </template>
 
-        <template v-slot:body="props"
-            ><q-tr :props="props">
+        <template v-slot:body="props">
+            <q-tr :props="props">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!-- if you want you can change status or any by following rules -->
                     <slot :name="`cell-${col.name}`" :row="props.row">
@@ -49,15 +49,8 @@
                                 <!-- <template v-slot:action-at-start="slotProps.row" -->
                             </slot>
 
-                            <!-- use emit at edit -->
-                            <!--                            <q-btn
-                                icon="create"
-                                text-color="green"
-                                size="sm"
-                                @click="$emit('handleEdit', props.row)"
-                                dense
-                                flat
-                            ></q-btn>-->
+                            <edit-btn @click="$emit('handleEdit', props.row)" />
+
                             <slot name="action-at-middle" :row="props.row">
                                 <!-- use btns or anything at start position -->
                                 <!-- you will get row data by writing -->
@@ -66,14 +59,8 @@
                             <!-- delete modal component use here and pass reloadData func -->
                             <!-- make sure reloadData func is common in parent also so that -->
                             <!-- future filter, serach, pagination n data reload can happen -->
-                            <!--                            <q-btn
-                                @click="showConfirmDeleteModal(props.row)"
-                                icon="delete"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>-->
+                            <delete-btn @click="$emit('handleDelete', props.row)" />
+
                             <slot name="action-at-end" :row="props.row">
                                 <!-- use btns or anything at start position -->
                                 <!-- you will get row data by writing -->
@@ -83,7 +70,10 @@
                         <template v-else>
                             <!-- if a col name is has design same across all then -->
                             <!-- if check [names].includes(name) then show this component -->
-                            {{ props.row[col.name] }} ppp
+                            <div v-if="bodyCelTemplate.hasOwnProperty(col.name)">
+                                <component :is="bodyCelTemplate[col.name]" :content="props.row[col.name]" />
+                            </div>
+                            <div v-else>{{ props.row[col.name] }} ppp</div>
                         </template>
                     </slot>
                 </q-td>
@@ -102,9 +92,13 @@
 <script lang="ts">
 // import _ from 'lodash';
 import { defineComponent } from 'vue';
+import ItalicBold from 'components/common/table/utilities/ItalicBold.vue';
+import EditBtn from 'components/common/table/utilities/EditBtn.vue';
+import DeleteBtn from 'components/common/table/utilities/DeleteBtn.vue';
 
 export default defineComponent({
     name: 'EcTable',
+    components: { DeleteBtn, EditBtn, ItalicBold },
     props: {
         rows: [],
         columns: [],
@@ -113,6 +107,10 @@ export default defineComponent({
         hideSearch: { type: Boolean, default: false },
         statusColumnName: { type: String, default: 'status' },
         statusSuccessValues: { type: Array, default: () => ['active'] },
+        bodyCelTemplate: {
+            type: Object,
+            default: () => ({}),
+        },
     },
     data(): any {
         return {};
