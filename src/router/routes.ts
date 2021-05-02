@@ -37,6 +37,11 @@ const routes: RouteRecordRaw[] = [
                 name: 'intents',
                 component: () => import('pages/subscriber/intents/Index.vue'),
             },
+            {
+                path: 'clients-conversations',
+                name: 'clients-conversations',
+                component: () => import('pages/subscriber/clients-conversations/Index.vue'),
+            },
         ],
     },
 
