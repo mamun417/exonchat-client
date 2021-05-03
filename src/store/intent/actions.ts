@@ -54,6 +54,21 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
                 });
         });
     },
+
+    changeIntentActiveStatus(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post(`intents/${payload.id}/active-status`, {
+                    active: payload.active,
+                })
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;

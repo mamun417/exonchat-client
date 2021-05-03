@@ -4,7 +4,7 @@
         <q-card style="max-width: 500px">
             <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                 <div class="tw-text-lg text-green">
-                    <div v-if="modalTypeUpdate">
+                    <div v-if="updateModal">
                         Edit Intent <b>@{{ addEditIntentFormData.tag }}</b>
                     </div>
                     <div v-else>Add New Intent</div>
@@ -13,7 +13,7 @@
                 <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
             </q-card-section>
 
-            <form @submit.prevent="modalTypeUpdate ? updateIntent() : createIntent()">
+            <form @submit.prevent="updateModal ? updateIntent() : createIntent()">
                 <q-card-section class="q-py-2 tw-mx-6">
                     <q-input
                         label="Intent Tag"
@@ -24,6 +24,7 @@
                         :error-message="intentFormDataErrors.tag"
                         :error="!!intentFormDataErrors.tag"
                         @update:model-value="intentFormDataErrors.tag = ''"
+                        :disable="updateModal"
                         autofocus
                         fill-mask="_"
                         dense
@@ -95,12 +96,7 @@
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-6 tw-mb-4 tw-mt-2">
-                    <q-btn
-                        type="submit"
-                        color="green"
-                        :label="modalTypeUpdate ? 'update' : 'submit'"
-                        class="full-width"
-                    />
+                    <q-btn type="submit" color="green" :label="updateModal ? 'update' : 'submit'" class="full-width" />
                 </q-card-actions>
             </form>
         </q-card>
@@ -118,7 +114,7 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
-        modalTypeUpdate: {
+        updateModal: {
             type: Boolean,
             default: false,
         },
@@ -169,12 +165,14 @@ export default defineComponent({
                 .catch((err: any) => this.addEditIntentErrorHandle(err));
         },
 
-        // test
         updateIntent() {
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
                 this.addEditIntentFormData[item] = this.intentChosen;
             });
 
+            console.log(this.addEditIntentFormData);
+
+            // check intent tag not update
             this.$store
                 .dispatch('intent/updateIntent', {
                     inputs: this.addEditIntentFormData,
@@ -206,7 +204,7 @@ export default defineComponent({
         },
 
         resetForm() {
-            this.$emit('update:showAddEditIntentModal', false);
+            this.$emit('hideModal');
             this.addEditIntentFormData = {};
             this.addEditIntentFormData.active = true;
             this.intentFormDataErrors = {};
@@ -217,17 +215,18 @@ export default defineComponent({
     watch: {
         selectedForEditData: {
             handler(selectedForEditData) {
-                const intent = _.cloneDeep(selectedForEditData);
+                if (this.showAddEditIntentModal) {
+                    const intent = _.cloneDeep(selectedForEditData);
 
-                this.addEditIntentFormData.id = intent.id;
-                this.addEditIntentFormData.tag = intent.tag;
-                this.addEditIntentFormData.description = intent.description;
-                this.addEditIntentFormData.type = intent.intent_action.type;
-                this.intentChosen = intent.intent_action.content;
-                this.addEditIntentFormData.action_name = intent.intent_action.action_name;
-                this.addEditIntentFormData.external_path = intent.url_path;
-                this.addEditIntentFormData.active = intent.active;
-                console.log(selectedForEditData);
+                    this.addEditIntentFormData.id = intent.id;
+                    this.addEditIntentFormData.tag = intent.tag;
+                    this.addEditIntentFormData.description = intent.description;
+                    this.addEditIntentFormData.type = intent.intent_action.type;
+                    this.intentChosen = intent.intent_action.content;
+                    this.addEditIntentFormData.action_name = intent.intent_action.action_name;
+                    this.addEditIntentFormData.external_path = intent.url_path;
+                    this.addEditIntentFormData.active = intent.active;
+                }
             },
             deep: true,
         },
