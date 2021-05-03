@@ -1,7 +1,7 @@
 <template>
     <div class="tw-flex tw-flex-col">
         <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
-            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">My Agents</div>
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Invitations</div>
             <q-btn color="green" icon="add" label="Assign" @click="assignAgentModal = true"></q-btn>
         </div>
 
@@ -28,17 +28,6 @@
                         </q-tr>
                     </template>
 
-                    <template v-slot:body-cell-info="props">
-                        <q-td :props="props">
-                            <div class="tw-flex tw-items-center">
-                                <q-avatar size="sm"><img :src="props.row.img" /></q-avatar>
-                                <div class="tw-ml-2">
-                                    {{ props.row.info.name }}
-                                </div>
-                            </div>
-                        </q-td>
-                    </template>
-
                     <template v-slot:body-cell-status="props">
                         <q-td :props="props">
                             <q-badge>{{ props.row.status }}</q-badge>
@@ -63,12 +52,13 @@
                             >
                                 <q-menu anchor="bottom right" self="top end">
                                     <q-item class="text-green" clickable dense>
-                                        <q-item-section>Convert To Agent/User</q-item-section>
-                                    </q-item>
-                                    <q-item class="text-green" clickable dense>
-                                        <q-item-section>Role & permission</q-item-section>
+                                        <q-item-section>Resend Code</q-item-section>
                                     </q-item>
                                     <q-separator />
+                                    <!-- bottom two will show until user registers. & will be handled by one api -->
+                                    <q-item class="text-green" clickable dense>
+                                        <q-item-section>Convert To Agent/User</q-item-section>
+                                    </q-item>
                                     <q-item class="text-green" clickable dense>
                                         <q-item-section @click="handleActivateDeactivate"
                                             ><q-checkbox
@@ -97,6 +87,40 @@
                 </q-table>
             </div>
         </div>
+
+        <q-dialog v-model="assignAgentModal" @update:modelValue="(value) => (assignAgentModal = value)" persistent>
+            <q-card style="max-width: 500px">
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
+                    <div class="tw-text-lg text-green">Add New User/Agent</div>
+                    <q-space></q-space>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
+                </q-card-section>
+
+                <q-card-section class="q-py-2 tw-mx-6">
+                    <q-input label="Email" color="green"
+                        ><template v-slot:prepend> <q-icon name="mail" color="green" /> </template
+                    ></q-input>
+
+                    <q-select :options="['user', 'agent']">
+                        <template v-slot:prepend><q-icon name="mail" color="green" /></template>
+                    </q-select>
+
+                    <q-checkbox label="Active when verified" color="green" class="tw-mt-3" dense />
+
+                    <div class="tw-text-xs tw-mt-4 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div>A verification email will be sended with a random generated password to this email</div>
+                    </div>
+
+                    <div class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div>Uncheck 'activate when verified' if you want to change role or permissions</div>
+                    </div>
+                </q-card-section>
+
+                <q-card-actions class="tw-mx-6 tw-mb-4">
+                    <q-btn color="green" label="submit" class="full-width" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </div>
 </template>
 
@@ -104,13 +128,6 @@
 import { defineComponent } from 'vue';
 
 const columns = [
-    {
-        name: 'info',
-        required: true,
-        label: 'Name',
-        align: 'left',
-        field: (row) => row.info,
-    },
     {
         name: 'email',
         align: 'center',
@@ -130,6 +147,12 @@ const columns = [
         align: 'center',
     },
     {
+        name: 'sended_at',
+        label: 'Sended At',
+        field: 'created_at',
+        align: 'center',
+    },
+    {
         name: 'action',
         label: 'Actions',
         field: 'action',
@@ -139,22 +162,22 @@ const columns = [
 
 const rows = [
     {
-        info: { name: 'hasan', img: '' },
         email: 'm@m.com',
         status: 'active',
         is_agent: true,
+        sended_at: '1.1.1',
     },
     {
-        info: { name: 'noman', img: '' },
         email: 'n@n.com',
         status: 'inactive',
         is_agent: false,
+        sended_at: '1.1.1',
     },
     {
-        info: { name: 'mamun', img: '' },
         email: 'o@o.com',
         status: 'pending',
         is_agent: true,
+        sended_at: '1.1.1',
     },
 ];
 export default defineComponent({

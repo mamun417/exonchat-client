@@ -78,34 +78,43 @@
                     </q-card>
                 </q-expansion-item>
 
-                <q-expansion-item default-opened dense label="Chat For Me" header-class="text-weight-bold bg-green-1">
+                <q-expansion-item
+                    default-opened
+                    dense
+                    label="Chat Requests For Me"
+                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                >
                     <q-card>
-                        <q-list>
-                            <q-item class="" clickable>
-                                <q-item-section avatar>
-                                    <q-avatar size="md">
-                                        <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="" />
-                                    </q-avatar>
-                                </q-item-section>
+                        <q-card-section class="tw-p-0">
+                            <q-list>
+                                <q-item class="" clickable>
+                                    <q-item-section avatar>
+                                        <q-avatar size="md">
+                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="" />
+                                        </q-avatar>
+                                    </q-item-section>
 
-                                <q-item-section>
-                                    <q-item-label class="text-weight-bold tw-text-xs">Hasan</q-item-label
-                                    ><q-item-label caption lines="2">How can i buy a bd domain name</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                            <q-item class="" clickable>
-                                <q-item-section avatar>
-                                    <q-avatar>
-                                        <img :src="`https://cdn.quasar.dev/img/avatar3.jpg`" alt="" />
-                                    </q-avatar>
-                                </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label class="text-weight-bold tw-text-xs">Hasan</q-item-label
+                                        ><q-item-label caption lines="2">How can i buy a bd domain name</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-item class="" clickable>
+                                    <q-item-section avatar>
+                                        <q-avatar size="md">
+                                            <img :src="`https://cdn.quasar.dev/img/avatar3.jpg`" alt="" />
+                                        </q-avatar>
+                                    </q-item-section>
 
-                                <q-item-section>
-                                    <q-item-label class="text-weight-bold">Nasir</q-item-label
-                                    ><q-item-label caption lines="2">My site is hacked... Please help me.</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                        </q-list>
+                                    <q-item-section>
+                                        <q-item-label class="text-weight-bold tw-text-xs">Nasir</q-item-label
+                                        ><q-item-label caption lines="2"
+                                            >My site is hacked... Please help me.</q-item-label
+                                        >
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-card-section>
                     </q-card>
                 </q-expansion-item>
 

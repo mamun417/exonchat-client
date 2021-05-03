@@ -149,7 +149,7 @@
 
 <script lang="ts">
 import _ from 'lodash';
-import EcTable from 'src/components/common/table/EcTable.vue';
+// import EcTable from 'src/components/common/table/EcTable.vue';
 import { defineComponent } from 'vue';
 import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
 import AddEditIntentForm from 'pages/subscriber/intents/AddEditIntentForm.vue';
