@@ -8,7 +8,7 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="rows"
+                    :rows="speeches"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -46,10 +46,10 @@
 
                     <template v-slot:body-cell-intent="props">
                         <q-td :props="props">
-                            <q-badge color="green" class="text-italic"
-                                >{{ props.row.intent.name
-                                }}<q-tooltip class="" anchor="center right" :offset="[50, 14]">
-                                    {{ props.row.intent.desc }}
+                            <q-badge color="green" class="text-italic">
+                                @{{ props.row.intent.tag }}
+                                <q-tooltip class="" anchor="center right" :offset="[50, 14]">
+                                    {{ props.row.intent.description }}
                                 </q-tooltip></q-badge
                             >
                         </q-td>
@@ -58,25 +58,22 @@
                     <template v-slot:body-cell-generated_by="props">
                         <q-td :props="props">
                             <div class="tw-font-medium">
-                                {{ props.row.generated_by }}
+                                {{ props.row.generated_by ?? 'Me' }}
                             </div>
                         </q-td>
                     </template>
 
                     <template v-slot:body-cell-speech_in_ai="props">
                         <q-td :props="props">
-                            <div
-                                class="tw-font-medium"
-                                :class="[props.row.speech_in_ai === 'True' ? 'text-green' : 'text-orange']"
-                            >
-                                {{ props.row.speech_in_ai }}
+                            <div class="tw-font-medium" :class="[props.row.has_in_ai ? 'text-green' : 'text-orange']">
+                                {{ props.row.has_in_ai }}
                             </div>
                         </q-td>
                     </template>
 
                     <template v-slot:body-cell-status="props">
                         <q-td :props="props">
-                            <q-badge>{{ props.row.status }}</q-badge>
+                            <q-badge>{{ props.row.active }}</q-badge>
                         </q-td>
                     </template>
 
@@ -113,75 +110,86 @@
                     <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
-                <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="New Speech" color="green" prefix="@" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
-
-                    <q-select
-                        label="Select a Intent"
-                        :options="[
-                            {
-                                label: '@price/hosting',
-                                value: '@price/hosting',
-                                description: 'Get the hosting price',
-                            },
-                            {
-                                label: '@info/user',
-                                value: '@info/user',
-                                description: 'Get user info',
-                            },
-                        ]"
-                        v-model="newSpeechIntent"
-                        class="tw-my-2"
-                        color="green"
-                        hint="leave intent select if wanted by ai automate"
-                        dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                        ><template v-slot:option="scope">
-                            <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" dense>
-                                <q-item-section class="tw-py-1">
-                                    <q-item-label v-html="scope.opt.label" />
-                                    <q-item-label class="tw-text-xxs" caption>{{ scope.opt.description }}</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                        </template></q-select
-                    >
-
-                    <div v-if="newSpeechIntent">show intents content or other here after selected</div>
-
-                    <q-checkbox class="tw-mt-2" label="Activate This As soon it resolved" color="green" dense />
-
-                    <div v-if="newSpeechIntent">
-                        <q-checkbox
-                            class="tw-mt-2"
-                            label="Associate this message with the intent to AI"
+                <form @submit.prevent="createSpeech">
+                    <q-card-section class="q-py-2 tw-mx-6">
+                        <q-input
+                            v-model="addEditSpeechFormData.speech"
+                            label="New Speech"
                             color="green"
+                            class="tw-my-2"
                             dense
-                        />
-                        <!-- it will be like radio. any one will be checked not both -->
+                        >
+                            <template v-slot:prepend> <q-icon name="label" color="green" /> </template>
+                        </q-input>
+
+                        <q-select
+                            label="Select a Intent"
+                            :options="intents"
+                            v-model="addEditSpeechFormData.intent"
+                            class="tw-my-2"
+                            color="green"
+                            hint="leave intent select if wanted by ai automate"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="ballot" color="green" />
+                            </template>
+                            <template v-slot:option="scope">
+                                <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" dense>
+                                    <q-item-section class="tw-py-1">
+                                        <q-item-label v-html="scope.opt.label" />
+                                        <q-item-label class="tw-text-xxs" caption>
+                                            {{ scope.opt.description }}
+                                        </q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                            </template>
+                        </q-select>
+
+                        <div v-if="addEditSpeechFormData.intent">show intents content or other here after selected</div>
+
                         <q-checkbox
+                            v-model="addEditSpeechFormData.active"
+                            label="Activate This As soon it resolved"
                             class="tw-mt-2"
-                            label="Force this intent to use with this speech."
                             color="green"
                             dense
                         />
 
-                        <div class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold">
-                            <div>
-                                IF you checked that this speech will submitted to ai. For that all other ai generated
-                                message intents will be affected
+                        <div v-if="addEditSpeechFormData.intent">
+                            <!-- it will be like radio. any one will be checked not both -->
+                            <q-checkbox
+                                class="tw-mt-2"
+                                label="Force this intent to use with this speech."
+                                color="green"
+                                dense
+                            />
+
+                            <div class="tw-text-xs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold">
+                                <div>
+                                    If you don`t select intent then it will generate from AI. But generated AI won`t be
+                                    submitted to train AI again.
+                                </div>
+                            </div>
+                            <div class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold">
+                                <div>
+                                    IF you uncheck 'force intent checkbox then speech will submitted to AI for train.
+                                    For that all other AI generated message intents will be affected.
+                                </div>
+                            </div>
+                            <div class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold">
+                                <div>
+                                    If forced check then speech wont submitted to AI. Its a good idea to submit to train
+                                    AI for better speech understand.
+                                </div>
                             </div>
                         </div>
-                        <div class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold">
-                            <div>If forced check then speech wont submitted to ai.</div>
-                        </div>
-                    </div>
-                </q-card-section>
+                    </q-card-section>
 
-                <q-card-actions class="tw-mx-6 tw-my-4">
-                    <q-btn color="green" label="submit" class="full-width" @click="saveSpeech" />
-                </q-card-actions>
+                    <q-card-actions class="tw-mx-6 tw-mb-4">
+                        <q-btn type="submit" color="green" label="submit" class="full-width" />
+                    </q-card-actions>
+                </form>
             </q-card>
         </q-dialog>
 
@@ -264,7 +272,9 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue';
+
 const columns = [
     { name: 'speech', align: 'left', label: 'Speech', field: 'speech' },
     {
@@ -314,48 +324,25 @@ const rows = [
         speech_in_ai: 'True',
         status: 'active',
     },
-    {
-        speech: 'eeee',
-        intent: { name: '@ccc', desc: 'xxx' },
-        confidence: '0.999',
-        generated_by: 'Me',
-        speech_in_ai: 'False',
-        status: 'active',
-    },
-    {
-        speech: 'kkkk',
-        intent: { name: '@bbb', desc: 'yyy' },
-        confidence: '0.853',
-        generated_by: 'AI',
-        speech_in_ai: 'True',
-        status: 'active',
-    },
-    {
-        speech: 'not handled yet',
-        intent: { name: '', desc: '' },
-        confidence: '',
-        generated_by: '',
-        speech_in_ai: '',
-        status: 'waiting action',
-    },
-    {
-        speech: 'action given for ai generate',
-        intent: { name: '', desc: '' },
-        confidence: '',
-        generated_by: '',
-        speech_in_ai: '',
-        status: 'pending',
-    },
 ];
 
 const dynamicVariables = [
     { name: 'user_name', des: 'will print assigned name else guest' },
     { name: 'user_id', des: 'will print logged users id' },
 ];
-export default {
+export default defineComponent({
     data() {
         return {
-            newSpeechModal: true,
+            intents: [],
+            speeches: [],
+            addEditSpeechFormData: {
+                speech: '',
+                intent_id: '',
+                intent: '',
+                forced_intent: false,
+                active: false,
+            },
+            newSpeechModal: false,
             newSpeechIntent: '',
             editSpeech: false,
             newIntentType: 'action',
@@ -363,14 +350,59 @@ export default {
             intentChoosed: '',
         };
     },
+
+    mounted() {
+        this.getIntents();
+        this.getSpeeches();
+    },
+
     setup() {
         return {
             columns,
-            rows,
             dynamicVariables,
         };
     },
     methods: {
+        getSpeeches() {
+            this.$store
+                .dispatch('speech/getSpeeches')
+                .then((res: any) => {
+                    this.speeches = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+        },
+
+        // later, load when modal form open
+        getIntents() {
+            this.$store
+                .dispatch('intent/getIntents')
+                .then((res: any) => {
+                    for (const intent of res.data) {
+                        this.intents.push({
+                            label: `@${intent.tag}`,
+                            value: intent.id,
+                            description: intent.description,
+                        });
+                    }
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+        },
+
+        createSpeech() {
+            this.addEditSpeechFormData.intent_id = this.addEditSpeechFormData.intent.value;
+
+            this.$store
+                .dispatch('speech/createSpeech', {
+                    inputs: this.addEditSpeechFormData,
+                })
+                .then(() => this.getSpeeches())
+                .catch((err: any) => console.log(err.response.data));
+        },
+
         saveSpeech() {
             // this.$api.post('speech', {
             //     speech: 'ccc',
@@ -389,5 +421,5 @@ export default {
             // this.$api.get('/speech');
         },
     },
-};
+});
 </script>
