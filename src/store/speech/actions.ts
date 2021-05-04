@@ -17,7 +17,6 @@ const actions: ActionTree<SpeechStateInterface, StateInterface> = {
     },
 
     createSpeech(context, payload) {
-        console.log(payload);
         return new Promise((resolve, reject) => {
             window.api
                 .post('speeches', payload.inputs)
@@ -30,46 +29,46 @@ const actions: ActionTree<SpeechStateInterface, StateInterface> = {
         });
     },
 
-    // updateIntent(context, payload) {
-    //     return new Promise((resolve, reject) => {
-    //         window.api
-    //             .post(`intents/${payload.inputs.id}`, payload.inputs)
-    //             .then((res: any) => {
-    //                 resolve(res);
-    //             })
-    //             .catch((err: any) => {
-    //                 reject(err);
-    //             });
-    //     });
-    // },
-    //
-    // deleteIntent(context, payload) {
-    //     return new Promise((resolve, reject) => {
-    //         window.api
-    //             .delete(`intents/${payload.id}`)
-    //             .then((res: any) => {
-    //                 resolve(res);
-    //             })
-    //             .catch((err: any) => {
-    //                 reject(err);
-    //             });
-    //     });
-    // },
-    //
-    // changeIntentActiveStatus(context, payload) {
-    //     return new Promise((resolve, reject) => {
-    //         window.api
-    //             .post(`intents/${payload.id}/active-status`, {
-    //                 active: payload.active,
-    //             })
-    //             .then((res: any) => {
-    //                 resolve(res);
-    //             })
-    //             .catch((err: any) => {
-    //                 reject(err);
-    //             });
-    //     });
-    // },
+    updateIntent(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post(`speeches/${payload.inputs.id}`, payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    deleteSpeech(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .delete(`speeches/${payload.id}`)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    changeIntentActiveStatus(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post(`speeches/${payload.id}/active-status`, {
+                    active: payload.active,
+                })
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;

@@ -69,6 +69,19 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
                 });
         });
     },
+
+    getIntent(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(`intents/${payload.id}`)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;

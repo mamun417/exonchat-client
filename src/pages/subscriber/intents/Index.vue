@@ -62,7 +62,7 @@
             :selectedForEditData="selectedForEditData"
             @createdIntent="getIntents"
             @updatedIntent="handleUpdatedIntent"
-            @hideModal="handleHideModal"
+            @hideModal="handleHideAddEditIntentModal"
         />
 
         <!--<add-edit-intent-form v-if="showAddEditIntentModal" @hide="showAddEditIntentModal = false" :updateModal="updateModal" />-->
@@ -237,7 +237,7 @@ export default defineComponent({
                 });
         },
 
-        handleHideModal() {
+        handleHideAddEditIntentModal() {
             this.showAddEditIntentModal = false;
             this.selectedForEditData = {};
         },
