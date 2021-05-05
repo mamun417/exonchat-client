@@ -2,13 +2,13 @@
     <div class="tw-flex tw-flex-col">
         <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Department List</div>
-            <q-btn color="green" icon="add" label="Add New" @click="newDepartmentModal = true"></q-btn>
+            <q-btn color="green" icon="add" label="Add New" @click="showCreateDepartmentModal"></q-btn>
         </div>
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="rows"
+                    :rows="departments"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -36,14 +36,6 @@
                         </q-tr>
                     </template>
 
-                    <template v-slot:body-cell-dep_name="props">
-                        <q-td :props="props">
-                            <div class="tw-font-medium">
-                                {{ props.row.dep_name }}
-                            </div>
-                        </q-td>
-                    </template>
-
                     <template v-slot:body-cell-assigned_agents="props">
                         <q-td :props="props">
                             <q-avatar
@@ -60,17 +52,46 @@
                         </q-td>
                     </template>
 
-                    <template v-slot:body-cell-status="props">
+                    <template v-slot:body-cell-active="props">
                         <q-td :props="props">
-                            <q-badge>{{ props.row.status }}</q-badge>
+                            <q-badge :color="props.row.active ? 'green' : 'orange'">
+                                {{ $_.upperFirst(props.row.active ? 'Active' : 'Inadtive') }}
+                            </q-badge>
                         </q-td>
                     </template>
 
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
-                            <q-btn icon="create" text-color="green" size="sm" dense flat></q-btn>
-                            <q-btn icon="settings" text-color="green" size="sm" dense flat></q-btn>
-                            <q-btn icon="delete" text-color="red" size="sm" dense flat></q-btn>
+                            <q-btn
+                                @click="showEditIntentModal(props.row)"
+                                icon="create"
+                                text-color="green"
+                                size="sm"
+                                dense
+                                flat
+                            ></q-btn>
+                            <q-btn icon="settings" text-color="green" size="sm" dense flat>
+                                <q-menu>
+                                    <div class="row no-wrap q-pa-md">
+                                        <div class="column">
+                                            <div class="text-h7 q-mb-md">Settings</div>
+                                            <q-toggle
+                                                @click="changeDepartmentActiveStatus(props.row)"
+                                                v-model="props.row.active"
+                                                label="Status"
+                                            />
+                                        </div>
+                                    </div>
+                                </q-menu>
+                            </q-btn>
+                            <q-btn
+                                @click="showConfirmDeleteModal(props.row)"
+                                icon="delete"
+                                text-color="red"
+                                size="sm"
+                                dense
+                                flat
+                            ></q-btn>
                         </q-td>
                     </template>
 
@@ -89,215 +110,167 @@
             </div>
         </div>
 
-        <q-dialog v-model="newDepartmentModal" @update:modelValue="(value) => (newDepartmentModal = value)" persistent>
-            <q-card style="max-width: 500px">
-                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                    <div class="tw-text-lg text-green">Add New Department</div>
-                    <q-space></q-space>
-                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
-                </q-card-section>
+        <add-edit-department-form
+            :showAddEditDepartmentModal="showAddEditDepartmentModal"
+            :updateModal="updateModal"
+            :selectedForEditData="selectedForEditData"
+            @createdDepartment="getDepartments"
+            @updatedDepartment="handleUpdatedDepartment"
+            @hideModal="handleHideAddEditDepartmentModal"
+        />
 
-                <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Department Name" color="green" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
-
-                    <q-select
-                        label="Select Agents"
-                        :options="[
-                            {
-                                name: 'hasan',
-                                avatar: 'https://cdn.quasar.dev/img/avatar1.jpg',
-                                id: 'Get the hosting price',
-                            },
-                            {
-                                name: 'mamun',
-                                avatar: 'https://cdn.quasar.dev/img/avatar4.jpg',
-                                id: 'Get user info',
-                            },
-                        ]"
-                        class="tw-my-2"
-                        color="green"
-                        use-input
-                        hide-selected
-                        dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                        ><template v-slot:option="scope">
-                            <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" class="tw-py-2" dense>
-                                <q-item-section avatar>
-                                    <q-avatar><img :src="scope.opt.avatar" /></q-avatar>
-                                </q-item-section>
-                                <q-item-section>
-                                    {{ scope.opt.name }}
-                                </q-item-section>
-                            </q-item>
-                        </template></q-select
-                    >
-
-                    <q-checkbox class="tw-mt-2" label="Activate This Department" color="green" dense />
-
-                    <div class="tw-text-xxs tw-mt-5 bg-orange tw-p-2 tw-text-gray-700">
-                        <div>Note: If you don't select agents then all agents will be assigned to this department</div>
-                    </div>
-                </q-card-section>
-
-                <q-card-actions class="tw-mx-6 tw-my-4">
-                    <q-btn color="green" label="submit" class="full-width" @click="saveDepartment" />
-                </q-card-actions>
-            </q-card>
-        </q-dialog>
-
-        <q-dialog v-model="editModal" @update:modelValue="(value) => (editModal = value)" persistent>
-            <!-- load parent intents all content -->
-            <q-card style="max-width: 500px">
-                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                    <div class="tw-text-lg text-green">Edit Department Sales</div>
-                    <q-space></q-space>
-                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
-                </q-card-section>
-
-                <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Department Name" color="green" class="tw-my-2" readonly dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
-
-                    <q-select
-                        label="Select Agents"
-                        :options="[
-                            {
-                                name: 'hasan',
-                                avatar: 'https://cdn.quasar.dev/img/avatar1.jpg',
-                                id: 'Get the hosting price',
-                            },
-                            {
-                                name: 'mamun',
-                                avatar: 'https://cdn.quasar.dev/img/avatar4.jpg',
-                                id: 'Get user info',
-                            },
-                        ]"
-                        class="tw-my-2"
-                        color="green"
-                        use-input
-                        hide-selected
-                        dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                        ><template v-slot:option="scope">
-                            <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" class="tw-py-2" dense>
-                                <q-item-section avatar>
-                                    <q-avatar><img :src="scope.opt.avatar" /></q-avatar>
-                                </q-item-section>
-                                <q-item-section>
-                                    {{ scope.opt.name }}
-                                </q-item-section>
-                            </q-item>
-                        </template></q-select
-                    >
-
-                    <q-checkbox class="tw-mt-2" label="Activate This Department" color="green" dense />
-
-                    <div class="tw-text-xxs tw-mt-5 bg-orange tw-p-2 tw-text-gray-700">
-                        <div>Note: If you don't select agents then all agents will be assigned to this department</div>
-                    </div>
-                </q-card-section>
-
-                <q-card-actions class="tw-mx-6 tw-my-4">
-                    <q-btn color="green" label="submit" class="full-width" />
-                </q-card-actions>
-            </q-card>
-        </q-dialog>
+        <delete-confirm-modal
+            v-if="showDeleteModal"
+            @confirmDelete="deleteDepartment"
+            @hide="showDeleteModal = false"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-
-const columns = [
-    {
-        name: 'dep_name',
-        align: 'left',
-        label: 'Department Name',
-        field: 'dep_name',
-    },
-    {
-        name: 'assigned_agents',
-        align: 'center',
-        label: 'Assigned Agents',
-        field: 'assigned_agents',
-    },
-    {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
-    },
-    {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
-    },
-];
-
-const rows = [
-    {
-        dep_name: 'Sales',
-        assigned_agents: [{ name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' }],
-        status: 'active',
-    },
-    {
-        dep_name: 'Technical',
-        assigned_agents: [
-            { name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' },
-            {
-                name: 'susmita',
-                avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
-            },
-        ],
-        status: 'active',
-    },
-];
-
-const dynamicVariables = [
-    { name: 'user_name', des: 'will print assigned name else guest' },
-    { name: 'user_id', des: 'will print logged users id' },
-];
+import AddEditDepartmentForm from 'pages/subscriber/departments/AddEditDepartmentForm.vue';
+import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
 
 export default defineComponent({
-    data() {
+    components: { DeleteConfirmModal, AddEditDepartmentForm },
+    data(): any {
         return {
-            newDepartmentModal: false,
-            editModal: false,
-            newIntentType: 'action',
-            variableListModal: false,
-            intentChoosed: '',
+            columns: [
+                {
+                    name: 'tag',
+                    align: 'left',
+                    label: 'Department Tag',
+                    field: 'tag',
+                },
+                {
+                    name: 'description',
+                    align: 'left',
+                    label: 'Description',
+                    field: 'description',
+                },
+                {
+                    name: 'users',
+                    align: 'center',
+                    label: 'Assigned Agents',
+                    field: 'users',
+                },
+                {
+                    name: 'active',
+                    label: 'Status',
+                    field: 'active',
+                    align: 'center',
+                },
+                {
+                    name: 'action',
+                    label: 'Actions',
+                    field: 'action',
+                    align: 'center',
+                },
+            ],
+            rows: [
+                {
+                    dep_name: 'Technical',
+                    assigned_agents: [
+                        { name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' },
+                        {
+                            name: 'susmita',
+                            avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
+                        },
+                    ],
+                    status: 'active',
+                },
+            ],
+            // dynamicVariables: [
+            //     { name: 'user_name', des: 'will print assigned name else guest' },
+            //     { name: 'user_id', des: 'will print logged users id' },
+            // ],
+            departments: [],
+            showAddEditDepartmentModal: false,
+            updateModal: false,
+            selectedForEditData: {},
+            deleteDepartmentId: '',
+            showDeleteModal: false,
         };
     },
 
-    setup() {
-        return {
-            columns,
-            rows,
-            dynamicVariables,
-        };
+    mounted() {
+        this.getDepartments();
     },
+
     methods: {
-        saveDepartment() {
-            //     this.$api
-            //         .post('departments', {
-            //             tag: 'aaa',
-            //             description: 'b',
-            //             active: true,
-            //         })
-            //         .then((res: any) => {
-            //             console.log(res);
-            //         })
-            //         .catch((e: any) => console.log(e));
-            // this.$api
-            //     .get('departments')
-            //     .then((res: any) => {
-            //         console.log(res);
-            //     })
-            //     .catch((e: any) => console.log(e));
+        getDepartments() {
+            this.$store
+                .dispatch('department/getDepartments')
+                .then((res: any) => {
+                    this.departments = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+        },
+
+        showCreateDepartmentModal() {
+            this.showAddEditDepartmentModal = true;
+            this.updateModal = false;
+        },
+
+        showEditIntentModal(department: any) {
+            this.updateModal = true;
+            this.showAddEditDepartmentModal = true;
+            this.selectedForEditData = department;
+        },
+
+        handleUpdatedDepartment($event: any) {
+            const updatedDepartment = $event;
+
+            const departmentIndex = this.departments.findIndex((intent: any) => intent.id === updatedDepartment.id);
+
+            this.departments[departmentIndex] = updatedDepartment;
+        },
+
+        changeDepartmentActiveStatus(department: any) {
+            this.$store
+                .dispatch('department/changeDepartmentActiveStatus', {
+                    id: department.id,
+                    active: department.active,
+                })
+                .then((res: any) => {
+                    const index = this.departments.findIndex((speech: any) => speech.id === res.data.id);
+
+                    this.departments[index] = res.data;
+
+                    this.$helpers.showSuccessNotification(this, 'Department active status change successful');
+                })
+                .catch((err: any) => {
+                    this.$helpers.showErrorNotification(this, err.response.data.message);
+                });
+        },
+
+        showConfirmDeleteModal(department: any) {
+            this.showDeleteModal = !this.showDeleteModal;
+            this.deleteDepartmentId = department.id;
+        },
+
+        deleteDepartment() {
+            this.$store
+                .dispatch('department/deleteDepartment', {
+                    id: this.deleteDepartmentId,
+                })
+                .then(() => {
+                    this.showDeleteModal = false;
+                    this.getDepartments();
+
+                    this.$helpers.showSuccessNotification(this, 'Department deleted successful');
+                })
+                .catch((err: any) => {
+                    this.$helpers.showErrorNotification(this, err.response.data.message);
+                });
+        },
+
+        handleHideAddEditDepartmentModal() {
+            this.showAddEditDepartmentModal = false;
+            this.selectedForEditData = {};
         },
     },
 });

@@ -21,6 +21,9 @@ import { IntentStateInterface } from './intent/state';
 import speech from './speech';
 import { SpeechStateInterface } from './speech/state';
 
+import department from './department';
+import { DepartmentStateInterface } from './department/state';
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -40,6 +43,7 @@ export interface StateInterface {
     ui: UiStateInterface;
     intent: IntentStateInterface;
     speech: SpeechStateInterface;
+    department: DepartmentStateInterface;
 }
 
 export default store(function (/* { ssrContext } */) {
@@ -52,6 +56,7 @@ export default store(function (/* { ssrContext } */) {
             chat,
             intent,
             speech,
+            department,
         },
 
         // enable strict mode (adds overhead!)

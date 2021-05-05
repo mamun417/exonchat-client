@@ -73,11 +73,10 @@
 
 <script lang="ts">
 import _ from 'lodash';
-// import EcTable from 'src/components/common/table/EcTable.vue';
+import EcTable from 'src/components/common/table/EcTable.vue';
 import { defineComponent } from 'vue';
 import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
 import AddEditIntentForm from 'pages/subscriber/intents/AddEditIntentForm.vue';
-// import IntentList from 'pages/subscriber/intents/IntentList.vue';
 
 export default defineComponent({
     name: 'Intents',
@@ -123,10 +122,6 @@ export default defineComponent({
             //     { name: 'user_id', des: 'will print logged users id' },
             // ],
         };
-    },
-
-    setup() {
-        return {};
     },
 
     mounted() {
