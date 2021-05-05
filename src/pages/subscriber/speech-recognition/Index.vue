@@ -7,127 +7,61 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <q-table
-                    :rows="speeches"
+                <ec-table
+                    :rows="mappedSpeeches"
                     :columns="columns"
-                    row-key="name"
-                    :pagination="{ rowsPerPage: 0 }"
-                    hide-pagination
-                    flat
+                    :bodyCelTemplate="bodyCelTemplate"
+                    @handleEdit="showEditSpeechModal($event)"
+                    @handleDelete="showConfirmDeleteModal($event)"
                 >
-                    <template v-slot:top-right>
-                        <q-input borderless dense debounce="300" placeholder="Search" color="green">
-                            <template v-slot:append>
-                                <q-icon name="search" />
-                            </template>
-                        </q-input>
+                    <template v-slot:cell-intent="slotProps">
+                        <q-badge v-if="slotProps.row.intent" color="green" class="text-italic">
+                            @{{ slotProps.row.intent.tag }}
+                            <q-tooltip class="" anchor="center right" :offset="[50, 14]">
+                                {{ slotProps.row.intent.description }}
+                            </q-tooltip>
+                        </q-badge>
                     </template>
 
-                    <template v-slot:header="props">
-                        <q-tr :props="props">
-                            <q-th
-                                v-for="col in props.cols"
-                                :key="col.name"
-                                :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
-                            >
-                                {{ col.label }}
-                            </q-th>
-                        </q-tr>
-                    </template>
-
-                    <template v-slot:body-cell-speech="props">
-                        <q-td :props="props">
-                            <div class="tw-font-medium">
-                                {{ props.row.speech }}
-                            </div>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-intent="props">
-                        <q-td :props="props" v-if="props.row.intent">
-                            <q-badge color="green" class="text-italic">
-                                @{{ props.row.intent.tag }}
-                                <q-tooltip class="" anchor="center right" :offset="[50, 14]">
-                                    {{ props.row.intent.description }}
-                                </q-tooltip></q-badge
-                            >
-                        </q-td>
-                        <q-td v-else></q-td>
-                    </template>
-
-                    <template v-slot:body-cell-generated_by="props">
-                        <q-td :props="props">
-                            <div class="tw-font-medium">
-                                {{ props.row.generated_by ?? 'Me' }}
-                            </div>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-speech_in_ai="props">
-                        <q-td :props="props">
-                            <q-badge :color="props.row.has_in_ai ? 'green' : 'orange'">
-                                {{ props.row.has_in_ai }}
-                            </q-badge>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-forced_intent="props">
-                        <q-td :props="props">
-                            <q-badge :color="props.row.forced_intent ? 'green' : 'orange'">
-                                {{ props.row.forced_intent }}
-                            </q-badge>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-status="props">
-                        <q-td :props="props">
-                            <q-badge :color="props.row.active ? 'green' : 'orange'">{{ props.row.active }}</q-badge>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-action="props">
-                        <q-td :props="props">
-                            <q-btn
-                                icon="create"
-                                text-color="green"
-                                size="sm"
-                                @click="showEditSpeechModal(props.row)"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn icon="settings" text-color="green" size="sm" dense flat>
-                                <q-menu>
-                                    <div class="row no-wrap q-pa-md">
-                                        <div class="column">
-                                            <div class="text-h7 q-mb-md">Settings</div>
-                                            <q-toggle
-                                                @click="changeSpeechActiveStatus(props.row)"
-                                                v-model="props.row.active"
-                                                label="Status"
-                                            />
-                                        </div>
-                                    </div>
-                                </q-menu>
-                            </q-btn>
-                            <q-btn
-                                icon="delete"
-                                @click="showConfirmDeleteModal(props.row)"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:no-data="{ message }">
-                        <div class="full-width row flex-center text-red q-gutter-sm">
-                            <q-icon size="2em" name="sentiment_dissatisfied" />
-                            <span> Well this is sad... {{ message }} </span>
+                    <template v-slot:cell-generated_by="slotProps">
+                        <div>
+                            {{ slotProps.row.generated_by ?? 'Me' }}
                         </div>
                     </template>
-                </q-table>
+
+                    <template v-slot:cell-forced_intent="slotProps">
+                        <div>
+                            <q-badge :color="slotProps.row.forced_intent ? 'green' : 'orange'">
+                                {{ slotProps.row.forced_intent }}
+                            </q-badge>
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-speech_in_ai="slotProps">
+                        <div>
+                            <q-badge :color="slotProps.row.has_in_ai ? 'green' : 'orange'">
+                                {{ slotProps.row.has_in_ai }}
+                            </q-badge>
+                        </div>
+                    </template>
+
+                    <template v-slot:action-at-middle="slotProps">
+                        <q-btn icon="settings" text-color="green" size="sm" dense flat>
+                            <q-menu>
+                                <div class="row no-wrap q-pa-md">
+                                    <div class="column">
+                                        <div class="text-h7 q-mb-md">Settings</div>
+                                        <q-toggle
+                                            @click="changeSpeechActiveStatus(slotProps.row)"
+                                            v-model="slotProps.row.active"
+                                            label="Status"
+                                        />
+                                    </div>
+                                </div>
+                            </q-menu>
+                        </q-btn>
+                    </template>
+                </ec-table>
             </div>
         </div>
 
@@ -148,9 +82,10 @@
 import { defineComponent } from 'vue';
 import AddEditSpeechForm from 'pages/subscriber/speech-recognition/AddEditSpeechForm.vue';
 import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
+import EcTable from 'components/common/table/EcTable.vue';
 
 export default defineComponent({
-    components: { DeleteConfirmModal, AddEditSpeechForm },
+    components: { EcTable, DeleteConfirmModal, AddEditSpeechForm },
     data(): any {
         return {
             columns: [
@@ -202,6 +137,7 @@ export default defineComponent({
             //     { name: 'user_name', des: 'will print assigned name else guest' },
             //     { name: 'user_id', des: 'will print logged users id' },
             // ],
+            bodyCelTemplate: {},
             speeches: [],
             showAddEditSpeechModal: false,
             updateModal: false,
@@ -215,6 +151,16 @@ export default defineComponent({
 
     mounted() {
         this.getSpeeches();
+    },
+
+    computed: {
+        mappedSpeeches(): any {
+            return this.speeches.map((speech: any) => {
+                console.log(speech);
+                speech.status = speech.active ? 'active' : 'Inactive';
+                return speech;
+            });
+        },
     },
 
     methods: {

@@ -4,7 +4,7 @@
             <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                 <div class="tw-text-lg text-green">
                     <div v-if="updateModal">
-                        Edit Intent <b>@{{ addEditSpeechFormData.speech }}</b>
+                        Edit Speech <b>@{{ addEditSpeechFormData.speech }}</b>
                     </div>
                     <div v-else>Add New Speech</div>
                 </div>
