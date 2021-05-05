@@ -24,9 +24,8 @@
                         :error-message="intentFormDataErrors.tag"
                         :error="!!intentFormDataErrors.tag"
                         @update:model-value="intentFormDataErrors.tag = ''"
-                        :disable="updateModal"
+                        :readonly="updateModal"
                         autofocus
-                        fill-mask="_"
                         dense
                     >
                         <template v-slot:prepend>
@@ -170,9 +169,6 @@ export default defineComponent({
                 this.addEditIntentFormData[item] = this.intentChosen;
             });
 
-            console.log(this.addEditIntentFormData);
-
-            // check intent tag not update
             this.$store
                 .dispatch('intent/updateIntent', {
                     inputs: this.addEditIntentFormData,

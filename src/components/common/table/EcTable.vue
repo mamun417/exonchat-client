@@ -32,6 +32,9 @@
         <template v-slot:body="props">
             <q-tr :props="props">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                    <!--                    <div class="text-red-14">-->
+                    <!--                        <pre>{{ col.name }}</pre>-->
+                    <!--                    </div>-->
                     <!-- if you want you can change status or any by following rules -->
                     <slot :name="`cell-${col.name}`" :row="props.row">
                         <template v-if="col.name === statusColumnName">
@@ -41,7 +44,7 @@
                                 {{ $_.upperFirst(props.row[col.name]) }}
                             </q-badge>
                         </template>
-                        <template v-if="col.name === 'action'">
+                        <template v-else-if="col.name === 'action'">
                             <!-- you can make this cpmponent also -->
                             <slot name="action-at-start" :row="props.row">
                                 <!-- use btns or anything at start position -->
@@ -73,7 +76,7 @@
                             <div v-if="bodyCelTemplate.hasOwnProperty(col.name)">
                                 <component :is="bodyCelTemplate[col.name]" :content="props.row[col.name]" />
                             </div>
-                            <div v-else>{{ props.row[col.name] }} ppp</div>
+                            <div v-else>{{ props.row[col.name] }}</div>
                         </template>
                     </slot>
                 </q-td>

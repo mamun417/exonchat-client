@@ -1,12 +1,12 @@
 import { ActionTree } from 'vuex';
 import { StateInterface } from '../index';
-import { IntentStateInterface } from './state';
+import { SpeechStateInterface } from './state';
 
-const actions: ActionTree<IntentStateInterface, StateInterface> = {
-    getIntents() {
+const actions: ActionTree<SpeechStateInterface, StateInterface> = {
+    getSpeeches() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('intents')
+                .get('speeches')
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -16,10 +16,10 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
         });
     },
 
-    createIntent(context, payload) {
+    createSpeech(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('intents', payload.inputs)
+                .post('speeches', payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -32,7 +32,7 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
     updateIntent(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post(`intents/${payload.inputs.id}`, payload.inputs)
+                .post(`speeches/${payload.inputs.id}`, payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -42,10 +42,10 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
         });
     },
 
-    deleteIntent(context, payload) {
+    deleteSpeech(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .delete(`intents/${payload.id}`)
+                .delete(`speeches/${payload.id}`)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -58,22 +58,9 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
     changeIntentActiveStatus(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post(`intents/${payload.id}/active-status`, {
+                .post(`speeches/${payload.id}/active-status`, {
                     active: payload.active,
                 })
-                .then((res: any) => {
-                    resolve(res);
-                })
-                .catch((err: any) => {
-                    reject(err);
-                });
-        });
-    },
-
-    getIntent(context, payload) {
-        return new Promise((resolve, reject) => {
-            window.api
-                .get(`intents/${payload.id}`)
                 .then((res: any) => {
                     resolve(res);
                 })
