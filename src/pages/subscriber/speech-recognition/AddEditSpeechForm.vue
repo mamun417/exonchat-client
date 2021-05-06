@@ -80,7 +80,7 @@
                     <div v-if="intentChosen">
                         <!-- it will be like radio. any one will be checked not both -->
                         <q-checkbox
-                            v-model="addEditSpeechFormData.forced_intent"
+                            v-model="addEditSpeechFormData.forced"
                             class="tw-mt-2"
                             label="Force this intent to use with this speech."
                             color="green"
@@ -143,7 +143,7 @@ export default defineComponent({
             addEditSpeechFormData: {
                 speech: '',
                 intent_id: '',
-                forced_intent: false,
+                forced: false,
                 active: false,
             },
             speechFormErrors: {},
@@ -152,12 +152,7 @@ export default defineComponent({
         };
     },
 
-    mounted() {
-        // this.getIntents();
-    },
-
     methods: {
-        // later, load when modal form open
         getIntents() {
             this.$store
                 .dispatch('intent/getIntents')
@@ -214,6 +209,8 @@ export default defineComponent({
         },
 
         updateSpeech() {
+            this.addEditSpeechFormData.intent_id = this.intentChosen?.value;
+
             this.$store
                 .dispatch('speech/updateIntent', {
                     inputs: this.addEditSpeechFormData,
@@ -241,7 +238,7 @@ export default defineComponent({
             this.addEditSpeechFormData = {};
             this.intentFormDataErrors = {};
             this.addEditSpeechFormData.active = false;
-            this.addEditSpeechFormData.forced_intent = false;
+            this.addEditSpeechFormData.forced = false;
             this.intentChosen = '';
         },
     },
@@ -251,7 +248,14 @@ export default defineComponent({
             handler(selectedForEditData) {
                 if (this.showAddEditSpeechModal) {
                     this.addEditSpeechFormData = _.cloneDeep(selectedForEditData);
-                    this.intentChosen = selectedForEditData.intent_id;
+
+                    if (selectedForEditData.intent) {
+                        this.intentChosen = {
+                            description: selectedForEditData.intent.description,
+                            label: selectedForEditData.speech,
+                            value: selectedForEditData.intent_id,
+                        };
+                    }
                 }
             },
             deep: true,

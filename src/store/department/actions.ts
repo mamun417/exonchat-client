@@ -16,6 +16,19 @@ const actions: ActionTree<DepartmentStateInterface, StateInterface> = {
         });
     },
 
+    getUsers() {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get('users')
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
     createDepartment(context, payload) {
         return new Promise((resolve, reject) => {
             window.api

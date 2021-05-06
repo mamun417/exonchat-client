@@ -36,6 +36,12 @@
                         </div>
                     </template>
 
+                    <template v-slot:cell-connect_with_ai="slotProps">
+                        <q-badge :color="slotProps.row.submit_to_ai ? 'green' : 'orange'">
+                            {{ slotProps.row.submit_to_ai }}
+                        </q-badge>
+                    </template>
+
                     <template v-slot:action-at-middle="slotProps">
                         <q-btn icon="settings" text-color="green" size="sm" dense flat>
                             <q-menu>
@@ -103,6 +109,12 @@ export default defineComponent({
                     align: 'center',
                     label: 'Intent Mapped To',
                     field: 'content',
+                },
+                {
+                    name: 'connect_with_ai',
+                    label: 'Connect with AI',
+                    field: 'connect_with_ai',
+                    align: 'center',
                 },
                 {
                     name: 'status',

@@ -156,7 +156,6 @@ export default defineComponent({
     computed: {
         mappedSpeeches(): any {
             return this.speeches.map((speech: any) => {
-                console.log(speech);
                 speech.status = speech.active ? 'active' : 'Inactive';
                 return speech;
             });

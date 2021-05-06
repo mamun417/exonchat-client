@@ -1,5 +1,5 @@
 <template>
-    <q-dialog @hide="resetForm" :model-value="showAddEditDepartmentModal" persistent>
+    <q-dialog @show="getAgents" @hide="resetForm" :model-value="showAddEditDepartmentModal" persistent>
         <q-card style="max-width: 500px">
             <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                 <div class="tw-text-lg text-green">
@@ -40,29 +40,19 @@
                     >
                         <template v-slot:prepend> <q-icon name="description" color="green" /> </template>
                     </q-input>
-
                     <q-select
                         label="Select Agents"
-                        :options="[
-                            {
-                                name: 'hasan',
-                                avatar: 'https://cdn.quasar.dev/img/avatar1.jpg',
-                                id: 'Get the hosting price',
-                            },
-                            {
-                                name: 'mamun',
-                                avatar: 'https://cdn.quasar.dev/img/avatar4.jpg',
-                                id: 'Get user info',
-                            },
-                        ]"
+                        :options="filterAgentList"
                         v-model="addEditDepartmentFormData.user_ids"
                         :error-message="departmentFormDataErrors.user_ids"
                         :error="!!departmentFormDataErrors.user_ids"
                         @update:model-value="departmentFormDataErrors.user_ids = ''"
+                        @filter="filterAgent"
                         class="tw-my-2"
                         color="green"
+                        use-chips
+                        multiple
                         use-input
-                        hide-selected
                         dense
                     >
                         <template v-slot:prepend> <q-icon name="group_add" color="green" /> </template>
@@ -72,7 +62,7 @@
                                     <q-avatar><img :src="scope.opt.avatar" /></q-avatar>
                                 </q-item-section>
                                 <q-item-section>
-                                    {{ scope.opt.name }}
+                                    {{ scope.opt.label }}
                                 </q-item-section>
                             </q-item>
                         </template>
@@ -101,7 +91,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import _ from 'lodash';
 
 export default defineComponent({
     name: 'AddEditDepartmentForm',
@@ -123,6 +112,8 @@ export default defineComponent({
 
     data(): any {
         return {
+            agentList: [],
+            filterAgentList: [],
             addEditDepartmentFormData: {
                 tag: '',
                 description: '',
@@ -134,7 +125,42 @@ export default defineComponent({
     },
 
     methods: {
+        filterAgent(val: any, update: any) {
+            update(() => {
+                if (val === '') {
+                    this.filterAgentList = this.agentList;
+                } else {
+                    const needle = val.toLowerCase();
+                    this.filterAgentList = this.agentList.filter(
+                        (agentItem: any) => agentItem.label.toLowerCase().indexOf(needle) > -1
+                    );
+                }
+            });
+        },
+
+        getAgents() {
+            this.$store
+                .dispatch('department/getUsers')
+                .then((res: any) => {
+                    this.agentList = res.data.map((user: any) => {
+                        return {
+                            label: user.email,
+                            value: user.id,
+                            avatar: user.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg',
+                        };
+                    });
+                })
+                .catch((err: any) => console.log(err));
+        },
+
         createDepartment() {
+            const assignUsers = this.$_.cloneDeep(this.addEditDepartmentFormData.user_ids);
+
+            // get only id
+            if (assignUsers) {
+                this.addEditDepartmentFormData.user_ids = assignUsers.map((user: any) => user.value);
+            }
+
             this.$store
                 .dispatch('department/createDepartment', {
                     inputs: this.addEditDepartmentFormData,
@@ -150,6 +176,13 @@ export default defineComponent({
         },
 
         updateDepartment() {
+            const assignUsers = this.$_.cloneDeep(this.addEditDepartmentFormData.user_ids);
+
+            // get only id
+            if (assignUsers) {
+                this.addEditDepartmentFormData.user_ids = assignUsers.map((user: any) => user.value);
+            }
+
             this.$store
                 .dispatch('department/updateDepartment', {
                     inputs: this.addEditDepartmentFormData,
@@ -165,7 +198,7 @@ export default defineComponent({
         },
 
         addEditDepartmentErrorHandle(err: any) {
-            if (_.isObject(err.response.data.message)) {
+            if (this.$_.isObject(err.response.data.message)) {
                 this.departmentFormDataErrors = err.response.data.message;
             } else {
                 this.$helpers.showErrorNotification(this, err.response.data.message);
@@ -184,7 +217,15 @@ export default defineComponent({
         selectedForEditData: {
             handler(selectedForEditData) {
                 if (this.showAddEditDepartmentModal) {
-                    this.addEditDepartmentFormData = _.cloneDeep(selectedForEditData);
+                    this.addEditDepartmentFormData = this.$_.cloneDeep(selectedForEditData);
+
+                    this.addEditDepartmentFormData.user_ids = selectedForEditData.users.map((user: any) => {
+                        return {
+                            label: user.email,
+                            value: user.id,
+                            avatar: user.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg',
+                        };
+                    });
                 }
             },
             deep: true,

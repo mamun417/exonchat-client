@@ -40,13 +40,13 @@
                         <q-td :props="props">
                             <q-avatar
                                 v-for="(agent, key) in props.row.assigned_agents"
-                                :key="agent.name"
+                                :key="agent.email"
                                 size="35px"
                                 :style="key !== 0 ? { marginLeft: '-8px' } : ''"
                             >
-                                <img :src="agent.avatar" />
+                                <img :src="agent.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg'" />
                                 <q-tooltip class="">
-                                    {{ agent.name }}
+                                    {{ agent.email }}
                                 </q-tooltip>
                             </q-avatar>
                         </q-td>
@@ -55,7 +55,7 @@
                     <template v-slot:body-cell-active="props">
                         <q-td :props="props">
                             <q-badge :color="props.row.active ? 'green' : 'orange'">
-                                {{ $_.upperFirst(props.row.active ? 'Active' : 'Inadtive') }}
+                                {{ $_.upperFirst(props.row.active ? 'Active' : 'Inactive') }}
                             </q-badge>
                         </q-td>
                     </template>
@@ -150,7 +150,7 @@ export default defineComponent({
                     field: 'description',
                 },
                 {
-                    name: 'users',
+                    name: 'assigned_agents',
                     align: 'center',
                     label: 'Assigned Agents',
                     field: 'users',
@@ -168,19 +168,19 @@ export default defineComponent({
                     align: 'center',
                 },
             ],
-            rows: [
-                {
-                    dep_name: 'Technical',
-                    assigned_agents: [
-                        { name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' },
-                        {
-                            name: 'susmita',
-                            avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
-                        },
-                    ],
-                    status: 'active',
-                },
-            ],
+            // rows: [
+            //     {
+            //         dep_name: 'Technical',
+            //         assigned_agents: [
+            //             { name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' },
+            //             {
+            //                 name: 'susmita',
+            //                 avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
+            //             },
+            //         ],
+            //         status: 'active',
+            //     },
+            // ],
             // dynamicVariables: [
             //     { name: 'user_name', des: 'will print assigned name else guest' },
             //     { name: 'user_id', des: 'will print logged users id' },
@@ -203,7 +203,12 @@ export default defineComponent({
             this.$store
                 .dispatch('department/getDepartments')
                 .then((res: any) => {
-                    this.departments = res.data;
+                    this.departments = res.data.map((department: any) => {
+                        return {
+                            ...department,
+                            assigned_agents: department.users,
+                        };
+                    });
                 })
                 .catch((err: any) => {
                     console.log(err);

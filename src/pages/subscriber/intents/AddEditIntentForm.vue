@@ -82,12 +82,26 @@
                     </q-input>
 
                     <q-checkbox
-                        v-model="addEditIntentFormData.active"
+                        v-model="addEditIntentFormData.connect_with_ai"
                         class="tw-mt-2"
-                        label="Activate This Intent"
+                        label="Connect With AI"
                         color="green"
                         dense
                     />
+
+                    <div>
+                        <q-checkbox
+                            v-model="addEditIntentFormData.active"
+                            class="tw-mt-2"
+                            label="Activate This Intent"
+                            color="green"
+                            dense
+                        />
+                    </div>
+
+                    <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div>If you not select '' it will not submit to ai. It will managed locally.</div>
+                    </div>
 
                     <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
                         <div>When a msg is parsed by ai it will resolve to your intents action or content.</div>
@@ -133,6 +147,7 @@ export default defineComponent({
                 content: '',
                 action_name: '',
                 external_path: '',
+                connect_with_ai: true,
                 active: true,
             },
             intentFormDataErrors: {},
@@ -221,6 +236,7 @@ export default defineComponent({
                     this.intentChosen = intent.intent_action.content;
                     this.addEditIntentFormData.action_name = intent.intent_action.action_name;
                     this.addEditIntentFormData.external_path = intent.url_path;
+                    this.addEditIntentFormData.connect_with_ai = intent.submit_to_ai;
                     this.addEditIntentFormData.active = intent.active;
                 }
             },
