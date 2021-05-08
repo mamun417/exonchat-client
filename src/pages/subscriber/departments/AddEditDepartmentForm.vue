@@ -43,7 +43,7 @@
                     <q-select
                         label="Select Agents"
                         :options="filterAgentList"
-                        v-model="addEditDepartmentFormData.user_ids"
+                        v-model="addEditDepartmentFormData.assign_users"
                         :error-message="departmentFormDataErrors.user_ids"
                         :error="!!departmentFormDataErrors.user_ids"
                         @update:model-value="departmentFormDataErrors.user_ids = ''"
@@ -118,6 +118,7 @@ export default defineComponent({
                 tag: '',
                 description: '',
                 user_ids: [],
+                assign_users: [],
                 active: true,
             },
             departmentFormDataErrors: {},
@@ -154,7 +155,7 @@ export default defineComponent({
         },
 
         createDepartment() {
-            const assignUsers = this.$_.cloneDeep(this.addEditDepartmentFormData.user_ids);
+            const assignUsers = this.$_.cloneDeep(this.addEditDepartmentFormData.assign_users);
 
             // get only id
             if (assignUsers) {
@@ -176,7 +177,7 @@ export default defineComponent({
         },
 
         updateDepartment() {
-            const assignUsers = this.$_.cloneDeep(this.addEditDepartmentFormData.user_ids);
+            const assignUsers = this.$_.cloneDeep(this.addEditDepartmentFormData.assign_users);
 
             // get only id
             if (assignUsers) {
@@ -219,7 +220,7 @@ export default defineComponent({
                 if (this.showAddEditDepartmentModal) {
                     this.addEditDepartmentFormData = this.$_.cloneDeep(selectedForEditData);
 
-                    this.addEditDepartmentFormData.user_ids = selectedForEditData.users.map((user: any) => {
+                    this.addEditDepartmentFormData.assign_users = selectedForEditData.users.map((user: any) => {
                         return {
                             label: user.email,
                             value: user.id,

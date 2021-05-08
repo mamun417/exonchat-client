@@ -7,101 +7,44 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <q-table
-                    :rows="departments"
+                <ec-table
+                    :rows="mappedDepartments"
                     :columns="columns"
-                    row-key="name"
-                    :pagination="{ rowsPerPage: 0 }"
-                    hide-pagination
-                    flat
+                    :bodyCelTemplate="bodyCelTemplate"
+                    @handleEdit="showEditDepartmentModal($event)"
+                    @handleDelete="showConfirmDeleteModal($event)"
                 >
-                    <template v-slot:top-right>
-                        <q-input borderless dense debounce="300" placeholder="Search" color="green">
-                            <template v-slot:append>
-                                <q-icon name="search" />
-                            </template>
-                        </q-input>
+                    <template v-slot:cell-assigned_agents="slotProps">
+                        <q-avatar
+                            v-for="(agent, key) in slotProps.row.assigned_agents"
+                            :key="agent.email"
+                            size="35px"
+                            :style="key !== 0 ? { marginLeft: '-8px' } : ''"
+                        >
+                            <img :src="agent.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg'" alt="" />
+                            <q-tooltip class="">
+                                {{ agent.email }}
+                            </q-tooltip>
+                        </q-avatar>
                     </template>
 
-                    <template v-slot:header="props">
-                        <q-tr :props="props">
-                            <q-th
-                                v-for="col in props.cols"
-                                :key="col.name"
-                                :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
-                            >
-                                {{ col.label }}
-                            </q-th>
-                        </q-tr>
-                    </template>
-
-                    <template v-slot:body-cell-assigned_agents="props">
-                        <q-td :props="props">
-                            <q-avatar
-                                v-for="(agent, key) in props.row.assigned_agents"
-                                :key="agent.email"
-                                size="35px"
-                                :style="key !== 0 ? { marginLeft: '-8px' } : ''"
-                            >
-                                <img :src="agent.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg'" />
-                                <q-tooltip class="">
-                                    {{ agent.email }}
-                                </q-tooltip>
-                            </q-avatar>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-active="props">
-                        <q-td :props="props">
-                            <q-badge :color="props.row.active ? 'green' : 'orange'">
-                                {{ $_.upperFirst(props.row.active ? 'Active' : 'Inactive') }}
-                            </q-badge>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-action="props">
-                        <q-td :props="props">
-                            <q-btn
-                                @click="showEditIntentModal(props.row)"
-                                icon="create"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn icon="settings" text-color="green" size="sm" dense flat>
-                                <q-menu>
-                                    <div class="row no-wrap q-pa-md">
-                                        <div class="column">
-                                            <div class="text-h7 q-mb-md">Settings</div>
-                                            <q-toggle
-                                                @click="changeDepartmentActiveStatus(props.row)"
-                                                v-model="props.row.active"
-                                                label="Status"
-                                            />
-                                        </div>
+                    <template v-slot:action-at-middle="slotProps">
+                        <q-btn icon="settings" text-color="green" size="sm" dense flat>
+                            <q-menu>
+                                <div class="row no-wrap q-pa-md">
+                                    <div class="column">
+                                        <div class="text-h7 q-mb-md">Settings</div>
+                                        <q-toggle
+                                            @click="changeDepartmentActiveStatus(slotProps.row)"
+                                            v-model="slotProps.row.active"
+                                            label="Status"
+                                        />
                                     </div>
-                                </q-menu>
-                            </q-btn>
-                            <q-btn
-                                @click="showConfirmDeleteModal(props.row)"
-                                icon="delete"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                        </q-td>
+                                </div>
+                            </q-menu>
+                        </q-btn>
                     </template>
-
-                    <template v-slot:no-data="{ message }">
-                        <div class="full-width row flex-center text-red q-gutter-sm">
-                            <q-icon size="2em" name="sentiment_dissatisfied" />
-                            <span> Well this is sad... {{ message }} </span>
-                        </div>
-                    </template>
-                </q-table>
+                </ec-table>
 
                 <div class="tw-text-xxs tw-mt-5 text-grey-8 tw-p-2 tw-font-medium">
                     Note: If a agent is assigned to a department then agent will be prioritized to this department. Else
@@ -131,9 +74,10 @@
 import { defineComponent } from 'vue';
 import AddEditDepartmentForm from 'pages/subscriber/departments/AddEditDepartmentForm.vue';
 import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
+import EcTable from 'components/common/table/EcTable.vue';
 
 export default defineComponent({
-    components: { DeleteConfirmModal, AddEditDepartmentForm },
+    components: { EcTable, DeleteConfirmModal, AddEditDepartmentForm },
     data(): any {
         return {
             columns: [
@@ -156,9 +100,9 @@ export default defineComponent({
                     field: 'users',
                 },
                 {
-                    name: 'active',
+                    name: 'status',
                     label: 'Status',
-                    field: 'active',
+                    field: 'status',
                     align: 'center',
                 },
                 {
@@ -168,29 +112,13 @@ export default defineComponent({
                     align: 'center',
                 },
             ],
-            // rows: [
-            //     {
-            //         dep_name: 'Technical',
-            //         assigned_agents: [
-            //             { name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' },
-            //             {
-            //                 name: 'susmita',
-            //                 avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
-            //             },
-            //         ],
-            //         status: 'active',
-            //     },
-            // ],
-            // dynamicVariables: [
-            //     { name: 'user_name', des: 'will print assigned name else guest' },
-            //     { name: 'user_id', des: 'will print logged users id' },
-            // ],
             departments: [],
             showAddEditDepartmentModal: false,
             updateModal: false,
             selectedForEditData: {},
             deleteDepartmentId: '',
             showDeleteModal: false,
+            bodyCelTemplate: {},
         };
     },
 
@@ -198,17 +126,23 @@ export default defineComponent({
         this.getDepartments();
     },
 
+    computed: {
+        mappedDepartments(): any {
+            return this.departments.map((department: any) => {
+                department.assigned_agents = department.users;
+                department.status = department.active ? 'active' : 'inactive';
+
+                return department;
+            });
+        },
+    },
+
     methods: {
         getDepartments() {
             this.$store
                 .dispatch('department/getDepartments')
                 .then((res: any) => {
-                    this.departments = res.data.map((department: any) => {
-                        return {
-                            ...department,
-                            assigned_agents: department.users,
-                        };
-                    });
+                    this.departments = res.data;
                 })
                 .catch((err: any) => {
                     console.log(err);
@@ -220,7 +154,7 @@ export default defineComponent({
             this.updateModal = false;
         },
 
-        showEditIntentModal(department: any) {
+        showEditDepartmentModal(department: any) {
             this.updateModal = true;
             this.showAddEditDepartmentModal = true;
             this.selectedForEditData = department;
@@ -241,7 +175,7 @@ export default defineComponent({
                     active: department.active,
                 })
                 .then((res: any) => {
-                    const index = this.departments.findIndex((speech: any) => speech.id === res.data.id);
+                    const index = this.departments.findIndex((department: any) => department.id === res.data.id);
 
                     this.departments[index] = res.data;
 
