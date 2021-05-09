@@ -140,19 +140,64 @@
             <q-btn flat color="green" icon="mood" class="tw-px-2"></q-btn>
         </div>
         <div class="tw-flex-auto tw-px-3">
+            <!-- used keydown for instant catch n prevent -->
             <q-input
-                v-model.trim="msg"
-                @keyup.enter.exact="sendMessage"
-                @focus="inputFocusHandle"
-                @blur="inputBlurHandle"
+                v-model="msg"
                 debounce="0"
                 placeholder="Write Message..."
                 color="green-8"
-                hide-bottom-space
                 class="ec-msg-input"
+                :class="[`ec-msg-input-${uid}`]"
+                @keyup.enter.exact="sendMessage"
+                @keydown="keyUpHandle"
+                @focus="inputFocusHandle"
+                @blur="inputBlurHandle"
+                hide-bottom-space
                 autogrow
                 borderless
                 dense
+                ><q-menu
+                    v-if="chatPanelType !== 'client'"
+                    anchor="bottom left"
+                    self="bottom left"
+                    style="max-height: 500px"
+                    :ref="`ec_template_dom_${uid}`"
+                    :class="[`ec_template_dom_${uid}`]"
+                    v-model="chatTemplate"
+                    @show="chatTemplateShowHandle"
+                    @hide="chatTemplateHideHandle"
+                    no-parent-event
+                >
+                    <div class="tw-font-bold tw-text-xs text-green tw-px-4 tw-py-2">Suggetions</div>
+                    <q-separator />
+                    <q-list separator style="min-width: 300px"
+                        ><q-item
+                            v-for="(template, key) in chatTemplates"
+                            :key="key"
+                            :active="template.is_focused"
+                            active-class="bg-green-3"
+                            class="tw-font-medium"
+                            @click="chatTemplateSelectHandle(key)"
+                            clickable
+                        >
+                            <q-item-section
+                                ><q-item-label class="tw-text-xs">{{ template.tag }}</q-item-label
+                                ><q-item-label caption>{{ template.content }}</q-item-label></q-item-section
+                            >
+                        </q-item></q-list
+                    >
+                    <q-separator />
+                    <div class="tw-px-4">
+                        <!-- n here keyup is for finally done press so that i dont call this func continiously -->
+                        <q-input
+                            v-model="chatTemplateInputVal"
+                            placeholder="search"
+                            color="green-8"
+                            @keyup="chatTemplateSearchHandle"
+                            autofocus
+                            borderless
+                            dense
+                        /></div></q-menu
             ></q-input>
             <div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
                 <q-avatar
@@ -237,6 +282,7 @@ export default defineComponent({
 
     data(): any {
         return {
+            uid: new Date().getTime().toString(), // user convid insted. not from url
             convId: '',
             confirm: false,
             convState: '',
@@ -253,12 +299,17 @@ export default defineComponent({
 
             attachmentPreview: null,
             attachmentPreviewModal: false,
+
+            chatTemplate: false,
+            chatTemplateLoading: true,
+            chatTemplates: [],
+            chatTemplateInputVal: '',
         };
     },
 
     mounted() {
         setInterval(() => {
-            this.$forceUpdate();
+            this.$forceUpdate(); // now i have no idea why its needed
         }, 30000);
     },
 
@@ -316,18 +367,94 @@ export default defineComponent({
         },
 
         inputFocusHandle() {
-            // this.typingHandler = setInterval(() => {
-            //     this.$socket.emit('ec_is_typing_from_user', {
-            //         conv_id: this.getConvId(),
-            //     });
-            // }, 1000);
+            this.typingHandler = setInterval(() => {
+                //     this.$socket.emit('ec_is_typing_from_user', {
+                //         conv_id: this.getConvId(),
+                //     });
+            }, 1000);
         },
-
         inputBlurHandle() {
             clearInterval(this.typingHandler);
         },
+        keyUpHandle(e: any) {
+            if (e.key === '/') {
+                this.chatTemplate = true;
+                e.preventDefault();
+            }
+        },
+
+        getChatTemplates() {
+            this.chatTemplates = [
+                { tag: '/hi', content: 'hello user', is_focused: false },
+                { tag: '/by', content: 'bye user', is_focused: true },
+            ];
+
+            this.chatTemplateLoading = false;
+
+            // when get completes
+            this.$refs[`ec_template_dom_${this.uid}`].$forceUpdate(); // it will try to match dynamic height
+        },
+        chatTemplateShowHandle() {
+            this.getChatTemplates();
+            document.body.addEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
+
+            this.chatTemplateDomPositionUpdate();
+        },
+        chatTemplateHideHandle() {
+            document.body.removeEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
+        },
+        chatTemplateArrowKeyUpDownHandle(e: any) {
+            if (this.chatTemplates.length) {
+                const currentFocusedTemplate = _l.findIndex(this.chatTemplates, ['is_focused', true]);
+                if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+                    const upOrDown = e.key === 'ArrowDown' ? 1 : -1;
+
+                    if (currentFocusedTemplate === this.chatTemplates.length - 1 || currentFocusedTemplate === -1) {
+                        this.chatTemplates[0].is_focused = true;
+                    } else if (currentFocusedTemplate === 0 && e.key === 'ArrowUp') {
+                        this.chatTemplates[this.chatTemplates.length - 1].is_focused = true;
+                    } else {
+                        this.chatTemplates[currentFocusedTemplate + upOrDown].is_focused = true;
+                    }
+
+                    if (this.chatTemplates.length > 1 && currentFocusedTemplate !== -1) {
+                        this.chatTemplates[currentFocusedTemplate].is_focused = false;
+                    }
+                }
+
+                if (e.key === 'Enter') {
+                    this.chatTemplateSelectHandle(currentFocusedTemplate);
+                }
+            }
+        },
+        chatTemplateSelectHandle(key: any) {
+            //if has intent handle loader wait then add content
+            this.msg += this.chatTemplates[key].content;
+            this.chatTemplate = false;
+        },
+        chatTemplateSearchHandle(e: any) {
+            if (['ArrowUp', 'ArrowDown'].includes(e.key)) return;
+
+            // assume api returned none after search
+            this.chatTemplates = [
+                { tag: 'No Result! Append in message box', content: `/${this.chatTemplateInputVal}`, is_focused: true },
+            ];
+        },
+        chatTemplateDomPositionUpdate() {
+            // this method will fix the menu position when content changes its height
+            // for now quasar is not updating position when its open from top
+            const msgInputElm: any = document.getElementsByClassName(`ec-msg-input-${this.uid}`)[0];
+            const bodyHeight = document.body.getBoundingClientRect().height;
+            const msgInputBottomPos = msgInputElm.getBoundingClientRect().bottom;
+
+            const templateDom: any = document.getElementsByClassName(`ec_template_dom_${this.uid}`)[0];
+
+            templateDom.style.top = 'unset';
+            templateDom.style.bottom = `${bodyHeight - msgInputBottomPos + 11}px`;
+        },
 
         sendMessage(): any {
+            this.msg = this.msg.trim();
             if (!this.msg.length) {
                 return false;
             }
@@ -405,8 +532,8 @@ export default defineComponent({
                                     responseType: 'arraybuffer',
                                 })
                                 .then((res: any) => {
-                                    console.log(res);
-                                    console.log(typeof res.data);
+                                    // console.log(res);
+                                    // console.log(typeof res.data);
 
                                     finalAttachment.id = attachment.attachment_info.id;
                                     finalAttachment.status = 'done';
@@ -463,7 +590,7 @@ export default defineComponent({
                 return;
 
             for (const msg of this.conversationInfoLocal.messages) {
-                console.log(msg);
+                // console.log(msg);
 
                 if (msg.attachments && msg.attachments.length) {
                     for (const attch of msg.attachments) {
