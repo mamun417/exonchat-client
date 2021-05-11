@@ -37,7 +37,7 @@
                 ></message>
             </div>
 
-            <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
+            <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
                     <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
                         <q-icon name="chat" size="xl" color="green"></q-icon>
@@ -48,23 +48,39 @@
                         <q-btn dense color="green" class="full-width tw-mt-6">Start Chat</q-btn>
                     </div>
                 </div>
-            </div>
+            </div> -->
+
             <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
                     <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
                         <q-icon name="account_circle" size="xl" color="green"></q-icon>
                     </div>
                     <div class="tw-px-4 tw-py-16">
-                        <q-input dense label="Your Name" color="green" class="tw-mb-3">
+                        <q-input v-model="convInitFields.name" dense label="Your Name" color="green" class="tw-mb-3">
                             <template v-slot:prepend>
                                 <q-icon name="person" size="xs" color="green" />
                             </template>
                         </q-input>
-                        <q-input dense class="tw-mb-3" label="Your Email" type="email">
+                        <q-input v-model="convInitFields.email" dense class="tw-mb-3" label="Your Email" type="email">
                             <template v-slot:prepend>
                                 <q-icon name="email" size="xs" color="green" />
                             </template>
                         </q-input>
+
+                        <q-select
+                            v-model="convInitFields.department"
+                            :options="chatDepartments"
+                            option-value="id"
+                            option-label="tag"
+                            label="Chat Department"
+                            color="green"
+                            class="tw-mb-3"
+                            emit-value
+                            map-options
+                            dense
+                            ><template v-slot:prepend> <q-icon name="person" size="xs" color="green" /> </template
+                        ></q-select>
+
                         <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize"
                             >Start Chat as Guest
                         </q-btn>
@@ -99,6 +115,13 @@ export default defineComponent({
             showChatForm: false,
             userLogged: false,
 
+            chatDepartments: [],
+            convInitFields: {
+                name: '',
+                email: '',
+                department: '',
+            },
+
             msg: '',
 
             pageInFocus: false,
@@ -122,6 +145,8 @@ export default defineComponent({
         if (this.clientInitiateConvInfo.conv_id) {
             this.getConvMessages(this.clientInitiateConvInfo.conv_id);
         }
+
+        this.getChatDepartments();
         // this.setTypingFalse();
     },
 
@@ -143,7 +168,17 @@ export default defineComponent({
             this.clientInitiateConvInfo = {};
             location.reload();
         },
-
+        getChatDepartments() {
+            window.socketSessionApi
+                .get('departments')
+                .then((res: any) => {
+                    console.log(res);
+                    this.chatDepartments = res.data;
+                })
+                .catch((e: any) => {
+                    console.log(e);
+                });
+        },
         // store conversation messages and get the messages by getters (messages)
         getConvMessages(convId: string) {
             this.$store.dispatch('chat/getClientConvMessages', {
@@ -278,7 +313,9 @@ export default defineComponent({
         },
 
         chatInitialize() {
-            this.socket.emit('ec_init_conv_from_client', {});
+            console.log(this.convInitFields);
+
+            this.socket.emit('ec_init_conv_from_client', { ...this.convInitFields });
         },
 
         firePageVisitListner() {

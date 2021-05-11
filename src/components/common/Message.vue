@@ -377,7 +377,7 @@ export default defineComponent({
             clearInterval(this.typingHandler);
         },
         keyUpHandle(e: any) {
-            if (e.key === '/') {
+            if (this.chatPanelType !== 'client' && e.key === '/') {
                 this.chatTemplate = true;
                 e.preventDefault();
             }
