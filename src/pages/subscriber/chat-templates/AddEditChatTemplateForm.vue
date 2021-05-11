@@ -260,6 +260,8 @@ export default defineComponent({
 
         // load when chose content type (intent)
         getIntents(contentType: any) {
+            this.chosenIntent = '';
+            this.addEditChatTemplateFormData.content = '';
             this.intents = [];
 
             if (contentType === 'intent') {
@@ -318,6 +320,16 @@ export default defineComponent({
         },
 
         updateChatTemplate() {
+            if (this.chosenDepartment) {
+                this.addEditChatTemplateFormData.department_id = this.chosenDepartment.value;
+            }
+
+            if (this.chosenIntent) {
+                this.addEditChatTemplateFormData.intent_id = this.chosenIntent.value;
+            }
+
+            console.log(this.addEditChatTemplateFormData);
+
             this.$store
                 .dispatch('chat_template/updateChatTemplate', {
                     inputs: this.addEditChatTemplateFormData,
@@ -344,6 +356,9 @@ export default defineComponent({
             this.$emit('hideModal');
             this.addEditChatTemplateFormData = {};
             this.addEditChatTemplateFormData.active = true;
+            this.chosenDepartment = '';
+            this.chosenContentType = 'static';
+            this.chosenIntent = '';
             this.chatTemplateFormDataErrors = {};
         },
     },
@@ -353,7 +368,33 @@ export default defineComponent({
             handler(selectedForEditData) {
                 if (this.showAddEditChatTemplateModal) {
                     this.addEditChatTemplateFormData = this.$_.cloneDeep(selectedForEditData);
-                    console.log(this.addEditChatTemplateFormData);
+                    this.addEditChatTemplateFormData.own = !!selectedForEditData.user_id;
+
+                    // set chat_department information
+                    if (selectedForEditData.chat_department_id) {
+                        this.chosenDepartment = {
+                            label: selectedForEditData.chat_department.tag,
+                            value: selectedForEditData.chat_department_id,
+                        };
+                    }
+
+                    // set intent information
+                    if (selectedForEditData.intent_id) {
+                        // content type
+                        this.chosenContentType = 'intent';
+
+                        // intent
+                        this.chosenIntent = {
+                            label: selectedForEditData.intent.tag,
+                            value: selectedForEditData.intent_id,
+                            description: selectedForEditData.intent.description,
+                        };
+
+                        // message
+                        this.getIntentInfo({
+                            value: selectedForEditData.intent_id,
+                        });
+                    }
                 }
             },
             deep: true,
