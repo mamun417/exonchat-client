@@ -149,7 +149,7 @@ export default defineComponent({
                     intent.intent_action.type === 'external'
                         ? intent.intent_action.external_path
                         : intent.intent_action.type === 'action'
-                        ? `apisiteurl.com/action_resolver?action${intent.intent_action.action_name}`
+                        ? `apisiteurl.com/action_resolver?action/${intent.intent_action.action_name}`
                         : 'nil';
 
                 intent.content = {

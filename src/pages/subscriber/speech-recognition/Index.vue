@@ -31,8 +31,8 @@
 
                     <template v-slot:cell-forced_intent="slotProps">
                         <div>
-                            <q-badge :color="slotProps.row.forced_intent ? 'green' : 'orange'">
-                                {{ slotProps.row.forced_intent }}
+                            <q-badge :color="slotProps.row.forced ? 'green' : 'orange'">
+                                {{ slotProps.row.forced }}
                             </q-badge>
                         </div>
                     </template>
@@ -223,7 +223,7 @@ export default defineComponent({
                 })
                 .then(() => {
                     this.showDeleteModal = false;
-                    this.speeches();
+                    this.getSpeeches();
 
                     this.$helpers.showSuccessNotification(this, 'Speech deleted successful');
                 })

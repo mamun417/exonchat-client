@@ -57,7 +57,7 @@
                         :error-message="intentFormDataErrors.external_path"
                         :error="!!intentFormDataErrors.external_path"
                         @update:model-value="intentFormDataErrors.external_path = ''"
-                        v-model="intentChosen"
+                        v-model="contentTypeInfo"
                         :autogrow="addEditIntentFormData.type === 'static'"
                         dense
                     >
@@ -139,7 +139,7 @@ export default defineComponent({
 
     data(): any {
         return {
-            intentChosen: '',
+            contentTypeInfo: '', // base on content type
             addEditIntentFormData: {
                 tag: '',
                 description: '',
@@ -154,10 +154,20 @@ export default defineComponent({
         };
     },
 
+    computed: {
+        getContentTypeUtility(): any {
+            return this.addEditIntentFormData.type === 'action'
+                ? 'Action Name'
+                : this.addEditIntentFormData.type === 'static'
+                ? 'Static Content'
+                : 'External Path';
+        },
+    },
+
     methods: {
         createIntent() {
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
-                this.addEditIntentFormData[item] = this.intentChosen;
+                this.addEditIntentFormData[item] = this.contentTypeInfo;
             });
 
             // note: check error carefully,
@@ -181,7 +191,7 @@ export default defineComponent({
 
         updateIntent() {
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
-                this.addEditIntentFormData[item] = this.intentChosen;
+                this.addEditIntentFormData[item] = this.contentTypeInfo;
             });
 
             this.$store
@@ -206,20 +216,12 @@ export default defineComponent({
             }
         },
 
-        getContentTypeUtility(): any {
-            return this.addEditIntentFormData.type === 'action'
-                ? 'Action Name'
-                : this.addEditIntentFormData.type === 'static'
-                ? 'Static Content'
-                : 'External Path';
-        },
-
         resetForm() {
             this.$emit('hideModal');
             this.addEditIntentFormData = {};
             this.addEditIntentFormData.active = true;
             this.intentFormDataErrors = {};
-            this.intentChosen = '';
+            this.contentTypeInfo = '';
         },
     },
 
@@ -233,7 +235,17 @@ export default defineComponent({
                     this.addEditIntentFormData.tag = intent.tag;
                     this.addEditIntentFormData.description = intent.description;
                     this.addEditIntentFormData.type = intent.intent_action.type;
-                    this.intentChosen = intent.intent_action.content;
+
+                    const intentActionType = intent.intent_action.type;
+                    const intentAction = intent.intent_action;
+
+                    this.contentTypeInfo =
+                        intentActionType === 'external'
+                            ? intentAction.external_path
+                            : intentActionType === 'action'
+                            ? intentAction.action_name
+                            : intentAction.content;
+
                     this.addEditIntentFormData.action_name = intent.intent_action.action_name;
                     this.addEditIntentFormData.external_path = intent.url_path;
                     this.addEditIntentFormData.connect_with_ai = intent.submit_to_ai;
