@@ -154,6 +154,16 @@ export default defineComponent({
         };
     },
 
+    computed: {
+        getContentTypeUtility(): any {
+            return this.addEditIntentFormData.type === 'action'
+                ? 'Action Name'
+                : this.addEditIntentFormData.type === 'static'
+                ? 'Static Content'
+                : 'External Path';
+        },
+    },
+
     methods: {
         createIntent() {
             ['content', 'action_name', 'external_path'].forEach((item: any) => {
@@ -204,14 +214,6 @@ export default defineComponent({
             } else {
                 this.$helpers.showErrorNotification(this, err.response.data.message);
             }
-        },
-
-        getContentTypeUtility(): any {
-            return this.addEditIntentFormData.type === 'action'
-                ? 'Action Name'
-                : this.addEditIntentFormData.type === 'static'
-                ? 'Static Content'
-                : 'External Path';
         },
 
         resetForm() {
