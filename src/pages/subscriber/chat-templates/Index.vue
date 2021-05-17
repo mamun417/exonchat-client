@@ -76,7 +76,7 @@
             :updateModal="updateModal"
             :selectedForEditData="selectedForEditData"
             @createdChatTempPlate="getChatTemplates"
-            @updatedDepartment="handleUpdatedChatTemplate"
+            @updatedChatTemplate="handleUpdatedChatTemplate"
             @hideModal="handleHideAddEditChatTemplateModal"
         />
 
@@ -142,7 +142,7 @@ export default defineComponent({
 
     computed: {
         mappedChatTemplates(): any {
-            const test = this.chatTemplates.map((chatTemplate: any) => {
+            return this.chatTemplates.map((chatTemplate: any) => {
                 if (chatTemplate.intent) {
                     chatTemplate.intent.content = {
                         content:
@@ -158,10 +158,6 @@ export default defineComponent({
 
                 return chatTemplate;
             });
-
-            console.log(test);
-
-            return test;
         },
     },
 
