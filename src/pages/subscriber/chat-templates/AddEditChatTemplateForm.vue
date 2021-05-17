@@ -324,6 +324,7 @@ export default defineComponent({
                 this.addEditChatTemplateFormData.department_id = this.chosenDepartment.value;
             }
 
+            this.addEditChatTemplateFormData.intent_id = '';
             if (this.chosenIntent) {
                 this.addEditChatTemplateFormData.intent_id = this.chosenIntent.value;
             }

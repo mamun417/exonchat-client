@@ -220,6 +220,7 @@ export default defineComponent({
             this.$emit('hideModal');
             this.addEditIntentFormData = {};
             this.addEditIntentFormData.active = true;
+            this.addEditIntentFormData.connect_with_ai = true;
             this.intentFormDataErrors = {};
             this.contentTypeInfo = '';
         },
