@@ -7,7 +7,7 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="rows"
+                    :rows="clientConversations"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -38,7 +38,23 @@
                     <template v-slot:body-cell-client_name="props">
                         <q-td :props="props">
                             <div class="tw-font-medium tw-italic">
-                                {{ props.row.client_name }}
+                                {{ props.row.client.init_name }}
+                            </div>
+                        </q-td>
+                    </template>
+
+                    <template v-slot:body-cell-chat_department="props">
+                        <q-td :props="props">
+                            <div class="tw-font-medium tw-italic">
+                                {{ props.row.chat_department.tag }}
+                            </div>
+                        </q-td>
+                    </template>
+
+                    <template v-slot:body-cell-msg="props">
+                        <q-td :props="props">
+                            <div class="tw-font-medium tw-italic">
+                                {{ props.row.messages[0]['msg'] }}
                             </div>
                         </q-td>
                     </template>
@@ -47,13 +63,13 @@
                         <q-td :props="props">
                             <q-avatar
                                 v-for="(agent, key) in props.row.connected_agents"
-                                :key="agent.name"
+                                :key="key"
                                 size="35px"
                                 :style="key !== 0 ? { marginLeft: '-8px' } : ''"
                             >
-                                <img :src="agent.avatar" />
+                                <img :src="agent.avatar || 'https://cdn.quasar.dev/img/avatar1.jpg'" alt="image" />
                                 <q-tooltip class="">
-                                    {{ agent.name }}
+                                    {{ agent.email }}
                                 </q-tooltip>
                             </q-avatar>
                         </q-td>
@@ -61,7 +77,9 @@
 
                     <template v-slot:body-cell-last_sent="props">
                         <q-td :props="props">
-                            <div class="tw-text-xxs">{{ props.row.last_sent }}</div>
+                            <div class="tw-text-xxs">
+                                {{ $helpers.myDate(props.row.messages[0]['created_at']) }}
+                            </div>
                         </q-td>
                     </template>
 
@@ -165,8 +183,10 @@ const rows = [
 ];
 
 export default defineComponent({
-    data() {
-        return {};
+    data(): any {
+        return {
+            clientConversations: [],
+        };
     },
 
     setup() {
@@ -175,6 +195,34 @@ export default defineComponent({
             rows,
         };
     },
-    methods: {},
+
+    mounted() {
+        this.getClientConversations();
+    },
+
+    methods: {
+        getClientConversations() {
+            this.$store
+                .dispatch('client_conversation/getClientConversations')
+                .then((res: any) => {
+                    this.clientConversations = res.data.map((clientConv: any) => {
+                        clientConv.connected_agents = [];
+
+                        clientConv.conversation_sessions.forEach((convSession: any) => {
+                            if (!convSession.socket_session.user_id) {
+                                clientConv.client = convSession.socket_session;
+                            } else {
+                                clientConv.connected_agents.push(convSession.socket_session.user);
+                            }
+                        });
+
+                        return clientConv;
+                    });
+
+                    console.log(this.clientConversations);
+                })
+                .catch((err: any) => console.log(err));
+        },
+    },
 });
 </script>

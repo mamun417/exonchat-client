@@ -27,6 +27,9 @@ import { DepartmentStateInterface } from './department/state';
 import chat_template from './chat-template';
 import { ChatTemplateStateInterface } from './chat-template/state';
 
+import client_conversation from './client-conversation';
+import { ClientConversationStateInterface } from './client-conversation/state';
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -48,6 +51,7 @@ export interface StateInterface {
     speech: SpeechStateInterface;
     department: DepartmentStateInterface;
     chat_template: ChatTemplateStateInterface;
+    client_conversation: ClientConversationStateInterface;
 }
 
 export default store(function (/* { ssrContext } */) {
@@ -62,6 +66,7 @@ export default store(function (/* { ssrContext } */) {
             speech,
             department,
             chat_template,
+            client_conversation,
         },
 
         // enable strict mode (adds overhead!)
