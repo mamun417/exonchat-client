@@ -141,9 +141,9 @@
 
                     <div class="tw-text-xxs tw-font-medium tw-mt-5 tw-text-gray-700">
                         You can use dynamic variables in content input as $${variable} from list.
-                        <span class="text-green cursor-pointer" @click="variableListModal = true"
-                            >Show Variables List</span
-                        >
+                        <span class="text-green cursor-pointer" @click="variableListModal = true">
+                            Show Variables List
+                        </span>
                     </div>
                 </q-card-section>
 
@@ -383,6 +383,9 @@ export default defineComponent({
                     if (selectedForEditData.intent_id) {
                         // content type
                         this.chosenContentType = 'intent';
+
+                        // load intent list
+                        this.getIntents('intent');
 
                         // intent
                         this.chosenIntent = {
