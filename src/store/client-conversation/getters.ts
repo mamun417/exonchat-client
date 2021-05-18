@@ -3,8 +3,8 @@ import { StateInterface } from '../index';
 import { ClientConversationStateInterface } from './state';
 
 const getters: GetterTree<ClientConversationStateInterface, StateInterface> = {
-    someAction(/* context */) {
-        // your code
+    getClientConversations(state) {
+        return state.clientConversations;
     },
 };
 

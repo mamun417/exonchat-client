@@ -85,15 +85,45 @@
 
                     <template v-slot:body-cell-status="props">
                         <q-td :props="props">
-                            <q-badge>{{ props.row.status }}</q-badge>
+                            <q-badge
+                                :color="
+                                    props.row.self_status === 'closed'
+                                        ? 'red'
+                                        : props.row.self_status === 'left'
+                                        ? 'orange'
+                                        : ''
+                                "
+                                >{{ props.row.self_status }}</q-badge
+                            >
                         </q-td>
                     </template>
 
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
-                            <q-btn icon="visibility" text-color="green" size="sm" dense flat></q-btn>
-                            <q-btn icon="forward_to_inbox" text-color="green" size="sm" dense flat></q-btn>
-                            <q-btn icon="close" text-color="red" size="sm" dense flat></q-btn>
+                            <q-btn
+                                :to="{ name: 'chats', params: { conv_id: props.row.id } }"
+                                icon="visibility"
+                                text-color="green"
+                                size="sm"
+                                dense
+                                flat
+                            ></q-btn>
+                            <q-btn
+                                :disable="props.row.self_status === 'closed'"
+                                icon="forward_to_inbox"
+                                text-color="green"
+                                size="sm"
+                                dense
+                                flat
+                            ></q-btn>
+                            <q-btn
+                                :disable="props.row.self_status === 'closed'"
+                                icon="close"
+                                text-color="red"
+                                size="sm"
+                                dense
+                                flat
+                            ></q-btn>
                         </q-td>
                     </template>
 
@@ -184,9 +214,7 @@ const rows = [
 
 export default defineComponent({
     data(): any {
-        return {
-            clientConversations: [],
-        };
+        return {};
     },
 
     setup() {
@@ -196,32 +224,59 @@ export default defineComponent({
         };
     },
 
+    computed: {
+        clientConversations(): any {
+            const clientConversations = this.$_.cloneDeep(
+                this.$store.getters['client_conversation/getClientConversations']
+            );
+
+            const mySocketSessionId = this.$helpers.getMySocketSessionId();
+
+            if (clientConversations) {
+                return clientConversations.map((clientConv: any) => {
+                    clientConv.connected_agents = [];
+
+                    // set connected agents and client information
+                    clientConv.conversation_sessions.forEach((convSession: any) => {
+                        if (convSession.socket_session.user_id) {
+                            clientConv.connected_agents.push(convSession.socket_session.user);
+                        } else {
+                            clientConv.client = convSession.socket_session;
+                        }
+                    });
+
+                    clientConv.self_status = this.getSelfStatus(mySocketSessionId, clientConv);
+
+                    return clientConv;
+                });
+            }
+
+            return [];
+        },
+    },
+
     mounted() {
-        this.getClientConversations();
+        this.test();
     },
 
     methods: {
-        getClientConversations() {
-            this.$store
-                .dispatch('client_conversation/getClientConversations')
-                .then((res: any) => {
-                    this.clientConversations = res.data.map((clientConv: any) => {
-                        clientConv.connected_agents = [];
+        test() {
+            this.$store.dispatch('client_conversation/getClientConversations');
+        },
 
-                        clientConv.conversation_sessions.forEach((convSession: any) => {
-                            if (!convSession.socket_session.user_id) {
-                                clientConv.client = convSession.socket_session;
-                            } else {
-                                clientConv.connected_agents.push(convSession.socket_session.user);
-                            }
-                        });
+        // set self status (join/left/closed)
+        getSelfStatus(mySocketSessionId: any, clientConv: any) {
+            if (clientConv.closed_by_id === mySocketSessionId) {
+                return 'closed';
+            } else {
+                const mySocketSession = clientConv.conversation_sessions.find(
+                    (convSession: any) => convSession.socket_session_id === mySocketSessionId
+                );
 
-                        return clientConv;
-                    });
-
-                    console.log(this.clientConversations);
-                })
-                .catch((err: any) => console.log(err));
+                if (mySocketSession) {
+                    return mySocketSession.left_at ? 'left' : 'joined';
+                }
+            }
         },
     },
 });
