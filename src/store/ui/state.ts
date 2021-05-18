@@ -1,10 +1,10 @@
 export interface UiStateInterface {
-    prop: boolean;
+    globalColor: string;
 }
 
 function state(): UiStateInterface {
     return {
-        prop: false,
+        globalColor: localStorage.getItem('globalColor') || 'green',
     };
 }
 

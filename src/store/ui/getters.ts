@@ -6,6 +6,19 @@ const getters: GetterTree<UiStateInterface, StateInterface> = {
     someAction(/* context */) {
         // your code
     },
+
+    globalColor(state) {
+        return state.globalColor;
+    },
+    globalBgColor(state) {
+        return `bg-${state.globalColor}`;
+    },
+    globalTextColor(state) {
+        return `text-${state.globalColor}`;
+    },
+    globalColorToHex() {
+        return 'upcoming';
+    },
 };
 
 export default getters;
