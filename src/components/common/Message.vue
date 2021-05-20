@@ -153,6 +153,7 @@
                 @focus="inputFocusHandle"
                 @blur="inputBlurHandle"
                 hide-bottom-space
+                :autofocus="messageInputAutoFocus"
                 autogrow
                 borderless
                 dense
@@ -253,7 +254,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, inject } from 'vue';
 
 import * as _l from 'lodash';
 
@@ -278,6 +279,14 @@ export default defineComponent({
         conversationInfo: {
             type: Object,
         },
+    },
+
+    setup() {
+        const messageInputAutoFocus = inject('messageInputAutoFocus');
+
+        return {
+            messageInputAutoFocus,
+        };
     },
 
     data(): any {
@@ -351,7 +360,7 @@ export default defineComponent({
                 previousMessage.hasOwnProperty('conv_state_status') ||
                 message?.socket_session_id !== previousMessage.socket_session_id
                 ? message.hasOwnProperty('socket_session')
-                    ? message.socket_session.user?.email ?? 'init email address'
+                    ? message.socket_session.user?.email ?? message.socket_session.init_email
                     : ''
                 : '';
         },

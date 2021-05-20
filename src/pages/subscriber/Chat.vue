@@ -14,20 +14,41 @@
 
 <script lang="ts">
 import ChatPanel from 'src/components/subscriber/chat/ChatPanel.vue';
-import { defineComponent } from 'vue';
+import { defineComponent, provide, ref } from 'vue';
 
 export default defineComponent({
     name: 'ChatPage',
     components: { ChatPanel },
+
     setup() {
-        return {};
+        const messageInputAutoFocus = ref(false);
+
+        provide('messageInputAutoFocus', messageInputAutoFocus);
+
+        return {
+            messageInputAutoFocus,
+        };
     },
+
     data(): any {
         return {};
     },
+
     mounted() {
         console.log('chat page initiated');
     },
+
+    beforeRouteEnter(to, from, next) {
+        next((vm: any) => {
+            vm.messageInputAutoFocus = from.name === 'clients-conversations';
+        });
+    },
+
+    beforeRouteUpdate(to, from, next) {
+        this.messageInputAutoFocus = false;
+        next();
+    },
+
     methods: {},
 });
 </script>

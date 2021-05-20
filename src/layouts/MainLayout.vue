@@ -30,6 +30,8 @@
                     </q-menu>
                 </q-btn>
                 <q-space />
+                <q-btn :icon="rightDrawer ? 'menu_open' : 'menu'" @click="rightDrawer = !rightDrawer" flat />
+
                 <q-avatar size="lg" class="cursor-pointer">
                     <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
 
@@ -50,7 +52,7 @@
                                     <img src="https://cdn.quasar.dev/img/avatar4.jpg" alt="" />
                                 </q-avatar>
 
-                                <div class="tw-text-xs tw-mt-2 tw-mb-1">John Doe</div>
+                                <div class="tw-text-xs tw-mt-2 tw-mb-1">{{ profile.user_meta.full_name }}</div>
                                 <div class="tw-text-xxs tw-mb-2">{{ profile.email }}</div>
 
                                 <q-btn @click="logout" color="orange" label="Logout" size="sm" />
@@ -74,7 +76,6 @@
                 <left-bar></left-bar>
             </q-drawer>
             <q-drawer
-                v-if="1 < 0"
                 v-model="rightDrawer"
                 class="tw-shadow-lgl"
                 side="right"

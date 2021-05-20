@@ -10,7 +10,9 @@
                     </q-item-section>
 
                     <q-item-section class="tw-w-full">
-                        <q-item-label class="text-weight-bold tw-text-lg">Hasan</q-item-label>
+                        <q-item-label class="text-weight-bold tw-text-lg">
+                            {{ $_.upperFirst(profile.user_meta.full_name) }}
+                        </q-item-label>
                         <q-item-label caption>
                             <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>
                         </q-item-label>
@@ -56,6 +58,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Message from 'components/common/Message.vue';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: 'ChatPanel',
@@ -110,6 +113,10 @@ export default defineComponent({
         isAgentToAgentConversation(): any {
             return this.conversationInfo.stateInfo.users_only;
         },
+
+        ...mapGetters({
+            profile: 'auth/profile',
+        }),
     },
 
     methods: {

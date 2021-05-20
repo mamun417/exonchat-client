@@ -78,7 +78,7 @@
                     <template v-slot:body-cell-last_sent="props">
                         <q-td :props="props">
                             <div class="tw-text-xxs">
-                                {{ $helpers.myDate(props.row.messages[0]['created_at']) }}
+                                {{ $helpers.myDate(props.row.messages[0]['created_at'], 'MMMM Do YYYY, h:mm:ss a') }}
                             </div>
                         </q-td>
                     </template>
@@ -86,6 +86,7 @@
                     <template v-slot:body-cell-status="props">
                         <q-td :props="props">
                             <q-badge
+                                v-if="props.row.self_status"
                                 :color="
                                     props.row.self_status === 'closed'
                                         ? 'red'
@@ -101,7 +102,7 @@
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
                             <q-btn
-                                :to="{ name: 'chats', params: { conv_id: props.row.id } }"
+                                @click="rightDrawer = !rightDrawer"
                                 icon="visibility"
                                 text-color="green"
                                 size="sm"
@@ -109,7 +110,8 @@
                                 flat
                             ></q-btn>
                             <q-btn
-                                :disable="props.row.self_status === 'closed'"
+                                :to="{ name: 'chats', params: { conv_id: props.row.id } }"
+                                :disable="props.row.self_status === 'closed' || props.row.self_status !== 'joined'"
                                 icon="forward_to_inbox"
                                 text-color="green"
                                 size="sm"
@@ -233,7 +235,7 @@ export default defineComponent({
             const mySocketSessionId = this.$helpers.getMySocketSessionId();
 
             if (clientConversations) {
-                return clientConversations.map((clientConv: any) => {
+                return Object.values(clientConversations).map((clientConv: any) => {
                     clientConv.connected_agents = [];
 
                     // set connected agents and client information
@@ -256,11 +258,11 @@ export default defineComponent({
     },
 
     mounted() {
-        this.test();
+        this.getClientConversations();
     },
 
     methods: {
-        test() {
+        getClientConversations() {
             this.$store.dispatch('client_conversation/getClientConversations');
         },
 

@@ -5,7 +5,7 @@ export interface ClientConversationStateInterface {
 
 function state(): ClientConversationStateInterface {
     return {
-        clientConversations: '',
+        clientConversations: {},
     };
 }
 

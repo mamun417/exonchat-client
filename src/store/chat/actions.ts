@@ -11,16 +11,15 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // conversation state (joined, left, close) like message
     storeConvState(context, convInfo) {
-        let agentConvStateInfo = '';
-
-        agentConvStateInfo = getConStateInfoAsMessageArray(convInfo);
-
-        convInfo.messages = agentConvStateInfo;
+        convInfo.messages = getConStateInfoAsMessageArray(convInfo);
         convInfo.convStateInfo = {
             status: convInfo.state_status,
         };
 
         context.commit('storeConvMessages', convInfo);
+        // await context.dispatch('client_conversation/updateClientConversations', convInfo.conversation_id, {
+        //     root: true,
+        // });
     },
 
     // get conversation messages from db
@@ -90,13 +89,17 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     // using for both user and client
-    storeTemporaryMessage(context, payload) {
+    async storeTemporaryMessage(context, payload) {
         return new Promise((resolve) => {
             const data = {
                 messages: [payload],
             };
 
             context.commit('storeConvMessages', data);
+            // context.dispatch('client_conversation/updateClientConversations', data.messages[0].conversation_id, {
+            //     root: true,
+            // });
+
             resolve(true);
         });
     },
