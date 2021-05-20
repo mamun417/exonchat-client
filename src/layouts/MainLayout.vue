@@ -1,6 +1,6 @@
 <template>
     <q-layout view="hHh LpR fff" class="bg-white">
-        <q-header class="bg-green-8" elevated>
+        <q-header :class="[`${globalBgColor}-8`]" elevated>
             <q-toolbar class="tw-px-8">
                 <q-btn icon="mediation" flat />
                 <q-btn :icon="leftDrawer ? 'menu_open' : 'menu'" @click="leftDrawer = !leftDrawer" flat />
@@ -249,19 +249,20 @@ export default defineComponent({
         // ...mapGetters('socket', ['handshake']),
         ...mapGetters({
             profile: 'auth/profile',
+            globalBgColor: 'ui/globalBgColor',
         }),
     },
 
-    async mounted() {
+    mounted() {
         console.log('main layout mounted');
 
         // if ('logged in') {
-        await this.socketInitialize();
+        // await this.socketInitialize();
         // }
 
-        this.getAgents();
+        // this.getAgents();
 
-        this.$socket.emit('ec_get_logged_users', {});
+        // this.$socket.emit('ec_get_logged_users', {});
 
         this.domReady = true;
     },

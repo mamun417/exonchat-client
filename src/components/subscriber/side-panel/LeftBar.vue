@@ -1,5 +1,5 @@
 <template>
-    <div id="realtime-left-bar" class="tw-pb-3 tw-h-full">
+    <div id="realtime-left-bar" class="tw-h-full">
         <div></div>
 
         <q-scroll-area
@@ -39,7 +39,7 @@
                 <q-expansion-item
                     default-opened
                     label="Incoming chat request"
-                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
                     <q-card v-if="Object.keys(chatRequests).length">
@@ -82,7 +82,7 @@
                     default-opened
                     dense
                     label="Chat Requests For Me"
-                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
@@ -121,7 +121,7 @@
                 <q-expansion-item
                     default-opened
                     label="Chat Departments"
-                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
                     <q-card>
@@ -157,7 +157,7 @@
                 <q-expansion-item
                     default-opened
                     label="My Ongoing Chats"
-                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
                     <q-card>
@@ -182,7 +182,7 @@
 
                 <q-expansion-item
                     label="Ongoing Others Chats"
-                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
                     <q-card>
@@ -208,7 +208,7 @@
                 <q-expansion-item
                     default-opened
                     label="Teammates"
-                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
                     <q-card>
@@ -244,7 +244,7 @@
 
                 <q-expansion-item
                     label="Some Last Chats With Me"
-                    header-class="text-weight-bold bg-green-1 tw-text-sm"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
                     <q-card>
@@ -300,6 +300,7 @@ export default defineComponent({
             chatRequests: 'chat/chatRequests',
             chatAgents: 'chat/chatAgents',
             onlineChatAgents: 'chat/onlineChatAgents',
+            globalBgColor: 'ui/globalBgColor',
         }),
     },
 
