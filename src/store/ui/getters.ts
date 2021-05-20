@@ -19,6 +19,10 @@ const getters: GetterTree<UiStateInterface, StateInterface> = {
     globalColorToHex() {
         return 'upcoming';
     },
+
+    conversationTrucking(state) {
+        return state.truckingConversation;
+    },
 };
 
 export default getters;

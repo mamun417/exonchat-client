@@ -1,7 +1,15 @@
 <template>
     <div class="tw-h-full tw-flex tw-flex-col">
-        <message :ses-id="sesId" chat-panel-type="user" :conversationInfo="conversationInfo"></message>
+        <q-card v-if="currentRouteName === 'clients-conversations'">
+            <q-card-section> view, join, close trucking.... </q-card-section>
+        </q-card>
 
+        <message
+            v-if="currentRouteName === 'clients-conversations'"
+            :ses-id="sesId"
+            chat-panel-type="user"
+            :conversationInfo="conversationInfo"
+        ></message>
         <!--        <q-btn
             icon="chevron_right"
             color="green"
@@ -11,7 +19,8 @@
             round
             unelevated
         />-->
-        <!--        <q-scroll-area
+        <q-scroll-area
+            v-else
             class="fit"
             :bar-style="{
                 background: '#60A5FA',
@@ -26,7 +35,7 @@
                 opacity: 0.5,
             }"
         >
-            &lt;!&ndash;            <q-list class="tw-px-1 tw-my-3">
+            <q-list class="tw-px-1 tw-my-3">
                 <q-item class="">
                     <q-item-section avatar>
                         <q-avatar size="xl">
@@ -35,8 +44,10 @@
                     </q-item-section>
 
                     <q-item-section class="tw-w-full">
-                        <q-item-label class="text-weight-bold tw-text-lg">Hasan</q-item-label
-                        ><q-item-label caption>test@test.test</q-item-label>
+                        <q-item-label class="text-weight-bold tw-text-lg">
+                            {{ $_.upperFirst(profile.user_meta.full_name) }}
+                        </q-item-label>
+                        <q-item-label caption>{{ profile.email }}</q-item-label>
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
@@ -118,14 +129,15 @@
                         ></q-card
                     >
                 </q-expansion-item>
-            </q-list>&ndash;&gt;
-        </q-scroll-area>-->
+            </q-list>
+        </q-scroll-area>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Message from 'components/common/Message.vue';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: 'RightBar',
@@ -140,16 +152,24 @@ export default defineComponent({
     },
 
     computed: {
+        ...mapGetters({
+            conversationTrucking: 'ui/conversationTrucking',
+            profile: 'auth/profile',
+        }),
+
         conversationInfo(): any {
-            return this.$store.getters['chat/conversationInfo']('ckovg9uxa3498ckg7g6h15fz0');
+            const convId = this.conversationTrucking.conversationId;
+            return this.$store.getters['chat/conversationInfo'](convId);
+        },
+
+        currentRouteName() {
+            return this.$route.name;
         },
     },
 
     mounted() {
         console.log('right bar initiated');
         this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
-
-        this.getConvMessages('ckovg9uxa3498ckg7g6h15fz0');
     },
 
     methods: {
@@ -157,6 +177,16 @@ export default defineComponent({
             await this.$store.dispatch('chat/getAgentConvMessages', {
                 convId,
             });
+        },
+    },
+
+    watch: {
+        conversationTrucking: {
+            handler(conversationTrucking) {
+                this.getConvMessages(conversationTrucking.conversationId);
+                this.$emit('conversationTruckingHandle');
+            },
+            deep: true,
         },
     },
 });

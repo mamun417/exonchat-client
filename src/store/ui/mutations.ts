@@ -10,6 +10,10 @@ const mutation: MutationTree<UiStateInterface> = {
         localStorage.setItem('globalColor', color);
         state.globalColor = color;
     },
+
+    updateConversationTrucking(state, convId) {
+        state.truckingConversation.conversationId = convId;
+    },
 };
 
 export default mutation;

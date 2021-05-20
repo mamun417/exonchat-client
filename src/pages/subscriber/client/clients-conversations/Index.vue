@@ -102,7 +102,7 @@
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
                             <q-btn
-                                @click="rightDrawer = !rightDrawer"
+                                @click="updateConversationTrucking(props.row.id)"
                                 icon="visibility"
                                 text-color="green"
                                 size="sm"
@@ -143,6 +143,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapMutations } from 'vuex';
 
 const columns = [
     {
@@ -262,6 +263,8 @@ export default defineComponent({
     },
 
     methods: {
+        ...mapMutations({ updateConversationTrucking: 'ui/updateConversationTrucking' }),
+
         getClientConversations() {
             this.$store.dispatch('client_conversation/getClientConversations');
         },

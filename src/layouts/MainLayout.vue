@@ -84,7 +84,7 @@
                 persistent
                 show-if-above
             >
-                <right-bar></right-bar>
+                <right-bar @conversationTruckingHandle="rightDrawer = true"></right-bar>
             </q-drawer>
             <q-page-container>
                 <q-page class="tw-flex">
@@ -225,7 +225,7 @@ export default defineComponent({
         return {
             domReady: false,
             leftDrawer: true,
-            rightDrawer: true,
+            rightDrawer: false,
             socket: null,
 
             sesId: null,
@@ -253,16 +253,16 @@ export default defineComponent({
         }),
     },
 
-    mounted() {
+    async mounted() {
         console.log('main layout mounted');
 
         // if ('logged in') {
-        // await this.socketInitialize();
+        await this.socketInitialize();
         // }
 
-        // this.getAgents();
+        this.getAgents();
 
-        // this.$socket.emit('ec_get_logged_users', {});
+        this.$socket.emit('ec_get_logged_users', {});
 
         this.domReady = true;
     },
