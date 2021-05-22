@@ -6,63 +6,29 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <q-table
-                    :rows="clientConversations"
-                    :columns="columns"
-                    row-key="name"
-                    :pagination="{ rowsPerPage: 0 }"
-                    hide-pagination
-                    flat
-                >
-                    <template v-slot:top-right>
-                        <q-input borderless dense debounce="300" placeholder="Search" color="green">
-                            <template v-slot:append>
-                                <q-icon name="search" />
-                            </template>
-                        </q-input>
+                <ec-table :rows="clientConversations" :columns="columns" :bodyCelTemplate="{}">
+                    <template v-slot:cell-client_name="slotProps">
+                        <div>
+                            {{ slotProps.row.client.init_name }}
+                        </div>
                     </template>
 
-                    <template v-slot:header="props">
-                        <q-tr :props="props">
-                            <q-th
-                                v-for="col in props.cols"
-                                :key="col.name"
-                                :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
-                            >
-                                {{ col.label }}
-                            </q-th>
-                        </q-tr>
+                    <template v-slot:cell-msg="slotProps">
+                        <div>
+                            {{ slotProps.row.messages[0]['msg'] }}
+                        </div>
                     </template>
 
-                    <template v-slot:body-cell-client_name="props">
-                        <q-td :props="props">
-                            <div class="tw-font-medium tw-italic">
-                                {{ props.row.client.init_name }}
-                            </div>
-                        </q-td>
+                    <template v-slot:cell-chat_department="slotProps">
+                        <div>
+                            {{ slotProps.row.chat_department.tag }}
+                        </div>
                     </template>
 
-                    <template v-slot:body-cell-chat_department="props">
-                        <q-td :props="props">
-                            <div class="tw-font-medium tw-italic">
-                                {{ props.row.chat_department.tag }}
-                            </div>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-msg="props">
-                        <q-td :props="props">
-                            <div class="tw-font-medium tw-italic">
-                                {{ props.row.messages[0]['msg'] }}
-                            </div>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-connected_agents="props">
-                        <q-td :props="props">
+                    <template v-slot:cell-connected_agents="slotProps">
+                        <div v-if="slotProps.row.connected_agents.length">
                             <q-avatar
-                                v-for="(agent, key) in props.row.connected_agents"
+                                v-for="(agent, key) in slotProps.row.connected_agents"
                                 :key="key"
                                 size="35px"
                                 :style="key !== 0 ? { marginLeft: '-8px' } : ''"
@@ -72,70 +38,41 @@
                                     {{ agent.email }}
                                 </q-tooltip>
                             </q-avatar>
-                        </q-td>
+                        </div>
+                        <div v-else></div>
                     </template>
 
-                    <template v-slot:body-cell-last_sent="props">
-                        <q-td :props="props">
-                            <div class="tw-text-xxs">
-                                {{ $helpers.myDate(props.row.messages[0]['created_at'], 'MMMM Do YYYY, h:mm:ss a') }}
-                            </div>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-status="props">
-                        <q-td :props="props">
-                            <q-badge
-                                v-if="props.row.self_status"
-                                :color="
-                                    props.row.self_status === 'closed'
-                                        ? 'red'
-                                        : props.row.self_status === 'left'
-                                        ? 'orange'
-                                        : ''
-                                "
-                                >{{ props.row.self_status }}</q-badge
-                            >
-                        </q-td>
-                    </template>
-
-                    <template v-slot:body-cell-action="props">
-                        <q-td :props="props">
-                            <q-btn
-                                @click="updateConversationTrucking(props.row.id)"
-                                icon="visibility"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn
-                                :to="{ name: 'chats', params: { conv_id: props.row.id } }"
-                                :disable="props.row.self_status === 'closed' || props.row.self_status !== 'joined'"
-                                icon="forward_to_inbox"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn
-                                :disable="props.row.self_status === 'closed'"
-                                icon="close"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:no-data="{ message }">
-                        <div class="full-width row flex-center text-red q-gutter-sm">
-                            <q-icon size="2em" name="sentiment_dissatisfied" />
-                            <span> Well this is sad... {{ message }} </span>
+                    <template v-slot:cell-last_sent="slotProps">
+                        <div>
+                            {{ $helpers.myDate(slotProps.row.messages[0]['created_at'], 'MMMM Do YYYY, h:mm:ss a') }}
                         </div>
                     </template>
-                </q-table>
+
+                    <template v-slot:cell-status="slotProps">
+                        <q-badge
+                            v-if="slotProps.row.self_status"
+                            :color="
+                                slotProps.row.self_status === 'closed'
+                                    ? 'red'
+                                    : slotProps.row.self_status === 'left'
+                                    ? 'orange'
+                                    : ''
+                            "
+                        >
+                            {{ slotProps.row.self_status }}
+                        </q-badge>
+                        <div v-else></div>
+                    </template>
+
+                    <template v-slot:cell-action="slotProps">
+                        <tracking-btn @click="updateConversationTrucking(slotProps.row.id)" />
+                        <direct-message-btn
+                            :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }"
+                            :disable="slotProps.row.self_status === 'closed' || slotProps.row.self_status !== 'joined'"
+                        />
+                        <close-conversation-btn :disable="slotProps.row.self_status === 'closed'" />
+                    </template>
+                </ec-table>
             </div>
         </div>
     </div>
@@ -144,6 +81,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapMutations } from 'vuex';
+import EcTable from 'components/common/table/EcTable.vue';
+import TrackingBtn from 'components/common/table/utilities/TrackingBtn.vue';
+import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn.vue';
+import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
 
 const columns = [
     {
@@ -216,6 +157,7 @@ const rows = [
 ];
 
 export default defineComponent({
+    components: { CloseConversationBtn, DirectMessageBtn, TrackingBtn, EcTable },
     data(): any {
         return {};
     },

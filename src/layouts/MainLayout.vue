@@ -84,7 +84,7 @@
                 persistent
                 show-if-above
             >
-                <right-bar @conversationTruckingHandle="rightDrawer = true"></right-bar>
+                <right-bar @conversationTrackingHandle="rightDrawer = true"></right-bar>
             </q-drawer>
             <q-page-container>
                 <q-page class="tw-flex">

@@ -108,9 +108,7 @@
     </q-scroll-area>
 
     <div
-        v-if="
-            chatPanelType === 'client' || conversationInfo.stateInfo.status === 'joined' || isAgentToAgentConversation
-        "
+        v-if="isShowSendMessageInput"
         class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
     >
         <q-file
@@ -276,6 +274,16 @@ export default defineComponent({
             default: 'user',
         },
 
+        isConversationTracking: {
+            type: Boolean,
+            default: false,
+        },
+
+        conversationId: {
+            type: String,
+            default: '',
+        },
+
         conversationInfo: {
             type: Object,
         },
@@ -330,6 +338,15 @@ export default defineComponent({
         isAgentToAgentConversation(): any {
             return this.conversationInfo.stateInfo.users_only;
         },
+
+        isShowSendMessageInput(): any {
+            return (
+                (this.chatPanelType === 'client' ||
+                    this.conversationInfo.stateInfo.status === 'joined' ||
+                    this.isAgentToAgentConversation) &&
+                !this.isConversationTracking
+            );
+        },
     },
 
     methods: {
@@ -350,7 +367,7 @@ export default defineComponent({
         },
 
         getConvId() {
-            return this.$route.params['conv_id'];
+            return this.isConversationTracking ? this.conversationId : this.$route.params['conv_id'];
         },
 
         handleNameForMultipleSelfMessage(index: any, message: any) {

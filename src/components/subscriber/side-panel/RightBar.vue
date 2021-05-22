@@ -3,11 +3,12 @@
         <q-card v-if="currentRouteName === 'clients-conversations'">
             <q-card-section> view, join, close trucking.... </q-card-section>
         </q-card>
-
         <message
             v-if="currentRouteName === 'clients-conversations'"
             :ses-id="sesId"
-            chat-panel-type="user"
+            chat-panel-type="client"
+            :is-conversation-tracking="true"
+            :conversation-id="trackingConversation.conversationId"
             :conversationInfo="conversationInfo"
         ></message>
         <!--        <q-btn
@@ -153,12 +154,12 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            conversationTrucking: 'ui/conversationTrucking',
+            trackingConversation: 'ui/trackingConversation',
             profile: 'auth/profile',
         }),
 
         conversationInfo(): any {
-            const convId = this.conversationTrucking.conversationId;
+            const convId = this.trackingConversation.conversationId;
             return this.$store.getters['chat/conversationInfo'](convId);
         },
 
@@ -181,10 +182,10 @@ export default defineComponent({
     },
 
     watch: {
-        conversationTrucking: {
-            handler(conversationTrucking) {
-                this.getConvMessages(conversationTrucking.conversationId);
-                this.$emit('conversationTruckingHandle');
+        trackingConversation: {
+            handler(trackingConversation) {
+                this.getConvMessages(trackingConversation.conversationId);
+                this.$emit('conversationTrackingHandle');
             },
             deep: true,
         },

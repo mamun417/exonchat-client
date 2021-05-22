@@ -20,8 +20,8 @@ const getters: GetterTree<UiStateInterface, StateInterface> = {
         return 'upcoming';
     },
 
-    conversationTrucking(state) {
-        return state.truckingConversation;
+    trackingConversation(state) {
+        return state.trackingConversation;
     },
 };
 
