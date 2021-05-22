@@ -36,7 +36,9 @@ export default route<StateInterface>(function ({ store }) {
 
         const login = store.getters['auth/isLoggedIn'];
 
-        if (to.matched.some((record) => record.meta.requiresAuth)) {
+        if (to.path === '/web-chat') {
+            return next();
+        } else if (to.matched.some((record) => record.meta.requiresAuth)) {
             if (login) {
                 return next();
             }

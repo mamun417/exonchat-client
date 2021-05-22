@@ -58,6 +58,16 @@ const routes: RouteRecordRaw[] = [
                         name: 'settings_ui',
                         component: () => import('pages/subscriber/settings/ui/Index.vue'),
                     },
+                    {
+                        path: 'apps',
+                        name: 'settings_apps',
+                        component: () => import('pages/subscriber/settings/apps/Index.vue'),
+                    },
+                    {
+                        path: 'testing',
+                        name: 'settings_testing',
+                        component: () => import('pages/subscriber/settings/testing/Index.vue'),
+                    },
                 ],
             },
         ],

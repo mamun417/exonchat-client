@@ -1,11 +1,16 @@
 <template>
-    <q-page class="tw-flex tw-flex-col">
-        <div class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center">
-            <div>Online - Chat With Us</div>
-            <q-btn @click="clearSession">Clear</q-btn>
-            <q-btn icon="info" flat>
-                <q-menu class="tw-p-2" style="min-width: 350px">
-                    <div
+    <q-page class="tw-flex tw-flex-col tw-rounded-md">
+        <div
+            v-if="panelVisibleStatus"
+            class="tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
+        >
+            <div
+                class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
+            >
+                <div>Online - Chat With Us</div>
+                <q-btn v-if="clientInitiateConvInfo.conv_id" icon="more_vert" flat>
+                    <q-menu>
+                        <!-- <div
                         class="tw-p-2 tw-border-1 tw-shadow-md"
                         v-for="(m, i) in Object.keys($store._modules.root.state)"
                         :key="i"
@@ -20,24 +25,39 @@
                                 <pre>{{ $store._modules.root.state[m][mv] }}</pre>
                             </span>
                         </div>
-                    </div>
-                </q-menu>
-            </q-btn>
-            <div style="max-height: 100px; overflow: auto"></div>
-            <q-space></q-space>
-            <q-btn icon="expand_more" dense flat></q-btn>
-        </div>
-        <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
-            <div v-if="clientInitiateConvInfo.conv_id" id="webchat-container" class="tw-flex-grow tw-flex tw-flex-col">
-                <message
-                    :ses-id="sesId"
-                    :socket="socket"
-                    chat-panel-type="client"
-                    :conversationInfo="conversationInfo"
-                ></message>
-            </div>
+                    </div> -->
 
-            <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
+                        <q-list style="min-width: 100px" dense>
+                            <q-item clickable dense v-close-popup>
+                                <q-item-section @click="clearSession" class="text-orange">Close Chat</q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-menu>
+                </q-btn>
+                <div style="max-height: 100px; overflow: auto"></div>
+                <q-space></q-space>
+                <q-btn
+                    :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
+                    @click="toggleChatPanel(!panelVisibleStatus)"
+                    dense
+                    flat
+                ></q-btn>
+            </div>
+            <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+                <div
+                    v-if="clientInitiateConvInfo.conv_id"
+                    id="webchat-container"
+                    class="tw-flex-grow tw-flex tw-flex-col"
+                >
+                    <message
+                        :ses-id="sesId"
+                        :socket="socket"
+                        chat-panel-type="client"
+                        :conversationInfo="conversationInfo"
+                    ></message>
+                </div>
+
+                <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
                 <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
                     <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
                         <q-icon name="chat" size="xl" color="green"></q-icon>
@@ -50,44 +70,59 @@
                 </div>
             </div> -->
 
-            <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
-                <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
-                    <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
-                        <q-icon name="account_circle" size="xl" color="green"></q-icon>
-                    </div>
-                    <div class="tw-px-4 tw-py-16">
-                        <q-input v-model="convInitFields.name" dense label="Your Name" color="green" class="tw-mb-3">
-                            <template v-slot:prepend>
-                                <q-icon name="person" size="xs" color="green" />
-                            </template>
-                        </q-input>
-                        <q-input v-model="convInitFields.email" dense class="tw-mb-3" label="Your Email" type="email">
-                            <template v-slot:prepend>
-                                <q-icon name="email" size="xs" color="green" />
-                            </template>
-                        </q-input>
+                <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
+                    <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
+                        <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
+                            <q-icon name="account_circle" size="xl" color="green"></q-icon>
+                        </div>
+                        <div class="tw-px-4 tw-py-16">
+                            <q-input
+                                v-model="convInitFields.name"
+                                dense
+                                label="Your Name"
+                                color="green"
+                                class="tw-mb-3"
+                            >
+                                <template v-slot:prepend>
+                                    <q-icon name="person" size="xs" color="green" />
+                                </template>
+                            </q-input>
+                            <q-input
+                                v-model="convInitFields.email"
+                                dense
+                                class="tw-mb-3"
+                                label="Your Email"
+                                type="email"
+                            >
+                                <template v-slot:prepend>
+                                    <q-icon name="email" size="xs" color="green" />
+                                </template>
+                            </q-input>
 
-                        <q-select
-                            v-model="convInitFields.department"
-                            :options="chatDepartments"
-                            option-value="id"
-                            option-label="tag"
-                            label="Chat Department"
-                            color="green"
-                            class="tw-mb-3"
-                            emit-value
-                            map-options
-                            dense
-                            ><template v-slot:prepend> <q-icon name="person" size="xs" color="green" /> </template
-                        ></q-select>
+                            <q-select
+                                v-model="convInitFields.department"
+                                :options="chatDepartments"
+                                option-value="id"
+                                option-label="tag"
+                                label="Chat Department"
+                                color="green"
+                                class="tw-mb-3"
+                                emit-value
+                                map-options
+                                dense
+                                ><template v-slot:prepend> <q-icon name="person" size="xs" color="green" /> </template
+                            ></q-select>
 
-                        <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize"
-                            >Start Chat as Guest
-                        </q-btn>
-                        <pre>{{ clientInitiateConvInfo }}</pre>
+                            <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize" no-caps
+                                >Start Chat as Guest
+                            </q-btn>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div v-else>
+            <q-btn icon="forum" size="md" color="green" @click="toggleChatPanel(true)" round />
         </div>
     </q-page>
 </template>
@@ -98,6 +133,13 @@ import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
 
+declare global {
+    interface Window {
+        maximizeChatPanel: any;
+        minimizeChatPanel: any;
+    }
+}
+
 export default defineComponent({
     name: 'WebChat',
     components: { Message },
@@ -106,6 +148,7 @@ export default defineComponent({
     },
     data(): any {
         return {
+            panelVisibleStatus: !!window.localStorage.getItem('chat_panel_visible'),
             socket: null,
 
             socketId: null,
@@ -148,6 +191,8 @@ export default defineComponent({
 
         this.getChatDepartments();
         // this.setTypingFalse();
+
+        this.handleChatPanelVisibility();
     },
 
     computed: {
@@ -162,6 +207,24 @@ export default defineComponent({
     },
 
     methods: {
+        handleChatPanelVisibility() {
+            if (this.panelVisibleStatus) {
+                window.parent.maximizeChatPanel();
+            } else {
+                window.parent.minimizeChatPanel();
+            }
+        },
+        toggleChatPanel(toggleTo: any) {
+            if (toggleTo) {
+                window.localStorage.setItem('chat_panel_visible', 'true');
+                this.panelVisibleStatus = true;
+                window.parent.maximizeChatPanel();
+            } else {
+                window.localStorage.removeItem('chat_panel_visible');
+                this.panelVisibleStatus = false;
+                window.parent.minimizeChatPanel();
+            }
+        },
         clearSession() {
             localStorage.clear();
             sessionStorage.clear();
@@ -313,7 +376,7 @@ export default defineComponent({
         },
 
         chatInitialize() {
-            console.log(this.convInitFields);
+            // console.log(this.convInitFields);
 
             this.socket.emit('ec_init_conv_from_client', { ...this.convInitFields });
         },
@@ -393,6 +456,15 @@ export default defineComponent({
                 this.typingHandler.typing = false;
             }, 2000);
         },
+    },
+
+    unmounted() {
+        clearInterval(this.typingHandler);
+        clearInterval(this.pageVisitingHandler);
+
+        if (this.socket) {
+            this.socket.close();
+        }
     },
 });
 </script>

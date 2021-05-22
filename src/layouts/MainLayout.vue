@@ -5,11 +5,12 @@
                 <q-btn icon="mediation" flat />
                 <q-btn :icon="leftDrawer ? 'menu_open' : 'menu'" @click="leftDrawer = !leftDrawer" flat />
                 <q-space />
-                <q-btn icon="forum" flat />
+
                 <q-btn icon="star" flat />
-                <q-btn icon="send" flat />
-                <q-btn icon="drafts" flat />
-                <q-btn icon="info" flat>
+                <q-btn icon="forum" to="/conversations" size="lg" flat />
+                <q-btn icon="settings" to="/settings" flat />
+
+                <q-space /><q-btn icon="info" flat>
                     <q-menu class="tw-p-2" style="min-width: 350px">
                         <div
                             class="tw-p-2 tw-border-1 tw-shadow-md"
@@ -29,7 +30,6 @@
                         </div>
                     </q-menu>
                 </q-btn>
-                <q-space />
                 <q-avatar size="lg" class="cursor-pointer">
                     <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
 
@@ -217,6 +217,12 @@ import { mapGetters } from 'vuex';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
 import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
 
+declare global {
+    interface Window {
+        exonChat: any;
+    }
+}
+
 export default defineComponent({
     name: 'MainLayout',
     components: { LeftBar, RightBar },
@@ -252,16 +258,16 @@ export default defineComponent({
         }),
     },
 
-    mounted() {
+    async mounted() {
         console.log('main layout mounted');
 
-        // if ('logged in') {
-        // await this.socketInitialize();
-        // }
+        if (this.profile.id) {
+            await this.socketInitialize();
+        }
 
-        // this.getAgents();
+        this.getAgents();
 
-        // this.$socket.emit('ec_get_logged_users', {});
+        this.$socket.emit('ec_get_logged_users', {});
 
         this.domReady = true;
     },
@@ -425,6 +431,25 @@ export default defineComponent({
             });
         },
 
+        openChatPanelBoxForTest() {
+            const ls = window.localStorage.getItem('chat_panel_box_for_test');
+
+            if (ls && ls === 'true') {
+                window.exonChat = function () {
+                    return {};
+                };
+                (function (d, s, id) {
+                    let js: any,
+                        fjs: any = d.getElementsByTagName(s)[0];
+                    if (d.getElementById(id)) return;
+                    js = d.createElement(s);
+                    js.id = id;
+                    js.src = 'http://localhost:8080/assets/js/web-chat/web-chat.js';
+                    fjs.parentNode.insertBefore(js, fjs);
+                })(document, 'script', 'exhonchat-chat-frame');
+            }
+        },
+
         logout() {
             this.$store
                 .dispatch('auth/logOut')
@@ -441,6 +466,14 @@ export default defineComponent({
                 .catch((err: any) => {
                     console.log(err);
                 });
+        },
+
+        unmounted() {
+            if (this.socket) {
+                this.socket.close();
+            }
+
+            this.$emitter.clear.all();
         },
     },
 });
