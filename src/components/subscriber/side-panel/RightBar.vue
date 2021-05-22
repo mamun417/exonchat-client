@@ -1,10 +1,49 @@
 <template>
     <div class="tw-h-full tw-flex tw-flex-col">
-        <q-card v-if="currentRouteName === 'clients-conversations'">
-            <q-card-section> view, join, close trucking.... </q-card-section>
+        <q-card v-if="trackingConversation.conversationId" class="tw-shadow-sm">
+            <q-card-section class="tw-flex tw-items-center tw-py-2 tw-px-2">
+                <div>
+                    <view-conversation-btn
+                        :to="{ name: 'chats', params: { conv_id: trackingConversation.conversationId } }"
+                    />
+
+                    <q-btn
+                        @click="confirm = true"
+                        text-color="green"
+                        size="sm"
+                        dense
+                        flat
+                        icon="person_add_alt"
+                        class="tw-px-2"
+                    >
+                        <q-tooltip :offset="[10, 10]"> Join chat </q-tooltip>
+                    </q-btn>
+                </div>
+
+                <div class="tw-ml-auto">
+                    <q-btn text-color="green" size="sm" dense flat icon="more_vert">
+                        <q-menu>
+                            <q-list dense style="min-width: 100px">
+                                <q-item clickable v-close-popup>
+                                    <q-item-section>Item 1</q-item-section>
+                                </q-item>
+                                <q-item clickable v-close-popup>
+                                    <q-item-section>Item 2</q-item-section>
+                                </q-item>
+                                <q-separator />
+                                <q-item clickable v-close-popup>
+                                    <q-item-section @click="$emit('conversationTrackingRightBar', false)">
+                                        Quit
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-menu>
+                    </q-btn>
+                </div>
+            </q-card-section>
         </q-card>
         <message
-            v-if="currentRouteName === 'clients-conversations'"
+            v-if="trackingConversation.conversationId"
             :ses-id="sesId"
             chat-panel-type="client"
             :is-conversation-tracking="true"
@@ -132,6 +171,13 @@
                 </q-expansion-item>
             </q-list>
         </q-scroll-area>
+
+        <conversation-state-confirm-modal
+            v-if="confirm"
+            :conv-state-button-info="{ name: 'join' }"
+            @convStateHandle="joinConversation()"
+            @hide="confirm = false"
+        />
     </div>
 </template>
 
@@ -139,16 +185,19 @@
 import { defineComponent } from 'vue';
 import Message from 'components/common/Message.vue';
 import { mapGetters } from 'vuex';
+import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
+import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
 
 export default defineComponent({
     name: 'RightBar',
-    components: { Message },
+    components: { ConversationStateConfirmModal, ViewConversationBtn, Message },
     setup() {
         return {};
     },
     data(): any {
         return {
             sesId: '',
+            confirm: false,
         };
     },
 
@@ -179,13 +228,32 @@ export default defineComponent({
                 convId,
             });
         },
+
+        // set self status (join/left/closed)
+        getSelfConversationStateStatus() {
+            //
+        },
+
+        joinConversation() {
+            const convId = this.trackingConversation.conversationId;
+
+            if (!convId) return;
+
+            this.$socket.emit('ec_join_conversation', {
+                conv_id: convId,
+            });
+
+            this.$router.push({ name: 'chats', params: { conv_id: convId } });
+        },
     },
 
     watch: {
         trackingConversation: {
             handler(trackingConversation) {
-                this.getConvMessages(trackingConversation.conversationId);
-                this.$emit('conversationTrackingHandle');
+                if (trackingConversation.conversationId) {
+                    this.getConvMessages(trackingConversation.conversationId);
+                    this.$emit('conversationTrackingRightBar', true);
+                }
             },
             deep: true,
         },

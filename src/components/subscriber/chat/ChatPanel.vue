@@ -32,26 +32,12 @@
 
         <message :ses-id="sesId" chat-panel-type="user" :conversationInfo="conversationInfo"></message>
 
-        <q-dialog v-model="confirm" persistent>
-            <q-card style="min-width: 350px">
-                <q-card-section class="row items-center">
-                    <span class="q-ml-sm"
-                        >Are you want to {{ convStateButtonInfo.name.toLowerCase() }} this conversation ?</span
-                    >
-                </q-card-section>
-
-                <q-card-actions align="right">
-                    <q-btn flat label="Cancel" color="primary" v-close-popup />
-                    <q-btn
-                        @click="convStateHandle(convStateButtonInfo.action)"
-                        label="Yes"
-                        color="primary"
-                        v-close-popup
-                        flat
-                    />
-                </q-card-actions>
-            </q-card>
-        </q-dialog>
+        <conversation-state-confirm-modal
+            v-if="confirm"
+            :conv-state-button-info="convStateButtonInfo"
+            @convStateHandle="convStateHandle($event)"
+            @hide="confirm = false"
+        />
     </div>
 </template>
 
@@ -59,10 +45,11 @@
 import { defineComponent } from 'vue';
 import Message from 'components/common/Message.vue';
 import { mapGetters } from 'vuex';
+import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
 
 export default defineComponent({
     name: 'ChatPanel',
-    components: { Message },
+    components: { ConversationStateConfirmModal, Message },
     setup() {
         return {};
     },

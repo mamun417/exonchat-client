@@ -30,7 +30,7 @@
                     </q-menu>
                 </q-btn>
                 <q-space />
-                <q-btn :icon="rightDrawer ? 'menu_open' : 'menu'" @click="rightDrawer = !rightDrawer" flat />
+                <q-btn :icon="rightDrawer ? 'menu_open' : 'menu'" @click="handleRightDrawerToggle" flat />
 
                 <q-avatar size="lg" class="cursor-pointer">
                     <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
@@ -84,7 +84,7 @@
                 persistent
                 show-if-above
             >
-                <right-bar @conversationTrackingHandle="rightDrawer = true"></right-bar>
+                <right-bar @conversationTrackingRightBar="rightDrawer = $event"></right-bar>
             </q-drawer>
             <q-page-container>
                 <q-page class="tw-flex">
@@ -214,7 +214,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
 import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
 
@@ -250,7 +250,12 @@ export default defineComponent({
         ...mapGetters({
             profile: 'auth/profile',
             globalBgColor: 'ui/globalBgColor',
+            trackingConversation: 'ui/trackingConversation',
         }),
+
+        currentRouteName() {
+            return this.$route.name;
+        },
     },
 
     async mounted() {
@@ -268,6 +273,8 @@ export default defineComponent({
     },
 
     methods: {
+        ...mapMutations({ updateConversationTrucking: 'ui/updateConversationTrucking' }),
+
         getAgents() {
             this.$store.dispatch('chat/getAgents');
         },
@@ -442,6 +449,17 @@ export default defineComponent({
                 .catch((err: any) => {
                     console.log(err);
                 });
+        },
+
+        handleRightDrawerToggle() {
+            if (!this.trackingConversation.conversationId) {
+                this.rightDrawer = !this.rightDrawer;
+            }
+
+            // set conversationId null to show browser information at right-bar
+            if (this.currentRouteName !== 'clients-conversations') {
+                this.updateConversationTrucking('');
+            }
         },
     },
 });

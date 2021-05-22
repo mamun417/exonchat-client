@@ -65,26 +65,39 @@
                     </template>
 
                     <template v-slot:cell-action="slotProps">
-                        <tracking-btn @click="updateConversationTrucking(slotProps.row.id)" />
+                        <view-conversation-btn :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }" />
+                        <tracking-conversation-btn @click="updateConversationTrucking(slotProps.row.id)" />
                         <direct-message-btn
                             :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }"
-                            :disable="slotProps.row.self_status === 'closed' || slotProps.row.self_status !== 'joined'"
+                            :disable="slotProps.row.self_status !== 'joined'"
                         />
-                        <close-conversation-btn :disable="slotProps.row.self_status === 'closed'" />
+                        <close-conversation-btn
+                            @click="showCloseConversationConfirmModal(slotProps.row.id)"
+                            :disable="slotProps.row.self_status !== 'left'"
+                        />
                     </template>
                 </ec-table>
             </div>
         </div>
+
+        <conversation-state-confirm-modal
+            v-if="confirm"
+            :conv-state-button-info="{ name: 'close' }"
+            @convStateHandle="closeConversation()"
+            @hide="confirm = false"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapMutations } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 import EcTable from 'components/common/table/EcTable.vue';
-import TrackingBtn from 'components/common/table/utilities/TrackingBtn.vue';
+import TrackingConversationBtn from 'components/common/table/utilities/TrackingConversationBtn.vue';
 import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn.vue';
 import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
+import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
+import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
 
 const columns = [
     {
@@ -157,9 +170,19 @@ const rows = [
 ];
 
 export default defineComponent({
-    components: { CloseConversationBtn, DirectMessageBtn, TrackingBtn, EcTable },
+    components: {
+        ConversationStateConfirmModal,
+        ViewConversationBtn,
+        CloseConversationBtn,
+        DirectMessageBtn,
+        TrackingConversationBtn,
+        EcTable,
+    },
     data(): any {
-        return {};
+        return {
+            conversationId: '',
+            confirm: false,
+        };
     },
 
     setup() {
@@ -190,7 +213,7 @@ export default defineComponent({
                         }
                     });
 
-                    clientConv.self_status = this.getSelfStatus(mySocketSessionId, clientConv);
+                    clientConv.self_status = this.getSelfConversationStateStatus(mySocketSessionId, clientConv);
 
                     return clientConv;
                 });
@@ -198,6 +221,11 @@ export default defineComponent({
 
             return [];
         },
+
+        // if need later
+        ...mapGetters({
+            trackingConversation: 'ui/trackingConversation',
+        }),
     },
 
     mounted() {
@@ -212,7 +240,7 @@ export default defineComponent({
         },
 
         // set self status (join/left/closed)
-        getSelfStatus(mySocketSessionId: any, clientConv: any) {
+        getSelfConversationStateStatus(mySocketSessionId: any, clientConv: any) {
             if (clientConv.closed_by_id === mySocketSessionId) {
                 return 'closed';
             } else {
@@ -224,6 +252,21 @@ export default defineComponent({
                     return mySocketSession.left_at ? 'left' : 'joined';
                 }
             }
+        },
+
+        showCloseConversationConfirmModal(conversationId: any) {
+            this.confirm = true;
+            this.conversationId = conversationId;
+        },
+
+        closeConversation() {
+            const convId = this.conversationId;
+
+            if (!convId) return;
+
+            this.$socket.emit('ec_close_conversation', {
+                conv_id: convId,
+            });
         },
     },
 });

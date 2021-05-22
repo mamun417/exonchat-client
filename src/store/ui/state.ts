@@ -6,7 +6,9 @@ export interface UiStateInterface {
 function state(): UiStateInterface {
     return {
         globalColor: localStorage.getItem('globalColor') || 'green',
-        trackingConversation: {},
+        trackingConversation: {
+            conversationId: '',
+        },
     };
 }
 

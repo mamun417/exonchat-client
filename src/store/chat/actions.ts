@@ -10,16 +10,19 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     // conversation state (joined, left, close) like message
-    storeConvState(context, convInfo) {
+    async storeConvState(context, convInfo) {
         convInfo.messages = getConStateInfoAsMessageArray(convInfo);
         convInfo.convStateInfo = {
             status: convInfo.state_status,
         };
 
         context.commit('storeConvMessages', convInfo);
-        // await context.dispatch('client_conversation/updateClientConversations', convInfo.conversation_id, {
-        //     root: true,
-        // });
+
+        if (window.router.currentRoute._value.name !== 'web-chat.index') {
+            await context.dispatch('client_conversation/updateClientConversations', convInfo.conversation_id, {
+                root: true,
+            });
+        }
     },
 
     // get conversation messages from db
@@ -96,9 +99,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             };
 
             context.commit('storeConvMessages', data);
-            // context.dispatch('client_conversation/updateClientConversations', data.messages[0].conversation_id, {
-            //     root: true,
-            // });
+
+            if (window.router.currentRoute._value.name !== 'web-chat.index') {
+                context.dispatch('client_conversation/updateClientConversations', data.messages[0].conversation_id, {
+                    root: true,
+                });
+            }
 
             resolve(true);
         });

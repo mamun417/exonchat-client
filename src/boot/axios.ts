@@ -13,6 +13,7 @@ declare global {
     interface Window {
         api: any;
         socketSessionApi: any;
+        router: any;
     }
 }
 
@@ -147,8 +148,7 @@ export const socketSessionApi = function (router: any) {
 // };
 
 export default boot(({ app, router, store }) => {
-    console.log(router);
-
+    window.router = router;
     // for use inside Vue files (Options API) through this.$axios and this.$api
 
     app.config.globalProperties.$axios = axios;
