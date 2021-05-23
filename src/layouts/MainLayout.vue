@@ -75,15 +75,7 @@
             >
                 <left-bar></left-bar>
             </q-drawer>
-            <q-drawer
-                v-model="rightDrawer"
-                class="tw-shadow-lgl"
-                side="right"
-                breakpoint="xs"
-                width="250"
-                persistent
-                show-if-above
-            >
+            <q-drawer v-model="rightDrawer" class="tw-shadow-lgl" side="right" breakpoint="xs" width="250" persistent>
                 <right-bar @conversationTrackingRightBar="rightDrawer = $event"></right-bar>
             </q-drawer>
             <q-page-container>
@@ -270,6 +262,10 @@ export default defineComponent({
         this.$socket.emit('ec_get_logged_users', {});
 
         this.domReady = true;
+
+        if (this.currentRouteName === 'chats') {
+            this.rightDrawer = true;
+        }
     },
 
     methods: {
@@ -452,13 +448,11 @@ export default defineComponent({
         },
 
         handleRightDrawerToggle() {
-            if (!this.trackingConversation.conversationId) {
-                this.rightDrawer = !this.rightDrawer;
-            }
-
             // set conversationId null to show browser information at right-bar
-            if (this.currentRouteName !== 'clients-conversations') {
+            if (this.currentRouteName === 'chats' && this.trackingConversation.conversationId) {
                 this.updateConversationTrucking('');
+            } else {
+                this.rightDrawer = !this.rightDrawer;
             }
         },
     },

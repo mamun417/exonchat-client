@@ -30,7 +30,7 @@
         </template>
 
         <template v-slot:body="props">
-            <q-tr :props="props">
+            <q-tr :props="props" :class="props.row.id === selectedRowId ? 'tw-bg-amber-100' : ''">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!--                    <div class="text-red-14">-->
                     <!--                        <pre>{{ col.name }}</pre>-->
@@ -112,6 +112,10 @@ export default defineComponent({
         bodyCelTemplate: {
             type: Object,
             default: () => ({}),
+        },
+        selectedRowId: {
+            type: String,
+            default: '',
         },
     },
     data(): any {

@@ -6,7 +6,12 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :rows="clientConversations" :columns="columns" :bodyCelTemplate="{}">
+                <ec-table
+                    :rows="clientConversations"
+                    :columns="columns"
+                    :bodyCelTemplate="{}"
+                    :selected-row-id="selectedRowId"
+                >
                     <template v-slot:cell-client_name="slotProps">
                         <div>
                             {{ slotProps.row.client.init_name }}
@@ -181,6 +186,7 @@ export default defineComponent({
     data(): any {
         return {
             conversationId: '',
+            selectedRowId: '',
             confirm: false,
         };
     },
@@ -267,6 +273,16 @@ export default defineComponent({
             this.$socket.emit('ec_close_conversation', {
                 conv_id: convId,
             });
+        },
+    },
+
+    watch: {
+        trackingConversation: {
+            handler(trackingConversation) {
+                this.selectedRowId = trackingConversation.conversationId;
+            },
+            deep: true,
+            immediate: true,
         },
     },
 });
