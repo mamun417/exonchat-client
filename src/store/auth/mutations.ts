@@ -14,6 +14,10 @@ const mutation: MutationTree<AuthStateInterface> = {
         state.user = userInfo.data;
     },
 
+    authCreate() {
+        // nothing
+    },
+
     logOut(state) {
         localStorage.clear();
         sessionStorage.clear();

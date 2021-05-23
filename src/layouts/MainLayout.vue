@@ -262,12 +262,11 @@ export default defineComponent({
         console.log('main layout mounted');
 
         if (this.profile.id) {
+            this.openChatPanelBoxForTest();
+            this.getAgents();
+
             await this.socketInitialize();
         }
-
-        this.getAgents();
-
-        this.$socket.emit('ec_get_logged_users', {});
 
         this.domReady = true;
     },
@@ -278,15 +277,15 @@ export default defineComponent({
         },
 
         async socketInitialize() {
+            return;
             // if (this.handshake || 'logged') {
             this.sesId = this.$helpers.getMySocketSessionId();
             this.socketToken = sessionStorage.getItem('ec_user_socket_token');
-            console.log(this.sesId);
 
             if (!this.sesId) {
                 try {
                     const res = await this.$api.post('/socket-sessions', {
-                        api_key: 'test',
+                        api_key: this.profile.subscriber.api_key,
                         user_id: this.profile.id,
                     });
 
@@ -310,9 +309,8 @@ export default defineComponent({
 
             this.socket = this.$socket.connect();
 
-            console.log(this.socket);
-
             this.fireSocketListeners();
+            this.$socket.emit('ec_get_logged_users', {});
             // }
         },
         fireSocketListeners() {
@@ -435,6 +433,9 @@ export default defineComponent({
             const ls = window.localStorage.getItem('chat_panel_box_for_test');
 
             if (ls && ls === 'true') {
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
+                const self = this;
+
                 window.exonChat = function () {
                     return {};
                 };
@@ -444,6 +445,7 @@ export default defineComponent({
                     if (d.getElementById(id)) return;
                     js = d.createElement(s);
                     js.id = id;
+                    js.setAttribute('data-api-key', self.profile.subscriber.api_key);
                     js.src = 'http://localhost:8080/assets/js/web-chat/web-chat.js';
                     fjs.parentNode.insertBefore(js, fjs);
                 })(document, 'script', 'exhonchat-chat-frame');
@@ -467,14 +469,22 @@ export default defineComponent({
                     console.log(err);
                 });
         },
+    },
+    unmounted() {
+        //its safe then sorry
+        console.log('calling unmounted from main layout');
 
-        unmounted() {
-            if (this.socket) {
-                this.socket.close();
-            }
+        const dom = document.getElementById('exhonchat-container');
 
-            this.$emitter.clear.all();
-        },
+        if (dom) {
+            dom.parentNode?.removeChild(dom);
+        }
+
+        if (this.socket) {
+            this.socket.close();
+        }
+
+        this.$emitter.all.clear();
     },
 });
 </script>
