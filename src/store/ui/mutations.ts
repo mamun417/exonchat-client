@@ -12,6 +12,7 @@ const mutation: MutationTree<UiStateInterface> = {
     },
 
     updateConversationTrucking(state, convId) {
+        state.trackingConversation.conversationId = '';
         state.trackingConversation.conversationId = convId;
     },
 };
