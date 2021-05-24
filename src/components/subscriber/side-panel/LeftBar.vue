@@ -229,12 +229,17 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs"
-                                            >{{ agent.email }}
+                                        <q-item-label class="text-weight-bold tw-text-xs">
+                                            {{ agent.email }}
                                         </q-item-label>
-                                        <!-- <q-item-label class="text-weight-bold">
-                                            <pre>{{ agent }}</pre>
-                                        </q-item-label>-->
+                                    </q-item-section>
+
+                                    <q-item-section side>
+                                        <q-icon
+                                            name="fiber_manual_record"
+                                            :color="checkOnlineStatus(agent) ? 'green' : 'grey'"
+                                            size="xs"
+                                        />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
