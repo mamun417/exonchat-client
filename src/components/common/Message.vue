@@ -167,16 +167,17 @@
                     @hide="chatTemplateHideHandle"
                     no-parent-event
                 >
-                    <div class="tw-font-bold tw-text-xs text-green tw-px-4 tw-py-2">Suggetions</div>
+                    <div class="tw-font-bold tw-text-xs text-green tw-px-4 tw-py-2">Suggestions</div>
                     <q-separator />
                     <q-list separator style="min-width: 300px"
                         ><q-item
-                            v-for="(template, key) in chatTemplates"
+                            v-for="(template, key) in mappedChatTemplates"
                             :key="key"
                             :active="template.is_focused"
                             active-class="bg-green-3"
                             class="tw-font-medium"
                             @click="chatTemplateSelectHandle(key)"
+                            @keyup.enter.exact="chatTemplateSelectHandle(key)"
                             clickable
                         >
                             <q-item-section
@@ -321,6 +322,7 @@ export default defineComponent({
             chatTemplateLoading: true,
             chatTemplates: [],
             chatTemplateInputVal: '',
+            getChatTemplateTimer: '',
         };
     },
 
@@ -346,6 +348,36 @@ export default defineComponent({
                     this.isAgentToAgentConversation) &&
                 !this.isConversationTracking
             );
+        },
+
+        mappedChatTemplates(): any {
+            const mappedChatTemplates = this.chatTemplates.map((chatTemplate: any) => {
+                // set content
+                if (chatTemplate.intent) {
+                    chatTemplate.content =
+                        chatTemplate.intent.intent_action.type === 'static'
+                            ? chatTemplate.intent.intent_action.content
+                            : '';
+
+                    chatTemplate.loading = chatTemplate.intent.intent_action.type !== 'static';
+                }
+
+                chatTemplate.is_focused = false;
+
+                return chatTemplate;
+            });
+
+            if (!mappedChatTemplates.length) {
+                return [
+                    {
+                        tag: 'No Result! Append in message box',
+                        content: `/${this.chatTemplateInputVal}`,
+                        is_focused: true,
+                    },
+                ];
+            }
+
+            return mappedChatTemplates;
         },
     },
 
@@ -409,17 +441,24 @@ export default defineComponent({
             }
         },
 
-        getChatTemplates() {
-            this.chatTemplates = [
-                { tag: '/hi', content: 'hello user', is_focused: false },
-                { tag: '/by', content: 'bye user', is_focused: true },
-            ];
+        getChatTemplates(keyword = '') {
+            this.chatTemplateLoading = true;
+            let payload: any = {};
 
-            this.chatTemplateLoading = false;
+            if (keyword) {
+                payload.keyword = keyword;
+            }
 
-            // when get completes
-            this.$refs[`ec_template_dom_${this.uid}`].$forceUpdate(); // it will try to match dynamic height
+            this.$store.dispatch('chat_template/getChatTemplates', payload).then((res: any) => {
+                this.chatTemplates = res.data;
+
+                this.chatTemplateLoading = false;
+
+                // when get completes
+                this.$refs[`ec_template_dom_${this.uid}`].$forceUpdate(); // it will try to match dynamic height
+            });
         },
+
         chatTemplateShowHandle() {
             this.getChatTemplates();
             document.body.addEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
@@ -461,10 +500,12 @@ export default defineComponent({
         chatTemplateSearchHandle(e: any) {
             if (['ArrowUp', 'ArrowDown'].includes(e.key)) return;
 
-            // assume api returned none after search
-            this.chatTemplates = [
-                { tag: 'No Result! Append in message box', content: `/${this.chatTemplateInputVal}`, is_focused: true },
-            ];
+            console.log(e.target.value);
+
+            clearTimeout(this.getChatTemplateTimer);
+            this.getChatTemplateTimer = setTimeout(() => {
+                this.getChatTemplates(e.target.value);
+            }, 200);
         },
         chatTemplateDomPositionUpdate() {
             // this method will fix the menu position when content changes its height

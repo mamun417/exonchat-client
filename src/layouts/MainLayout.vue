@@ -5,11 +5,34 @@
                 <q-btn icon="mediation" flat />
                 <q-btn :icon="leftDrawer ? 'menu_open' : 'menu'" @click="leftDrawer = !leftDrawer" flat />
                 <q-space />
-                <q-btn icon="forum" flat />
-                <q-btn icon="star" flat />
-                <q-btn icon="send" flat />
-                <q-btn icon="drafts" flat />
+
+                <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat>
+                    <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
+                </q-btn>
+
+                <q-btn icon="smart_toy" :to="{ name: 'intents' }" flat>
+                    <q-tooltip :offset="[10, 10]">Intents</q-tooltip>
+                </q-btn>
+
+                <q-btn icon="record_voice_over" :to="{ name: 'speech-recognition' }" flat>
+                    <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>
+                </q-btn>
+
+                <q-btn icon="account_tree" :to="{ name: 'departments' }" flat>
+                    <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
+                </q-btn>
+
+                <q-btn icon="insert_comment" :to="{ name: 'chat-templates' }" flat>
+                    <q-tooltip :offset="[10, 10]">Chat templates</q-tooltip>
+                </q-btn>
+
+                <q-btn icon="settings" :to="{ name: 'settings_ui' }" flat>
+                    <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
+                </q-btn>
+
                 <q-btn icon="info" flat>
+                    <q-tooltip :offset="[10, 10]">Developer debug</q-tooltip>
+
                     <q-menu class="tw-p-2" style="min-width: 350px">
                         <div
                             class="tw-p-2 tw-border-1 tw-shadow-md"
@@ -52,7 +75,7 @@
                                     <img src="https://cdn.quasar.dev/img/avatar4.jpg" alt="" />
                                 </q-avatar>
 
-                                <div class="tw-text-xs tw-mt-2 tw-mb-1">{{ profile.user_meta.full_name }}</div>
+                                <div class="tw-text-xs tw-mt-2 tw-mb-1">{{ profile.user_meta1?.full_name }}</div>
                                 <div class="tw-text-xxs tw-mb-2">{{ profile.email }}</div>
 
                                 <q-btn @click="logout" color="orange" label="Logout" size="sm" />
@@ -345,6 +368,8 @@ export default defineComponent({
 
                 this.$q.notify({
                     message: 'Jim pinged you.',
+                    closeBtn: true,
+                    progress: true,
                     icon: 'announcement',
                     position: 'top-left',
                 });

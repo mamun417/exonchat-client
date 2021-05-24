@@ -3,10 +3,14 @@ import { StateInterface } from '../index';
 import { ChatTemplateStateInterface } from './state';
 
 const actions: ActionTree<ChatTemplateStateInterface, StateInterface> = {
-    getChatTemplates() {
+    getChatTemplates(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .get('chat-templates')
+                .get('chat-templates', {
+                    params: {
+                        tag: payload?.keyword,
+                    },
+                })
                 .then((res: any) => {
                     resolve(res);
                 })
