@@ -493,9 +493,11 @@ export default defineComponent({
             }
         },
         chatTemplateSelectHandle(key: any) {
-            //if has intent handle loader wait then add content
-            this.msg += this.chatTemplates[key].content;
-            this.chatTemplate = false;
+            if (key !== -1) {
+                //if has intent handle loader wait then add content
+                this.msg += this.chatTemplates[key].content;
+                this.chatTemplate = false;
+            }
         },
         chatTemplateSearchHandle(e: any) {
             if (['ArrowUp', 'ArrowDown'].includes(e.key)) return;
