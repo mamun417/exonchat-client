@@ -18,6 +18,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/agent/Index.vue'),
             },
             {
+                path: 'agents/invitations',
+                name: 'agents-invitations',
+                component: () => import('pages/subscriber/agent/Invitations.vue'),
+            },
+            {
                 path: 'departments',
                 name: 'departments',
                 component: () => import('pages/subscriber/departments/Index.vue'),
@@ -57,6 +62,16 @@ const routes: RouteRecordRaw[] = [
                         path: 'ui',
                         name: 'settings_ui',
                         component: () => import('pages/subscriber/settings/ui/Index.vue'),
+                    },
+                    {
+                        path: 'apps',
+                        name: 'settings_apps',
+                        component: () => import('pages/subscriber/settings/apps/Index.vue'),
+                    },
+                    {
+                        path: 'testing',
+                        name: 'settings_testing',
+                        component: () => import('pages/subscriber/settings/testing/Index.vue'),
                     },
                 ],
             },
@@ -130,9 +145,9 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/auth/Register.vue'),
             },
             {
-                path: 'agent-activate',
-                name: 'agent-activate',
-                component: () => import('pages/subscriber/auth/AgentActivate.vue'),
+                path: 'user-activate/:id?',
+                name: 'user-activate',
+                component: () => import('pages/subscriber/auth/UserActivate.vue'),
             },
             {
                 path: 'reset-pass',

@@ -524,7 +524,8 @@ export default defineComponent({
 
         sendMessage(): any {
             this.msg = this.msg.trim();
-            if (!this.msg.length) {
+
+            if (!this.finalAttachments.length && !this.msg.length) {
                 return false;
             }
 
@@ -643,6 +644,7 @@ export default defineComponent({
 
             entries.forEach((attachment: any) => {
                 console.log(attachment.file.name, attachment.failedPropValidation, 'error');
+                this.$helpers.showErrorNotification(this, attachment.failedPropValidation);
             });
         },
 

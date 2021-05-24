@@ -84,7 +84,7 @@
                     label="Chat Requests For Me"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                 >
-                    <q-card>
+                    <!-- <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
                                 <q-item class="" clickable>
@@ -115,7 +115,7 @@
                                 </q-item>
                             </q-list>
                         </q-card-section>
-                    </q-card>
+                    </q-card> -->
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -124,7 +124,7 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <q-card>
+                    <!-- <q-card>
                         <q-list dense>
                             <q-item class="tw-text-xs" clickable>
                                 <q-item-section>
@@ -151,7 +151,7 @@
                                 </q-item-section>
                             </q-item>
                         </q-list>
-                    </q-card>
+                    </q-card> -->
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -160,7 +160,7 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <q-card>
+                    <!-- <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list v-for="n in 3" :key="n">
                                 <q-item class="" clickable>
@@ -177,7 +177,7 @@
                                 </q-item>
                             </q-list>
                         </q-card-section>
-                    </q-card>
+                    </q-card> -->
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -185,7 +185,7 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <q-card>
+                    <!-- <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list v-for="n in 3" :key="n">
                                 <q-item class="" clickable>
@@ -202,7 +202,7 @@
                                 </q-item>
                             </q-list>
                         </q-card-section>
-                    </q-card>
+                    </q-card> -->
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -248,11 +248,11 @@
                 </q-expansion-item>
 
                 <q-expansion-item
-                    label="Some Last Chats With Me"
+                    label="Some Old Chats With Me"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <q-card>
+                    <!-- <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list v-for="n in 3" :key="n">
                                 <q-item class="" clickable>
@@ -269,7 +269,7 @@
                                 </q-item>
                             </q-list>
                         </q-card-section>
-                    </q-card>
+                    </q-card> -->
                 </q-expansion-item>
             </q-list>
         </q-scroll-area>

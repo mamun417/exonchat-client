@@ -8,6 +8,22 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
         //test
     },
 
+    register(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('subscribers', payload.inputs)
+                .then((res: any) => {
+                    const subscriberInfo = res.data;
+
+                    context.commit('authCreate', subscriberInfo);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
     login(context, payload) {
         return new Promise((resolve, reject) => {
             window.api

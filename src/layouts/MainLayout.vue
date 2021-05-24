@@ -233,6 +233,12 @@ import { mapGetters, mapMutations } from 'vuex';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
 import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
 
+declare global {
+    interface Window {
+        exonChat: any;
+    }
+}
+
 export default defineComponent({
     name: 'MainLayout',
     components: { LeftBar, RightBar },
@@ -276,13 +282,12 @@ export default defineComponent({
     async mounted() {
         console.log('main layout mounted');
 
-        // if ('logged in') {
-        await this.socketInitialize();
-        // }
+        if (this.profile.id) {
+            this.openChatPanelBoxForTest();
+            this.getAgents();
 
-        this.getAgents();
-
-        this.$socket.emit('ec_get_logged_users', {});
+            await this.socketInitialize();
+        }
 
         this.domReady = true;
 
@@ -307,7 +312,7 @@ export default defineComponent({
             if (!this.sesId) {
                 try {
                     const res = await this.$api.post('/socket-sessions', {
-                        api_key: 'test',
+                        api_key: this.profile.subscriber.api_key,
                         user_id: this.profile.id,
                     });
 
@@ -334,6 +339,7 @@ export default defineComponent({
             console.log(this.socket);
 
             this.fireSocketListeners();
+            this.$socket.emit('ec_get_logged_users', {});
             // }
         },
         fireSocketListeners() {
@@ -454,6 +460,29 @@ export default defineComponent({
             });
         },
 
+        openChatPanelBoxForTest() {
+            const ls = window.localStorage.getItem('chat_panel_box_for_test');
+
+            if (ls && ls === 'true') {
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
+                const self = this;
+
+                window.exonChat = function () {
+                    return {};
+                };
+                (function (d, s, id) {
+                    let js: any,
+                        fjs: any = d.getElementsByTagName(s)[0];
+                    if (d.getElementById(id)) return;
+                    js = d.createElement(s);
+                    js.id = id;
+                    js.setAttribute('data-api-key', self.profile.subscriber.api_key);
+                    js.src = 'http://localhost:8080/assets/js/web-chat/web-chat.js';
+                    fjs.parentNode.insertBefore(js, fjs);
+                })(document, 'script', 'exhonchat-chat-frame');
+            }
+        },
+
         logout() {
             this.$store
                 .dispatch('auth/logOut')
@@ -480,6 +509,22 @@ export default defineComponent({
                 this.rightDrawer = !this.rightDrawer;
             }
         },
+    },
+    unmounted() {
+        //its safe then sorry
+        console.log('calling unmounted from main layout');
+
+        const dom = document.getElementById('exhonchat-container');
+
+        if (dom) {
+            dom.parentNode?.removeChild(dom);
+        }
+
+        if (this.socket) {
+            this.socket.close();
+        }
+
+        this.$emitter.all.clear();
     },
 });
 </script>

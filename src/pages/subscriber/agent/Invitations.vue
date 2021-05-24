@@ -8,7 +8,7 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="rows"
+                    :rows="invitations"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -97,15 +97,21 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Email" color="green"
+                    <q-input v-model="formData.email" label="Email" color="green"
                         ><template v-slot:prepend> <q-icon name="mail" color="green" /> </template
                     ></q-input>
 
-                    <q-select :options="['user', 'agent']">
+                    <q-select v-model="formData.type" :options="['user', 'agent']" label="Choose user role">
                         <template v-slot:prepend><q-icon name="mail" color="green" /></template>
                     </q-select>
 
-                    <q-checkbox label="Active when verified" color="green" class="tw-mt-3" dense />
+                    <q-checkbox
+                        v-model="formData.active"
+                        label="Active when verified"
+                        color="green"
+                        class="tw-mt-3"
+                        dense
+                    />
 
                     <div class="tw-text-xs tw-mt-4 text-white bg-orange tw-p-2 tw-font-bold">
                         <div>A verification email will be sended with a random generated password to this email</div>
@@ -117,14 +123,14 @@
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-6 tw-mb-4">
-                    <q-btn color="green" label="submit" class="full-width" />
+                    <q-btn color="green" label="submit" class="full-width" @click="sendInvitation" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 
 const columns = [
@@ -184,6 +190,12 @@ export default defineComponent({
     data() {
         return {
             assignAgentModal: false,
+            invitations: [],
+            formData: {
+                email: '',
+                type: 'agent',
+                active: true,
+            },
         };
     },
     setup() {
@@ -192,9 +204,53 @@ export default defineComponent({
             rows,
         };
     },
+    mounted() {
+        this.getInvitations();
+    },
     methods: {
         handleActivateDeactivate() {
             //
+        },
+        getInvitations() {
+            window.api
+                .get('users/invitations')
+                .then((res: any) => {
+                    console.log(res.data);
+
+                    if (res.data.length) {
+                        this.invitations = res.data.map((inv: any) => {
+                            inv.is_agent = inv.type === 'agent';
+                            inv.sended_at = inv.created_at;
+
+                            return inv;
+                        });
+                    }
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+        },
+        sendInvitation() {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const self: any = this;
+
+            window.api
+                .post('users/invitations/invite', this.formData)
+                .then((res: any) => {
+                    self.$helpers.showSuccessNotification(self, res.data.msg);
+
+                    this.assignAgentModal = false;
+                    this.formData = {
+                        email: '',
+                        type: 'agent',
+                        active: true,
+                    };
+
+                    this.getInvitations();
+                })
+                .catch((err: any) => {
+                    err;
+                });
         },
     },
 });

@@ -36,6 +36,8 @@
                 <q-icon name="settings" class="tw-px-6" size="20px" :color="globalColor" />
                 <q-route-tab>Profile</q-route-tab>
                 <q-route-tab to="/settings/ui" exact>UI</q-route-tab>
+                <q-route-tab to="/settings/apps" exact>Apps</q-route-tab>
+                <q-route-tab to="/settings/testing" exact>Testing</q-route-tab>
                 <q-route-tab>Others</q-route-tab>
             </q-tabs>
         </q-card>

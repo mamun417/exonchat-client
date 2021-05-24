@@ -2,30 +2,20 @@
     <div class="tw-min-h-screen tw-p-2 tw-flex tw-flex-col tw-justify-center">
         <div class="tw-max-w-md tw-w-full tw-m-auto tw-p-10 tw-bg-white tw-rounded-xl tw-shadow-2xl">
             <div class="text-center tw-mb-6">
-                <q-icon name="account_circle" size="50px" color="green"></q-icon>
+                <q-icon name="celebration" size="50px" color="green"></q-icon>
+            </div>
+
+            <div class="text-caption text-center tw-text-gray-500">
+                Activate your <b class="text-green">{{ formData.type }}</b> account
             </div>
 
             <div class="tw-flex tw-mb-3">
-                <q-input v-model="formData.company_name" label="Company Name" class="full-width" color="green" dense>
+                <q-input v-model="formData.email" label="Email" class="full-width" color="green" dense readonly>
                     <template v-slot:prepend>
-                        <q-icon name="business" color="green" />
+                        <q-icon name="mail" color="green" />
                     </template>
                 </q-input>
             </div>
-            <div class="tw-flex tw-mb-3">
-                <q-input
-                    v-model="formData.company_display_name"
-                    label="Company Display Name"
-                    class="full-width"
-                    color="green"
-                    dense
-                >
-                    <template v-slot:prepend>
-                        <q-icon name="business" color="green" />
-                    </template>
-                </q-input>
-            </div>
-
             <div class="tw-flex tw-mb-3">
                 <q-input v-model="formData.full_name" label="Full Name" class="full-width" color="green" dense>
                     <template v-slot:prepend>
@@ -42,11 +32,9 @@
             </div>
 
             <div class="tw-flex tw-mb-3">
-                <q-input v-model="formData.email" label="Email" class="full-width" color="green" dense>
-                    <template v-slot:prepend>
-                        <q-icon name="mail" color="green" />
-                    </template>
-                </q-input>
+                <q-input v-model="formData.code" label="Activation Code" class="full-width" color="green" dense>
+                    <template v-slot:prepend> <q-icon name="qr_code" color="green" /> </template
+                ></q-input>
             </div>
 
             <div class="tw-flex tw-mb-3">
@@ -77,58 +65,66 @@
             </div> -->
 
             <div class="tw-mt-8 tw-mb-4">
-                <q-btn color="green" dense class="full-width" @click="registerButtonClicked">Register</q-btn>
-            </div>
-
-            <div class="text-caption tw-text-gray-500">
-                Already have an account.
-                <span class="text-green tw-font-bold tw-cursor-pointer" @click="$router.push('/auth/login')"
-                    >Login?</span
-                >
+                <q-btn color="green" dense class="full-width" @click="join">Activate</q-btn>
             </div>
         </div>
     </div>
 </template>
 
+// this.$route.params['conv_id']
+
 <script lang="ts">
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-    name: 'Register',
     data(): any {
         return {
             formData: {
-                company_name: '',
-                company_display_name: '',
+                email: '',
                 full_name: '',
                 display_name: '',
-                email: '',
                 password: '',
                 confirm_password: '',
+                code: '',
+                invitation_id: '',
             },
         };
     },
-
+    mounted() {
+        window.api
+            .get(`/users/invitations/${this.$route.params['id']}`)
+            .then((res: any) => {
+                console.log(res.data);
+                this.formData.email = res.data.email;
+                this.formData.type = res.data.type;
+                this.formData.invitation_id = this.$route.params['id'];
+            })
+            .catch((err: any) => {
+                console.log(err);
+            });
+    },
     methods: {
-        registerButtonClicked() {
-            if (!this.formData.password || this.formData.password !== this.formData.confirm_password) {
-                this.$helpers.showErrorNotification(this, 'Passwor does not match');
+        handleActivateDeactivate() {
+            //
+        },
+
+        join() {
+            if (this.formData.password !== this.formData.confirm_password) {
+                // this.$helpers.showErrorNotification(this, 'Password does not match');
                 return;
             }
 
-            const inputs = this.formData;
+            window.api
+                .post('/users/invitations/join', this.formData)
+                .then((res: any) => {
+                    console.log(res.data);
 
-            this.$store
-                .dispatch('auth/register', {
-                    inputs,
-                })
-                .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'Registration successful');
-                    this.$router.push('/auth/login');
+                    if (res.data.status === 'success') {
+                        this.$router.push('/auth/login');
+                    }
                 })
                 .catch((err: any) => {
-                    console.log(err.response.data);
-                    this.$helpers.showErrorNotification(this, err.response.data.message);
+                    console.log(err);
                 });
         },
     },

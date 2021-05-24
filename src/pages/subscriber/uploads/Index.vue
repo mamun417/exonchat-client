@@ -133,7 +133,7 @@ export default defineComponent({
 
         deleteFile(file: any) {
             this.$socketSessionApi
-                .get(`messages/attachments/${file.id}/user-controll`)
+                .get(`messages/attachments/${file.id}/user-control`)
                 .then((res: any) => {
                     console.log(res);
 
