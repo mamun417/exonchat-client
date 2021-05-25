@@ -44,18 +44,22 @@ const mutation: MutationTree<ChatStateInterface> = {
         });
     },
 
-    // store all agents into state which come from db
-    storeAgents(state: ChatStateInterface, chatAgents: any) {
-        chatAgents.forEach((chatAgent: any) => {
-            const agentId = chatAgent.id;
-
-            state.chatAgents[agentId] = chatAgent;
+    // store all users into state
+    storeUsers(state: ChatStateInterface, chatUsers: any) {
+        chatUsers.forEach((chatUser: any) => {
+            state.chatUsers[chatUser.socket_sessions[0].id] = chatUser;
         });
     },
 
-    // store online agents into state which come from db
-    getOnlineAgents(state: ChatStateInterface, onlineAgentRes: any) {
-        state.onlineChatAgents = onlineAgentRes.users;
+    // update online users
+    updateOnlineUsers(state: ChatStateInterface, onlineUsers: any) {
+        Object.values(state.chatUsers).map((user: any) => {
+            user.is_online = user.online_status && onlineUsers.includes(user.socket_sessions[0].id);
+        });
+    },
+
+    updateConvIdToAChatUser(state: ChatStateInterface, data) {
+        state.chatUsers[data.ses_id].conversation_id = data.conv_id;
     },
 
     clearClientChatInitiate(state: ChatStateInterface) {

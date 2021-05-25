@@ -25,11 +25,12 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return _l.sortBy(state.chatRequests, [(chatRequest) => moment(chatRequest.created_at).format('x')]).reverse();
     },
 
-    chatAgents(state, getters, rootState, rootGetters) {
-        const allChatAgents = state.chatAgents;
+    chatUsers(state, getters, rootState, rootGetters) {
+        const allUsers = state.chatUsers;
+
         const authInfo = rootGetters['auth/profile'];
 
-        return Object.values(allChatAgents).filter((agent: any) => authInfo.email !== agent.email);
+        return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
     },
 
     onlineChatAgents(state) {

@@ -1,5 +1,5 @@
 <template>
-    <q-dialog @show="getAgents" @hide="resetForm" :model-value="showAddEditDepartmentModal" persistent>
+    <q-dialog @show="getUsers" @hide="resetForm" :model-value="showAddEditDepartmentModal" persistent>
         <q-card style="max-width: 500px">
             <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                 <div class="tw-text-lg text-green">
@@ -139,7 +139,7 @@ export default defineComponent({
             });
         },
 
-        getAgents() {
+        getUsers() {
             this.$store
                 .dispatch('department/getUsers')
                 .then((res: any) => {

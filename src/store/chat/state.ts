@@ -5,7 +5,7 @@ export interface ChatStateInterface {
     selectedPanel: null | string;
     conversationInfo: any;
     chatRequests: any;
-    chatAgents: any;
+    chatUsers: any;
     onlineChatAgents: any;
 }
 
@@ -20,7 +20,7 @@ function state(): ChatStateInterface {
         selectedPanel: null,
         conversationInfo: {},
         chatRequests: {},
-        chatAgents: {},
+        chatUsers: {},
         onlineChatAgents: {},
     };
 }

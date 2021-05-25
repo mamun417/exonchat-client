@@ -215,10 +215,10 @@
                         <q-card-section class="tw-p-0">
                             <q-list>
                                 <q-item
-                                    v-for="(agent, index) in chatAgents"
-                                    @click="openUserToUserConversation(agent)"
-                                    active-class="text-white bg-blue-9"
-                                    :active="agent.conversation_id === $route.params?.conv_id"
+                                    v-for="(user, index) in chatUsers"
+                                    @click="openUserToUserConversation(user)"
+                                    active-class="text-white bg-blue-7"
+                                    :active="user.conversation_id === $route.params?.conv_id"
                                     :key="index"
                                     clickable
                                 >
@@ -230,16 +230,12 @@
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs">
-                                            {{ agent.email }}
+                                            {{ user.id }}
                                         </q-item-label>
                                     </q-item-section>
 
                                     <q-item-section side>
-                                        <q-icon
-                                            name="fiber_manual_record"
-                                            :color="checkOnlineStatus(agent) ? 'green' : 'grey'"
-                                            size="xs"
-                                        />
+                                        <q-badge rounded :color="user.is_online ? 'green' : 'grey'" />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -296,81 +292,63 @@ export default defineComponent({
     mounted() {
         console.log('left bar initiated');
         this.getChatRequest();
-
-        this.fireSocketListeners();
     },
 
     computed: {
         ...mapGetters({
             chatRequests: 'chat/chatRequests',
-            chatAgents: 'chat/chatAgents',
-            onlineChatAgents: 'chat/onlineChatAgents',
+            chatUsers: 'chat/chatUsers',
             globalBgColor: 'ui/globalBgColor',
         }),
     },
 
     methods: {
-        fireSocketListeners() {
-            this.$socket.on('ec_conv_initiated_from_user', async (res: any) => {
-                // server conversation construct
-                this.$socket.emit('ec_init_user_to_user_chat', {});
-
-                await this.$store.dispatch('chat/getAgents');
-
-                await this.$router.push({ name: 'chats', params: { conv_id: res.data.conv_id } });
-            });
-        },
-
         getChatRequest() {
             this.$store.dispatch('chat/getChatRequests');
         },
 
-        checkOnlineStatus(agent: any) {
-            const onlineAgents = this.onlineChatAgents;
-
-            if (!onlineAgents.length) return false;
-
-            const filterSocketSessions = this.$_.filter(agent.socket_sessions, (socket_session: any) => {
-                return onlineAgents.includes(socket_session.id);
-            });
-
-            return !!filterSocketSessions.length;
-        },
-
-        openUserToUserConversation(agent: any) {
-            if (agent.conversation_id) {
-                this.$router.push({ name: 'chats', params: { conv_id: agent.conversation_id } });
+        openUserToUserConversation(user: any) {
+            if (user.conversation_id) {
+                this.$router.push({ name: 'chats', params: { conv_id: user.conversation_id } });
                 return;
             }
 
-            const targetUserSocketSessId = agent.socket_sessions[0].id;
+            const userSocketSessId = user.socket_sessions[0].id;
+
+            // firing before emit. cz if emit return res before this fn call.
+            // though its not possible for js event manager. but safe then sorry
+            this.handleCreatedConversation(userSocketSessId);
 
             // create user to user conversation
             this.$socket.emit('ec_init_conv_from_user', {
-                ses_ids: [targetUserSocketSessId],
+                ses_ids: [userSocketSessId],
                 chat_type: 'user_to_user_chat',
                 users_only: true,
             });
-
-            this.handleAlreadyCreatedConversation(targetUserSocketSessId);
         },
 
-        handleAlreadyCreatedConversation(targetUserSocketSessId: any) {
+        handleCreatedConversation(userSocketSessId: any) {
             // find already created conversation_id from agents
-            const fn = () => {
-                this.$store.dispatch('chat/getAgents').then((chatAgents: any) => {
-                    const findAgent = chatAgents.find(
-                        (agent: any) => targetUserSocketSessId === agent.socket_sessions[0].id
-                    );
+            const fn = (data: any) => {
+                if (data.status === 'success' || data.status === 'conflict') {
+                    this.$store.commit('chat/updateConvIdToAChatUser', {
+                        ses_id: userSocketSessId,
+                        conv_id: data.data.conv_id,
+                    });
 
-                    this.$router.push({ name: 'chats', params: { conv_id: findAgent.conversation_id } });
-                });
+                    this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                }
 
-                this.$emitter.off('listened_error_ec_init_conv_from_user', fn);
+                this.$emitter.off('listen_ec_init_conv_from_user', fn);
+
+                // this.$emitter.off('listen_error_ec_init_conv_from_user', fn);
             };
 
-            // this event fire from MainLayout if any error
-            this.$emitter.on('listened_error_ec_init_conv_from_user', fn);
+            // this event fire from MainLayout if conv from user created
+            this.$emitter.on('listen_ec_init_conv_from_user', fn);
+
+            // no need this for now. cz returning if exists from api
+            // this.$emitter.on('listen_error_ec_init_conv_from_user', fn);
         },
     },
 });

@@ -111,17 +111,6 @@
         <q-inner-loading :showing="!domReady">
             <q-spinner-facebook size="50px" color="primary" />
         </q-inner-loading>
-        <q-drawer
-            v-model="leftDrawer"
-            class="tw-shadow-lgr"
-            side="left"
-            breakpoint="xs"
-            width="250"
-            persistent
-            show-if-above
-        >
-            <left-bar></left-bar>
-        </q-drawer>
 
         <div v-if="false">
             <!-- add style pointer event none for accessing the underlying parent elements -->
@@ -270,6 +259,7 @@ export default defineComponent({
         // ...mapGetters('socket', ['handshake']),
         ...mapGetters({
             profile: 'auth/profile',
+            chatUsers: 'chat/chatUsers',
             globalBgColor: 'ui/globalBgColor',
             trackingConversation: 'ui/trackingConversation',
         }),
@@ -284,7 +274,6 @@ export default defineComponent({
 
         if (this.profile.id) {
             this.openChatPanelBoxForTest();
-            this.getAgents();
 
             await this.socketInitialize();
         }
@@ -299,8 +288,13 @@ export default defineComponent({
     methods: {
         ...mapMutations({ updateConversationTrucking: 'ui/updateConversationTrucking' }),
 
-        getAgents() {
-            this.$store.dispatch('chat/getAgents');
+        getUsers(ses_id = null) {
+            // if ses_id => check for exist. if not then new user registered
+            if (!ses_id || !this.chatUsers.hasOwnProperty(ses_id)) {
+                console.log('reloading users list');
+
+                this.$store.dispatch('chat/getUsers');
+            }
         },
 
         async socketInitialize() {
@@ -336,8 +330,7 @@ export default defineComponent({
 
             this.socket = this.$socket.connect();
 
-            console.log(this.socket);
-
+            this.getUsers();
             this.fireSocketListeners();
             this.$socket.emit('ec_get_logged_users', {});
             // }
@@ -396,6 +389,12 @@ export default defineComponent({
             //     console.log('from ec_is_typing_from_client', data.msg);
             // });
 
+            this.socket.on('ec_conv_initiated_from_user', (data: any) => {
+                console.log('from ec_conv_initiated_from_user', data);
+
+                this.$emitter.emit('listen_ec_init_conv_from_user', data);
+            });
+
             this.socket.on('ec_conv_initiated_from_client', (data: any) => {
                 console.log('from ec_conv_initiated_from_client', data);
 
@@ -435,19 +434,21 @@ export default defineComponent({
             // emitting this socket into mount
             // get online users list
             this.socket.on('ec_logged_users_res', (data: any) => {
-                this.$store.dispatch('chat/getOnlineAgents', data);
+                this.$store.dispatch('chat/updateOnlineUsers', data.users);
                 console.log('from ec_logged_users_res', data);
             });
 
             this.socket.on('ec_user_logged_in', (data: any) => {
-                this.getAgents();
+                // used if a new user registered but not listed yet
+                this.getUsers(data.ses_id);
+
                 this.$socket.emit('ec_get_logged_users', {});
                 console.log(`from ec_user_logged_in ${data}`);
             });
 
             this.socket.on('ec_user_logged_out', (data: any) => {
                 setTimeout(() => {
-                    this.getAgents();
+                    // this.getUsers(); // currently no need cz we are getting this at first
                     this.$socket.emit('ec_get_logged_users', {});
                     console.log(`from ec_user_logged_out ${data}`);
                 }, 3000);
@@ -456,7 +457,7 @@ export default defineComponent({
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
                 // check if has if not then new event
-                this.$emitter.emit(`listened_error_${data.step}`);
+                this.$emitter.emit(`listen_error_${data.step}`, data);
             });
         },
 
