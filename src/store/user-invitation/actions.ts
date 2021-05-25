@@ -43,7 +43,6 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
     },
 
     convertType(context, payload) {
-        console.log(payload.inputs);
         return new Promise((resolve, reject) => {
             window.api
                 .post(`users/invitations/${payload.inputs.id}/update`, payload.inputs)
@@ -56,20 +55,31 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
         });
     },
 
-    // changeDepartmentActiveStatus(context, payload) {
-    //     return new Promise((resolve, reject) => {
-    //         window.api
-    //             .post(`invitations/:id/update`, {
-    //                 active: payload.active,
-    //             })
-    //             .then((res: any) => {
-    //                 resolve(res);
-    //             })
-    //             .catch((err: any) => {
-    //                 reject(err);
-    //             });
-    //     });
-    // },
+    getInvitationInfo(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(`/users/invitations/${payload.id}`)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    joinInvitation(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('users/invitations/join', payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;

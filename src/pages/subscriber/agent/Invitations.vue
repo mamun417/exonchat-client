@@ -8,7 +8,7 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="invitations"
+                    :rows="mappedInvitations"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -28,9 +28,17 @@
                         </q-tr>
                     </template>
 
+                    <template v-slot:body-cell-sent_at="props">
+                        <q-td :props="props">
+                            {{ $helpers.myDate(props.row.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
+                        </q-td>
+                    </template>
+
                     <template v-slot:body-cell-status="props">
                         <q-td :props="props">
-                            <q-badge>{{ props.row.status }}</q-badge>
+                            <q-badge :color="props.row.status === 'success' ? 'green' : 'orange'">
+                                {{ props.row.status }}
+                            </q-badge>
                         </q-td>
                     </template>
 
@@ -40,9 +48,9 @@
                         </q-td>
                     </template>
 
-                    <template v-slot:body-cell-sent_at="props">
+                    <template v-slot:body-cell-active="props">
                         <q-td :props="props">
-                            {{ $helpers.myDate(props.row.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
+                            <q-badge :color="props.row.active ? 'green' : 'orange'">{{ props.row.active }}</q-badge>
                         </q-td>
                     </template>
 
@@ -75,7 +83,8 @@
                                                 color="green"
                                                 label="Deactivate"
                                                 class="ec-list-setting-left-label-checkbox"
-                                                @update:model-value="handleActivateDeactivate"
+                                                v-model="props.row.active"
+                                                @update:model-value="handleActivateDeactivate(props.row)"
                                                 left-label
                                                 dense
                                             />
@@ -133,6 +142,9 @@
                         v-model="sendInvitationFormData.type"
                         :options="['user', 'agent']"
                         label="Choose user role"
+                        :error-message="sendInvitationFormDataErrors.type"
+                        :error="!!sendInvitationFormDataErrors.type"
+                        @update:model-value="sendInvitationFormDataErrors.type = ''"
                     >
                         <template v-slot:prepend><q-icon name="groups" color="green" /></template>
                     </q-select>
@@ -171,9 +183,15 @@ import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 const columns = [
     {
         name: 'email',
-        align: 'center',
+        align: 'left',
         label: 'Email',
         field: 'email',
+    },
+    {
+        name: 'sent_at',
+        label: 'Sent At',
+        field: 'created_at',
+        align: 'left',
     },
     {
         name: 'status',
@@ -188,16 +206,16 @@ const columns = [
         align: 'center',
     },
     {
-        name: 'sent_at',
-        label: 'Sent At',
-        field: 'created_at',
+        name: 'active',
+        label: 'Active',
+        field: 'active',
         align: 'center',
     },
     {
         name: 'action',
         label: 'Actions',
         field: 'action',
-        align: 'center',
+        align: 'left',
     },
 ];
 
@@ -246,28 +264,27 @@ export default defineComponent({
         };
     },
 
+    computed: {
+        mappedInvitations(): any {
+            return this.invitations.map((inv: any) => {
+                inv.is_agent = inv.type === 'agent';
+                inv.sent_at = inv.created_at;
+
+                return inv;
+            });
+        },
+    },
+
     mounted() {
         this.getInvitations();
     },
 
     methods: {
-        handleActivateDeactivate() {
-            //
-        },
-
         getInvitations() {
             this.$store
                 .dispatch('user_invitation/getInvitations')
                 .then((res: any) => {
-                    this.invitations = [];
-                    if (res.data.length) {
-                        this.invitations = res.data.map((inv: any) => {
-                            inv.is_agent = inv.type === 'agent';
-                            inv.sent_at = inv.created_at;
-
-                            return inv;
-                        });
-                    }
+                    this.invitations = res.data;
                 })
                 .catch((err: any) => {
                     console.log(err);
@@ -324,14 +341,35 @@ export default defineComponent({
 
         handleConvertType(invitation: any) {
             const data = this.$_.cloneDeep(invitation);
-            data.type = invitation.type === 'agent' ? 'user' : 'agent';
+            data.type = data.type === 'agent' ? 'user' : 'agent';
 
             this.$store
                 .dispatch('user_invitation/convertType', {
                     inputs: data,
                 })
                 .then((res: any) => {
-                    console.log(res.data);
+                    const index = this.invitations.findIndex((invitation: any) => invitation.id === res.data.id);
+
+                    this.invitations[index] = res.data;
+
+                    this.$helpers.showSuccessNotification(this, `User role convert to ${res.data.type} successful`);
+                })
+                .catch((err: any) => {
+                    this.sendInvitationErrorHandle(err);
+                });
+        },
+
+        handleActivateDeactivate(invitation: any) {
+            this.$store
+                .dispatch('user_invitation/convertType', {
+                    inputs: invitation,
+                })
+                .then((res: any) => {
+                    const index = this.invitations.findIndex((invitation: any) => invitation.id === res.data.id);
+
+                    this.invitations[index] = res.data;
+
+                    this.$helpers.showSuccessNotification(this, 'Invitation status change successful');
                 })
                 .catch((err: any) => {
                     this.sendInvitationErrorHandle(err);
