@@ -73,7 +73,7 @@
 
         <!--<add-edit-intent-form v-if="showAddEditIntentModal" @hide="showAddEditIntentModal = false" :updateModal="updateModal" />-->
 
-        <delete-confirm-modal v-if="showDeleteModal" @confirmDelete="deleteIntent" @hide="showDeleteModal = false" />
+        <confirm-modal v-if="showDeleteModal" @confirmed="deleteIntent" @hide="showDeleteModal = false" />
     </div>
 </template>
 
@@ -81,12 +81,12 @@
 import _ from 'lodash';
 import EcTable from 'src/components/common/table/EcTable.vue';
 import { defineComponent } from 'vue';
-import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
+import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 import AddEditIntentForm from 'pages/subscriber/intents/AddEditIntentForm.vue';
 
 export default defineComponent({
     name: 'Intents',
-    components: { AddEditIntentForm, DeleteConfirmModal, EcTable },
+    components: { AddEditIntentForm, ConfirmModal, EcTable },
     data(): any {
         return {
             intents: [],

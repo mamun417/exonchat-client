@@ -74,18 +74,18 @@
             @hideModal="handleAddEditSpeechHideModal"
         />
 
-        <delete-confirm-modal v-if="showDeleteModal" @confirmDelete="deleteSpeech" @hide="showDeleteModal = false" />
+        <confirm-modal v-if="showDeleteModal" @confirmed="deleteSpeech" @hide="showDeleteModal = false" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import AddEditSpeechForm from 'pages/subscriber/speech-recognition/AddEditSpeechForm.vue';
-import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
+import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 import EcTable from 'components/common/table/EcTable.vue';
 
 export default defineComponent({
-    components: { EcTable, DeleteConfirmModal, AddEditSpeechForm },
+    components: { EcTable, ConfirmModal, AddEditSpeechForm },
     data(): any {
         return {
             columns: [

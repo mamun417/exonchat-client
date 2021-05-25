@@ -6,8 +6,8 @@
                 <q-btn :icon="leftDrawer ? 'menu_open' : 'menu'" @click="leftDrawer = !leftDrawer" flat />
                 <q-space />
 
-                <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat>
-                    <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
+                <q-btn icon="insert_comment" :to="{ name: 'chat-templates' }" flat>
+                    <q-tooltip :offset="[10, 10]">Chat templates</q-tooltip>
                 </q-btn>
 
                 <q-btn icon="smart_toy" :to="{ name: 'intents' }" flat>
@@ -18,12 +18,12 @@
                     <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>
                 </q-btn>
 
-                <q-btn icon="account_tree" :to="{ name: 'departments' }" flat>
-                    <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
+                <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="lg">
+                    <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
                 </q-btn>
 
-                <q-btn icon="insert_comment" :to="{ name: 'chat-templates' }" flat>
-                    <q-tooltip :offset="[10, 10]">Chat templates</q-tooltip>
+                <q-btn icon="account_tree" :to="{ name: 'departments' }" flat>
+                    <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
                 </q-btn>
 
                 <q-btn icon="settings" :to="{ name: 'settings_ui' }" flat>

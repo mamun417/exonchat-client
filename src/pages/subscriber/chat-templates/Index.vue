@@ -80,22 +80,18 @@
             @hideModal="handleHideAddEditChatTemplateModal"
         />
 
-        <delete-confirm-modal
-            v-if="showDeleteModal"
-            @confirmDelete="deleteChatTemplate"
-            @hide="showDeleteModal = false"
-        />
+        <confirm-modal v-if="showDeleteModal" @confirmed="deleteChatTemplate" @hide="showDeleteModal = false" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
+import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 import AddEditChatTemplateForm from 'pages/subscriber/chat-templates/AddEditChatTemplateForm.vue';
 import EcTable from 'components/common/table/EcTable.vue';
 
 export default defineComponent({
-    components: { EcTable, AddEditChatTemplateForm, DeleteConfirmModal },
+    components: { EcTable, AddEditChatTemplateForm, ConfirmModal },
     data(): any {
         return {
             columns: [

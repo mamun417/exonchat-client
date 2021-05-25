@@ -62,22 +62,18 @@
             @hideModal="handleHideAddEditDepartmentModal"
         />
 
-        <delete-confirm-modal
-            v-if="showDeleteModal"
-            @confirmDelete="deleteDepartment"
-            @hide="showDeleteModal = false"
-        />
+        <confirm-modal v-if="showDeleteModal" @confirmed="deleteDepartment" @hide="showDeleteModal = false" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import AddEditDepartmentForm from 'pages/subscriber/departments/AddEditDepartmentForm.vue';
-import DeleteConfirmModal from 'components/common/modal/DeleteConfirmModal.vue';
+import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 import EcTable from 'components/common/table/EcTable.vue';
 
 export default defineComponent({
-    components: { EcTable, DeleteConfirmModal, AddEditDepartmentForm },
+    components: { EcTable, ConfirmModal, AddEditDepartmentForm },
     data(): any {
         return {
             columns: [

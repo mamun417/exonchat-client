@@ -2,7 +2,7 @@
     <div class="tw-flex tw-flex-col">
         <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Invitations</div>
-            <q-btn color="green" icon="add" label="Assign" @click="assignAgentModal = true"></q-btn>
+            <q-btn color="green" icon="add" label="Add New" @click="assignAgentModal = true"></q-btn>
         </div>
 
         <div class="tw-flex-grow">
@@ -40,6 +40,12 @@
                         </q-td>
                     </template>
 
+                    <template v-slot:body-cell-sent_at="props">
+                        <q-td :props="props">
+                            {{ $helpers.myDate(props.row.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
+                        </q-td>
+                    </template>
+
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
                             <q-btn
@@ -51,17 +57,20 @@
                                 flat
                             >
                                 <q-menu anchor="bottom right" self="top end">
-                                    <q-item class="text-green" clickable dense>
+                                    <!--<q-item class="text-green" clickable dense>
                                         <q-item-section>Resend Code</q-item-section>
                                     </q-item>
-                                    <q-separator />
+                                    <q-separator />-->
                                     <!-- bottom two will show until user registers. & will be handled by one api -->
                                     <q-item class="text-green" clickable dense>
-                                        <q-item-section>Convert To Agent/User</q-item-section>
+                                        <q-item-section @click="handleConvertType(props.row)"
+                                            >Convert To
+                                            {{ props.row.type === 'agent' ? 'User' : 'Agent' }}
+                                        </q-item-section>
                                     </q-item>
                                     <q-item class="text-green" clickable dense>
-                                        <q-item-section @click="handleActivateDeactivate"
-                                            ><q-checkbox
+                                        <q-item-section @click="handleActivateDeactivate">
+                                            <q-checkbox
                                                 size="sm"
                                                 color="green"
                                                 label="Deactivate"
@@ -74,7 +83,14 @@
                                     </q-item>
                                 </q-menu>
                             </q-btn>
-                            <q-btn icon="delete" text-color="red" size="sm" dense flat></q-btn>
+                            <q-btn
+                                @click="showConfirmDeleteModal(props.row)"
+                                icon="delete"
+                                text-color="red"
+                                size="sm"
+                                dense
+                                flat
+                            ></q-btn>
                         </q-td>
                     </template>
 
@@ -88,7 +104,12 @@
             </div>
         </div>
 
-        <q-dialog v-model="assignAgentModal" @update:modelValue="(value) => (assignAgentModal = value)" persistent>
+        <q-dialog
+            @hide="resetForm"
+            v-model="assignAgentModal"
+            @update:modelValue="(value) => (assignAgentModal = value)"
+            persistent
+        >
             <q-card style="max-width: 500px">
                 <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">Add New User/Agent</div>
@@ -97,16 +118,27 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input v-model="formData.email" label="Email" color="green"
-                        ><template v-slot:prepend> <q-icon name="mail" color="green" /> </template
-                    ></q-input>
+                    <q-input
+                        :error-message="sendInvitationFormDataErrors.email"
+                        :error="!!sendInvitationFormDataErrors.email"
+                        @update:model-value="sendInvitationFormDataErrors.email = ''"
+                        v-model="sendInvitationFormData.email"
+                        label="Email"
+                        color="green"
+                    >
+                        <template v-slot:prepend> <q-icon name="mail" color="green" /> </template>
+                    </q-input>
 
-                    <q-select v-model="formData.type" :options="['user', 'agent']" label="Choose user role">
-                        <template v-slot:prepend><q-icon name="mail" color="green" /></template>
+                    <q-select
+                        v-model="sendInvitationFormData.type"
+                        :options="['user', 'agent']"
+                        label="Choose user role"
+                    >
+                        <template v-slot:prepend><q-icon name="groups" color="green" /></template>
                     </q-select>
 
                     <q-checkbox
-                        v-model="formData.active"
+                        v-model="sendInvitationFormData.active"
                         label="Active when verified"
                         color="green"
                         class="tw-mt-3"
@@ -127,11 +159,14 @@
                 </q-card-actions>
             </q-card>
         </q-dialog>
+
+        <confirm-modal v-if="showDeleteModal" @confirmed="deleteInvitation" @hide="showDeleteModal = false" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 
 const columns = [
     {
@@ -153,8 +188,8 @@ const columns = [
         align: 'center',
     },
     {
-        name: 'sended_at',
-        label: 'Sended At',
+        name: 'sent_at',
+        label: 'Sent At',
         field: 'created_at',
         align: 'center',
     },
@@ -171,56 +206,64 @@ const rows = [
         email: 'm@m.com',
         status: 'active',
         is_agent: true,
-        sended_at: '1.1.1',
+        sent_at: '1.1.1',
     },
     {
         email: 'n@n.com',
         status: 'inactive',
         is_agent: false,
-        sended_at: '1.1.1',
+        sent_at: '1.1.1',
     },
     {
         email: 'o@o.com',
         status: 'pending',
         is_agent: true,
-        sended_at: '1.1.1',
+        sent_at: '1.1.1',
     },
 ];
+
 export default defineComponent({
-    data() {
+    components: { ConfirmModal },
+    data(): any {
         return {
             assignAgentModal: false,
             invitations: [],
-            formData: {
+            sendInvitationFormData: {
                 email: '',
                 type: 'agent',
                 active: true,
             },
+            sendInvitationFormDataErrors: {},
+            deleteInvitationId: '',
+            showDeleteModal: false,
         };
     },
+
     setup() {
         return {
             columns,
             rows,
         };
     },
+
     mounted() {
         this.getInvitations();
     },
+
     methods: {
         handleActivateDeactivate() {
             //
         },
-        getInvitations() {
-            window.api
-                .get('users/invitations')
-                .then((res: any) => {
-                    console.log(res.data);
 
+        getInvitations() {
+            this.$store
+                .dispatch('user_invitation/getInvitations')
+                .then((res: any) => {
+                    this.invitations = [];
                     if (res.data.length) {
                         this.invitations = res.data.map((inv: any) => {
                             inv.is_agent = inv.type === 'agent';
-                            inv.sended_at = inv.created_at;
+                            inv.sent_at = inv.created_at;
 
                             return inv;
                         });
@@ -230,26 +273,68 @@ export default defineComponent({
                     console.log(err);
                 });
         },
+
         sendInvitation() {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const self: any = this;
-
-            window.api
-                .post('users/invitations/invite', this.formData)
+            this.$store
+                .dispatch('user_invitation/sendInvitation', {
+                    inputs: this.sendInvitationFormData,
+                })
                 .then((res: any) => {
-                    self.$helpers.showSuccessNotification(self, res.data.msg);
-
+                    this.$helpers.showSuccessNotification(this, res.data.msg);
                     this.assignAgentModal = false;
-                    this.formData = {
-                        email: '',
-                        type: 'agent',
-                        active: true,
-                    };
-
                     this.getInvitations();
                 })
+                .catch((err: any) => this.sendInvitationErrorHandle(err));
+        },
+
+        sendInvitationErrorHandle(err: any) {
+            if (this.$_.isObject(err.response.data.message)) {
+                this.sendInvitationFormDataErrors = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
+        },
+
+        resetForm() {
+            this.sendInvitationFormData = {};
+            this.sendInvitationFormData.active = true;
+            this.sendInvitationFormDataErrors = {};
+        },
+
+        showConfirmDeleteModal(invitation: any) {
+            this.showDeleteModal = !this.showDeleteModal;
+            this.deleteInvitationId = invitation.id;
+        },
+
+        deleteInvitation() {
+            this.$store
+                .dispatch('user_invitation/deleteInvitation', {
+                    id: this.deleteInvitationId,
+                })
+                .then(() => {
+                    this.showDeleteModal = false;
+                    this.getInvitations();
+
+                    this.$helpers.showSuccessNotification(this, 'Invitation deleted successful');
+                })
                 .catch((err: any) => {
-                    err;
+                    this.$helpers.showErrorNotification(this, err.response.data.message);
+                });
+        },
+
+        handleConvertType(invitation: any) {
+            const data = this.$_.cloneDeep(invitation);
+            data.type = invitation.type === 'agent' ? 'user' : 'agent';
+
+            this.$store
+                .dispatch('user_invitation/convertType', {
+                    inputs: data,
+                })
+                .then((res: any) => {
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    this.sendInvitationErrorHandle(err);
                 });
         },
     },
