@@ -15,29 +15,29 @@
                 <q-input
                     v-model="formInputs.apps_whmcs_identifier_key"
                     label="Identifier Key"
-                    :type="isPwdWhmcs ? 'password' : 'text'"
+                    :type="isPwdWhmcs.identifier ? 'password' : 'text'"
                     color="green"
                     class="tw-mb-2"
                     dense
                     ><template v-slot:append>
                         <q-icon
-                            :name="isPwdWhmcs ? 'visibility_off' : 'visibility'"
+                            :name="isPwdWhmcs.identifier ? 'visibility_off' : 'visibility'"
                             class="cursor-pointer"
-                            @click="isPwdWhmcs = !isPwdWhmcs"
+                            @click="isPwdWhmcs.identifier = !isPwdWhmcs.identifier"
                         /> </template
                 ></q-input>
                 <q-input
                     v-model="formInputs.apps_whmcs_secret_key"
                     label="Secret Key"
-                    type="password"
+                    :type="isPwdWhmcs.secret ? 'password' : 'text'"
                     color="green"
                     class="tw-mb-2"
                     dense
                     ><template v-slot:append>
                         <q-icon
-                            :name="isPwdWhmcs ? 'visibility_off' : 'visibility'"
+                            :name="isPwdWhmcs.secret ? 'visibility_off' : 'visibility'"
                             class="cursor-pointer"
-                            @click="isPwdWhmcs = !isPwdWhmcs"
+                            @click="isPwdWhmcs.secret = !isPwdWhmcs.secret"
                         /> </template
                 ></q-input>
 
@@ -86,6 +86,18 @@
                     />
                 </div>
             </q-card-section>
+
+            <q-card-actions class="tw-my-4">
+                <q-btn
+                    type="submit"
+                    @click="updateAppSetting"
+                    :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
+                    color="green"
+                    class="tw-mb-4"
+                >
+                    Update App Setting
+                </q-btn>
+            </q-card-actions>
         </q-card>
     </div>
 </template>
@@ -93,6 +105,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapMutations, mapGetters } from 'vuex';
+import { app } from 'electron';
 
 export default defineComponent({
     name: '',
@@ -100,7 +113,12 @@ export default defineComponent({
 
     data(): any {
         return {
-            isPwdWhmcs: true,
+            // if need
+            appSetting: {},
+            isPwdWhmcs: {
+                identifier: true,
+                secret: true,
+            },
             formInputs: {
                 apps_whmcs_identifier_key: '',
                 apps_whmcs_secret_key: '',
@@ -116,8 +134,64 @@ export default defineComponent({
         ...mapGetters({}),
     },
 
+    mounted() {
+        this.getAppSetting();
+    },
+
     methods: {
         ...mapMutations({}),
+
+        getAppSetting() {
+            this.$store
+                .dispatch('ui/getAppSetting')
+                .then((res: any) => {
+                    res.data.forEach((appSetting: any) => {
+                        this.formInputs[appSetting.slug] = this.getSingleInputValue(appSetting);
+                    });
+
+                    // if need
+                    this.appSetting = res.data;
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err.response.data);
+                });
+        },
+
+        updateAppSetting() {
+            const data = Object.keys(this.formInputs).map((inputName: any) => {
+                return {
+                    name: inputName,
+                    value: this.formInputs[inputName].toString(),
+                };
+            });
+
+            this.$store
+                .dispatch('ui/updateAppSetting', {
+                    inputs: {
+                        app_settings: data,
+                    },
+                })
+                .then((res: any) => {
+                    this.getAppSetting();
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err.response.data);
+                });
+        },
+
+        getSingleInputValue(appSetting: any) {
+            let value: any;
+
+            if (appSetting.user_settings_value.length) {
+                value = appSetting.user_settings_value[0].value;
+            } else {
+                value = appSetting.default_value;
+            }
+
+            return appSetting.input_type === 'checkbox' ? value === 'true' : value;
+        },
     },
 
     watch: {},
