@@ -116,7 +116,21 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             window.api
                 .get('conversations/requests/list')
                 .then((res: any) => {
+                    const chatRequests = res.data;
+
                     context.commit('storeChatRequests', res.data);
+
+                    console.log(chatRequests);
+
+                    chatRequests.forEach((request: any) => {
+                        context.commit('updateConversation', {
+                            conv_id: request.id,
+                            sessions: request.conversation_sessions,
+                            chat_department: request.chat_department,
+                            message: request.messages, // returns only one so no array. now for sure that at least 1 msg will be available
+                            ai_is_replying: request.ai_is_replying,
+                        });
+                    });
                     resolve(res);
                 })
                 .catch((err: any) => {
@@ -162,7 +176,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         (convSession: any) => convSession.socket_session_id == user.socket_sessions[0].id
                     );
 
-                    user.conversation_id = convSession.conversation_id || null;
+                    if (convSession) {
+                        user.conversation_id = convSession.conversation_id;
+                    }
 
                     return user;
                 });
@@ -182,26 +198,32 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
     },
 
+    // store message which came from socket events
+    storeMessage(context, messageRes) {
+        const obj = {
+            conv_id: messageRes.conversation.id,
+            message: {
+                id: messageRes.id,
+                msg: messageRes.id,
+                created_at: messageRes.created_at,
+                attachments: messageRes.attachments,
+                temp_id: messageRes.temp_id,
+            },
+            ai_is_replying: messageRes.ai_is_replying,
+            sessions: messageRes.conversation.conversation_sessions,
+            chat_department: messageRes.conversation.chat_department,
+            from: 'socket',
+        };
+
+        return new Promise((resolve) => {
+            context.commit('updateConversation', obj);
+            resolve(true);
+        });
+    },
+
     clearClientChatInitiate(context) {
         context.commit('clearClientChatInitiate');
     },
-
-    // if need later
-    // createUserToUserConversation(context, payload) {
-    //     return new Promise((resolve, reject) => {
-    //         window.api
-    //             .post('conversations', payload.params)
-    //             .then((res: any) => {
-    //                 window.clog('response paici', 'green');
-    //                 console.log(res);
-    //                 // context.commit('createUserToUserConversation', res.data);
-    //                 // resolve(res);
-    //             })
-    //             .catch((err: any) => {
-    //                 reject(err);
-    //             });
-    //     });
-    // },
 };
 
 export default actions;

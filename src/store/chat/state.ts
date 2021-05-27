@@ -6,12 +6,13 @@ export interface ChatStateInterface {
     conversationInfo: any;
     chatRequests: any;
     chatUsers: any;
-    onlineChatAgents: any;
+    conversations: any;
 }
 
 function state(): ChatStateInterface {
     const convStateInfo = localStorage.getItem('convStateInfo');
     const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
+    const conversations = localStorage.getItem('ec_conversations');
 
     return {
         clientInitiateConvInfo: clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {},
@@ -21,7 +22,7 @@ function state(): ChatStateInterface {
         conversationInfo: {},
         chatRequests: {},
         chatUsers: {},
-        onlineChatAgents: {},
+        conversations: conversations ? JSON.parse(conversations) : {},
     };
 }
 

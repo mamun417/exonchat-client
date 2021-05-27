@@ -1,5 +1,6 @@
 import { MutationTree } from 'vuex';
 import { ChatStateInterface } from './state';
+import * as _l from 'lodash';
 
 const mutation: MutationTree<ChatStateInterface> = {
     storeClientInitiateConvInfo(state: ChatStateInterface, payload: any) {
@@ -56,6 +57,52 @@ const mutation: MutationTree<ChatStateInterface> = {
         Object.values(state.chatUsers).map((user: any) => {
             user.is_online = user.online_status && onlineUsers.includes(user.socket_sessions[0].id);
         });
+    },
+
+    updateConversation(state: ChatStateInterface, convData: any) {
+        const convId = convData.conv_id;
+
+        if (convId) {
+            if (!state.conversations.hasOwnProperty(convId)) {
+                state.conversations[convId] = { messages: {}, sessions: [] };
+            }
+
+            if (convData.hasOwnProperty('chat_department')) {
+                state.conversations[convId].chat_department = convData.chat_department;
+            }
+
+            if (convData.hasOwnProperty('ai_is_replying')) {
+                state.conversations[convId].ai_is_replying = convData.ai_is_replying;
+            }
+
+            if (convData.hasOwnProperty('message')) {
+                if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
+                    state.conversations[convId].messages[convData.message.id] = convData.message;
+                } else {
+                    // later check for update time & replace
+                }
+            }
+
+            if (convData.hasOwnProperty('sessions') && convData.sessions.length) {
+                if (state.conversations[convId].sessions.length) {
+                    // later
+                    convData.sessions.forEach((session: any) => {
+                        const foundSes = _l.find(state.conversations[convId].sessions, ['id', session.id]);
+
+                        if (foundSes) {
+                            // this check will try to update latest. cz if left_at then its always latest
+                            if (session.left_at) {
+                                foundSes.left_at = session.left_at;
+                            }
+                        } else {
+                            state.conversations[convId].sessions.push(session);
+                        }
+                    });
+                } else {
+                    state.conversations[convId].sessions = convData.sessions;
+                }
+            }
+        }
     },
 
     updateConvIdToAChatUser(state: ChatStateInterface, data) {

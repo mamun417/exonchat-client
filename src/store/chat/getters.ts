@@ -32,10 +32,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
     },
-
-    onlineChatAgents(state) {
-        return state.onlineChatAgents;
-    },
 };
 
 export default getters;

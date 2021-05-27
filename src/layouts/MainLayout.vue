@@ -362,6 +362,8 @@ export default defineComponent({
             });
 
             this.socket.on('ec_msg_from_client', async (res: any) => {
+                await this.$store.dispatch('chat/storeMessage', res);
+
                 await this.$store.dispatch('chat/storeTemporaryMessage', res);
                 await this.$store.dispatch('chat/storeTempChatRequest', res);
 
