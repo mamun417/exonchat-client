@@ -18,7 +18,7 @@
         }"
         :content-style="{}"
     >
-        <template v-for="(message, index) in conversationInfoLocal.messages" :key="message.id" class="justify-center">
+        <template v-for="(message, index) in localMessages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg"
                 :name="handleNameForMultipleSelfMessage(index, message)"
@@ -29,9 +29,9 @@
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
             >
                 <div>
-                    <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
-                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
-                        <div
+                    <!-- <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
+                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex"> -->
+                    <!-- <div
                             v-for="(attachment, key) in message.attachments"
                             :key="attachment.id"
                             style="width: 100px; max-height: 100px"
@@ -54,8 +54,8 @@
                                     attachment.original_name
                                 }}</q-tooltip>
                             </q-img>
-                        </div>
-                        <!-- <q-avatar
+                        </div> -->
+                    <!-- <q-avatar
                             v-for="(attachment, key) in message.attachments"
                             :key="attachment.id"
                             size="100px"
@@ -74,17 +74,17 @@
                             </q-inner-loading>
                             <img v-else class="tw-cursor-pointer" :src="attachment.src" />
                         </q-avatar> -->
-                    </div>
+                    <!-- </div> -->
                 </div></q-chat-message
             >
 
-            <q-chat-message
+            <!-- <q-chat-message
                 v-else-if="!message.msg && !isAgentToAgentConversation"
                 :label="getConvStateStatusMessage(message)"
-            />
+            /> -->
         </template>
 
-        <q-chat-message
+        <!-- <q-chat-message
             v-if="typingHandler.typing"
             avatar="https://cdn.quasar.dev/img/avatar3.jpg"
             bg-color="gray-9"
@@ -104,10 +104,10 @@
             icon="keyboard_arrow_down"
             size="sm"
             round
-        />
+        /> -->
     </q-scroll-area>
 
-    <div
+    <!-- <div
         v-if="isShowSendMessageInput"
         class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
     >
@@ -138,7 +138,7 @@
             <q-btn flat color="green" icon="mood" class="tw-px-2"></q-btn>
         </div>
         <div class="tw-flex-auto tw-px-3">
-            <!-- used keydown for instant catch n prevent -->
+            used keydown for instant catch n prevent
             <q-input
                 v-model="msg"
                 debounce="0"
@@ -186,10 +186,10 @@
                             >
                         </q-item></q-list
                     >
-                    <q-separator />
-                    <div class="tw-px-4">
-                        <!-- n here keyup is for finally done press so that i dont call this func continiously -->
-                        <q-input
+                    <q-separator /> -->
+    <!-- <div class="tw-px-4"> -->
+    <!-- n here keyup is for finally done press so that i dont call this func continiously -->
+    <!-- <q-input
                             v-model="chatTemplateInputVal"
                             placeholder="search"
                             color="green-8"
@@ -229,13 +229,13 @@
                         attachmentObj.original_name
                     }}</q-tooltip>
                 </q-avatar>
-            </div>
-        </div>
-        <div class="tw-flex tw-flex-col tw-justify-end">
+            </div> -->
+    <!-- </div> -->
+    <!-- <div class="tw-flex tw-flex-col tw-justify-end">
             <q-btn icon="send" flat color="green-8" :disable="getSendBtnStatus"></q-btn>
-        </div>
+        </div> -->
 
-        <q-dialog v-model="attachmentPreviewModal" full-width>
+    <!-- <q-dialog v-model="attachmentPreviewModal" full-width>
             <q-responsive class="no-shadow" :ratio="1">
                 <q-img fit="contain" :src="attachmentPreview.src" spinner-color="green" class="attachment-preview">
                     <div class="absolute-bottom text-subtitle1 text-center">
@@ -248,12 +248,12 @@
             </q-responsive>
 
             <q-btn class="hidden" />
-        </q-dialog>
-    </div>
+        </q-dialog> -->
+    <!-- </div> -->
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue';
+import { defineComponent } from 'vue';
 
 import * as _l from 'lodash';
 
@@ -261,7 +261,7 @@ export default defineComponent({
     name: 'Message',
     components: {},
     props: {
-        sesId: {
+        conv_id: {
             type: String,
         },
 
@@ -269,34 +269,15 @@ export default defineComponent({
             type: Object,
             default: null,
         },
-
-        chatPanelType: {
-            type: String,
-            default: 'user',
-        },
-
-        isConversationTracking: {
-            type: Boolean,
-            default: false,
-        },
-
-        conversationId: {
-            type: String,
-            default: '',
-        },
-
-        conversationInfo: {
-            type: Object,
-        },
     },
 
-    setup() {
-        const messageInputAutoFocus = inject('messageInputAutoFocus');
+    // setup() {
+    //     const messageInputAutoFocus = inject('messageInputAutoFocus');
 
-        return {
-            messageInputAutoFocus,
-        };
-    },
+    //     return {
+    //         messageInputAutoFocus,
+    //     };
+    // },
 
     data(): any {
         return {
@@ -327,9 +308,9 @@ export default defineComponent({
     },
 
     mounted() {
-        setInterval(() => {
-            this.$forceUpdate(); // now i have no idea why its needed
-        }, 30000);
+        // setInterval(() => {
+        //     this.$forceUpdate(); // now i have no idea why its needed
+        // }, 30000);
     },
 
     computed: {

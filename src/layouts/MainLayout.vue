@@ -293,7 +293,12 @@ export default defineComponent({
             if (!ses_id || !this.chatUsers.hasOwnProperty(ses_id)) {
                 console.log('reloading users list');
 
-                this.$store.dispatch('chat/getUsers');
+                this.$store.dispatch('chat/getUsers').then(() => {
+                    // get new list first then get online
+                    this.$socket.emit('ec_get_logged_users', {});
+                });
+            } else {
+                this.$socket.emit('ec_get_logged_users', {});
             }
         },
 
@@ -349,31 +354,18 @@ export default defineComponent({
             });
 
             // successfully sent to client
-            this.socket.on('ec_msg_to_user', async (data: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', data);
+            this.socket.on('ec_msg_to_user', (data: any) => {
                 console.log('from ec_msg_to_user', data);
             });
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_user', async (data: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', data);
+            this.socket.on('ec_msg_from_user', (data: any) => {
                 console.log('from ec_msg_from_user', data);
             });
 
-            this.socket.on('ec_msg_from_client', async (res: any) => {
-                await this.$store.dispatch('chat/storeMessage', res);
-
-                await this.$store.dispatch('chat/storeTemporaryMessage', res);
-                await this.$store.dispatch('chat/storeTempChatRequest', res);
-
-                this.$q.notify({
-                    message: 'Jim pinged you.',
-                    closeBtn: true,
-                    progress: true,
-                    icon: 'announcement',
-                    position: 'top-left',
-                });
+            this.socket.on('ec_msg_from_client', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
 
                 console.log('from ec_msg_from_client', res);
             });
@@ -444,7 +436,6 @@ export default defineComponent({
                 // used if a new user registered but not listed yet
                 this.getUsers(data.ses_id);
 
-                this.$socket.emit('ec_get_logged_users', {});
                 console.log(`from ec_user_logged_in ${data}`);
             });
 

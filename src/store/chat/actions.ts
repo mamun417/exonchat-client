@@ -2,7 +2,7 @@ import { ActionTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 import helpers from 'boot/helpers/helpers';
-import * as _ from 'lodash';
+import * as _l from 'lodash';
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -25,14 +25,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         }
     },
 
-    // get conversation messages from db
-    async getAgentConvMessages(context, payload) {
-        const getConvStateInfo = window.api.get(`conversations/${payload.convId}/sessions`),
-            getConvMessages = window.api.get(`conversations/${payload.convId}/messages`);
-
-        return await context.dispatch('storeConvMessages', { getConvStateInfo, getConvMessages });
-    },
-
     // get client conversation messages from db
     async getClientConvMessages(context, payload) {
         const getConvStateInfo = window.socketSessionApi.get(`conversations/${payload.convId}/sessions`),
@@ -42,71 +34,36 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     // store conversation messages into state, so that getters can get the result
-    storeConvMessages(context, { getConvStateInfo, getConvMessages }) {
+    getConvMessages(context, payload) {
         return new Promise((resolve, reject) => {
-            Promise.all([getConvStateInfo, getConvMessages])
-                .then(([convStateRes, messagesRes]) => {
-                    // messagesRes contain messages []
-                    const conversationInfo = _.cloneDeep(messagesRes);
+            window.api
+                .get(`conversations/${payload.convId}/messages?pp=50`)
+                .then((res: any) => {
+                    const conv = res.data;
 
-                    // remove client joining information
-                    const agentState = convStateRes.data.conversation_sessions.filter(
-                        (convSession: any) => convSession.socket_session.user
-                    );
+                    context.commit('updateConversation', {
+                        conv_id: conv.id,
+                        conversation: _l.pick(conv, [
+                            'id',
+                            'users_only',
+                            'type',
+                            'closed_at',
+                            'created_by_id',
+                            'closed_by_id',
+                        ]),
+                        sessions: conv.conversation_sessions,
+                        chat_department: conv.chat_department,
+                        // now for sure that at least 1 msg will be available. cz ai will reply after a msg
+                        // if later we implement other way then review this
+                        messages: conv.messages,
+                        ai_is_replying: conv.ai_is_replying,
+                    });
 
-                    let onlyAgentConvStateRes = agentState
-                        .map((filteredConvSession: any) => {
-                            return getConStateInfoAsMessageArray(filteredConvSession);
-                        })
-                        .flat();
-
-                    // define convStateInfo empty obj to avoid unexpected error
-                    conversationInfo.convStateInfo = {};
-
-                    // some time state will be null, cause when client send message but no agent join the conversation
-                    // then client reload the page no need this functionality to create state information
-                    if (agentState.length) {
-                        if (convStateRes.data.closed_at) {
-                            onlyAgentConvStateRes = onlyAgentConvStateRes.concat(
-                                getClosedInfoAsMessageArray(convStateRes)
-                            );
-
-                            conversationInfo.convStateInfo = { status: 'closed' };
-                        } else {
-                            // getConvJoinAndLeftStateStatus return object like { status: join/left }
-                            conversationInfo.convStateInfo = getConvJoinAndLeftStateStatus(convStateRes);
-                        }
-                    }
-
-                    conversationInfo.convStateInfo.users_only = convStateRes.data?.users_only;
-                    conversationInfo.messages = conversationInfo.data.concat(onlyAgentConvStateRes);
-
-                    context.commit('storeConvMessages', conversationInfo);
-
-                    resolve(messagesRes);
+                    resolve(res);
                 })
                 .catch((err: any) => {
                     reject(err);
                 });
-        });
-    },
-
-    // using for both user and client
-    async storeTemporaryMessage(context, payload) {
-        return new Promise((resolve) => {
-            const data = {
-                messages: [payload],
-            };
-
-            context.commit('storeConvMessages', data);
-
-            if (window.router.currentRoute._value.name !== 'web-chat.index') {
-                context.dispatch('client_conversation/updateClientConversations', data.messages[0].conversation_id, {
-                    root: true,
-                });
-            }
-
-            resolve(true);
         });
     },
 
@@ -118,16 +75,22 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .then((res: any) => {
                     const chatRequests = res.data;
 
-                    context.commit('storeChatRequests', res.data);
-
-                    console.log(chatRequests);
-
                     chatRequests.forEach((request: any) => {
                         context.commit('updateConversation', {
                             conv_id: request.id,
+                            conversation: _l.pick(request, [
+                                'id',
+                                'users_only',
+                                'type',
+                                'closed_at',
+                                'created_by_id',
+                                'closed_by_id',
+                            ]),
                             sessions: request.conversation_sessions,
                             chat_department: request.chat_department,
-                            message: request.messages, // returns only one so no array. now for sure that at least 1 msg will be available
+                            // now for sure that at least 1 msg will be available. cz ai will reply after a msg
+                            // if later we implement other way then review this
+                            message: request.messages[0],
                             ai_is_replying: request.ai_is_replying,
                         });
                     });
@@ -200,18 +163,21 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     // store message which came from socket events
     storeMessage(context, messageRes) {
+        const tempConv = messageRes.conversation;
+
         const obj = {
-            conv_id: messageRes.conversation.id,
+            conv_id: tempConv.id,
+            conversation: _l.pick(tempConv, ['id', 'users_only', 'type', 'closed_at', 'created_by_id', 'closed_by_id']),
             message: {
                 id: messageRes.id,
-                msg: messageRes.id,
+                msg: messageRes.msg,
                 created_at: messageRes.created_at,
                 attachments: messageRes.attachments,
                 temp_id: messageRes.temp_id,
             },
             ai_is_replying: messageRes.ai_is_replying,
-            sessions: messageRes.conversation.conversation_sessions,
-            chat_department: messageRes.conversation.chat_department,
+            sessions: tempConv.conversation_sessions,
+            chat_department: tempConv.chat_department,
             from: 'socket',
         };
 
@@ -225,8 +191,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('clearClientChatInitiate');
     },
 };
-
-export default actions;
 
 // join/left/close like message information as array
 function getConStateInfoAsMessageArray(convSess: any) {
@@ -253,7 +217,7 @@ function getConStateInfoAsMessageArray(convSess: any) {
 }
 
 function getClosedInfoAsMessageArray(convStateRes: any) {
-    const closedStateRes = _.cloneDeep(convStateRes.data);
+    const closedStateRes = _l.cloneDeep(convStateRes.data);
     delete closedStateRes.conversation_sessions;
 
     closedStateRes.conversation_id = closedStateRes.id;
@@ -281,3 +245,5 @@ function getConvJoinAndLeftStateStatus(convStateRes: any) {
 
     return convStateStatus;
 }
+
+export default actions;

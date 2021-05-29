@@ -345,8 +345,7 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_user', async (res: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', res);
+            this.socket.on('ec_msg_from_user', (res: any) => {
                 console.log('from ec_msg_from_user', res);
             });
 
@@ -355,8 +354,7 @@ export default defineComponent({
             // });
 
             // successfully sent to user
-            this.socket.on('ec_msg_to_client', async (res: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', res);
+            this.socket.on('ec_msg_to_client', (res: any) => {
                 console.log('from ec_msg_to_client', res);
             });
 

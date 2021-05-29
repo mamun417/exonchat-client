@@ -64,7 +64,7 @@ const mutation: MutationTree<ChatStateInterface> = {
 
         if (convId) {
             if (!state.conversations.hasOwnProperty(convId)) {
-                state.conversations[convId] = { messages: {}, sessions: [] };
+                state.conversations[convId] = { ...convData.conversation, messages: {}, sessions: [], loading: false };
             }
 
             if (convData.hasOwnProperty('chat_department')) {
@@ -77,10 +77,24 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             if (convData.hasOwnProperty('message')) {
                 if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
+                    console.log(convData.message);
+
                     state.conversations[convId].messages[convData.message.id] = convData.message;
                 } else {
                     // later check for update time & replace
                 }
+            }
+
+            if (convData.hasOwnProperty('messages') && convData.messages.length) {
+                convData.messages.forEach((message: any) => {
+                    if (!state.conversations[convId].messages.hasOwnProperty(message.id)) {
+                        console.log(convData.message);
+
+                        state.conversations[convId].messages[convData.message.id] = message;
+                    } else {
+                        // later check for update time & replace
+                    }
+                });
             }
 
             if (convData.hasOwnProperty('sessions') && convData.sessions.length) {
@@ -94,6 +108,8 @@ const mutation: MutationTree<ChatStateInterface> = {
                             if (session.left_at) {
                                 foundSes.left_at = session.left_at;
                             }
+
+                            // add other check & add for socket_session name update etc
                         } else {
                             state.conversations[convId].sessions.push(session);
                         }
