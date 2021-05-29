@@ -55,7 +55,7 @@
                         :label="`${formInputs.apps_whmcs_enable ? 'Disable' : 'Enable'} Connection`"
                         :color="formInputs.apps_whmcs_enable ? 'orange' : 'green'"
                         size="sm"
-                        @click="formInputs.apps_whmcs_enable = !formInputs.apps_whmcs_enable"
+                        @click="updateAppSetting(true)"
                         no-caps
                         unelevated
                     />
@@ -90,7 +90,7 @@
             <q-card-actions class="tw-my-4">
                 <q-btn
                     type="submit"
-                    @click="updateAppSetting"
+                    @click="updateAppSetting(false)"
                     :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
                     color="green"
                     class="tw-mb-4"
@@ -105,7 +105,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapMutations, mapGetters } from 'vuex';
-import { app } from 'electron';
 
 export default defineComponent({
     name: '',
@@ -151,14 +150,17 @@ export default defineComponent({
 
                     // if need
                     this.appSetting = res.data;
-                    console.log(res.data);
                 })
                 .catch((err: any) => {
                     console.log(err.response.data);
                 });
         },
 
-        updateAppSetting() {
+        updateAppSetting(connectionUpdate = false) {
+            if (connectionUpdate) {
+                this.formInputs.apps_whmcs_enable = !this.formInputs.apps_whmcs_enable;
+            }
+
             const data = Object.keys(this.formInputs).map((inputName: any) => {
                 return {
                     name: inputName,
@@ -172,9 +174,9 @@ export default defineComponent({
                         app_settings: data,
                     },
                 })
-                .then((res: any) => {
+                .then(() => {
+                    this.$helpers.showSuccessNotification(this, 'App setting update successful');
                     this.getAppSetting();
-                    console.log(res.data);
                 })
                 .catch((err: any) => {
                     console.log(err.response.data);

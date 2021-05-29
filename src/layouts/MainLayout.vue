@@ -75,7 +75,9 @@
                                     <img src="https://cdn.quasar.dev/img/avatar4.jpg" alt="" />
                                 </q-avatar>
 
-                                <div class="tw-text-xs tw-mt-2 tw-mb-1">{{ profile.user_meta1?.full_name }}</div>
+                                <div class="tw-text-xs tw-mt-2 tw-mb-1">
+                                    {{ $_.upperFirst(profile.user_meta?.full_name) }}
+                                </div>
                                 <div class="tw-text-xxs tw-mb-2">{{ profile.email }}</div>
 
                                 <q-btn @click="logout" color="orange" label="Logout" size="sm" />

@@ -15,7 +15,9 @@
                                 dense
                         /></q-avatar>
                         <div class="tw-self-center">
-                            <div class="tw-font-medium tw-text-lg" :class="[globalTextColor]">John Doe</div>
+                            <div class="tw-font-medium tw-text-lg" :class="[globalTextColor]">
+                                {{ $_.upperFirst(profile.user_meta?.full_name) }}
+                            </div>
                             <div class="text-caption">Technical Support</div>
                         </div>
                     </div>
@@ -60,12 +62,12 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapGetters({ globalTextColor: 'ui/globalTextColor', globalColor: 'ui/globalColor' }),
+        ...mapGetters({
+            profile: 'auth/profile',
+            globalTextColor: 'ui/globalTextColor',
+            globalColor: 'ui/globalColor',
+        }),
     },
-
-    methods: {},
-
-    watch: {},
 });
 </script>
 
