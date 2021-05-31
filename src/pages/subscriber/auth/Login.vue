@@ -95,7 +95,7 @@ export default defineComponent({
                 })
                 .then(() => {
                     this.$helpers.showSuccessNotification(this, 'Login successful');
-                    this.$router.push({ name: 'chats' });
+                    this.$router.push({ name: 'clients-conversations' });
                 })
                 .catch((err: any) => {
                     console.log(err.response.data);

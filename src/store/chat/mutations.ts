@@ -63,8 +63,16 @@ const mutation: MutationTree<ChatStateInterface> = {
         const convId = convData.conv_id;
 
         if (convId) {
+            const conv = state.conversations[convId];
+
             if (!state.conversations.hasOwnProperty(convId)) {
                 state.conversations[convId] = { ...convData.conversation, messages: {}, sessions: [], loading: false };
+            }
+
+            if (convData.closed_by) {
+                state.conversations[convId].closed_at = convData.closed_at;
+                state.conversations[convId].closed_by_id = convData.closed_id;
+                state.conversations[convId].closed_by = convData.closed_by;
             }
 
             if (convData.hasOwnProperty('chat_department')) {
@@ -90,7 +98,7 @@ const mutation: MutationTree<ChatStateInterface> = {
                     if (!state.conversations[convId].messages.hasOwnProperty(message.id)) {
                         console.log(convData.message);
 
-                        state.conversations[convId].messages[convData.message.id] = message;
+                        state.conversations[convId].messages[message.id] = message;
                     } else {
                         // later check for update time & replace
                     }
@@ -116,6 +124,23 @@ const mutation: MutationTree<ChatStateInterface> = {
                     });
                 } else {
                     state.conversations[convId].sessions = convData.sessions;
+                }
+            }
+
+            if (convData.hasOwnProperty('session')) {
+                const convSession = convData.session;
+
+                const foundSes = _l.find(conv.sessions, ['id', convSession.id]);
+
+                if (foundSes) {
+                    // this check will try to update latest. cz if left_at then its always latest
+                    if (convSession.left_at) {
+                        foundSes.left_at = convSession.left_at;
+                    }
+
+                    // add other check & add for socket_session name update etc
+                } else {
+                    conv.sessions.push(convSession);
                 }
             }
         }

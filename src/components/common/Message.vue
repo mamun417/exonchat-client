@@ -18,10 +18,14 @@
         }"
         :content-style="{}"
     >
-        <template v-for="(message, index) in localMessages" :key="message.id" class="justify-center">
+        <!-- <pre>
+        {{ conversationInfo }}
+        {{ messages }}
+        </pre> -->
+        <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
             <q-chat-message
-                v-if="message.msg"
-                :name="handleNameForMultipleSelfMessage(index, message)"
+                v-if="message.msg || (message.attachments && message.attachments.length)"
+                :name="msgSenderName(message, index)"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                 :stamp="$helpers.fromNowTime(message.created_at)"
                 :sent="checkOwnMessage(message)"
@@ -29,9 +33,9 @@
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
             >
                 <div>
-                    <!-- <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
-                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex"> -->
-                    <!-- <div
+                    <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
+                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
+                        <div
                             v-for="(attachment, key) in message.attachments"
                             :key="attachment.id"
                             style="width: 100px; max-height: 100px"
@@ -54,8 +58,8 @@
                                     attachment.original_name
                                 }}</q-tooltip>
                             </q-img>
-                        </div> -->
-                    <!-- <q-avatar
+                        </div>
+                        <!-- <q-avatar
                             v-for="(attachment, key) in message.attachments"
                             :key="attachment.id"
                             size="100px"
@@ -67,21 +71,21 @@
                             rounded
                         >
                             <q-inner-loading
-                                v-if="!attachment.hasOwnProperty('loading') || attachment.loading"
+                                v-if="!attachment.hasOwnProperty('loaded') || attachment.loaded"
                                 :showing="true"
                             >
                                 <q-spinner-dots size="30px" color="green" />
                             </q-inner-loading>
                             <img v-else class="tw-cursor-pointer" :src="attachment.src" />
                         </q-avatar> -->
-                    <!-- </div> -->
+                    </div>
                 </div></q-chat-message
             >
 
-            <!-- <q-chat-message
-                v-else-if="!message.msg && !isAgentToAgentConversation"
+            <q-chat-message
+                v-else-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
                 :label="getConvStateStatusMessage(message)"
-            /> -->
+            />
         </template>
 
         <!-- <q-chat-message
@@ -107,10 +111,7 @@
         /> -->
     </q-scroll-area>
 
-    <!-- <div
-        v-if="isShowSendMessageInput"
-        class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
-    >
+    <div v-if="showSendMessageInput" class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded">
         <q-file
             v-model="attachments"
             name="attachment-uploader"
@@ -138,7 +139,7 @@
             <q-btn flat color="green" icon="mood" class="tw-px-2"></q-btn>
         </div>
         <div class="tw-flex-auto tw-px-3">
-            used keydown for instant catch n prevent
+            <!-- used keydown for instant catch n prevent -->
             <q-input
                 v-model="msg"
                 debounce="0"
@@ -186,10 +187,10 @@
                             >
                         </q-item></q-list
                     >
-                    <q-separator /> -->
-    <!-- <div class="tw-px-4"> -->
-    <!-- n here keyup is for finally done press so that i dont call this func continiously -->
-    <!-- <q-input
+                    <q-separator />
+                    <div class="tw-px-4">
+                        <!-- n here keyup is for finally done press so that i dont call this func continiously -->
+                        <q-input
                             v-model="chatTemplateInputVal"
                             placeholder="search"
                             color="green-8"
@@ -229,13 +230,13 @@
                         attachmentObj.original_name
                     }}</q-tooltip>
                 </q-avatar>
-            </div> -->
-    <!-- </div> -->
-    <!-- <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn icon="send" flat color="green-8" :disable="getSendBtnStatus"></q-btn>
-        </div> -->
+            </div>
+        </div>
+        <div class="tw-flex tw-flex-col tw-justify-end">
+            <q-btn icon="send" flat color="green-8" :disable="getSendBtnStatus" @click="sendMessage"></q-btn>
+        </div>
 
-    <!-- <q-dialog v-model="attachmentPreviewModal" full-width>
+        <q-dialog v-model="attachmentPreviewModal" full-width>
             <q-responsive class="no-shadow" :ratio="1">
                 <q-img fit="contain" :src="attachmentPreview.src" spinner-color="green" class="attachment-preview">
                     <div class="absolute-bottom text-subtitle1 text-center">
@@ -248,20 +249,25 @@
             </q-responsive>
 
             <q-btn class="hidden" />
-        </q-dialog> -->
-    <!-- </div> -->
+        </q-dialog>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapGetters } from 'vuex';
 
 import * as _l from 'lodash';
+import moment from 'moment';
 
 export default defineComponent({
     name: 'Message',
     components: {},
     props: {
         conv_id: {
+            type: String,
+        },
+        ses_id: {
             type: String,
         },
 
@@ -271,17 +277,21 @@ export default defineComponent({
         },
     },
 
-    // setup() {
-    //     const messageInputAutoFocus = inject('messageInputAutoFocus');
+    setup() {
+        //     const messageInputAutoFocus = inject('messageInputAutoFocus');
+        const messageInputAutoFocus = true;
 
-    //     return {
-    //         messageInputAutoFocus,
-    //     };
-    // },
+        return {
+            messageInputAutoFocus,
+        };
+    },
 
     data(): any {
         return {
             uid: new Date().getTime().toString(), // user convid insted. not from url
+
+            gettingNewMessages: false, // we could also use conv's loading state but it's will be a disaster here
+
             convId: '',
             confirm: false,
             convState: '',
@@ -314,64 +324,96 @@ export default defineComponent({
     },
 
     computed: {
+        ...mapGetters({
+            globalBgColor: 'ui/globalBgColor',
+            globalColor: 'ui/globalColor',
+        }),
+
+        chatPanelType(): any {
+            return this.$router.name === 'client-web-chat' ? 'client' : 'user';
+        },
+
+        conversationInfo(): any {
+            return this.$store.getters['chat/conversationInfo'](this.conv_id);
+        },
+
+        conversationStatusForMe(): any {
+            return this.$store.getters['chat/conversationStatusForMe'](this.conv_id, this.ses_id);
+        },
+
+        conversationMessages(): any {
+            return this.$store.getters['chat/conversationMessages'](this.conv_id);
+        },
+
+        messages(): any {
+            const stateAsMsg = this.$store.getters['chat/getConvSesStateAsMsg'](this.conv_id);
+
+            const tempMessages = _l.cloneDeep(this.conversationMessages);
+
+            stateAsMsg.forEach((stateMsg: any) => {
+                if (!tempMessages.hasOwnProperty(stateMsg.id)) {
+                    tempMessages[stateMsg.id] = stateMsg;
+                }
+            });
+
+            return _l.sortBy(Object.values(tempMessages), [(msg: any) => moment(msg.created_at).format('x')]);
+        },
+
         getSendBtnStatus(): any {
             return this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
         },
 
         isAgentToAgentConversation(): any {
-            return this.conversationInfo.stateInfo.users_only;
+            return this.conversationInfo.users_only;
         },
 
-        isShowSendMessageInput(): any {
-            return (
-                (this.chatPanelType === 'client' ||
-                    this.conversationInfo.stateInfo.status === 'joined' ||
-                    this.isAgentToAgentConversation) &&
-                !this.isConversationTracking
-            );
+        showSendMessageInput(): any {
+            console.log(this.conversationStatusForMe);
+
+            return this.conversationStatusForMe === 'joined' || this.isAgentToAgentConversation;
         },
 
-        mappedChatTemplates(): any {
-            const mappedChatTemplates = this.chatTemplates.map((chatTemplate: any) => {
-                // set content
-                if (chatTemplate.intent) {
-                    chatTemplate.content =
-                        chatTemplate.intent.intent_action.type === 'static'
-                            ? chatTemplate.intent.intent_action.content
-                            : '';
+        // mappedChatTemplates(): any {
+        //     const mappedChatTemplates = this.chatTemplates.map((chatTemplate: any) => {
+        //         // set content
+        //         if (chatTemplate.intent) {
+        //             chatTemplate.content =
+        //                 chatTemplate.intent.intent_action.type === 'static'
+        //                     ? chatTemplate.intent.intent_action.content
+        //                     : '';
 
-                    chatTemplate.loading = chatTemplate.intent.intent_action.type !== 'static';
-                }
+        //             chatTemplate.loading = chatTemplate.intent.intent_action.type !== 'static';
+        //         }
 
-                chatTemplate.is_focused = false;
+        //         chatTemplate.is_focused = false;
 
-                return chatTemplate;
-            });
+        //         return chatTemplate;
+        //     });
 
-            if (!mappedChatTemplates.length) {
-                return [
-                    {
-                        tag: 'No Result! Append in message box',
-                        content: `/${this.chatTemplateInputVal}`,
-                        is_focused: true,
-                    },
-                ];
-            }
+        //     if (!mappedChatTemplates.length) {
+        //         return [
+        //             {
+        //                 tag: 'No Result! Append in message box',
+        //                 content: `/${this.chatTemplateInputVal}`,
+        //                 is_focused: true,
+        //             },
+        //         ];
+        //     }
 
-            return mappedChatTemplates;
-        },
+        //     return mappedChatTemplates;
+        // },
     },
 
     methods: {
         checkOwnMessage(message: any) {
-            return message.socket_session_id === this.sesId;
+            return message.socket_session_id === this.ses_id;
         },
 
         msgForRightSide(message: any) {
             if (this.checkOwnMessage(message)) {
                 return true;
             } else {
-                if (!this.isUserPanel) {
+                if (this.$route.name === 'client-web-chat') {
                     return !!message.socket_session.user_id;
                 }
             }
@@ -383,26 +425,27 @@ export default defineComponent({
             return this.isConversationTracking ? this.conversationId : this.$route.params['conv_id'];
         },
 
-        handleNameForMultipleSelfMessage(index: any, message: any) {
-            const previousMessage = this.conversationInfo.messages[index - 1];
+        msgSenderName(msg: any, index: any) {
+            const prevMsg = this.messages[index - 1];
 
-            return index === 0 ||
-                previousMessage.hasOwnProperty('conv_state_status') ||
-                message?.socket_session_id !== previousMessage.socket_session_id
-                ? message.hasOwnProperty('socket_session')
-                    ? message.socket_session.user?.email ?? message.socket_session.init_email
-                    : ''
-                : '';
+            // if (
+            //     index === 0 ||
+            //     (prevMsg.hasOwnProperty('msg') && msg?.socket_session_id !== prevMsg.socket_session_id)
+            // ) {
+            //     if (msg.socket_session.user) {
+            //         return msg.socket_session.user.user_meta.display_name;
+            //     }
+
+            //     return msg.socket_session.init_name;
+            // }
+
+            return '';
         },
 
         getConvStateStatusMessage(message: any) {
-            // const onOrAt = message.conv_state_status === 'join' ? 'on' : 'at';
-
-            const infoKey = message.conv_state_status === 'closed' ? 'closed_by' : 'socket_session';
-
-            return `${message[infoKey].user.email} ${message.conv_state_status} ${this.$helpers.fromNowTime(
-                message.created_at
-            )}`;
+            return `${message.session.user ? message.session.user.user_meta.display_name : message.session.init_name} ${
+                message.state
+            } at ${this.$helpers.fromNowTime(message.created_at)}`;
         },
 
         inputFocusHandle() {
@@ -512,10 +555,11 @@ export default defineComponent({
 
             console.log('sending the msg');
 
-            const emitType = this.isUserPanel() ? 'user' : 'client';
-            const dynamicBody = this.isUserPanel()
-                ? { conv_id: this.getConvId(), temp_id: this.$helpers.getTempId() }
-                : { temp_id: this.$helpers.getTempId() };
+            const emitType = this.chatPanelType ? 'user' : 'client';
+            const dynamicBody =
+                this.chatPanelType === 'user'
+                    ? { conv_id: this.conv_id, temp_id: this.$helpers.getTempId() }
+                    : { temp_id: this.$helpers.getTempId() };
 
             const dynamicSocket = this.socket || this.$socket;
 
@@ -534,7 +578,6 @@ export default defineComponent({
             let verticalPercentage = info.verticalPercentage;
             this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
         },
-
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;
 
@@ -543,10 +586,6 @@ export default defineComponent({
 
                 msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 500);
             }
-        },
-
-        isUserPanel() {
-            return this.chatPanelType === 'user';
         },
 
         attachmentUploaderHandle(val: any) {
@@ -632,23 +671,16 @@ export default defineComponent({
         async handleAttachmentLoading() {
             console.log('called handle attch loader');
 
-            this.conversationInfoLocal = _l.cloneDeep(this.conversationInfo);
+            if (!Object.keys(this.conversationMessages).length) return;
 
-            if (
-                !this.conversationInfoLocal ||
-                !this.conversationInfoLocal.messages ||
-                !this.conversationInfoLocal.messages.length
-            )
-                return;
-
-            for (const msg of this.conversationInfoLocal.messages) {
-                // console.log(msg);
+            // if it does not reflect change to store then handle attachment mutation here
+            for (const message of Object.values(this.conversationMessages)) {
+                const msg: any = message; // its only for now. otherwise type error msg
 
                 if (msg.attachments && msg.attachments.length) {
                     for (const attch of msg.attachments) {
-                        if (!attch.hasOwnProperty('loading')) {
+                        if (!attch.loaded && !attch.src) {
                             try {
-                                attch.loading = false;
                                 const imgRes = await this.$socketSessionApi.get(`messages/attachments/${attch.id}`, {
                                     responseType: 'arraybuffer',
                                 });
@@ -656,7 +688,10 @@ export default defineComponent({
                                 attch.src = URL.createObjectURL(
                                     new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
                                 );
+
+                                attch.loaded = true;
                             } catch (e) {
+                                attch.loaded = false;
                                 console.log(e);
                             }
                         }
@@ -669,8 +704,31 @@ export default defineComponent({
     watch: {
         conversationInfo: {
             handler: function () {
+                if (
+                    !this.gettingNewMessages && // and also check loading state of this conv
+                    this.conversationInfo &&
+                    (!this.conversationInfo.hasOwnProperty('current_page') || this.conversationInfo.current_page === 0)
+                ) {
+                    console.log('getting new messages. watch this if it calls many times without needed');
+
+                    this.gettingNewMessages = true;
+
+                    this.$store.dispatch('chat/getConvMessages', { convId: this.conv_id }).finally(() => {
+                        this.gettingNewMessages = false;
+                    });
+                }
+            },
+            deep: true,
+            immediate: true,
+        },
+
+        conversationMessages: {
+            handler: function () {
                 this.handleAttachmentLoading();
-                this.scrollToBottom();
+
+                if ('auto_scroll_to_bottom') {
+                    this.scrollToBottom();
+                }
             },
             deep: true,
             immediate: true,

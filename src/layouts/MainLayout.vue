@@ -354,14 +354,17 @@ export default defineComponent({
             });
 
             // successfully sent to client
-            this.socket.on('ec_msg_to_user', (data: any) => {
-                console.log('from ec_msg_to_user', data);
+            this.socket.on('ec_msg_to_user', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+                console.log('from ec_msg_to_user', res);
             });
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_user', (data: any) => {
-                console.log('from ec_msg_from_user', data);
+            this.socket.on('ec_msg_from_user', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+
+                console.log('from ec_msg_from_user', res);
             });
 
             this.socket.on('ec_msg_from_client', (res: any) => {
@@ -399,28 +402,24 @@ export default defineComponent({
 
             this.socket.on('ec_is_joined_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_ses_data;
-                convInfo.state_status = 'joined';
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvState', convInfo);
 
                 console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_ses_data;
-                convInfo.state_status = 'left';
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvState', convInfo);
 
                 console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_data;
-                convInfo.state_status = 'closed';
-                convInfo.conversation_id = res.data.conv_id; // need to same  object pattern
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvStateToClosed', convInfo);
 
                 console.log('from ec_is_closed_from_conversation', convInfo);
             });

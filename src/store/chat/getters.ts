@@ -10,15 +10,90 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     conversationInfo: (state) => (convId: any) => {
-        const allConvInfo = state.conversationInfo;
-        const convInfo = allConvInfo[convId] || {};
+        console.log(state.conversations);
 
-        const messages = _l.sortBy(convInfo.messages, [(message) => moment(message.created_at).format('x')]);
+        if (state.conversations[convId]) {
+            return _l.omit(state.conversations[convId], ['messages']);
+        }
 
-        return {
-            messages,
-            stateInfo: convInfo.stateInfo || {},
-        };
+        return {};
+    },
+
+    conversationStatusForMe: (state) => (convId: any, mySesId: any) => {
+        const conv = state.conversations[convId];
+        console.log(conv, mySesId);
+
+        if (!conv) return null;
+        if (conv.closed_at) return 'closed';
+
+        let convState = null;
+
+        conv.sessions.forEach((ses: any) => {
+            if (ses.socket_session_id === mySesId) {
+                convState = ses.left_at ? 'left' : ses.joined_at ? 'joined' : null;
+            }
+        });
+
+        return convState;
+    },
+
+    conversationWithUsersInfo: (state) => (convId: any, mySesId: any) => {
+        let userSessions: any = {};
+
+        if (state.conversations.hasOwnProperty(convId)) {
+            const conv = state.conversations[convId];
+
+            userSessions = conv.sessions.filter((session: any) => {
+                return (
+                    (!conv.users_only && !session.socket_session.user) ||
+                    (conv.users_only && session.socket_session_id !== mySesId)
+                );
+            });
+        }
+
+        return userSessions;
+    },
+
+    conversationMessages: (state) => (convId: any) => {
+        return state.conversations[convId]?.messages || [];
+    },
+
+    getConvSesStateAsMsg: (state) => (convId: any) => {
+        const stateAsMsg: any = [];
+
+        if (!state.conversations.hasOwnProperty(convId)) return [];
+
+        const conv = state.conversations[convId];
+
+        if (conv.closed_at) {
+            stateAsMsg.push({
+                id: `${conv.closed_by.id}_closed`,
+                state: 'closed',
+                session: conv.closed_by,
+                conversation_id: convId,
+                created_at: conv.closed_at,
+                updated_at: conv.closed_at, // its for future
+            });
+        }
+
+        if (conv.sessions && conv.sessions.length) {
+            conv.sessions.forEach((convSes: any) => {
+                ['joined', 'left'].forEach((state: any) => {
+                    if (convSes[`${state}_at`]) {
+                        stateAsMsg.push({
+                            id: `${convSes.socket_session_id}_${state}`,
+                            state: state,
+                            session: convSes.socket_session,
+                            conversation_id: convId,
+                            created_at: convSes[`${state}_at`],
+                            updated_at: convSes[`${state}_at`], // its for future
+                        });
+                    }
+                });
+            });
+        }
+
+        return stateAsMsg;
     },
 
     chatRequests(state) {
@@ -38,7 +113,12 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(Object.values(conv.messages), [(msg: any) => moment(msg.created_at).format('x')])[0];
+                return _l.sortBy(
+                    Object.values(conv.messages).filter(
+                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                    ),
+                    [(msg: any) => moment(msg.created_at).format('x')]
+                )[0];
             });
     },
     incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
@@ -54,7 +134,12 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(Object.values(conv.messages), [(msg: any) => moment(msg.created_at).format('x')])[0];
+                return _l.sortBy(
+                    Object.values(conv.messages).filter(
+                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                    ),
+                    [(msg: any) => moment(msg.created_at).format('x')]
+                )[0];
             });
     },
 
@@ -77,7 +162,12 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(Object.values(conv.messages), [(msg: any) => moment(msg.created_at).format('x')])[0];
+                return _l.sortBy(
+                    Object.values(conv.messages).filter(
+                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                    ),
+                    [(msg: any) => moment(msg.created_at).format('x')]
+                )[0];
             });
     },
 
@@ -99,7 +189,12 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(Object.values(conv.messages), [(msg: any) => moment(msg.created_at).format('x')])[0];
+                return _l.sortBy(
+                    Object.values(conv.messages).filter(
+                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                    ),
+                    [(msg: any) => moment(msg.created_at).format('x')]
+                )[0];
             });
     },
 

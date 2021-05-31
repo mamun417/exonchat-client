@@ -311,9 +311,11 @@ export default defineComponent({
         return {};
     },
 
-    mounted() {
+    async mounted() {
         console.log('left bar initiated');
-        this.getChatRequest();
+        await this.getChatRequest();
+        await this.getOtherJoinedChats();
+        await this.getJoinedChatsWithMe();
     },
 
     computed: {
@@ -334,8 +336,14 @@ export default defineComponent({
     },
 
     methods: {
-        getChatRequest() {
-            this.$store.dispatch('chat/getChatRequests');
+        async getChatRequest() {
+            await this.$store.dispatch('chat/getChatRequests');
+        },
+        async getOtherJoinedChats() {
+            await this.$store.dispatch('chat/getOtherJoinedChats');
+        },
+        async getJoinedChatsWithMe() {
+            await this.$store.dispatch('chat/getJoinedChatsWithMe');
         },
 
         openUserToUserConversation(user: any) {
