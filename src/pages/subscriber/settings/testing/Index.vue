@@ -3,13 +3,13 @@
         <q-card>
             <q-card-section>
                 <div class="tw-flex tw-items-center tw-mb-2">
-                    <div class="tw-font-medium">Enable Chat Panle box for testing :</div>
+                    <div class="tw-font-medium">Enable/Disable Chat Panle box for testing :</div>
                     <q-btn
                         class="tw-ml-2"
                         :color="chatPanelBoxIsTesting ? 'orange' : 'green'"
                         :label="chatPanelBoxIsTesting ? 'Disable' : 'Enable'"
                         size="sm"
-                        @click="updateChatPanelBoxTestingShowStaus(!chatPanelBoxTestingStatus)"
+                        @click="updateChatPanelBoxTestingShowStaus(!chatPanelBoxIsTesting)"
                         no-caps
                         no-wrap
                     />
@@ -17,12 +17,12 @@
                 <div class="tw-text-xs">
                     Current staus is :
                     <span :class="[chatPanelBoxIsTesting ? 'text-green' : 'text-orange']">{{
-                        chatPanelBoxTestingStatus ? 'enabled' : 'disabled'
+                        chatPanelBoxIsTesting ? 'enabled' : 'disabled'
                     }}</span>
                 </div>
 
-                <div class="tw-text-xxs tw-mt-4 text-white bg-green tw-p-2 tw-font-bold">
-                    <div v-if="!chatPanelBoxTestingStatus">
+                <div v-if="!chatPanelBoxIsTesting" class="tw-text-xxs tw-mt-4 text-white bg-green tw-p-2 tw-font-bold">
+                    <div>
                         It will open the chat panel box here. You will see changes here. If changes are not updating
                         please reload
                     </div>

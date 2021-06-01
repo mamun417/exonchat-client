@@ -23,6 +23,10 @@ const getters: GetterTree<UiStateInterface, StateInterface> = {
     trackingConversation(state) {
         return state.trackingConversation;
     },
+
+    rightBarState(state) {
+        return state.rightDrawerState;
+    },
 };
 
 export default getters;

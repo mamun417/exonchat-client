@@ -6,6 +6,7 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
+                <!-- <pre>{{ clientConversations }}</pre> -->
                 <ec-table
                     :rows="clientConversations"
                     :columns="columns"
@@ -13,47 +14,36 @@
                     :selected-row-id="selectedRowId"
                 >
                     <template v-slot:cell-client_name="slotProps">
-                        <div>
-                            {{ slotProps.row.client.init_name }}
+                        <div class="text-italic">
+                            <!-- <pre>{{ slotProps.row }}</pre> -->
+                            {{ slotProps.row.client_info.socket_session.init_name }}
                         </div>
                     </template>
 
                     <template v-slot:cell-msg="slotProps">
-                        <div>
-                            {{ slotProps.row.messages[0]['msg'] }}
+                        <div class="tw-text-xxs">
+                            {{ slotProps.row.message.msg }}
                         </div>
                     </template>
 
                     <template v-slot:cell-chat_department="slotProps">
-                        <div>
+                        <div class="text-italic">
                             {{ slotProps.row.chat_department.tag }}
                         </div>
                     </template>
 
                     <template v-slot:cell-connected_agents="slotProps">
-                        <div v-if="slotProps.row.connected_agents.length">
-                            <q-avatar
-                                v-for="(agent, key) in slotProps.row.connected_agents"
-                                :key="key"
-                                size="35px"
-                                :style="key !== 0 ? { marginLeft: '-8px' } : ''"
-                            >
-                                <img :src="agent.avatar || 'https://cdn.quasar.dev/img/avatar1.jpg'" alt="image" />
-                                <q-tooltip class="">
-                                    {{ agent.email }}
-                                </q-tooltip>
-                            </q-avatar>
-                        </div>
-                        <div v-else></div>
+                        <connected-users-faces :users_conv_ses="slotProps.row.connected_agents" />
                     </template>
 
                     <template v-slot:cell-last_sent="slotProps">
-                        <div>
-                            {{ $helpers.myDate(slotProps.row.messages[0]['created_at'], 'MMMM Do YYYY, h:mm:ss a') }}
+                        <div class="tw-text-xss">
+                            {{ $helpers.myDate(slotProps.row.messages.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
                         </div>
                     </template>
 
-                    <template v-slot:cell-status="slotProps">
+                    <template v-slot:cell-self_status="slotProps">
+                        <!-- {{ slotProps.row.self_status }} -->
                         <q-badge
                             v-if="slotProps.row.self_status"
                             :color="
@@ -61,7 +51,7 @@
                                     ? 'red'
                                     : slotProps.row.self_status === 'left'
                                     ? 'orange'
-                                    : ''
+                                    : 'green'
                             "
                         >
                             {{ slotProps.row.self_status }}
@@ -71,14 +61,25 @@
 
                     <template v-slot:cell-action="slotProps">
                         <view-conversation-btn :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }" />
-                        <tracking-conversation-btn @click="updateConversationTrucking(slotProps.row.id)" />
+                        <tracking-conversation-btn
+                            :disable="
+                                rightBarState.mode === 'conversation' && rightBarState.conv_id === slotProps.row.id
+                            "
+                            @click="
+                                updateRightDrawerState({
+                                    conv_id: slotProps.row.id,
+                                    mode: 'conversation',
+                                    visible: true,
+                                })
+                            "
+                        />
                         <direct-message-btn
                             :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }"
                             :disable="slotProps.row.self_status !== 'joined'"
                         />
                         <close-conversation-btn
                             @click="showCloseConversationConfirmModal(slotProps.row.id)"
-                            :disable="slotProps.row.self_status !== 'left'"
+                            :disable="slotProps.row.closed_at"
                         />
                     </template>
                 </ec-table>
@@ -96,13 +97,17 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapMutations, mapGetters } from 'vuex';
 import EcTable from 'components/common/table/EcTable.vue';
 import TrackingConversationBtn from 'components/common/table/utilities/TrackingConversationBtn.vue';
 import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn.vue';
 import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
 import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
 import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
+
+import * as _l from 'lodash';
+import moment from 'moment';
+import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
 
 const columns = [
     {
@@ -136,9 +141,9 @@ const columns = [
         field: 'last_sent',
     },
     {
-        name: 'status', // conversation status {closed, pending, ongoing}
+        name: 'self_status', // conversation status {closed, pending, ongoing}
         label: 'Status',
-        field: 'status',
+        field: 'self_status',
         align: 'center',
     },
     {
@@ -146,31 +151,6 @@ const columns = [
         label: 'Actions',
         field: 'action',
         align: 'center',
-    },
-];
-
-const rows = [
-    {
-        client_name: 'habijabi',
-        msg: 'heelo',
-        chat_department: 'Sales',
-        connected_agents: [{ name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' }],
-        last_sent: '5mnt ago',
-        status: 'joined',
-    },
-    {
-        client_name: 'jabihabi',
-        msg: 'hi',
-        chat_department: 'Technical',
-        connected_agents: [
-            { name: 'hasan', avatar: 'https://cdn.quasar.dev/img/avatar1.jpg' },
-            {
-                name: 'susmita',
-                avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
-            },
-        ],
-        last_sent: '1mnt ago',
-        status: 'closed',
     },
 ];
 
@@ -182,6 +162,7 @@ export default defineComponent({
         DirectMessageBtn,
         TrackingConversationBtn,
         EcTable,
+        ConnectedUsersFaces,
     },
     data(): any {
         return {
@@ -194,44 +175,64 @@ export default defineComponent({
     setup() {
         return {
             columns,
-            rows,
         };
     },
 
     computed: {
+        ...mapGetters({
+            rightBarState: 'ui/rightBarState',
+        }),
+
         clientConversations(): any {
-            const clientConversations = this.$_.cloneDeep(
-                this.$store.getters['client_conversation/getClientConversations']
-            );
+            const clientConversations = this.$_.cloneDeep(this.$store.getters['chat/clientsConversation']);
+
+            console.log('client conversations', clientConversations);
 
             const mySocketSessionId = this.$helpers.getMySocketSessionId();
 
-            if (clientConversations) {
-                return Object.values(clientConversations).map((clientConv: any) => {
-                    clientConv.connected_agents = [];
+            if (clientConversations.length) {
+                return clientConversations.map((conv: any) => {
+                    conv.client_info = this.$store.getters['chat/conversationWithUsersInfo'](
+                        conv.id,
+                        mySocketSessionId
+                    )[0];
 
-                    // set connected agents and client information
-                    clientConv.conversation_sessions.forEach((convSession: any) => {
-                        if (convSession.socket_session.user_id) {
-                            clientConv.connected_agents.push(convSession.socket_session.user);
-                        } else {
-                            clientConv.client = convSession.socket_session;
-                        }
-                    });
+                    conv.message = msgMaker(conv.messages);
 
-                    clientConv.self_status = this.getSelfConversationStateStatus(mySocketSessionId, clientConv);
+                    conv.self_status = this.$store.getters['chat/conversationStatusForMe'](conv.id, mySocketSessionId);
 
-                    return clientConv;
+                    conv.connected_agents = this.$store.getters['chat/conversationConnectedUsers'](conv.id);
+
+                    return conv;
                 });
+                // .filter((conv: any) => {
+                //     conv.message;
+                // });
+            }
+
+            function msgMaker(messagesObj: any) {
+                if (messagesObj && Object.keys(messagesObj).length) {
+                    const messages = _l.cloneDeep(Object.values(messagesObj));
+
+                    const tempMsgObj: any = _l.sortBy(
+                        Object.values(messages).filter(
+                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                        ),
+                        [(msg: any) => moment(msg.created_at).format('x')]
+                    )[0];
+
+                    if (!tempMsgObj.msg) {
+                        tempMsgObj.msg = 'Uploaded Attachments';
+                    }
+
+                    return tempMsgObj;
+                }
+
+                return null;
             }
 
             return [];
         },
-
-        // if need later
-        ...mapGetters({
-            trackingConversation: 'ui/trackingConversation',
-        }),
     },
 
     mounted() {
@@ -239,25 +240,10 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ updateConversationTrucking: 'ui/updateConversationTrucking' }),
+        ...mapMutations({ updateRightDrawerState: 'ui/updateRightDrawerState' }),
 
         getClientConversations() {
             this.$store.dispatch('client_conversation/getClientConversations');
-        },
-
-        // set self status (join/left/closed)
-        getSelfConversationStateStatus(mySocketSessionId: any, clientConv: any) {
-            if (clientConv.closed_by_id === mySocketSessionId) {
-                return 'closed';
-            } else {
-                const mySocketSession = clientConv.conversation_sessions.find(
-                    (convSession: any) => convSession.socket_session_id === mySocketSessionId
-                );
-
-                if (mySocketSession) {
-                    return mySocketSession.left_at ? 'left' : 'joined';
-                }
-            }
         },
 
         showCloseConversationConfirmModal(conversationId: any) {
@@ -273,16 +259,6 @@ export default defineComponent({
             this.$socket.emit('ec_close_conversation', {
                 conv_id: convId,
             });
-        },
-    },
-
-    watch: {
-        trackingConversation: {
-            handler(trackingConversation) {
-                this.selectedRowId = trackingConversation.conversationId;
-            },
-            deep: true,
-            immediate: true,
         },
     },
 });

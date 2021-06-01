@@ -5,13 +5,14 @@ export interface ChatStateInterface {
     selectedPanel: null | string;
     conversationInfo: any;
     chatRequests: any;
-    chatAgents: any;
-    onlineChatAgents: any;
+    chatUsers: any;
+    conversations: any;
 }
 
 function state(): ChatStateInterface {
     const convStateInfo = localStorage.getItem('convStateInfo');
     const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
+    const conversations = localStorage.getItem('ec_conversations');
 
     return {
         clientInitiateConvInfo: clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {},
@@ -20,8 +21,8 @@ function state(): ChatStateInterface {
         selectedPanel: null,
         conversationInfo: {},
         chatRequests: {},
-        chatAgents: {},
-        onlineChatAgents: {},
+        chatUsers: {},
+        conversations: conversations ? JSON.parse(conversations) : {},
     };
 }
 

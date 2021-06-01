@@ -18,16 +18,33 @@
         }"
         :content-style="{}"
     >
-        <template v-for="(message, index) in conversationInfoLocal.messages" :key="message.id" class="justify-center">
+        <!-- <pre>
+        {{ conversationInfo }}
+        {{ messages }}
+        </pre> -->
+        <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
             <q-chat-message
-                v-if="message.msg"
-                :name="handleNameForMultipleSelfMessage(index, message)"
+                v-if="message.msg || (message.attachments && message.attachments.length)"
+                :name="msgSenderName(message, index)"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                :stamp="$helpers.fromNowTime(message.created_at)"
                 :sent="checkOwnMessage(message)"
                 :text-color="checkOwnMessage(message) ? 'black' : 'white'"
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
+                :class="{ 'mini-mode-message-text-container': mini_mode }"
             >
+                <template v-slot:stamp>
+                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                        {{ $helpers.fromNowTime(message.created_at) }}
+                    </div>
+                </template>
+
+                <template v-slot:avatar>
+                    <q-avatar size="lg" class="tw-mr-2">
+                        <img src="https://cdn.quasar.dev/img/avatar1.jpg" alt="image" />
+                        <q-tooltip class=""> email </q-tooltip>
+                    </q-avatar>
+                </template>
+
                 <div>
                     <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
                     <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
@@ -55,36 +72,23 @@
                                 }}</q-tooltip>
                             </q-img>
                         </div>
-                        <!-- <q-avatar
-                            v-for="(attachment, key) in message.attachments"
-                            :key="attachment.id"
-                            size="100px"
-                            class="shadow-3"
-                            :class="{
-                                'tw-mr-2': !msgForRightSide(message) && key !== message.attachments.length - 1,
-                                'tw-ml-2': msgForRightSide(message) && key !== message.attachments.length - 1,
-                            }"
-                            rounded
-                        >
-                            <q-inner-loading
-                                v-if="!attachment.hasOwnProperty('loading') || attachment.loading"
-                                :showing="true"
-                            >
-                                <q-spinner-dots size="30px" color="green" />
-                            </q-inner-loading>
-                            <img v-else class="tw-cursor-pointer" :src="attachment.src" />
-                        </q-avatar> -->
                     </div>
                 </div></q-chat-message
             >
 
             <q-chat-message
-                v-else-if="!message.msg && !isAgentToAgentConversation"
-                :label="getConvStateStatusMessage(message)"
-            />
+                v-else-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
+                class="tw-mb-0"
+            >
+                <template v-slot:label>
+                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                        {{ getConvStateStatusMessage(message) }}
+                    </div></template
+                ></q-chat-message
+            >
         </template>
 
-        <q-chat-message
+        <!-- <q-chat-message
             v-if="typingHandler.typing"
             avatar="https://cdn.quasar.dev/img/avatar3.jpg"
             bg-color="gray-9"
@@ -104,13 +108,10 @@
             icon="keyboard_arrow_down"
             size="sm"
             round
-        />
+        /> -->
     </q-scroll-area>
 
-    <div
-        v-if="isShowSendMessageInput"
-        class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
-    >
+    <div v-if="showSendMessageInput" class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded">
         <q-file
             v-model="attachments"
             name="attachment-uploader"
@@ -130,12 +131,19 @@
                 flat
                 color="green"
                 icon="attachment"
-                class="tw-px-2"
+                :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
+                :dense="mini_mode"
                 @click="$refs.attachment_uploader.pickFiles($event)"
             ></q-btn>
         </div>
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn flat color="green" icon="mood" class="tw-px-2"></q-btn>
+            <q-btn
+                flat
+                color="green"
+                icon="mood"
+                :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
+                :dense="mini_mode"
+            ></q-btn>
         </div>
         <div class="tw-flex-auto tw-px-3">
             <!-- used keydown for instant catch n prevent -->
@@ -145,7 +153,7 @@
                 placeholder="Write Message..."
                 color="green-8"
                 class="ec-msg-input"
-                :class="[`ec-msg-input-${uid}`]"
+                :class="[`ec-msg-input-${uid}`, mini_mode ? 'tw-text-xxs ec-mini-mode-msg-input' : '']"
                 @keyup.enter.exact="sendMessage"
                 @keydown="keyUpHandle"
                 @focus="inputFocusHandle"
@@ -232,7 +240,14 @@
             </div>
         </div>
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn icon="send" flat color="green-8" :disable="getSendBtnStatus"></q-btn>
+            <q-btn
+                icon="send"
+                flat
+                color="green-8"
+                :dense="mini_mode"
+                :disable="getSendBtnStatus"
+                @click="sendMessage"
+            ></q-btn>
         </div>
 
         <q-dialog v-model="attachmentPreviewModal" full-width>
@@ -253,15 +268,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue';
+import { defineComponent } from 'vue';
+import { mapGetters } from 'vuex';
 
 import * as _l from 'lodash';
+import moment from 'moment';
 
 export default defineComponent({
     name: 'Message',
     components: {},
     props: {
-        sesId: {
+        conv_id: {
+            type: String,
+        },
+        ses_id: {
             type: String,
         },
 
@@ -269,29 +289,15 @@ export default defineComponent({
             type: Object,
             default: null,
         },
-
-        chatPanelType: {
-            type: String,
-            default: 'user',
-        },
-
-        isConversationTracking: {
+        mini_mode: {
             type: Boolean,
             default: false,
-        },
-
-        conversationId: {
-            type: String,
-            default: '',
-        },
-
-        conversationInfo: {
-            type: Object,
         },
     },
 
     setup() {
-        const messageInputAutoFocus = inject('messageInputAutoFocus');
+        //     const messageInputAutoFocus = inject('messageInputAutoFocus');
+        const messageInputAutoFocus = true;
 
         return {
             messageInputAutoFocus,
@@ -301,6 +307,9 @@ export default defineComponent({
     data(): any {
         return {
             uid: new Date().getTime().toString(), // user convid insted. not from url
+
+            gettingNewMessages: false, // we could also use conv's loading state but it's will be a disaster here
+
             convId: '',
             confirm: false,
             convState: '',
@@ -327,27 +336,59 @@ export default defineComponent({
     },
 
     mounted() {
-        setInterval(() => {
-            this.$forceUpdate(); // now i have no idea why its needed
-        }, 30000);
+        // setInterval(() => {
+        //     this.$forceUpdate(); // now i have no idea why its needed
+        // }, 30000);
     },
 
     computed: {
+        ...mapGetters({
+            globalBgColor: 'ui/globalBgColor',
+            globalColor: 'ui/globalColor',
+        }),
+
+        chatPanelType(): any {
+            return this.$router.name === 'client-web-chat' ? 'client' : 'user';
+        },
+
+        conversationInfo(): any {
+            return this.$store.getters['chat/conversationInfo'](this.conv_id);
+        },
+
+        conversationStatusForMe(): any {
+            return this.$store.getters['chat/conversationStatusForMe'](this.conv_id, this.ses_id);
+        },
+
+        conversationMessages(): any {
+            return this.$store.getters['chat/conversationMessages'](this.conv_id);
+        },
+
+        messages(): any {
+            const stateAsMsg = this.$store.getters['chat/getConvSesStateAsMsg'](this.conv_id);
+
+            const tempMessages = _l.cloneDeep(this.conversationMessages);
+
+            stateAsMsg.forEach((stateMsg: any) => {
+                if (!tempMessages.hasOwnProperty(stateMsg.id)) {
+                    tempMessages[stateMsg.id] = stateMsg;
+                }
+            });
+
+            return _l.sortBy(Object.values(tempMessages), [(msg: any) => moment(msg.created_at).format('x')]);
+        },
+
         getSendBtnStatus(): any {
             return this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
         },
 
         isAgentToAgentConversation(): any {
-            return this.conversationInfo.stateInfo.users_only;
+            return this.conversationInfo.users_only;
         },
 
-        isShowSendMessageInput(): any {
-            return (
-                (this.chatPanelType === 'client' ||
-                    this.conversationInfo.stateInfo.status === 'joined' ||
-                    this.isAgentToAgentConversation) &&
-                !this.isConversationTracking
-            );
+        showSendMessageInput(): any {
+            console.log(this.conversationStatusForMe);
+
+            return this.conversationStatusForMe === 'joined' || this.isAgentToAgentConversation;
         },
 
         mappedChatTemplates(): any {
@@ -382,15 +423,34 @@ export default defineComponent({
     },
 
     methods: {
+        getNewMessages() {
+            if (
+                !this.gettingNewMessages && // and also check loading state of this conv
+                this.conversationInfo
+            ) {
+                this.gettingNewMessages = true;
+
+                this.$store
+                    .dispatch('chat/getConvMessages', {
+                        convId: this.conv_id,
+                        page: !this.conversationInfo.hasOwnProperty('current_page')
+                            ? 1
+                            : parseInt(this.conversationInfo.current_page) + 1,
+                    })
+                    .finally(() => {
+                        this.gettingNewMessages = false;
+                    });
+            }
+        },
         checkOwnMessage(message: any) {
-            return message.socket_session_id === this.sesId;
+            return message.socket_session_id === this.ses_id;
         },
 
         msgForRightSide(message: any) {
             if (this.checkOwnMessage(message)) {
                 return true;
             } else {
-                if (!this.isUserPanel) {
+                if (this.$route.name === 'client-web-chat') {
                     return !!message.socket_session.user_id;
                 }
             }
@@ -402,26 +462,27 @@ export default defineComponent({
             return this.isConversationTracking ? this.conversationId : this.$route.params['conv_id'];
         },
 
-        handleNameForMultipleSelfMessage(index: any, message: any) {
-            const previousMessage = this.conversationInfo.messages[index - 1];
+        msgSenderName(msg: any, index: any) {
+            const prevMsg = this.messages[index - 1];
 
-            return index === 0 ||
-                previousMessage.hasOwnProperty('conv_state_status') ||
-                message?.socket_session_id !== previousMessage.socket_session_id
-                ? message.hasOwnProperty('socket_session')
-                    ? message.socket_session.user?.email ?? message.socket_session.init_email
-                    : ''
-                : '';
+            // if (
+            //     index === 0 ||
+            //     (prevMsg.hasOwnProperty('msg') && msg?.socket_session_id !== prevMsg.socket_session_id)
+            // ) {
+            //     if (msg.socket_session.user) {
+            //         return msg.socket_session.user.user_meta.display_name;
+            //     }
+
+            //     return msg.socket_session.init_name;
+            // }
+
+            return '';
         },
 
         getConvStateStatusMessage(message: any) {
-            // const onOrAt = message.conv_state_status === 'join' ? 'on' : 'at';
-
-            const infoKey = message.conv_state_status === 'closed' ? 'closed_by' : 'socket_session';
-
-            return `${message[infoKey].user.email} ${message.conv_state_status} ${this.$helpers.fromNowTime(
-                message.created_at
-            )}`;
+            return `${message.session.user ? message.session.user.user_meta.display_name : message.session.init_name} ${
+                message.state
+            } ${this.$helpers.fromNowTime(message.created_at)}`;
         },
 
         inputFocusHandle() {
@@ -466,24 +527,28 @@ export default defineComponent({
             this.chatTemplateDomPositionUpdate();
         },
         chatTemplateHideHandle() {
+            this.chatTemplateInputVal = '';
             document.body.removeEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
         },
         chatTemplateArrowKeyUpDownHandle(e: any) {
-            if (this.chatTemplates.length) {
-                const currentFocusedTemplate = _l.findIndex(this.chatTemplates, ['is_focused', true]);
+            if (this.mappedChatTemplates.length) {
+                const currentFocusedTemplate = _l.findIndex(this.mappedChatTemplates, ['is_focused', true]);
                 if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
                     const upOrDown = e.key === 'ArrowDown' ? 1 : -1;
 
-                    if (currentFocusedTemplate === this.chatTemplates.length - 1 || currentFocusedTemplate === -1) {
-                        this.chatTemplates[0].is_focused = true;
+                    if (
+                        currentFocusedTemplate === this.mappedChatTemplates.length - 1 ||
+                        currentFocusedTemplate === -1
+                    ) {
+                        this.mappedChatTemplates[0].is_focused = true;
                     } else if (currentFocusedTemplate === 0 && e.key === 'ArrowUp') {
-                        this.chatTemplates[this.chatTemplates.length - 1].is_focused = true;
+                        this.mappedChatTemplates[this.mappedChatTemplates.length - 1].is_focused = true;
                     } else {
-                        this.chatTemplates[currentFocusedTemplate + upOrDown].is_focused = true;
+                        this.mappedChatTemplates[currentFocusedTemplate + upOrDown].is_focused = true;
                     }
 
-                    if (this.chatTemplates.length > 1 && currentFocusedTemplate !== -1) {
-                        this.chatTemplates[currentFocusedTemplate].is_focused = false;
+                    if (this.mappedChatTemplates.length > 1 && currentFocusedTemplate !== -1) {
+                        this.mappedChatTemplates[currentFocusedTemplate].is_focused = false;
                     }
                 }
 
@@ -495,12 +560,12 @@ export default defineComponent({
         chatTemplateSelectHandle(key: any) {
             if (key !== -1) {
                 //if has intent handle loader wait then add content
-                this.msg += this.chatTemplates[key].content;
+                this.msg += this.mappedChatTemplates[key].content;
                 this.chatTemplate = false;
             }
         },
         chatTemplateSearchHandle(e: any) {
-            if (['ArrowUp', 'ArrowDown'].includes(e.key)) return;
+            if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) return;
 
             console.log(e.target.value);
 
@@ -531,10 +596,11 @@ export default defineComponent({
 
             console.log('sending the msg');
 
-            const emitType = this.isUserPanel() ? 'user' : 'client';
-            const dynamicBody = this.isUserPanel()
-                ? { conv_id: this.getConvId(), temp_id: this.$helpers.getTempId() }
-                : { temp_id: this.$helpers.getTempId() };
+            const emitType = this.chatPanelType ? 'user' : 'client';
+            const dynamicBody =
+                this.chatPanelType === 'user'
+                    ? { conv_id: this.conv_id, temp_id: this.$helpers.getTempId() }
+                    : { temp_id: this.$helpers.getTempId() };
 
             const dynamicSocket = this.socket || this.$socket;
 
@@ -553,7 +619,6 @@ export default defineComponent({
             let verticalPercentage = info.verticalPercentage;
             this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
         },
-
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;
 
@@ -562,10 +627,6 @@ export default defineComponent({
 
                 msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 500);
             }
-        },
-
-        isUserPanel() {
-            return this.chatPanelType === 'user';
         },
 
         attachmentUploaderHandle(val: any) {
@@ -651,23 +712,16 @@ export default defineComponent({
         async handleAttachmentLoading() {
             console.log('called handle attch loader');
 
-            this.conversationInfoLocal = _l.cloneDeep(this.conversationInfo);
+            if (!Object.keys(this.conversationMessages).length) return;
 
-            if (
-                !this.conversationInfoLocal ||
-                !this.conversationInfoLocal.messages ||
-                !this.conversationInfoLocal.messages.length
-            )
-                return;
-
-            for (const msg of this.conversationInfoLocal.messages) {
-                // console.log(msg);
+            // if it does not reflect change to store then handle attachment mutation here
+            for (const message of Object.values(this.conversationMessages)) {
+                const msg: any = message; // its only for now. otherwise type error msg
 
                 if (msg.attachments && msg.attachments.length) {
                     for (const attch of msg.attachments) {
-                        if (!attch.hasOwnProperty('loading')) {
+                        if (!attch.loaded && !attch.src) {
                             try {
-                                attch.loading = false;
                                 const imgRes = await this.$socketSessionApi.get(`messages/attachments/${attch.id}`, {
                                     responseType: 'arraybuffer',
                                 });
@@ -675,7 +729,10 @@ export default defineComponent({
                                 attch.src = URL.createObjectURL(
                                     new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
                                 );
+
+                                attch.loaded = true;
                             } catch (e) {
+                                attch.loaded = false;
                                 console.log(e);
                             }
                         }
@@ -686,10 +743,43 @@ export default defineComponent({
     },
 
     watch: {
-        conversationInfo: {
+        // its calling many times. y need examination
+        // conversationInfo: {
+        //     handler: function () {
+        //         if (
+        //             !this.gettingNewMessages && // and also check loading state of this conv
+        //             this.conversationInfo &&
+        //             (!this.conversationInfo.hasOwnProperty('current_page') || this.conversationInfo.current_page === 0)
+        //         ) {
+        //             console.log('getting new messages. watch this if it calls many times without needed');
+
+        //             this.gettingNewMessages = true;
+
+        //             this.$store.dispatch('chat/getConvMessages', { convId: this.conv_id }).finally(() => {
+        //                 this.gettingNewMessages = false;
+        //             });
+        //         }
+        //     },
+        //     deep: true,
+        //     immediate: true,
+        // },
+
+        conv_id: {
+            handler: function () {
+                if (!this.conversationInfo.hasOwnProperty('current_page')) {
+                    this.getNewMessages();
+                }
+            },
+            immediate: true,
+        },
+
+        conversationMessages: {
             handler: function () {
                 this.handleAttachmentLoading();
-                this.scrollToBottom();
+
+                if ('auto_scroll_to_bottom') {
+                    this.scrollToBottom();
+                }
             },
             deep: true,
             immediate: true,
@@ -717,6 +807,16 @@ export default defineComponent({
 .ec-msg-input.q-textarea {
     .q-field__control-container {
         padding: 0;
+    }
+}
+
+.mini-mode-message-text-container {
+    .q-message-text {
+        padding: 5px;
+
+        &:last-child {
+            min-height: 40px;
+        }
     }
 }
 </style>

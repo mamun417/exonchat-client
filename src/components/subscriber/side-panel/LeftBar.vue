@@ -42,13 +42,13 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <q-card v-if="Object.keys(chatRequests).length">
+                    <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list>
+                            <q-list v-if="incomingChatRequests.length">
                                 <q-item
-                                    v-for="request in chatRequests"
-                                    :to="{ name: 'chats', params: { conv_id: request.conv_id } }"
-                                    :key="request.conv_id"
+                                    v-for="chatRequest in incomingChatRequests"
+                                    :to="{ name: 'chats', params: { conv_id: chatRequest.conversation_id } }"
+                                    :key="chatRequest.conversation_id"
                                     clickable
                                     v-ripple
                                     :active="true"
@@ -62,19 +62,17 @@
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ request.conv_id }}
+                                            {{ chatRequest.conversation_id }}
                                         </q-item-label>
-                                        <q-item-label lines="2">
-                                            {{ request.messages.msg }}
+                                        <q-item-label lines="2" caption>
+                                            {{ chatRequest.msg }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
-                        </q-card-section>
-                    </q-card>
 
-                    <q-card v-else>
-                        <q-card-section> Currently no chat requests </q-card-section>
+                            <div v-else class="tw-p-4">Currently no chat requests</div>
+                        </q-card-section>
                     </q-card>
                 </q-expansion-item>
 
@@ -84,38 +82,38 @@
                     label="Chat Requests For Me"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                 >
-                    <!-- <q-card>
+                    <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list>
-                                <q-item class="" clickable>
+                            <q-list v-if="incomingChatRequestsForMe.length">
+                                <q-item
+                                    v-for="chatRequest in incomingChatRequestsForMe"
+                                    :to="{ name: 'chats', params: { conv_id: chatRequest.conversation_id } }"
+                                    :key="chatRequest.conversation_id"
+                                    clickable
+                                    v-ripple
+                                    :active="true"
+                                    active-class="text-white bg-blue-9"
+                                >
                                     <q-item-section avatar>
                                         <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="" />
+                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
                                         </q-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs">Hasan</q-item-label
-                                        ><q-item-label caption lines="2">How can i buy a bd domain name</q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item class="" clickable>
-                                    <q-item-section avatar>
-                                        <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar3.jpg`" alt="" />
-                                        </q-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs">Nasir</q-item-label
-                                        ><q-item-label caption lines="2"
-                                            >My site is hacked... Please help me.</q-item-label
-                                        >
+                                        <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
+                                            {{ chatRequest.conversation_id }}
+                                        </q-item-label>
+                                        <q-item-label lines="2" caption>
+                                            {{ chatRequest.msg }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
+
+                            <div v-else class="tw-p-4">Currently no chat requests</div>
                         </q-card-section>
-                    </q-card> -->
+                    </q-card>
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -124,34 +122,30 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <!-- <q-card>
-                        <q-list dense>
-                            <q-item class="tw-text-xs" clickable>
-                                <q-item-section>
-                                    <q-item-label class="text-weight-bold">All</q-item-label>
-                                </q-item-section>
-                                <q-item-section>
-                                    <q-item-label side class="text-right tw-text-xs">10 chats</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                            <q-item class="tw-text-xs" clickable>
-                                <q-item-section>
-                                    <q-item-label class="text-weight-bold">Sales</q-item-label>
-                                </q-item-section>
-                                <q-item-section>
-                                    <q-item-label side class="text-right">5 chats</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                            <q-item class="tw-text-xs" clickable>
-                                <q-item-section>
-                                    <q-item-label class="text-weight-bold">Technical Support</q-item-label>
-                                </q-item-section>
-                                <q-item-section class="tw-max-w-16">
-                                    <q-item-label side class="text-right">5 chats</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                        </q-list>
-                    </q-card> -->
+                    <q-card>
+                        <q-card-section class="tw-p-0">
+                            <q-list v-if="Object.keys(departmentalChatRequestsCount).length" dense>
+                                <q-item
+                                    v-for="department of departmentalChatRequestsCount"
+                                    :key="department.id"
+                                    class="tw-text-xs"
+                                    clickable
+                                    dense
+                                >
+                                    <q-item-section>
+                                        <q-item-label class="text-weight-bold">{{ department.name }}</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label side class="text-weight-bold text-right tw-text-xs"
+                                            >{{ department.count }} chats</q-item-label
+                                        >
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+
+                            <div v-else>No departmental chat requests ongoing</div>
+                        </q-card-section>
+                    </q-card>
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -160,24 +154,38 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <!-- <q-card>
+                    <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-for="n in 3" :key="n">
-                                <q-item class="" clickable>
+                            <q-list v-if="myOngoingChats.length">
+                                <q-item
+                                    v-for="ongoingChat in myOngoingChats"
+                                    :to="{ name: 'chats', params: { conv_id: ongoingChat.conversation_id } }"
+                                    :key="ongoingChat.conversation_id"
+                                    clickable
+                                    v-ripple
+                                    :active="true"
+                                    active-class="text-white bg-blue-9"
+                                >
                                     <q-item-section avatar>
                                         <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" />
+                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
                                         </q-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs">Mamun</q-item-label>
-                                        <q-item-label caption lines="2">hi hello & thank you!</q-item-label>
+                                        <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
+                                            {{ ongoingChat.conversation_id }}
+                                        </q-item-label>
+                                        <q-item-label lines="2" caption>
+                                            {{ ongoingChat.msg }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
+
+                            <div v-else class="tw-p-4">Currently no ongoing chats</div>
                         </q-card-section>
-                    </q-card> -->
+                    </q-card>
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -185,24 +193,38 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
-                    <!-- <q-card>
+                    <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-for="n in 3" :key="n">
-                                <q-item class="" clickable>
+                            <q-list v-if="ongoingOtherChats.length">
+                                <q-item
+                                    v-for="ongoingOtherChat in ongoingOtherChats"
+                                    :to="{ name: 'chats', params: { conv_id: ongoingOtherChat.conversation_id } }"
+                                    :key="ongoingOtherChat.conversation_id"
+                                    clickable
+                                    v-ripple
+                                    :active="true"
+                                    active-class="text-white bg-blue-9"
+                                >
                                     <q-item-section avatar>
                                         <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" />
+                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
                                         </q-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs">Mamun</q-item-label>
-                                        <q-item-label caption lines="2">hi hello & thank you!</q-item-label>
+                                        <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
+                                            {{ ongoingOtherChat.conversation_id }}
+                                        </q-item-label>
+                                        <q-item-label lines="2" caption>
+                                            {{ ongoingOtherChat.msg }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
+
+                            <div v-else class="tw-p-4">Currently no ongoing other chats</div>
                         </q-card-section>
-                    </q-card> -->
+                    </q-card>
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -215,10 +237,10 @@
                         <q-card-section class="tw-p-0">
                             <q-list>
                                 <q-item
-                                    v-for="(agent, index) in chatAgents"
-                                    @click="openUserToUserConversation(agent)"
-                                    active-class="text-white bg-blue-9"
-                                    :active="agent.conversation_id === $route.params?.conv_id"
+                                    v-for="(user, index) in chatUsers"
+                                    @click="openUserToUserConversation(user)"
+                                    :active-class="`text-grey-9 bg-${globalColor}-2`"
+                                    :active="user.conversation_id && user.conversation_id === $route.params?.conv_id"
                                     :key="index"
                                     clickable
                                 >
@@ -230,16 +252,12 @@
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs">
-                                            {{ agent.email }}
+                                            {{ user.user_meta.display_name }}
                                         </q-item-label>
                                     </q-item-section>
 
                                     <q-item-section side>
-                                        <q-icon
-                                            name="fiber_manual_record"
-                                            :color="checkOnlineStatus(agent) ? 'green' : 'grey'"
-                                            size="xs"
-                                        />
+                                        <q-badge rounded :color="user.is_online ? 'green' : 'grey'" />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -293,84 +311,83 @@ export default defineComponent({
         return {};
     },
 
-    mounted() {
+    async mounted() {
         console.log('left bar initiated');
-        this.getChatRequest();
-
-        this.fireSocketListeners();
+        await this.getChatRequest();
+        await this.getOtherJoinedChats();
+        await this.getJoinedChatsWithMe();
     },
 
     computed: {
         ...mapGetters({
+            incomingChatRequests: 'chat/incomingChatRequests',
+            incomingChatRequestsForMe: 'chat/incomingChatRequestsForMe',
+
+            departmentalChatRequestsCount: 'chat/departmentalChatRequestsCount',
+
+            myOngoingChats: 'chat/myOngoingChats',
+            ongoingOtherChats: 'chat/ongoingOtherChats',
+
             chatRequests: 'chat/chatRequests',
-            chatAgents: 'chat/chatAgents',
-            onlineChatAgents: 'chat/onlineChatAgents',
+            chatUsers: 'chat/chatUsers',
             globalBgColor: 'ui/globalBgColor',
+            globalColor: 'ui/globalColor',
         }),
     },
 
     methods: {
-        fireSocketListeners() {
-            this.$socket.on('ec_conv_initiated_from_user', async (res: any) => {
-                // server conversation construct
-                this.$socket.emit('ec_init_user_to_user_chat', {});
-
-                await this.$store.dispatch('chat/getAgents');
-
-                await this.$router.push({ name: 'chats', params: { conv_id: res.data.conv_id } });
-            });
+        async getChatRequest() {
+            await this.$store.dispatch('chat/getChatRequests');
+        },
+        async getOtherJoinedChats() {
+            await this.$store.dispatch('chat/getOtherJoinedChats');
+        },
+        async getJoinedChatsWithMe() {
+            await this.$store.dispatch('chat/getJoinedChatsWithMe');
         },
 
-        getChatRequest() {
-            this.$store.dispatch('chat/getChatRequests');
-        },
-
-        checkOnlineStatus(agent: any) {
-            const onlineAgents = this.onlineChatAgents;
-
-            if (!onlineAgents.length) return false;
-
-            const filterSocketSessions = this.$_.filter(agent.socket_sessions, (socket_session: any) => {
-                return onlineAgents.includes(socket_session.id);
-            });
-
-            return !!filterSocketSessions.length;
-        },
-
-        openUserToUserConversation(agent: any) {
-            if (agent.conversation_id) {
-                this.$router.push({ name: 'chats', params: { conv_id: agent.conversation_id } });
+        openUserToUserConversation(user: any) {
+            if (user.conversation_id) {
+                this.$router.push({ name: 'chats', params: { conv_id: user.conversation_id } });
                 return;
             }
 
-            const targetUserSocketSessId = agent.socket_sessions[0].id;
+            const userSocketSessId = user.socket_sessions[0].id;
+
+            // firing before emit. cz if emit return res before this fn call.
+            // though its not possible for js event manager. but safe then sorry
+            this.handleCreatedConversation(userSocketSessId);
 
             // create user to user conversation
             this.$socket.emit('ec_init_conv_from_user', {
-                ses_ids: [targetUserSocketSessId],
+                ses_ids: [userSocketSessId],
                 chat_type: 'user_to_user_chat',
                 users_only: true,
             });
-
-            this.handleAlreadyCreatedConversation(targetUserSocketSessId);
         },
 
-        handleAlreadyCreatedConversation(targetUserSocketSessId: any) {
+        handleCreatedConversation(userSocketSessId: any) {
             // find already created conversation_id from agents
-            const fn = () => {
-                this.$store.dispatch('chat/getAgents').then((chatAgents: any) => {
-                    const findAgent = chatAgents.find(
-                        (agent: any) => targetUserSocketSessId === agent.socket_sessions[0].id
-                    );
+            const fn = (data: any) => {
+                if (data.status === 'success' || data.status === 'conflict') {
+                    this.$store.commit('chat/updateConvIdToAChatUser', {
+                        ses_id: userSocketSessId,
+                        conv_id: data.data.conv_id,
+                    });
 
-                    this.$router.push({ name: 'chats', params: { conv_id: findAgent.conversation_id } });
-                });
+                    this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                }
 
-                this.$emitter.off('listened_error_ec_init_conv_from_user', fn);
+                this.$emitter.off('listen_ec_init_conv_from_user', fn);
+
+                // this.$emitter.off('listen_error_ec_init_conv_from_user', fn);
             };
 
-            // this event fire from MainLayout if any error
-            this.$emitter.on('listened_error_ec_init_conv_from_user', fn);
+            // this event fire from MainLayout if conv from user created
+            this.$emitter.on('listen_ec_init_conv_from_user', fn);
+
+            // no need this for now. cz returning if exists from api
+            // this.$emitter.on('listen_error_ec_init_conv_from_user', fn);
         },
     },
 });

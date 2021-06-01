@@ -52,12 +52,7 @@
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
-                        <message
-                            :ses-id="sesId"
-                            :socket="socket"
-                            chat-panel-type="client"
-                            :conversationInfo="conversationInfo"
-                        ></message>
+                        <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id"></message>
                     </div>
 
                     <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
@@ -221,16 +216,6 @@ export default defineComponent({
         this.hasApiKey = true;
 
         await this.initializeSocket();
-        this.fireSocketListeners();
-
-        this.firePageVisitListner();
-
-        if (this.clientInitiateConvInfo.conv_id) {
-            this.getConvMessages(this.clientInitiateConvInfo.conv_id);
-        }
-
-        this.getChatDepartments();
-        this.setTypingFalse();
     },
 
     computed: {
@@ -282,8 +267,9 @@ export default defineComponent({
         },
         // store conversation messages and get the messages by getters (messages)
         getConvMessages(convId: string) {
-            this.$store.dispatch('chat/getClientConvMessages', {
+            this.$store.dispatch('chat/getConvMessages', {
                 convId,
+                client_page: true,
             });
         },
 
@@ -323,11 +309,23 @@ export default defineComponent({
 
                 return;
             }
+
             this.socket = io('http://localhost:3000', {
                 query: {
                     token: this.socketToken,
                 },
             });
+
+            this.fireSocketListeners();
+
+            this.firePageVisitListner();
+
+            if (this.clientInitiateConvInfo.conv_id) {
+                this.getConvMessages(this.clientInitiateConvInfo.conv_id);
+            }
+
+            this.getChatDepartments();
+            this.setTypingFalse();
             // localStorage.debug = '*';
             // console.log(this.socket);
         },
@@ -345,8 +343,9 @@ export default defineComponent({
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_user', async (res: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', res);
+            this.socket.on('ec_msg_from_user', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+
                 console.log('from ec_msg_from_user', res);
             });
 
@@ -355,8 +354,9 @@ export default defineComponent({
             // });
 
             // successfully sent to user
-            this.socket.on('ec_msg_to_client', async (res: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', res);
+            this.socket.on('ec_msg_to_client', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+
                 console.log('from ec_msg_to_client', res);
             });
 
@@ -384,27 +384,27 @@ export default defineComponent({
 
             this.socket.on('ec_is_joined_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_ses_data;
-                convInfo.state_status = 'joined';
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvState', convInfo);
 
                 console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_ses_data;
-                convInfo.state_status = 'left';
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvState', convInfo);
 
                 console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
                 this.$store.dispatch('chat/clearClientChatInitiate');
+
                 this.socket.close();
                 // force reload dom
                 location.reload();
+
                 console.log('from ec_is_closed_from_conversation', res);
             });
 

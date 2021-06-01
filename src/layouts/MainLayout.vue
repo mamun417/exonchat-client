@@ -52,8 +52,10 @@
                         </div>
                     </q-menu>
                 </q-btn>
+
                 <q-space />
-                <q-btn :icon="rightDrawer ? 'menu_open' : 'menu'" @click="handleRightDrawerToggle" flat />
+
+                <q-btn class="tw-mr-2" :icon="rightDrawer ? 'menu_open' : 'menu'" @click="toggleRightDrawer" flat />
 
                 <q-avatar size="lg" class="cursor-pointer">
                     <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
@@ -100,12 +102,21 @@
             >
                 <left-bar></left-bar>
             </q-drawer>
-            <q-drawer v-model="rightDrawer" class="tw-shadow-lgl" side="right" breakpoint="xs" width="250" persistent>
-                <right-bar @conversationTrackingRightBar="rightDrawer = $event"></right-bar>
+
+            <q-drawer
+                :model-value="rightDrawerVisible"
+                class="tw-shadow-lgl"
+                side="right"
+                breakpoint="xs"
+                width="250"
+                persistent
+            >
+                <right-bar></right-bar>
             </q-drawer>
+
             <q-page-container>
                 <q-page class="tw-flex">
-                    <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
+                    <router-view class="tw-w-full tw-p-3 bg-green-1" :key="$route.fullPath"></router-view>
                 </q-page>
             </q-page-container>
         </template>
@@ -113,17 +124,6 @@
         <q-inner-loading :showing="!domReady">
             <q-spinner-facebook size="50px" color="primary" />
         </q-inner-loading>
-        <q-drawer
-            v-model="leftDrawer"
-            class="tw-shadow-lgr"
-            side="left"
-            breakpoint="xs"
-            width="250"
-            persistent
-            show-if-above
-        >
-            <left-bar></left-bar>
-        </q-drawer>
 
         <div v-if="false">
             <!-- add style pointer event none for accessing the underlying parent elements -->
@@ -272,12 +272,25 @@ export default defineComponent({
         // ...mapGetters('socket', ['handshake']),
         ...mapGetters({
             profile: 'auth/profile',
+            chatUsers: 'chat/chatUsers',
             globalBgColor: 'ui/globalBgColor',
-            trackingConversation: 'ui/trackingConversation',
+            rightBarState: 'ui/rightBarState',
         }),
 
         currentRouteName() {
             return this.$route.name;
+        },
+
+        rightDrawerVisible() {
+            if (this.rightBarState.visible) {
+                if (this.$route.name !== 'chats' && this.rightBarState.mode === 'client_info') {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
         },
     },
 
@@ -286,7 +299,6 @@ export default defineComponent({
 
         if (this.profile.id) {
             this.openChatPanelBoxForTest();
-            this.getAgents();
 
             await this.socketInitialize();
         }
@@ -299,14 +311,23 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ updateConversationTrucking: 'ui/updateConversationTrucking' }),
+        ...mapMutations({ toggleRightDrawer: 'ui/toggleRightDrawer' }),
 
-        getAgents() {
-            this.$store.dispatch('chat/getAgents');
+        getUsers(ses_id = null) {
+            // if ses_id => check for exist. if not then new user registered
+            if (!ses_id || !this.chatUsers.hasOwnProperty(ses_id)) {
+                console.log('reloading users list');
+
+                this.$store.dispatch('chat/getUsers').then(() => {
+                    // get new list first then get online
+                    this.$socket.emit('ec_get_logged_users', {});
+                });
+            } else {
+                this.$socket.emit('ec_get_logged_users', {});
+            }
         },
 
         async socketInitialize() {
-            // if (this.handshake || 'logged') {
             this.sesId = this.$helpers.getMySocketSessionId();
             this.socketToken = sessionStorage.getItem('ec_user_socket_token');
             console.log(this.sesId);
@@ -338,11 +359,9 @@ export default defineComponent({
 
             this.socket = this.$socket.connect();
 
-            console.log(this.socket);
-
+            this.getUsers();
             this.fireSocketListeners();
             this.$socket.emit('ec_get_logged_users', {});
-            // }
         },
         fireSocketListeners() {
             this.socket.on('connect', () => {
@@ -358,29 +377,21 @@ export default defineComponent({
             });
 
             // successfully sent to client
-            this.socket.on('ec_msg_to_user', async (data: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                console.log('from ec_msg_to_user', data);
+            this.socket.on('ec_msg_to_user', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+                console.log('from ec_msg_to_user', res);
             });
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_user', async (data: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', data);
-                console.log('from ec_msg_from_user', data);
+            this.socket.on('ec_msg_from_user', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+
+                console.log('from ec_msg_from_user', res);
             });
 
-            this.socket.on('ec_msg_from_client', async (res: any) => {
-                await this.$store.dispatch('chat/storeTemporaryMessage', res);
-                await this.$store.dispatch('chat/storeTempChatRequest', res);
-
-                this.$q.notify({
-                    message: 'Jim pinged you.',
-                    closeBtn: true,
-                    progress: true,
-                    icon: 'announcement',
-                    position: 'top-left',
-                });
+            this.socket.on('ec_msg_from_client', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
 
                 console.log('from ec_msg_from_client', res);
             });
@@ -398,6 +409,12 @@ export default defineComponent({
             //     console.log('from ec_is_typing_from_client', data.msg);
             // });
 
+            this.socket.on('ec_conv_initiated_from_user', (data: any) => {
+                console.log('from ec_conv_initiated_from_user', data);
+
+                this.$emitter.emit('listen_ec_init_conv_from_user', data);
+            });
+
             this.socket.on('ec_conv_initiated_from_client', (data: any) => {
                 console.log('from ec_conv_initiated_from_client', data);
 
@@ -408,28 +425,24 @@ export default defineComponent({
 
             this.socket.on('ec_is_joined_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_ses_data;
-                convInfo.state_status = 'joined';
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvState', convInfo);
 
                 console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_ses_data;
-                convInfo.state_status = 'left';
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvState', convInfo);
 
                 console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
                 const convInfo = res.data.conv_data;
-                convInfo.state_status = 'closed';
-                convInfo.conversation_id = res.data.conv_id; // need to same  object pattern
 
-                this.$store.dispatch('chat/storeConvState', convInfo);
+                this.$store.dispatch('chat/updateConvStateToClosed', convInfo);
 
                 console.log('from ec_is_closed_from_conversation', convInfo);
             });
@@ -437,19 +450,20 @@ export default defineComponent({
             // emitting this socket into mount
             // get online users list
             this.socket.on('ec_logged_users_res', (data: any) => {
-                this.$store.dispatch('chat/getOnlineAgents', data);
+                this.$store.dispatch('chat/updateOnlineUsers', data.users);
                 console.log('from ec_logged_users_res', data);
             });
 
             this.socket.on('ec_user_logged_in', (data: any) => {
-                this.getAgents();
-                this.$socket.emit('ec_get_logged_users', {});
+                // used if a new user registered but not listed yet
+                this.getUsers(data.ses_id);
+
                 console.log(`from ec_user_logged_in ${data}`);
             });
 
             this.socket.on('ec_user_logged_out', (data: any) => {
                 setTimeout(() => {
-                    this.getAgents();
+                    // this.getUsers(); // currently no need cz we are getting this at first
                     this.$socket.emit('ec_get_logged_users', {});
                     console.log(`from ec_user_logged_out ${data}`);
                 }, 3000);
@@ -458,7 +472,7 @@ export default defineComponent({
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
                 // check if has if not then new event
-                this.$emitter.emit(`listened_error_${data.step}`);
+                this.$emitter.emit(`listen_error_${data.step}`, data);
             });
         },
 
@@ -501,15 +515,6 @@ export default defineComponent({
                 .catch((err: any) => {
                     console.log(err);
                 });
-        },
-
-        handleRightDrawerToggle() {
-            // set conversationId null to show browser information at right-bar
-            if (this.currentRouteName === 'chats' && this.trackingConversation.conversationId) {
-                this.updateConversationTrucking('');
-            } else {
-                this.rightDrawer = !this.rightDrawer;
-            }
         },
     },
     unmounted() {
