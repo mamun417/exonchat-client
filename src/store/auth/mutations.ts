@@ -7,8 +7,10 @@ const mutation: MutationTree<AuthStateInterface> = {
     },
 
     authSuccess(state, userInfo) {
-        localStorage.setItem('token', userInfo.bearerToken);
-        state.token = userInfo.bearerToken;
+        if (userInfo.bearerToken) {
+            localStorage.setItem('token', userInfo.bearerToken);
+            state.token = userInfo.bearerToken;
+        }
 
         localStorage.setItem('user', JSON.stringify(userInfo.data));
         state.user = userInfo.data;

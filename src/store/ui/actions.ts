@@ -43,6 +43,19 @@ const actions: ActionTree<UiStateInterface, StateInterface> = {
                 });
         });
     },
+
+    updateAvater(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('profile/update/avater', payload)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;

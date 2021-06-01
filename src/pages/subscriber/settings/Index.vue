@@ -4,10 +4,8 @@
             <q-card-section>
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4">
                     <div class="tw-flex">
-                        <pre>{{ mamun }}</pre>
                         <q-avatar size="96px" class="tw-mr-4 ec-settings-profile-img">
-                            <img :src="existingAvaterUrl" />
-                            <!--<img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />-->
+                            <img :src="existingAvaterUrl || 'https://cdn.quasar.dev/img/avatar1.jpg'" alt="image" />
                             <q-btn
                                 @click="updateAvaterModalHandle"
                                 icon="edit"
@@ -27,11 +25,15 @@
                     </div>
                     <div class="text-right tw-self-center">
                         <div class="tw-flex tw-justify-end tw-items-center">
-                            <div class="tw-mr-1">john@doe</div>
+                            <div class="tw-mr-1">
+                                {{ profile.email }}
+                            </div>
                             <q-icon name="email" />
                         </div>
-                        <div class="tw-flex tw-justify-end tw-items-center">
-                            <div class="tw-mr-1">john@facebook</div>
+                        <div v-if="profile.user_meta?.facebook" class="tw-flex tw-justify-end tw-items-center">
+                            <div class="tw-mr-1">
+                                {{ profile.user_meta?.facebook }}
+                            </div>
                             <q-icon name="facebook" />
                         </div>
                     </div>
@@ -51,30 +53,36 @@
             <router-view></router-view>
         </div>
 
-        <q-dialog :model-value="updateAvaterModal" @hide="updateAvaterModal = !updateAvaterModal" persistent>
+        <q-dialog :model-value="updateAvaterModal" @hide="updateAvaterModal = false" persistent>
             <q-card style="min-width: 350px">
                 <q-card-section class="text-center">
                     <q-avatar size="150px" class="tw-mr-4 ec-settings-profile-img">
-                        <img :src="previewAvater || existingAvaterUrl" alt="" />
+                        <img
+                            :src="previewAvater || existingAvaterUrl || 'https://cdn.quasar.dev/img/avatar1.jpg'"
+                            alt=""
+                        />
                     </q-avatar>
                     <div>
-                        <q-btn color="green" label="Upload Image" outline class="tw-mt-3" />
+                        <q-btn @click="clickUploadImage" color="green" label="Upload Image" outline class="tw-mt-3" />
                     </div>
                     <div class="tw-mt-3">
                         <q-file
                             @update:model-value="loadAvater"
+                            ref="submitBtn"
                             clearable
                             filled
                             color="purple-12"
                             v-model="avater"
                             label="Label"
+                            accept="image/*"
+                            class="hidden"
                         />
                     </div>
                 </q-card-section>
 
                 <q-card-actions align="right">
                     <q-btn flat label="Cancel" color="primary" v-close-popup />
-                    <q-btn @click="updateAvatar" label="Save Change" color="primary" v-close-popup flat />
+                    <q-btn @click="updateAvatar" label="Save Change" color="primary" flat />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -107,7 +115,9 @@ export default defineComponent({
     },
 
     mounted() {
-        this.getExistingAvaterUrl();
+        if (this.profile && this.profile.user_meta.attachment) {
+            this.getExistingAvaterUrl();
+        }
     },
 
     methods: {
@@ -117,8 +127,6 @@ export default defineComponent({
                     id: this.profile.user_meta.attachment.id,
                 })
                 .then((res: any) => {
-                    console.log(res);
-
                     this.existingAvaterUrl = URL.createObjectURL(
                         new Blob([res.data], { type: res.headers['content-type'] })
                     );
@@ -129,6 +137,10 @@ export default defineComponent({
             this.updateAvaterModal = !this.updateAvaterModal;
             this.previewAvater = '';
             this.avater = '';
+        },
+
+        clickUploadImage() {
+            this.$refs.submitBtn.pickFiles();
         },
 
         loadAvater(file: any) {
@@ -142,8 +154,20 @@ export default defineComponent({
             };
         },
 
-        updateAvatar() {
-            console.log('ok');
+        async updateAvatar() {
+            let formData = new FormData();
+            formData.append('avater', this.avater);
+
+            try {
+                await this.$store.dispatch('ui/updateAvater', formData);
+                await this.$store.dispatch('auth/updateAuthInfo');
+                this.getExistingAvaterUrl();
+
+                this.updateAvaterModal = false;
+                this.$helpers.showSuccessNotification(this, 'Avater update successful');
+            } catch (err) {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
         },
     },
 });
