@@ -4,8 +4,12 @@
             <q-card-section>
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4">
                     <div class="tw-flex">
-                        <q-avatar size="96px" class="tw-mr-4 ec-settings-profile-img"
-                            ><img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" /><q-btn
+                        <pre>{{ mamun }}</pre>
+                        <q-avatar size="96px" class="tw-mr-4 ec-settings-profile-img">
+                            <img :src="existingAvaterUrl" />
+                            <!--<img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />-->
+                            <q-btn
+                                @click="updateAvaterModalHandle"
                                 icon="edit"
                                 :color="globalColor"
                                 class="ec-edit-profile-img tw-absolute tw-top-0 tw-right-0 tw-hidden"
@@ -46,6 +50,34 @@
         <div class="tw-mt-6">
             <router-view></router-view>
         </div>
+
+        <q-dialog :model-value="updateAvaterModal" @hide="updateAvaterModal = !updateAvaterModal" persistent>
+            <q-card style="min-width: 350px">
+                <q-card-section class="text-center">
+                    <q-avatar size="150px" class="tw-mr-4 ec-settings-profile-img">
+                        <img :src="previewAvater || existingAvaterUrl" alt="" />
+                    </q-avatar>
+                    <div>
+                        <q-btn color="green" label="Upload Image" outline class="tw-mt-3" />
+                    </div>
+                    <div class="tw-mt-3">
+                        <q-file
+                            @update:model-value="loadAvater"
+                            clearable
+                            filled
+                            color="purple-12"
+                            v-model="avater"
+                            label="Label"
+                        />
+                    </div>
+                </q-card-section>
+
+                <q-card-actions align="right">
+                    <q-btn flat label="Cancel" color="primary" v-close-popup />
+                    <q-btn @click="updateAvatar" label="Save Change" color="primary" v-close-popup flat />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </div>
 </template>
 
@@ -58,7 +90,12 @@ export default defineComponent({
     props: {},
 
     data(): any {
-        return {};
+        return {
+            existingAvaterUrl: '',
+            updateAvaterModal: false,
+            previewAvater: '',
+            avater: '',
+        };
     },
 
     computed: {
@@ -67,6 +104,47 @@ export default defineComponent({
             globalTextColor: 'ui/globalTextColor',
             globalColor: 'ui/globalColor',
         }),
+    },
+
+    mounted() {
+        this.getExistingAvaterUrl();
+    },
+
+    methods: {
+        getExistingAvaterUrl() {
+            this.$store
+                .dispatch('ui/getAvaterPath', {
+                    id: this.profile.user_meta.attachment.id,
+                })
+                .then((res: any) => {
+                    console.log(res);
+
+                    this.existingAvaterUrl = URL.createObjectURL(
+                        new Blob([res.data], { type: res.headers['content-type'] })
+                    );
+                });
+        },
+
+        updateAvaterModalHandle() {
+            this.updateAvaterModal = !this.updateAvaterModal;
+            this.previewAvater = '';
+            this.avater = '';
+        },
+
+        loadAvater(file: any) {
+            if (!file) return (this.previewAvater = '');
+
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = (event: any) => {
+                this.previewAvater = event.target.result;
+            };
+        },
+
+        updateAvatar() {
+            console.log('ok');
+        },
     },
 });
 </script>

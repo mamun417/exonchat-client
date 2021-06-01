@@ -28,6 +28,21 @@ const actions: ActionTree<UiStateInterface, StateInterface> = {
                 });
         });
     },
+
+    getAvaterPath(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(`profile/attachments/${payload.id}`, {
+                    responseType: 'arraybuffer',
+                })
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;
