@@ -27,11 +27,24 @@
                 v-if="message.msg || (message.attachments && message.attachments.length)"
                 :name="msgSenderName(message, index)"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                :stamp="$helpers.fromNowTime(message.created_at)"
                 :sent="checkOwnMessage(message)"
                 :text-color="checkOwnMessage(message) ? 'black' : 'white'"
                 :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
+                :class="{ 'mini-mode-message-text-container': mini_mode }"
             >
+                <template v-slot:stamp>
+                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                        {{ $helpers.fromNowTime(message.created_at) }}
+                    </div>
+                </template>
+
+                <template v-slot:avatar>
+                    <q-avatar size="lg" class="tw-mr-2">
+                        <img src="https://cdn.quasar.dev/img/avatar1.jpg" alt="image" />
+                        <q-tooltip class=""> email </q-tooltip>
+                    </q-avatar>
+                </template>
+
                 <div>
                     <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
                     <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
@@ -59,33 +72,20 @@
                                 }}</q-tooltip>
                             </q-img>
                         </div>
-                        <!-- <q-avatar
-                            v-for="(attachment, key) in message.attachments"
-                            :key="attachment.id"
-                            size="100px"
-                            class="shadow-3"
-                            :class="{
-                                'tw-mr-2': !msgForRightSide(message) && key !== message.attachments.length - 1,
-                                'tw-ml-2': msgForRightSide(message) && key !== message.attachments.length - 1,
-                            }"
-                            rounded
-                        >
-                            <q-inner-loading
-                                v-if="!attachment.hasOwnProperty('loaded') || attachment.loaded"
-                                :showing="true"
-                            >
-                                <q-spinner-dots size="30px" color="green" />
-                            </q-inner-loading>
-                            <img v-else class="tw-cursor-pointer" :src="attachment.src" />
-                        </q-avatar> -->
                     </div>
                 </div></q-chat-message
             >
 
             <q-chat-message
                 v-else-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
-                :label="getConvStateStatusMessage(message)"
-            />
+                class="tw-mb-0"
+            >
+                <template v-slot:label>
+                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                        {{ getConvStateStatusMessage(message) }}
+                    </div></template
+                ></q-chat-message
+            >
         </template>
 
         <!-- <q-chat-message
@@ -131,12 +131,19 @@
                 flat
                 color="green"
                 icon="attachment"
-                class="tw-px-2"
+                :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
+                :dense="mini_mode"
                 @click="$refs.attachment_uploader.pickFiles($event)"
             ></q-btn>
         </div>
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn flat color="green" icon="mood" class="tw-px-2"></q-btn>
+            <q-btn
+                flat
+                color="green"
+                icon="mood"
+                :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
+                :dense="mini_mode"
+            ></q-btn>
         </div>
         <div class="tw-flex-auto tw-px-3">
             <!-- used keydown for instant catch n prevent -->
@@ -146,7 +153,7 @@
                 placeholder="Write Message..."
                 color="green-8"
                 class="ec-msg-input"
-                :class="[`ec-msg-input-${uid}`]"
+                :class="[`ec-msg-input-${uid}`, mini_mode ? 'tw-text-xxs ec-mini-mode-msg-input' : '']"
                 @keyup.enter.exact="sendMessage"
                 @keydown="keyUpHandle"
                 @focus="inputFocusHandle"
@@ -233,7 +240,14 @@
             </div>
         </div>
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn icon="send" flat color="green-8" :disable="getSendBtnStatus" @click="sendMessage"></q-btn>
+            <q-btn
+                icon="send"
+                flat
+                color="green-8"
+                :dense="mini_mode"
+                :disable="getSendBtnStatus"
+                @click="sendMessage"
+            ></q-btn>
         </div>
 
         <q-dialog v-model="attachmentPreviewModal" full-width>
@@ -274,6 +288,10 @@ export default defineComponent({
         socket: {
             type: Object,
             default: null,
+        },
+        mini_mode: {
+            type: Boolean,
+            default: false,
         },
     },
 
@@ -373,38 +391,57 @@ export default defineComponent({
             return this.conversationStatusForMe === 'joined' || this.isAgentToAgentConversation;
         },
 
-        // mappedChatTemplates(): any {
-        //     const mappedChatTemplates = this.chatTemplates.map((chatTemplate: any) => {
-        //         // set content
-        //         if (chatTemplate.intent) {
-        //             chatTemplate.content =
-        //                 chatTemplate.intent.intent_action.type === 'static'
-        //                     ? chatTemplate.intent.intent_action.content
-        //                     : '';
+        mappedChatTemplates(): any {
+            const mappedChatTemplates = this.chatTemplates.map((chatTemplate: any) => {
+                // set content
+                if (chatTemplate.intent) {
+                    chatTemplate.content =
+                        chatTemplate.intent.intent_action.type === 'static'
+                            ? chatTemplate.intent.intent_action.content
+                            : '';
 
-        //             chatTemplate.loading = chatTemplate.intent.intent_action.type !== 'static';
-        //         }
+                    chatTemplate.loading = chatTemplate.intent.intent_action.type !== 'static';
+                }
 
-        //         chatTemplate.is_focused = false;
+                chatTemplate.is_focused = false;
 
-        //         return chatTemplate;
-        //     });
+                return chatTemplate;
+            });
 
-        //     if (!mappedChatTemplates.length) {
-        //         return [
-        //             {
-        //                 tag: 'No Result! Append in message box',
-        //                 content: `/${this.chatTemplateInputVal}`,
-        //                 is_focused: true,
-        //             },
-        //         ];
-        //     }
+            if (!mappedChatTemplates.length) {
+                return [
+                    {
+                        tag: 'No Result! Append in message box',
+                        content: `/${this.chatTemplateInputVal}`,
+                        is_focused: true,
+                    },
+                ];
+            }
 
-        //     return mappedChatTemplates;
-        // },
+            return mappedChatTemplates;
+        },
     },
 
     methods: {
+        getNewMessages() {
+            if (
+                !this.gettingNewMessages && // and also check loading state of this conv
+                this.conversationInfo
+            ) {
+                this.gettingNewMessages = true;
+
+                this.$store
+                    .dispatch('chat/getConvMessages', {
+                        convId: this.conv_id,
+                        page: !this.conversationInfo.hasOwnProperty('current_page')
+                            ? 1
+                            : parseInt(this.conversationInfo.current_page) + 1,
+                    })
+                    .finally(() => {
+                        this.gettingNewMessages = false;
+                    });
+            }
+        },
         checkOwnMessage(message: any) {
             return message.socket_session_id === this.ses_id;
         },
@@ -445,7 +482,7 @@ export default defineComponent({
         getConvStateStatusMessage(message: any) {
             return `${message.session.user ? message.session.user.user_meta.display_name : message.session.init_name} ${
                 message.state
-            } at ${this.$helpers.fromNowTime(message.created_at)}`;
+            } ${this.$helpers.fromNowTime(message.created_at)}`;
         },
 
         inputFocusHandle() {
@@ -490,24 +527,28 @@ export default defineComponent({
             this.chatTemplateDomPositionUpdate();
         },
         chatTemplateHideHandle() {
+            this.chatTemplateInputVal = '';
             document.body.removeEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
         },
         chatTemplateArrowKeyUpDownHandle(e: any) {
-            if (this.chatTemplates.length) {
-                const currentFocusedTemplate = _l.findIndex(this.chatTemplates, ['is_focused', true]);
+            if (this.mappedChatTemplates.length) {
+                const currentFocusedTemplate = _l.findIndex(this.mappedChatTemplates, ['is_focused', true]);
                 if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
                     const upOrDown = e.key === 'ArrowDown' ? 1 : -1;
 
-                    if (currentFocusedTemplate === this.chatTemplates.length - 1 || currentFocusedTemplate === -1) {
-                        this.chatTemplates[0].is_focused = true;
+                    if (
+                        currentFocusedTemplate === this.mappedChatTemplates.length - 1 ||
+                        currentFocusedTemplate === -1
+                    ) {
+                        this.mappedChatTemplates[0].is_focused = true;
                     } else if (currentFocusedTemplate === 0 && e.key === 'ArrowUp') {
-                        this.chatTemplates[this.chatTemplates.length - 1].is_focused = true;
+                        this.mappedChatTemplates[this.mappedChatTemplates.length - 1].is_focused = true;
                     } else {
-                        this.chatTemplates[currentFocusedTemplate + upOrDown].is_focused = true;
+                        this.mappedChatTemplates[currentFocusedTemplate + upOrDown].is_focused = true;
                     }
 
-                    if (this.chatTemplates.length > 1 && currentFocusedTemplate !== -1) {
-                        this.chatTemplates[currentFocusedTemplate].is_focused = false;
+                    if (this.mappedChatTemplates.length > 1 && currentFocusedTemplate !== -1) {
+                        this.mappedChatTemplates[currentFocusedTemplate].is_focused = false;
                     }
                 }
 
@@ -519,12 +560,12 @@ export default defineComponent({
         chatTemplateSelectHandle(key: any) {
             if (key !== -1) {
                 //if has intent handle loader wait then add content
-                this.msg += this.chatTemplates[key].content;
+                this.msg += this.mappedChatTemplates[key].content;
                 this.chatTemplate = false;
             }
         },
         chatTemplateSearchHandle(e: any) {
-            if (['ArrowUp', 'ArrowDown'].includes(e.key)) return;
+            if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) return;
 
             console.log(e.target.value);
 
@@ -702,23 +743,33 @@ export default defineComponent({
     },
 
     watch: {
-        conversationInfo: {
+        // its calling many times. y need examination
+        // conversationInfo: {
+        //     handler: function () {
+        //         if (
+        //             !this.gettingNewMessages && // and also check loading state of this conv
+        //             this.conversationInfo &&
+        //             (!this.conversationInfo.hasOwnProperty('current_page') || this.conversationInfo.current_page === 0)
+        //         ) {
+        //             console.log('getting new messages. watch this if it calls many times without needed');
+
+        //             this.gettingNewMessages = true;
+
+        //             this.$store.dispatch('chat/getConvMessages', { convId: this.conv_id }).finally(() => {
+        //                 this.gettingNewMessages = false;
+        //             });
+        //         }
+        //     },
+        //     deep: true,
+        //     immediate: true,
+        // },
+
+        conv_id: {
             handler: function () {
-                if (
-                    !this.gettingNewMessages && // and also check loading state of this conv
-                    this.conversationInfo &&
-                    (!this.conversationInfo.hasOwnProperty('current_page') || this.conversationInfo.current_page === 0)
-                ) {
-                    console.log('getting new messages. watch this if it calls many times without needed');
-
-                    this.gettingNewMessages = true;
-
-                    this.$store.dispatch('chat/getConvMessages', { convId: this.conv_id }).finally(() => {
-                        this.gettingNewMessages = false;
-                    });
+                if (!this.conversationInfo.hasOwnProperty('current_page')) {
+                    this.getNewMessages();
                 }
             },
-            deep: true,
             immediate: true,
         },
 
@@ -756,6 +807,16 @@ export default defineComponent({
 .ec-msg-input.q-textarea {
     .q-field__control-container {
         padding: 0;
+    }
+}
+
+.mini-mode-message-text-container {
+    .q-message-text {
+        padding: 5px;
+
+        &:last-child {
+            min-height: 40px;
+        }
     }
 }
 </style>

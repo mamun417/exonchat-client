@@ -52,8 +52,10 @@
                         </div>
                     </q-menu>
                 </q-btn>
+
                 <q-space />
-                <q-btn :icon="rightDrawer ? 'menu_open' : 'menu'" @click="handleRightDrawerToggle" flat />
+
+                <q-btn class="tw-mr-2" :icon="rightDrawer ? 'menu_open' : 'menu'" @click="toggleRightDrawer" flat />
 
                 <q-avatar size="lg" class="cursor-pointer">
                     <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
@@ -98,12 +100,21 @@
             >
                 <left-bar></left-bar>
             </q-drawer>
-            <q-drawer v-model="rightDrawer" class="tw-shadow-lgl" side="right" breakpoint="xs" width="250" persistent>
-                <right-bar @conversationTrackingRightBar="rightDrawer = $event"></right-bar>
+
+            <q-drawer
+                :model-value="rightDrawerVisible"
+                class="tw-shadow-lgl"
+                side="right"
+                breakpoint="xs"
+                width="250"
+                persistent
+            >
+                <right-bar></right-bar>
             </q-drawer>
+
             <q-page-container>
                 <q-page class="tw-flex">
-                    <router-view class="tw-w-full tw-p-3 bg-green-1"></router-view>
+                    <router-view class="tw-w-full tw-p-3 bg-green-1" :key="$route.fullPath"></router-view>
                 </q-page>
             </q-page-container>
         </template>
@@ -261,11 +272,23 @@ export default defineComponent({
             profile: 'auth/profile',
             chatUsers: 'chat/chatUsers',
             globalBgColor: 'ui/globalBgColor',
-            trackingConversation: 'ui/trackingConversation',
+            rightBarState: 'ui/rightBarState',
         }),
 
         currentRouteName() {
             return this.$route.name;
+        },
+
+        rightDrawerVisible() {
+            if (this.rightBarState.visible) {
+                if (this.$route.name !== 'chats' && this.rightBarState.mode === 'client_info') {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
         },
     },
 
@@ -286,7 +309,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ updateConversationTrucking: 'ui/updateConversationTrucking' }),
+        ...mapMutations({ toggleRightDrawer: 'ui/toggleRightDrawer' }),
 
         getUsers(ses_id = null) {
             // if ses_id => check for exist. if not then new user registered
@@ -303,7 +326,6 @@ export default defineComponent({
         },
 
         async socketInitialize() {
-            // if (this.handshake || 'logged') {
             this.sesId = this.$helpers.getMySocketSessionId();
             this.socketToken = sessionStorage.getItem('ec_user_socket_token');
             console.log(this.sesId);
@@ -338,7 +360,6 @@ export default defineComponent({
             this.getUsers();
             this.fireSocketListeners();
             this.$socket.emit('ec_get_logged_users', {});
-            // }
         },
         fireSocketListeners() {
             this.socket.on('connect', () => {
@@ -492,15 +513,6 @@ export default defineComponent({
                 .catch((err: any) => {
                     console.log(err);
                 });
-        },
-
-        handleRightDrawerToggle() {
-            // set conversationId null to show browser information at right-bar
-            if (this.currentRouteName === 'chats' && this.trackingConversation.conversationId) {
-                this.updateConversationTrucking('');
-            } else {
-                this.rightDrawer = !this.rightDrawer;
-            }
         },
     },
     unmounted() {

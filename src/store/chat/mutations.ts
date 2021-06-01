@@ -85,7 +85,7 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             if (convData.hasOwnProperty('message')) {
                 if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
-                    console.log(convData.message);
+                    // console.log(convData.message);
 
                     state.conversations[convId].messages[convData.message.id] = convData.message;
                 } else {
@@ -96,7 +96,7 @@ const mutation: MutationTree<ChatStateInterface> = {
             if (convData.hasOwnProperty('messages') && convData.messages.length) {
                 convData.messages.forEach((message: any) => {
                     if (!state.conversations[convId].messages.hasOwnProperty(message.id)) {
-                        console.log(convData.message);
+                        // console.log(convData.message);
 
                         state.conversations[convId].messages[message.id] = message;
                     } else {

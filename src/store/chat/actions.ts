@@ -48,9 +48,11 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             const callerApi = payload.client_page ? window.socketSessionApi : window.api;
 
             callerApi
-                .get(`conversations/${payload.convId}/messages?pp=50`)
+                .get(`conversations/${payload.convId}/messages?p=${payload.page || 1}&pp=50`)
                 .then((res: any) => {
                     const conv = res.data;
+
+                    conv.current_page = payload.page || 1; // now only for temp & test
 
                     context.commit('updateConversation', {
                         conv_id: conv.id,
@@ -61,6 +63,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             'closed_at',
                             'created_by_id',
                             'closed_by_id',
+                            'current_page',
                         ]),
                         sessions: conv.conversation_sessions,
                         chat_department: conv.chat_department,

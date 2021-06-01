@@ -30,9 +30,9 @@
                     ></q-btn>
                 </q-card-section>
             </q-card> -->
-            <messages-top-section :conv_id="this.$route.params['conv_id']" />
+            <messages-top-section :conv_id="$route.params['conv_id']" />
 
-            <message :conv_id="this.$route.params['conv_id']" :ses_id="profile.socket_session.id"></message>
+            <message :conv_id="$route.params['conv_id']" :ses_id="profile.socket_session.id"></message>
 
             <!-- <conversation-state-confirm-modal
                 v-if="confirm"
@@ -50,7 +50,7 @@ import Message from 'components/common/Message.vue';
 import MessagesTopSection from 'components/subscriber/chat/MessagesTopSection.vue';
 // import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
 
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default defineComponent({
     name: 'ChatPage',
@@ -70,25 +70,48 @@ export default defineComponent({
 
     mounted() {
         console.log('chat page initiated');
+
+        // if (!this.rightBarState.mode || this.rightBarState.mode === 'client_info') {
+        //     this.updateRightDrawerState({ mode: 'client_info', visible: true });
+        // }
     },
 
     computed: {
         ...mapGetters({
             profile: 'auth/profile',
+            rightBarState: 'ui/rightBarState',
         }),
     },
 
-    // beforeRouteEnter(to, from, next) {
-    //     next((vm: any) => {
-    //         vm.messageInputAutoFocus = from.name === 'clients-conversations';
-    //     });
-    // },
+    beforeRouteEnter(to, from, next) {
+        next((vm: any) => {
+            // vm.messageInputAutoFocus = from.name === 'clients-conversations';
+            if (!vm.rightBarState.mode || vm.rightBarState.mode === 'client_info') {
+                vm.updateRightDrawerState({ mode: 'client_info', visible: true });
+            }
+        });
+    },
 
     // beforeRouteUpdate(to, from, next) {
-    //     this.messageInputAutoFocus = false;
-    //     next();
+    // this.messageInputAutoFocus = false;
+
+    // if (!this.rightBarState.mode || this.rightBarState.mode === 'client_info') {
+    //     this.updateRightDrawerState({ mode: 'client_info', visible: true });
+    // }
+
+    // next();
     // },
 
-    methods: {},
+    methods: {
+        ...mapMutations({ updateRightDrawerState: 'ui/updateRightDrawerState' }),
+    },
+
+    beforeUnmount() {
+        console.log('chat unmount called');
+
+        // if (this.rightBarState.mode && this.rightBarState.mode === 'client_info') {
+        //     this.updateRightDrawerState({ mode: null, visible: false });
+        // }
+    },
 });
 </script>

@@ -9,9 +9,11 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return state.clientInitiateConvInfo;
     },
 
-    conversationInfo: (state) => (convId: any) => {
-        console.log(state.conversations);
+    clientsConversation: (state) => {
+        return Object.values(state.conversations).filter((conv: any) => !conv.users_only);
+    },
 
+    conversationInfo: (state) => (convId: any) => {
         if (state.conversations[convId]) {
             return _l.omit(state.conversations[convId], ['messages']);
         }
@@ -21,7 +23,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     conversationStatusForMe: (state) => (convId: any, mySesId: any) => {
         const conv = state.conversations[convId];
-        console.log(conv, mySesId);
 
         if (!conv) return null;
         if (conv.closed_at) return 'closed';
@@ -38,9 +39,9 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     conversationWithUsersInfo: (state) => (convId: any, mySesId: any) => {
-        let userSessions: any = {};
+        let userSessions = [];
 
-        if (state.conversations.hasOwnProperty(convId)) {
+        if (state.conversations[convId]) {
             const conv = state.conversations[convId];
 
             userSessions = conv.sessions.filter((session: any) => {
@@ -54,6 +55,21 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return userSessions;
     },
 
+    conversationConnectedUsers: (state) => (convId: any) => {
+        let userSessions: any = {};
+
+        if (state.conversations[convId]) {
+            const conv = state.conversations[convId];
+
+            // send connected users in this conversation without client. its for showing images
+            userSessions = conv.sessions.filter((session: any) => {
+                return (!conv.users_only && session.socket_session.user) || conv.users_only;
+            });
+        }
+
+        return userSessions;
+    },
+
     conversationMessages: (state) => (convId: any) => {
         return state.conversations[convId]?.messages || [];
     },
@@ -61,7 +77,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     getConvSesStateAsMsg: (state) => (convId: any) => {
         const stateAsMsg: any = [];
 
-        if (!state.conversations.hasOwnProperty(convId)) return [];
+        if (!state.conversations[convId]) return [];
 
         const conv = state.conversations[convId];
 

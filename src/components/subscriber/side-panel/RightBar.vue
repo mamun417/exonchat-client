@@ -1,66 +1,12 @@
 <template>
     <div class="tw-h-full tw-flex tw-flex-col">
-        <q-card v-if="trackingConversation.conversationId" class="tw-shadow-sm">
-            <q-card-section class="tw-flex tw-items-center tw-py-2 tw-px-2">
-                <div>
-                    <view-conversation-btn
-                        :to="{ name: 'chats', params: { conv_id: trackingConversation.conversationId } }"
-                    />
+        <template v-if="rightBarState.mode === 'conversation'">
+            <messages-top-section :conv_id="rightBarState.conv_id" :mini_mode="true" />
+            <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true"></message>
+        </template>
 
-                    <q-btn
-                        @click="confirm = true"
-                        text-color="green"
-                        size="sm"
-                        dense
-                        flat
-                        icon="person_add_alt"
-                        class="tw-px-2"
-                    >
-                        <q-tooltip :offset="[10, 10]"> Join chat </q-tooltip>
-                    </q-btn>
-                </div>
-
-                <div class="tw-ml-auto">
-                    <q-btn text-color="green" size="sm" dense flat icon="more_vert">
-                        <q-menu>
-                            <q-list dense style="min-width: 100px">
-                                <q-item clickable v-close-popup>
-                                    <q-item-section>Item 1</q-item-section>
-                                </q-item>
-                                <q-item clickable v-close-popup>
-                                    <q-item-section>Item 2</q-item-section>
-                                </q-item>
-                                <q-separator />
-                                <q-item clickable v-close-popup>
-                                    <q-item-section @click="$emit('conversationTrackingRightBar', false)">
-                                        Quit
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-menu>
-                    </q-btn>
-                </div>
-            </q-card-section>
-        </q-card>
-        <message
-            v-if="trackingConversation.conversationId"
-            :ses-id="sesId"
-            chat-panel-type="client"
-            :is-conversation-tracking="true"
-            :conversation-id="trackingConversation.conversationId"
-            :conversationInfo="conversationInfo"
-        ></message>
-        <!--        <q-btn
-            icon="chevron_right"
-            color="green"
-            size="sm"
-            class="tw-absolute tw-top-7"
-            style="z-index: 999; right: 235px"
-            round
-            unelevated
-        />-->
         <q-scroll-area
-            v-else
+            v-else-if="rightBarState.mode === 'client_info'"
             class="fit"
             :bar-style="{
                 background: '#60A5FA',
@@ -171,26 +117,19 @@
                 </q-expansion-item>
             </q-list>
         </q-scroll-area>
-
-        <conversation-state-confirm-modal
-            v-if="confirm"
-            :conv-state-button-info="{ name: 'join' }"
-            @convStateHandle="joinConversation()"
-            @hide="confirm = false"
-        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Message from 'components/common/Message.vue';
 import { mapGetters } from 'vuex';
-import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
-import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
+
+import Message from 'components/common/Message.vue';
+import MessagesTopSection from 'components/subscriber/chat/MessagesTopSection.vue';
 
 export default defineComponent({
     name: 'RightBar',
-    components: { ConversationStateConfirmModal, ViewConversationBtn, Message },
+    components: { MessagesTopSection, Message },
     setup() {
         return {};
     },
@@ -203,60 +142,15 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            trackingConversation: 'ui/trackingConversation',
+            rightBarState: 'ui/rightBarState',
             profile: 'auth/profile',
         }),
-
-        conversationInfo(): any {
-            const convId = this.trackingConversation.conversationId;
-            return this.$store.getters['chat/conversationInfo'](convId);
-        },
-
-        currentRouteName() {
-            return this.$route.name;
-        },
     },
 
     mounted() {
         console.log('right bar initiated');
-        this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
     },
 
-    methods: {
-        async getConvMessages(convId: string) {
-            await this.$store.dispatch('chat/getAgentConvMessages', {
-                convId,
-            });
-        },
-
-        // set self status (join/left/closed)
-        getSelfConversationStateStatus() {
-            //
-        },
-
-        joinConversation() {
-            const convId = this.trackingConversation.conversationId;
-
-            if (!convId) return;
-
-            this.$socket.emit('ec_join_conversation', {
-                conv_id: convId,
-            });
-
-            this.$router.push({ name: 'chats', params: { conv_id: convId } });
-        },
-    },
-
-    watch: {
-        trackingConversation: {
-            handler(trackingConversation) {
-                if (trackingConversation.conversationId) {
-                    this.getConvMessages(trackingConversation.conversationId);
-                    this.$emit('conversationTrackingRightBar', true);
-                }
-            },
-            deep: true,
-        },
-    },
+    methods: {},
 });
 </script>

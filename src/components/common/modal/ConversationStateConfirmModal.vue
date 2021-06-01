@@ -3,7 +3,7 @@
         <q-card style="min-width: 350px">
             <q-card-section class="row items-center">
                 <span class="q-ml-sm">
-                    Are you want to {{ convStateButtonInfo.name.toLowerCase() }} this conversation ?
+                    Are you sure to {{ convStateButtonInfo.name.toLowerCase() }} this conversation ?
                 </span>
             </q-card-section>
 
