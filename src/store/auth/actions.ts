@@ -60,6 +60,22 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
                 });
         });
     },
+
+    updateAuthInfo(context) {
+        return new Promise((resolve, reject) => {
+            const userId = context.state.user.id;
+
+            window.api
+                .get(`users/${userId}`)
+                .then((res: any) => {
+                    context.commit('authSuccess', res);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;
