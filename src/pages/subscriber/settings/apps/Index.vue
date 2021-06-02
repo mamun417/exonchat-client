@@ -58,6 +58,7 @@
                         @click="updateAppSetting(true)"
                         no-caps
                         unelevated
+                        :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
                     />
                 </div>
 
@@ -87,7 +88,7 @@
                 </div>
             </q-card-section>
 
-            <q-card-actions class="tw-my-4">
+            <q-card-actions>
                 <q-btn
                     type="submit"
                     @click="updateAppSetting(false)"
@@ -138,8 +139,6 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({}),
-
         getAppSetting() {
             this.$store
                 .dispatch('ui/getAppSetting')

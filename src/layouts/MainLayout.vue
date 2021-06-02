@@ -26,6 +26,10 @@
                     <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
                 </q-btn>
 
+                <q-btn v-if="profile.role.slug === 'admin'" icon="person_add" :to="{ name: 'users-invitations' }" flat>
+                    <q-tooltip :offset="[10, 10]">User Invitations</q-tooltip>
+                </q-btn>
+
                 <q-btn icon="settings" :to="{ name: 'settings_ui' }" flat>
                     <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
                 </q-btn>

@@ -18,8 +18,8 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/agent/Index.vue'),
             },
             {
-                path: 'agents/invitations',
-                name: 'agents-invitations',
+                path: 'users/invitations',
+                name: 'users-invitations',
                 component: () => import('pages/subscriber/agent/Invitations.vue'),
             },
             {
@@ -58,6 +58,11 @@ const routes: RouteRecordRaw[] = [
                 name: 'settings',
                 component: () => import('pages/subscriber/settings/Index.vue'),
                 children: [
+                    {
+                        path: 'profile',
+                        name: 'settings_profile',
+                        component: () => import('pages/subscriber/settings/profile/Index.vue'),
+                    },
                     {
                         path: 'ui',
                         name: 'settings_ui',

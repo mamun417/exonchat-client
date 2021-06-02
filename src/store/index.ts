@@ -12,6 +12,9 @@ import { AuthStateInterface } from './auth/state';
 import ui from './ui';
 import { UiStateInterface } from './ui/state';
 
+import setting_profile from './setting/profile';
+import { SettingProfileInterface } from './setting/profile/state';
+
 import chat from './chat';
 import { ChatStateInterface } from './chat/state';
 
@@ -50,6 +53,7 @@ export interface StateInterface {
     socket: SocketStateInterface;
     chat: ChatStateInterface;
     ui: UiStateInterface;
+    setting_profile: SettingProfileInterface;
     intent: IntentStateInterface;
     speech: SpeechStateInterface;
     department: DepartmentStateInterface;
@@ -65,6 +69,7 @@ export default store(function (/* { ssrContext } */) {
             auth,
             socket,
             ui,
+            setting_profile,
             chat,
             intent,
             speech,
