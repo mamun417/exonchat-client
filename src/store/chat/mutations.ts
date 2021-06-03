@@ -146,6 +146,28 @@ const mutation: MutationTree<ChatStateInterface> = {
         }
     },
 
+    updateTypingState(state: ChatStateInterface, typingStateObj: any) {
+        const convId = typingStateObj.conv_id;
+        const sesId = typingStateObj.session_id;
+
+        if (!state.typingStates.hasOwnProperty(convId)) {
+            state.typingStates[convId] = {};
+        }
+
+        if (!state.typingStates[convId].hasOwnProperty(sesId)) {
+            state.typingStates[convId][sesId] = {
+                msg: typingStateObj.msg,
+                time: Date.now(),
+                session_id: sesId,
+            };
+        } else {
+            state.typingStates[convId][sesId].msg = typingStateObj.msg;
+            state.typingStates[convId][sesId].time = Date.now();
+            state.typingStates[convId][sesId].session_id = sesId;
+            state.typingStates[convId][sesId].status = typingStateObj.status;
+        }
+    },
+
     updateConvIdToAChatUser(state: ChatStateInterface, data) {
         state.chatUsers[data.ses_id].conversation_id = data.conv_id;
     },

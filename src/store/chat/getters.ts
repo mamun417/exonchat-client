@@ -74,6 +74,30 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return state.conversations[convId]?.messages || [];
     },
 
+    typingState: (state) => (convId: any) => {
+        const typingState: any = state.typingStates[convId];
+        const conv = state.conversations[convId];
+
+        if (!typingState || !conv) return [];
+
+        const typingRes: any = [];
+
+        Object.values(typingState).forEach((each: any) => {
+            const sesInfo = _l.find(conv.sessions, ['socket_session_id', each.session_id]);
+
+            if (sesInfo) {
+                typingRes.push({
+                    ...each,
+                    conv_ses_info: sesInfo,
+                    socket_session: sesInfo.socket_session,
+                    socket_session_id: sesInfo.socket_session_id,
+                });
+            }
+        });
+
+        return typingRes;
+    },
+
     getConvSesStateAsMsg: (state) => (convId: any) => {
         const stateAsMsg: any = [];
 
@@ -221,7 +245,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             if (
                 !conv.users_only &&
                 !conv.closed_at &&
-                conv.sessions.length === 1 &&
+                // conv.sessions.length === 1 && // if wants not joined then uncomment
                 // Object.keys(conv.messages).length check for safe
                 Object.keys(conv.messages).length
             ) {

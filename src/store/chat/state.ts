@@ -7,6 +7,7 @@ export interface ChatStateInterface {
     chatRequests: any;
     chatUsers: any;
     conversations: any;
+    typingStates: any;
 }
 
 function state(): ChatStateInterface {
@@ -23,6 +24,7 @@ function state(): ChatStateInterface {
         chatRequests: {},
         chatUsers: {},
         conversations: conversations ? JSON.parse(conversations) : {},
+        typingStates: {},
     };
 }
 

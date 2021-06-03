@@ -1,8 +1,8 @@
 <template>
-    <q-page class="tw-flex tw-flex-col tw-rounded-md">
+    <q-page class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
         <div
             v-if="panelVisibleStatus"
-            class="tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
+            class="tw-h-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
         >
             <template v-if="hasApiKey">
                 <div
@@ -348,10 +348,11 @@ export default defineComponent({
 
                 console.log('from ec_msg_from_user', res);
             });
+            this.socket.on('ec_is_typing_from_user', (res: any) => {
+                this.$store.dispatch('chat/updateTypingState', res);
 
-            // this.socket.on('ec_is_typing_to_client', (res: any) => {
-            //     console.log('from ec_is_typing_to_client', res);
-            // });
+                console.log('from ec_is_typing_from_user', res);
+            });
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', (res: any) => {
@@ -359,11 +360,8 @@ export default defineComponent({
 
                 console.log('from ec_msg_to_client', res);
             });
-
-            // this.socket.on('ec_is_typing_from_user', (res: any) => {
-            //     console.log(res);
-            //     // this.typingHandler.typing = true;
-            //     console.log('from ec_is_typing_from_user', res);
+            // this.socket.on('ec_is_typing_to_client', (res: any) => {
+            //     console.log('from ec_is_typing_to_client', res);
             // });
 
             this.socket.on('ec_conv_initiated_to_client', async (res: any) => {

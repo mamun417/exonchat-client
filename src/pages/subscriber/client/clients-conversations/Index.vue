@@ -104,10 +104,10 @@ import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn
 import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
 import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
 import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
+import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
 
 import * as _l from 'lodash';
 import moment from 'moment';
-import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
 
 const columns = [
     {

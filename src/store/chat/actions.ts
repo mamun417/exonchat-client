@@ -214,6 +214,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
     },
 
+    updateTypingState(context, typingObj) {
+        return new Promise((resolve) => {
+            context.commit('updateTypingState', typingObj);
+            resolve(true);
+        });
+    },
+
     // get users
     getUsers(context) {
         return new Promise((resolve) => {

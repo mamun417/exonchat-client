@@ -118,7 +118,7 @@
 
                 <q-expansion-item
                     default-opened
-                    label="Chat Departments"
+                    label="Chats by department"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-sm`"
                     dense
                 >
@@ -143,7 +143,7 @@
                                 </q-item>
                             </q-list>
 
-                            <div v-else>No departmental chat requests ongoing</div>
+                            <div v-else class="tw-p-4">None</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>

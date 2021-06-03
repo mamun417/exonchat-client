@@ -29,6 +29,12 @@
                     </q-item-label>
                 </q-item-section>
 
+                <q-item-section v-if="!mini_mode" side>
+                    <q-item-label>
+                        <connected-users-faces :users_conv_ses="conversationConnectedUsers" />
+                    </q-item-label>
+                </q-item-section>
+
                 <q-item-section side>
                     <q-item-label>
                         <q-btn icon="more_vert" class="tw-px-1" unelevated>
@@ -95,11 +101,13 @@
 import { defineComponent } from 'vue';
 import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
 
+import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
+
 import { mapGetters, mapMutations } from 'vuex';
 
 export default defineComponent({
     name: 'MessagesTopSection',
-    components: { ConversationStateConfirmModal },
+    components: { ConversationStateConfirmModal, ConnectedUsersFaces },
     props: {
         conv_id: {
             type: String,
@@ -142,6 +150,10 @@ export default defineComponent({
 
         conversationWithUsersInfo(): any {
             return this.$store.getters['chat/conversationWithUsersInfo'](this.conv_id, this.profile.socket_session.id);
+        },
+
+        conversationConnectedUsers(): any {
+            return this.$store.getters['chat/conversationConnectedUsers'](this.conv_id);
         },
     },
 

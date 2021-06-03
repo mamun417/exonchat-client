@@ -88,18 +88,32 @@
             >
         </template>
 
-        <!-- <q-chat-message
-            v-if="typingHandler.typing"
-            avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-            bg-color="gray-9"
-            sent
-            text-color="black"
-            :text="['hasan is typing...']"
-            class="exonchat-is-typing"
-        >
-        </q-chat-message>
+        <!-- {{ typingState }} -->
 
-        <q-btn
+        <template v-for="(typing, index) in typingState" :key="index">
+            <q-chat-message
+                :text-color="checkOwnMessage(typing) ? 'black' : 'white'"
+                :bg-color="checkOwnMessage(typing) ? 'gray-9' : 'blue-9'"
+                class="exonchat-is-typing"
+            >
+                <template v-slot:avatar>
+                    <q-avatar size="lg" class="tw-mr-2">
+                        <img src="https://cdn.quasar.dev/img/avatar1.jpg" alt="image" />
+                        <q-tooltip class=""> email </q-tooltip>
+                    </q-avatar>
+                </template>
+
+                <template v-slot:stamp>
+                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">typing...</div>
+                </template>
+
+                <div>
+                    <div :class="{ 'text-right': msgForRightSide(typing) }">{{ typing.msg }}</div>
+                </div>
+            </q-chat-message>
+        </template>
+
+        <!-- <q-btn
             v-if="gotoBottomBtnShow"
             @click="scrollToBottom"
             style="position: fixed; left: 50%; bottom: 60px"
@@ -269,7 +283,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 import * as _l from 'lodash';
 import moment from 'moment';
@@ -320,6 +334,8 @@ export default defineComponent({
             typingHandler: {
                 typing: false,
             },
+            notTypingEmitted: {},
+
             attachments: [],
             finalAttachments: [],
             conversationInfoLocal: null,
@@ -348,7 +364,7 @@ export default defineComponent({
         }),
 
         chatPanelType(): any {
-            return this.$router.name === 'client-web-chat' ? 'client' : 'user';
+            return this.$route.name === 'client-web-chat' ? 'client' : 'user';
         },
 
         conversationInfo(): any {
@@ -375,6 +391,14 @@ export default defineComponent({
             });
 
             return _l.sortBy(Object.values(tempMessages), [(msg: any) => moment(msg.created_at).format('x')]);
+        },
+
+        typingState(): any {
+            const states = this.$store.getters['chat/typingState'](this.conv_id);
+
+            return states.filter((state: any) => {
+                return state.status === 'typing';
+            });
         },
 
         getSendBtnStatus(): any {
@@ -458,10 +482,6 @@ export default defineComponent({
             return false;
         },
 
-        getConvId() {
-            return this.isConversationTracking ? this.conversationId : this.$route.params['conv_id'];
-        },
-
         msgSenderName(msg: any, index: any) {
             const prevMsg = this.messages[index - 1];
 
@@ -487,12 +507,37 @@ export default defineComponent({
 
         inputFocusHandle() {
             this.typingHandler = setInterval(() => {
-                //     this.$socket.emit('ec_is_typing_from_user', {
-                //         conv_id: this.getConvId(),
-                //     });
+                this.msg = this.msg.trim();
+                const dynamicSocket = this.socket || this.$socket;
+
+                if (this.msg) {
+                    this.notTypingEmitted = false;
+
+                    dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
+                        conv_id: this.conv_id,
+                        msg: this.chatPanelType === 'user' ? '' : this.msg,
+                        status: 'typing',
+                    });
+                } else {
+                    if (!this.notTypingEmitted) {
+                        this.notTypingEmitted = true;
+
+                        dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
+                            conv_id: this.conv_id,
+                            msg: '',
+                            status: 'not_typing',
+                        });
+                    }
+                }
             }, 1000);
         },
         inputBlurHandle() {
+            const dynamicSocket = this.socket || this.$socket;
+            dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
+                conv_id: this.conv_id,
+                msg: '',
+                status: 'not_typing',
+            });
             clearInterval(this.typingHandler);
         },
         keyUpHandle(e: any) {
@@ -596,7 +641,6 @@ export default defineComponent({
 
             console.log('sending the msg');
 
-            const emitType = this.chatPanelType ? 'user' : 'client';
             const dynamicBody =
                 this.chatPanelType === 'user'
                     ? { conv_id: this.conv_id, temp_id: this.$helpers.getTempId() }
@@ -604,7 +648,9 @@ export default defineComponent({
 
             const dynamicSocket = this.socket || this.$socket;
 
-            dynamicSocket.emit(`ec_msg_from_${emitType}`, {
+            console.log(this.chatPanelType);
+
+            dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
                 ...dynamicBody,
                 msg: this.msg,
                 attachments: _l.map(this.finalAttachments, 'id'),

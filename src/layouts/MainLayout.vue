@@ -108,7 +108,7 @@
                 class="tw-shadow-lgl"
                 side="right"
                 breakpoint="xs"
-                width="250"
+                :width="this.rightBarState.mode === 'conversation' ? 300 : 250"
                 persistent
             >
                 <right-bar></right-bar>
@@ -397,17 +397,21 @@ export default defineComponent({
             });
 
             // handle only other users typing
-            // this.socket.on('ec_is_typing_from_user', (data: any) => {
-            //     console.log('from ec_is_typing_from_user', data);
-            // });
+            this.socket.on('ec_is_typing_from_user', (res: any) => {
+                this.$store.dispatch('chat/updateTypingState', res);
+
+                console.log('from ec_is_typing_from_user', res);
+            });
 
             // this.socket.on('ec_is_typing_to_user', (data: any) => {
             //     console.log('from ec_is_typing_to_user', data);
             // });
 
-            // this.socket.on('ec_is_typing_from_client', (data: any) => {
-            //     console.log('from ec_is_typing_from_client', data.msg);
-            // });
+            this.socket.on('ec_is_typing_from_client', (res: any) => {
+                this.$store.dispatch('chat/updateTypingState', res);
+
+                console.log('from ec_is_typing_from_client', res.msg);
+            });
 
             this.socket.on('ec_conv_initiated_from_user', (data: any) => {
                 console.log('from ec_conv_initiated_from_user', data);
