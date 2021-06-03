@@ -8,7 +8,7 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <q-table
-                    :rows="rows"
+                    :rows="mappedUsers"
                     :columns="columns"
                     row-key="name"
                     :pagination="{ rowsPerPage: 0 }"
@@ -33,7 +33,8 @@
                             <div class="tw-flex tw-items-center">
                                 <q-avatar size="sm"><img :src="props.row.img" /></q-avatar>
                                 <div class="tw-ml-2">
-                                    {{ props.row.info.name }}
+                                    <!--<pre>{{ props.row }}</pre>-->
+                                    {{ $_.upperFirst(props.row.user_meta.display_name) }}
                                 </div>
                             </div>
                         </q-td>
@@ -63,20 +64,24 @@
                             >
                                 <q-menu anchor="bottom right" self="top end">
                                     <q-item class="text-green" clickable dense>
-                                        <q-item-section>Convert To Agent/User</q-item-section>
+                                        <q-item-section>
+                                            Convert To
+                                            {{ props.row.role.slug === 'agent' ? 'User' : 'Agent' }}
+                                        </q-item-section>
                                     </q-item>
                                     <q-item class="text-green" clickable dense>
                                         <q-item-section>Role & permission</q-item-section>
                                     </q-item>
                                     <q-separator />
                                     <q-item class="text-green" clickable dense>
-                                        <q-item-section @click="handleActivateDeactivate"
-                                            ><q-checkbox
+                                        <q-item-section>
+                                            <q-checkbox
                                                 size="sm"
                                                 color="green"
-                                                label="Deactivate"
+                                                label="Activate"
                                                 class="ec-list-setting-left-label-checkbox"
-                                                @update:model-value="handleActivateDeactivate"
+                                                v-model="props.row.active"
+                                                @update:model-value="handleActivateDeactivate(props.row)"
                                                 left-label
                                                 dense
                                             />
@@ -100,7 +105,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 
 const columns = [
@@ -158,20 +163,72 @@ const rows = [
     },
 ];
 export default defineComponent({
-    data() {
+    name: 'Users',
+    data(): any {
         return {
+            users: [],
             assignAgentModal: false,
+            userAssignFormDataErrors: {},
         };
     },
+
     setup() {
         return {
             columns,
             rows,
         };
     },
+
+    computed: {
+        mappedUsers(): any {
+            return this.users.map((user: any) => {
+                user.status = user.active ? 'active' : 'inactive';
+                user.is_agent = user.role.slug === 'agent';
+
+                return user;
+            });
+        },
+    },
+
+    mounted() {
+        this.getUsers();
+    },
+
     methods: {
-        handleActivateDeactivate() {
-            //
+        getUsers() {
+            this.$store
+                .dispatch('user/getUsers')
+                .then((res: any) => {
+                    this.users = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+        },
+
+        handleActivateDeactivate(user: any) {
+            this.$store
+                .dispatch('user/convertType', {
+                    inputs: user,
+                })
+                .then((res: any) => {
+                    const index = this.users.findIndex((user: any) => user.id === res.data.id);
+
+                    this.users[index] = res.data;
+
+                    this.$helpers.showSuccessNotification(this, `User convert to ${res.data.type} successful`);
+                })
+                .catch((err: any) => {
+                    this.assignUserErrorHandle(err);
+                });
+        },
+
+        assignUserErrorHandle(err: any) {
+            if (this.$_.isObject(err.response.data.message)) {
+                this.userAssignFormDataErrors = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
         },
     },
 });

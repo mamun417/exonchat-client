@@ -39,6 +39,9 @@ import { ClientConversationStateInterface } from './client-conversation/state';
 import user_invitation from './user-invitation';
 import { UserInvitationStateInterface } from './user-invitation/state';
 
+import user from './user';
+import { UserStateInterface } from './user/state';
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -64,6 +67,7 @@ export interface StateInterface {
     chat_template: ChatTemplateStateInterface;
     client_conversation: ClientConversationStateInterface;
     user_invitation: UserInvitationStateInterface;
+    user: UserStateInterface;
 }
 
 export default store(function (/* { ssrContext } */) {
@@ -82,6 +86,7 @@ export default store(function (/* { ssrContext } */) {
             chat_template,
             client_conversation,
             user_invitation,
+            user,
         },
 
         // enable strict mode (adds overhead!)

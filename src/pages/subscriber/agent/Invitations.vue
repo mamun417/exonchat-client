@@ -70,22 +70,28 @@
                                     </q-item>
                                     <q-separator />-->
                                     <!-- bottom two will show until user registers. & will be handled by one api -->
-                                    <q-item class="text-green" clickable dense>
+                                    <q-item
+                                        :disable="props.row.active !== 'pending'"
+                                        class="text-green"
+                                        clickable
+                                        dense
+                                    >
                                         <q-item-section @click="handleConvertType(props.row)"
                                             >Convert To
                                             {{ props.row.type === 'agent' ? 'User' : 'Agent' }}
                                         </q-item-section>
                                     </q-item>
                                     <q-item class="text-green" clickable dense>
-                                        <q-item-section @click="handleActivateDeactivate">
+                                        <q-item-section>
                                             <q-checkbox
                                                 size="sm"
                                                 color="green"
-                                                label="Deactivate"
+                                                label="Activate"
                                                 class="ec-list-setting-left-label-checkbox"
                                                 v-model="props.row.active"
                                                 @update:model-value="handleActivateDeactivate(props.row)"
                                                 left-label
+                                                :disable="props.row.active !== 'pending'"
                                                 dense
                                             />
                                         </q-item-section>
@@ -219,27 +225,6 @@ const columns = [
     },
 ];
 
-const rows = [
-    {
-        email: 'm@m.com',
-        status: 'active',
-        is_agent: true,
-        sent_at: '1.1.1',
-    },
-    {
-        email: 'n@n.com',
-        status: 'inactive',
-        is_agent: false,
-        sent_at: '1.1.1',
-    },
-    {
-        email: 'o@o.com',
-        status: 'pending',
-        is_agent: true,
-        sent_at: '1.1.1',
-    },
-];
-
 export default defineComponent({
     components: { ConfirmModal },
     data(): any {
@@ -260,7 +245,6 @@ export default defineComponent({
     setup() {
         return {
             columns,
-            rows,
         };
     },
 

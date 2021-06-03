@@ -18,12 +18,16 @@
                     <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>
                 </q-btn>
 
+                <q-btn icon="account_tree" :to="{ name: 'departments' }" flat>
+                    <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
+                </q-btn>
+
                 <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="lg">
                     <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
                 </q-btn>
 
-                <q-btn icon="account_tree" :to="{ name: 'departments' }" flat>
-                    <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
+                <q-btn v-if="profile.role.slug === 'admin'" icon="people" :to="{ name: 'users' }" flat>
+                    <q-tooltip :offset="[10, 10]">Users</q-tooltip>
                 </q-btn>
 
                 <q-btn v-if="profile.role.slug === 'admin'" icon="person_add" :to="{ name: 'users-invitations' }" flat>
