@@ -119,8 +119,8 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             profile: 'auth/profile',
-            globalTextColor: 'ui/globalTextColor',
-            globalColor: 'ui/globalColor',
+            globalTextColor: 'setting_ui/globalTextColor',
+            globalColor: 'setting_ui/globalColor',
         }),
     },
 
@@ -133,7 +133,7 @@ export default defineComponent({
     methods: {
         getExistingAvaterUrl() {
             this.$store
-                .dispatch('ui/getAvaterPath', {
+                .dispatch('setting_profile/getAvaterPath', {
                     id: this.profile.user_meta.attachment.id,
                 })
                 .then((res: any) => {
@@ -169,7 +169,7 @@ export default defineComponent({
             formData.append('avater', this.avater);
 
             try {
-                await this.$store.dispatch('ui/updateAvater', formData);
+                await this.$store.dispatch('setting_profile/updateAvater', formData);
                 await this.$store.dispatch('auth/updateAuthInfo');
                 this.getExistingAvaterUrl();
 

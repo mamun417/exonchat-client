@@ -1,12 +1,8 @@
 import { GetterTree } from 'vuex';
-import { StateInterface } from '../index';
-import { UiStateInterface } from './state';
+import { StateInterface } from 'src/store';
+import { SettingUiStateInterface } from './state';
 
-const getters: GetterTree<UiStateInterface, StateInterface> = {
-    someAction(/* context */) {
-        // your code
-    },
-
+const getters: GetterTree<SettingUiStateInterface, StateInterface> = {
     globalColor(state) {
         return state.globalColor;
     },
@@ -18,10 +14,6 @@ const getters: GetterTree<UiStateInterface, StateInterface> = {
     },
     globalColorToHex() {
         return 'upcoming';
-    },
-
-    trackingConversation(state) {
-        return state.trackingConversation;
     },
 
     rightBarState(state) {

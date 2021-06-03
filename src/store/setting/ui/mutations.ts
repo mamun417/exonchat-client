@@ -1,19 +1,10 @@
 import { MutationTree } from 'vuex';
-import { UiStateInterface } from './state';
+import { SettingUiStateInterface } from './state';
 
-const mutation: MutationTree<UiStateInterface> = {
-    someMutation(/* state: AuthStateInterface */) {
-        // your code
-    },
-
+const mutation: MutationTree<SettingUiStateInterface> = {
     updateGlobalColor(state, color) {
         localStorage.setItem('globalColor', color);
         state.globalColor = color;
-    },
-
-    updateConversationTrucking(state, convId) {
-        state.trackingConversation.conversationId = '';
-        state.trackingConversation.conversationId = convId;
     },
 
     updateRightDrawerState(state, payload) {

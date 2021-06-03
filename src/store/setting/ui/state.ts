@@ -1,16 +1,12 @@
-export interface UiStateInterface {
+export interface SettingUiStateInterface {
     globalColor: string;
-    trackingConversation: any;
     rightDrawerState: any;
 }
 
-function state(): UiStateInterface {
+function state(): SettingUiStateInterface {
     const rightDrawerState = localStorage.getItem('right_drawer_state');
     return {
         globalColor: localStorage.getItem('globalColor') || 'green',
-        trackingConversation: {
-            conversationId: '',
-        },
         rightDrawerState: rightDrawerState ? JSON.parse(rightDrawerState) : { visible: false },
     };
 }

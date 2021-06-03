@@ -105,7 +105,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapMutations, mapGetters } from 'vuex';
 
 export default defineComponent({
     name: '',
@@ -130,10 +129,6 @@ export default defineComponent({
         };
     },
 
-    computed: {
-        ...mapGetters({}),
-    },
-
     mounted() {
         this.getAppSetting();
     },
@@ -141,7 +136,7 @@ export default defineComponent({
     methods: {
         getAppSetting() {
             this.$store
-                .dispatch('ui/getAppSetting')
+                .dispatch('setting_app/getAppSetting')
                 .then((res: any) => {
                     res.data.forEach((appSetting: any) => {
                         this.formInputs[appSetting.slug] = this.getSingleInputValue(appSetting);
@@ -168,7 +163,7 @@ export default defineComponent({
             });
 
             this.$store
-                .dispatch('ui/updateAppSetting', {
+                .dispatch('setting_app/updateAppSetting', {
                     inputs: {
                         app_settings: data,
                     },

@@ -15,6 +15,34 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
                 });
         });
     },
+
+    getAvaterPath(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(`profile/attachments/${payload.id}`, {
+                    responseType: 'arraybuffer',
+                })
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    updateAvater(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('profile/update/avater', payload)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;

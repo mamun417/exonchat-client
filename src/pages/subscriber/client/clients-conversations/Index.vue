@@ -180,7 +180,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            rightBarState: 'ui/rightBarState',
+            rightBarState: 'setting_ui/rightBarState',
         }),
 
         clientConversations(): any {
@@ -240,7 +240,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ updateRightDrawerState: 'ui/updateRightDrawerState' }),
+        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
 
         getClientConversations() {
             this.$store.dispatch('client_conversation/getClientConversations');

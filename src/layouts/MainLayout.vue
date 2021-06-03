@@ -277,8 +277,8 @@ export default defineComponent({
         ...mapGetters({
             profile: 'auth/profile',
             chatUsers: 'chat/chatUsers',
-            globalBgColor: 'ui/globalBgColor',
-            rightBarState: 'ui/rightBarState',
+            globalBgColor: 'setting_ui/globalBgColor',
+            rightBarState: 'setting_ui/rightBarState',
         }),
 
         currentRouteName() {
@@ -315,7 +315,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ toggleRightDrawer: 'ui/toggleRightDrawer' }),
+        ...mapMutations({ toggleRightDrawer: 'setting_ui/toggleRightDrawer' }),
 
         getUsers(ses_id = null) {
             // if ses_id => check for exist. if not then new user registered

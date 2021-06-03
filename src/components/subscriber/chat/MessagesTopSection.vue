@@ -133,7 +133,7 @@ export default defineComponent({
         ...mapGetters({
             profile: 'auth/profile',
             conversationInfo: 'chat/conversationInfo',
-            rightBarState: 'ui/rightBarState',
+            rightBarState: 'setting_ui/rightBarState',
         }),
 
         conversationStatusForMe(): any {
@@ -146,7 +146,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ updateRightDrawerState: 'ui/updateRightDrawerState' }),
+        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
 
         convStateHandle() {
             if (!this.modalForState) return;
