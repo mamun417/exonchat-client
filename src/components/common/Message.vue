@@ -359,8 +359,8 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalBgColor: 'ui/globalBgColor',
-            globalColor: 'ui/globalColor',
+            globalBgColor: 'setting_ui/globalBgColor',
+            globalColor: 'setting_ui/globalColor',
         }),
 
         chatPanelType(): any {
@@ -483,7 +483,7 @@ export default defineComponent({
         },
 
         msgSenderName(msg: any, index: any) {
-            const prevMsg = this.messages[index - 1];
+            // const prevMsg = this.messages[index - 1];
 
             // if (
             //     index === 0 ||

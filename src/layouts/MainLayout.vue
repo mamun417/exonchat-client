@@ -26,6 +26,10 @@
                     <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
                 </q-btn>
 
+                <q-btn v-if="profile.role.slug === 'admin'" icon="person_add" :to="{ name: 'users-invitations' }" flat>
+                    <q-tooltip :offset="[10, 10]">User Invitations</q-tooltip>
+                </q-btn>
+
                 <q-btn icon="settings" :to="{ name: 'settings_ui' }" flat>
                     <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
                 </q-btn>
@@ -273,8 +277,8 @@ export default defineComponent({
         ...mapGetters({
             profile: 'auth/profile',
             chatUsers: 'chat/chatUsers',
-            globalBgColor: 'ui/globalBgColor',
-            rightBarState: 'ui/rightBarState',
+            globalBgColor: 'setting_ui/globalBgColor',
+            rightBarState: 'setting_ui/rightBarState',
         }),
 
         currentRouteName() {
@@ -311,7 +315,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ toggleRightDrawer: 'ui/toggleRightDrawer' }),
+        ...mapMutations({ toggleRightDrawer: 'setting_ui/toggleRightDrawer' }),
 
         getUsers(ses_id = null) {
             // if ses_id => check for exist. if not then new user registered

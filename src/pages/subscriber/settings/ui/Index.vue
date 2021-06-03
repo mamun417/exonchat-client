@@ -96,11 +96,11 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapGetters({ globalColor: 'ui/globalColor' }),
+        ...mapGetters({ globalColor: 'setting_ui/globalColor' }),
     },
 
     methods: {
-        ...mapMutations({ updateGlobalColor: 'ui/updateGlobalColor' }),
+        ...mapMutations({ updateGlobalColor: 'setting_ui/updateGlobalColor' }),
     },
 
     watch: {},

@@ -142,7 +142,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            rightBarState: 'ui/rightBarState',
+            rightBarState: 'setting_ui/rightBarState',
             profile: 'auth/profile',
         }),
     },

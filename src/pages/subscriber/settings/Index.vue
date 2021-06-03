@@ -5,7 +5,7 @@
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4">
                     <div class="tw-flex">
                         <q-avatar size="96px" class="tw-mr-4 ec-settings-profile-img">
-                            <img :src="existingAvaterUrl || 'https://cdn.quasar.dev/img/avatar1.jpg'" alt="image" />
+                            <img :src="existingAvaterUrl || defaultAvater" alt="image" />
                             <q-btn
                                 @click="updateAvaterModalHandle"
                                 icon="edit"
@@ -20,7 +20,7 @@
                             <div class="tw-font-medium tw-text-lg" :class="[globalTextColor]">
                                 {{ $_.upperFirst(profile.user_meta?.full_name) }}
                             </div>
-                            <div class="text-caption">Technical Support</div>
+                            <div class="text-caption">{{ profile.chat_departments.length ? '' : 'All' }}</div>
                         </div>
                     </div>
                     <div class="text-right tw-self-center">
@@ -36,13 +36,25 @@
                             </div>
                             <q-icon name="facebook" />
                         </div>
+                        <div v-if="profile.user_meta?.twitter" class="tw-flex tw-justify-end tw-items-center">
+                            <div class="tw-mr-1">
+                                {{ profile.user_meta?.twitter }}
+                            </div>
+                            <q-icon name="fab fa-twitter" />
+                        </div>
+                        <div v-if="profile.user_meta?.linkedin" class="tw-flex tw-justify-end tw-items-center">
+                            <div class="tw-mr-1">
+                                {{ profile.user_meta?.linkedin }}
+                            </div>
+                            <q-icon name="fab fa-linkedin" />
+                        </div>
                     </div>
                 </div>
             </q-card-section>
             <q-separator />
             <q-tabs align="left" class="shadow-2 tw-font-medium" :indicator-color="globalColor" no-caps>
                 <q-icon name="settings" class="tw-px-6" size="20px" :color="globalColor" />
-                <q-route-tab>Profile</q-route-tab>
+                <q-route-tab to="/settings/profile" exact>Profile</q-route-tab>
                 <q-route-tab to="/settings/ui" exact>UI</q-route-tab>
                 <q-route-tab to="/settings/apps" exact>Apps</q-route-tab>
                 <q-route-tab to="/settings/testing" exact>Testing</q-route-tab>
@@ -57,10 +69,7 @@
             <q-card style="min-width: 350px">
                 <q-card-section class="text-center">
                     <q-avatar size="150px" class="tw-mr-4 ec-settings-profile-img">
-                        <img
-                            :src="previewAvater || existingAvaterUrl || 'https://cdn.quasar.dev/img/avatar1.jpg'"
-                            alt=""
-                        />
+                        <img :src="previewAvater || existingAvaterUrl || defaultAvater" alt="" />
                     </q-avatar>
                     <div>
                         <q-btn @click="clickUploadImage" color="green" label="Upload Image" outline class="tw-mt-3" />
@@ -99,6 +108,7 @@ export default defineComponent({
 
     data(): any {
         return {
+            defaultAvater: 'https://cdn.quasar.dev/img/avatar1.jpg',
             existingAvaterUrl: '',
             updateAvaterModal: false,
             previewAvater: '',
@@ -109,8 +119,8 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             profile: 'auth/profile',
-            globalTextColor: 'ui/globalTextColor',
-            globalColor: 'ui/globalColor',
+            globalTextColor: 'setting_ui/globalTextColor',
+            globalColor: 'setting_ui/globalColor',
         }),
     },
 
@@ -123,7 +133,7 @@ export default defineComponent({
     methods: {
         getExistingAvaterUrl() {
             this.$store
-                .dispatch('ui/getAvaterPath', {
+                .dispatch('setting_profile/getAvaterPath', {
                     id: this.profile.user_meta.attachment.id,
                 })
                 .then((res: any) => {
@@ -159,7 +169,7 @@ export default defineComponent({
             formData.append('avater', this.avater);
 
             try {
-                await this.$store.dispatch('ui/updateAvater', formData);
+                await this.$store.dispatch('setting_profile/updateAvater', formData);
                 await this.$store.dispatch('auth/updateAuthInfo');
                 this.getExistingAvaterUrl();
 

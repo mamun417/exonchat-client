@@ -79,7 +79,7 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             profile: 'auth/profile',
-            rightBarState: 'ui/rightBarState',
+            rightBarState: 'setting_ui/rightBarState',
         }),
     },
 
@@ -103,7 +103,7 @@ export default defineComponent({
     // },
 
     methods: {
-        ...mapMutations({ updateRightDrawerState: 'ui/updateRightDrawerState' }),
+        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
     },
 
     beforeUnmount() {

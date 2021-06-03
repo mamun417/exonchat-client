@@ -58,6 +58,7 @@
                         @click="updateAppSetting(true)"
                         no-caps
                         unelevated
+                        :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
                     />
                 </div>
 
@@ -87,7 +88,7 @@
                 </div>
             </q-card-section>
 
-            <q-card-actions class="tw-my-4">
+            <q-card-actions>
                 <q-btn
                     type="submit"
                     @click="updateAppSetting(false)"
@@ -104,7 +105,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapMutations, mapGetters } from 'vuex';
 
 export default defineComponent({
     name: '',
@@ -129,20 +129,14 @@ export default defineComponent({
         };
     },
 
-    computed: {
-        ...mapGetters({}),
-    },
-
     mounted() {
         this.getAppSetting();
     },
 
     methods: {
-        ...mapMutations({}),
-
         getAppSetting() {
             this.$store
-                .dispatch('ui/getAppSetting')
+                .dispatch('setting_app/getAppSetting')
                 .then((res: any) => {
                     res.data.forEach((appSetting: any) => {
                         this.formInputs[appSetting.slug] = this.getSingleInputValue(appSetting);
@@ -169,7 +163,7 @@ export default defineComponent({
             });
 
             this.$store
-                .dispatch('ui/updateAppSetting', {
+                .dispatch('setting_app/updateAppSetting', {
                     inputs: {
                         app_settings: data,
                     },

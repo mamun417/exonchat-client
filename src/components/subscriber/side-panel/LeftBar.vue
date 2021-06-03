@@ -330,8 +330,8 @@ export default defineComponent({
 
             chatRequests: 'chat/chatRequests',
             chatUsers: 'chat/chatUsers',
-            globalBgColor: 'ui/globalBgColor',
-            globalColor: 'ui/globalColor',
+            globalBgColor: 'setting_ui/globalBgColor',
+            globalColor: 'setting_ui/globalColor',
         }),
     },
 
