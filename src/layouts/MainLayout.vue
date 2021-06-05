@@ -477,6 +477,15 @@ export default defineComponent({
                 }, 3000);
             });
 
+            this.socket.on('ec_from_api_events', (res: any) => {
+                // res = {action: [logout, others_are_comming], msg: res.msg || null, reason: res.reason || null}
+                // reason = why this type sended
+                // msg = if you want to show notification or taster
+                // type = what type of action need
+
+                console.log('from ec_from_api_events1', res);
+            });
+
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
                 // check if has if not then new event

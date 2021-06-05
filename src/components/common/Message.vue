@@ -25,7 +25,7 @@
         <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg || (message.attachments && message.attachments.length)"
-                :name="msgSenderName(message, index)"
+                :name="msgSenderInfo(message, index).name"
                 avatar="https://cdn.quasar.dev/img/avatar3.jpg"
                 :sent="checkOwnMessage(message)"
                 :text-color="checkOwnMessage(message) ? 'black' : 'white'"
@@ -41,7 +41,7 @@
                 <template v-slot:avatar>
                     <q-avatar size="lg" class="tw-mr-2">
                         <img src="https://cdn.quasar.dev/img/avatar1.jpg" alt="image" />
-                        <q-tooltip class=""> email </q-tooltip>
+                        <q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>
                     </q-avatar>
                 </template>
 
@@ -482,21 +482,31 @@ export default defineComponent({
             return false;
         },
 
-        msgSenderName(msg: any, index: any) {
-            // const prevMsg = this.messages[index - 1];
+        msgSenderInfo(msg: any, index: any) {
+            const prevMsg = this.messages[index - 1];
 
-            // if (
-            //     index === 0 ||
-            //     (prevMsg.hasOwnProperty('msg') && msg?.socket_session_id !== prevMsg.socket_session_id)
-            // ) {
-            //     if (msg.socket_session.user) {
-            //         return msg.socket_session.user.user_meta.display_name;
-            //     }
+            if (
+                index === 0 ||
+                !prevMsg.hasOwnProperty('msg') ||
+                (prevMsg.hasOwnProperty('msg') && msg.socket_session_id !== prevMsg.socket_session_id)
+            ) {
+                const findSes = _l.find(this.conversationInfo.sessions, ['socket_session_id', msg.socket_session_id]);
 
-            //     return msg.socket_session.init_name;
-            // }
+                // if img then attach src here
+                if (findSes.socket_session.user) {
+                    return {
+                        name: findSes.socket_session.user.user_meta.display_name,
+                        email: findSes.socket_session.user.email,
+                    };
+                }
 
-            return '';
+                return {
+                    name: findSes.socket_session.init_name,
+                    email: findSes.socket_session.init_email,
+                };
+            }
+
+            return {};
         },
 
         getConvStateStatusMessage(message: any) {
