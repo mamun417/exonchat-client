@@ -13,8 +13,8 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/Chat.vue'),
             },
             {
-                path: 'agents',
-                name: 'agents',
+                path: 'users',
+                name: 'users',
                 component: () => import('pages/subscriber/agent/Index.vue'),
             },
             {
