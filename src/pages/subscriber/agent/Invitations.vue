@@ -7,115 +7,74 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <q-table
+                <ec-table
                     :rows="mappedInvitations"
                     :columns="columns"
-                    row-key="name"
-                    :pagination="{ rowsPerPage: 0 }"
-                    hide-pagination
-                    flat
+                    @handleDelete="showConfirmDeleteModal($event)"
+                    :status-success-values="statusSuccessValues"
+                    :bodyCelTemplate="bodyCelTemplate"
                 >
-                    <template v-slot:header="props">
-                        <q-tr :props="props">
-                            <q-th
-                                v-for="col in props.cols"
-                                :key="col.name"
-                                :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
-                            >
-                                {{ col.label }}
-                            </q-th>
-                        </q-tr>
+                    <template v-slot:cell-sent_at="slotProps">
+                        {{ $helpers.myDate(slotProps.row.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
                     </template>
 
-                    <template v-slot:body-cell-sent_at="props">
-                        <q-td :props="props">
-                            {{ $helpers.myDate(props.row.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
-                        </q-td>
+                    <template v-slot:cell-is_agent="slotProps">
+                        <q-badge :color="slotProps.row.is_agent ? 'green' : 'orange'">
+                            {{ slotProps.row.is_agent }}
+                        </q-badge>
                     </template>
 
-                    <template v-slot:body-cell-status="props">
-                        <q-td :props="props">
-                            <q-badge :color="props.row.status === 'success' ? 'green' : 'orange'">
-                                {{ props.row.status }}
-                            </q-badge>
-                        </q-td>
+                    <template v-slot:cell-active="slotProps">
+                        <q-badge :color="slotProps.row.active ? 'green' : 'orange'">{{ slotProps.row.active }}</q-badge>
                     </template>
 
-                    <template v-slot:body-cell-is_agent="props">
-                        <q-td :props="props">
-                            <q-badge :color="props.row.is_agent ? 'green' : 'orange'">{{ props.row.is_agent }}</q-badge>
-                        </q-td>
-                    </template>
+                    <template v-slot:cell-action="slotProps">
+                        <q-btn icon="settings" text-color="green" size="sm" dense flat>
+                            <q-menu anchor="bottom right" self="top end">
+                                <!--<q-item class="text-green" clickable dense>
+                                    <q-item-section>Resend Code</q-item-section>
+                                </q-item>
+                                <q-separator />-->
+                                <!-- bottom two will show until user registers. & will be handled by one api -->
+                                <q-item
+                                    :disable="slotProps.row.status !== 'pending'"
+                                    class="text-green"
+                                    clickable
+                                    dense
+                                >
+                                    <q-item-section @click="handleConvertType(slotProps.row)"
+                                        >Convert To
+                                        {{ slotProps.row.type === 'agent' ? 'User' : 'Agent' }}
+                                    </q-item-section>
+                                </q-item>
+                                <q-item class="text-green" clickable dense>
+                                    <q-item-section>
+                                        <q-checkbox
+                                            size="sm"
+                                            color="green"
+                                            label="Activate"
+                                            class="ec-list-setting-left-label-checkbox"
+                                            v-model="slotProps.row.active"
+                                            @update:model-value="handleActivateDeactivate(slotProps.row)"
+                                            left-label
+                                            :disable="slotProps.row.status !== 'pending'"
+                                            dense
+                                        />
+                                    </q-item-section>
+                                </q-item>
+                            </q-menu>
+                        </q-btn>
 
-                    <template v-slot:body-cell-active="props">
-                        <q-td :props="props">
-                            <q-badge :color="props.row.active ? 'green' : 'orange'">{{ props.row.active }}</q-badge>
-                        </q-td>
+                        <q-btn
+                            @click="showConfirmDeleteModal(slotProps.row)"
+                            icon="delete"
+                            text-color="red"
+                            size="sm"
+                            dense
+                            flat
+                        ></q-btn>
                     </template>
-
-                    <template v-slot:body-cell-action="props">
-                        <q-td :props="props">
-                            <q-btn
-                                icon="settings"
-                                class="ec-list-settings-menu"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            >
-                                <q-menu anchor="bottom right" self="top end">
-                                    <!--<q-item class="text-green" clickable dense>
-                                        <q-item-section>Resend Code</q-item-section>
-                                    </q-item>
-                                    <q-separator />-->
-                                    <!-- bottom two will show until user registers. & will be handled by one api -->
-                                    <q-item
-                                        :disable="props.row.active !== 'pending'"
-                                        class="text-green"
-                                        clickable
-                                        dense
-                                    >
-                                        <q-item-section @click="handleConvertType(props.row)"
-                                            >Convert To
-                                            {{ props.row.type === 'agent' ? 'User' : 'Agent' }}
-                                        </q-item-section>
-                                    </q-item>
-                                    <q-item class="text-green" clickable dense>
-                                        <q-item-section>
-                                            <q-checkbox
-                                                size="sm"
-                                                color="green"
-                                                label="Activate"
-                                                class="ec-list-setting-left-label-checkbox"
-                                                v-model="props.row.active"
-                                                @update:model-value="handleActivateDeactivate(props.row)"
-                                                left-label
-                                                :disable="props.row.active !== 'pending'"
-                                                dense
-                                            />
-                                        </q-item-section>
-                                    </q-item>
-                                </q-menu>
-                            </q-btn>
-                            <q-btn
-                                @click="showConfirmDeleteModal(props.row)"
-                                icon="delete"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                        </q-td>
-                    </template>
-
-                    <template v-slot:no-data="{ message }">
-                        <div class="full-width row flex-center text-red q-gutter-sm">
-                            <q-icon size="2em" name="sentiment_dissatisfied" />
-                            <span> Well this is sad... {{ message }} </span>
-                        </div>
-                    </template>
-                </q-table>
+                </ec-table>
             </div>
         </div>
 
@@ -185,6 +144,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
+import EcTable from 'components/common/table/EcTable.vue';
 
 const columns = [
     {
@@ -226,7 +186,7 @@ const columns = [
 ];
 
 export default defineComponent({
-    components: { ConfirmModal },
+    components: { EcTable, ConfirmModal },
     data(): any {
         return {
             assignAgentModal: false,
@@ -239,6 +199,8 @@ export default defineComponent({
             sendInvitationFormDataErrors: {},
             deleteInvitationId: '',
             showDeleteModal: false,
+            bodyCelTemplate: {},
+            statusSuccessValues: ['success'],
         };
     },
 
@@ -251,6 +213,7 @@ export default defineComponent({
     computed: {
         mappedInvitations(): any {
             return this.invitations.map((inv: any) => {
+                inv.status = inv.status === 'success' ? 'success' : 'pending';
                 inv.is_agent = inv.type === 'agent';
                 inv.sent_at = inv.created_at;
 

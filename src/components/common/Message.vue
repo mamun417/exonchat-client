@@ -239,6 +239,7 @@
                 </q-avatar>
             </div>
         </div>
+        481:1
         <div class="tw-flex tw-flex-col tw-justify-end">
             <q-btn
                 icon="send"
@@ -463,6 +464,7 @@ export default defineComponent({
         },
 
         msgSenderName(msg: any, index: any) {
+            console.log(msg, index);
             // const prevMsg = this.messages[index - 1];
 
             // if (

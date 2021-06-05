@@ -16,10 +16,23 @@ const actions: ActionTree<UserStateInterface, StateInterface> = {
         });
     },
 
-    convertType(context, payload) {
+    updateStatus(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
                 .post(`users/${payload.inputs.id}/active-status`, payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    convertType(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post(`users/${payload.inputs.id}/convert-type`, payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
