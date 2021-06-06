@@ -475,7 +475,12 @@ export default defineComponent({
                 return true;
             } else {
                 if (this.$route.name === 'client-web-chat') {
-                    return !!message.socket_session.user_id;
+                    const findSes = _l.find(this.conversationInfo.sessions, [
+                        'socket_session_id',
+                        message.socket_session_id,
+                    ]);
+
+                    return !findSes.socket_session.user;
                 }
             }
 

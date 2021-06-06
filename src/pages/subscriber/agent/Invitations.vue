@@ -132,7 +132,13 @@
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-6 tw-mb-4">
-                    <q-btn color="green" label="submit" class="full-width" @click="sendInvitation" />
+                    <q-btn
+                        color="green"
+                        :loading="sendingInvitation"
+                        label="submit"
+                        class="full-width"
+                        @click="sendInvitation"
+                    />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -189,6 +195,7 @@ export default defineComponent({
     components: { EcTable, ConfirmModal },
     data(): any {
         return {
+            sendingInvitation: false,
             assignAgentModal: false,
             invitations: [],
             sendInvitationFormData: {
@@ -239,6 +246,8 @@ export default defineComponent({
         },
 
         sendInvitation() {
+            this.sendingInvitation = true;
+
             this.$store
                 .dispatch('user_invitation/sendInvitation', {
                     inputs: this.sendInvitationFormData,
@@ -248,7 +257,10 @@ export default defineComponent({
                     this.assignAgentModal = false;
                     this.getInvitations();
                 })
-                .catch((err: any) => this.sendInvitationErrorHandle(err));
+                .catch((err: any) => this.sendInvitationErrorHandle(err))
+                .then(() => {
+                    this.sendingInvitation = false;
+                });
         },
 
         sendInvitationErrorHandle(err: any) {

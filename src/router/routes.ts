@@ -13,11 +13,13 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/Chat.vue'),
             },
             {
+                meta: { requiresRoleAdmin: true },
                 path: 'users',
                 name: 'users',
                 component: () => import('pages/subscriber/agent/Index.vue'),
             },
             {
+                meta: { requiresRoleAdmin: true },
                 path: 'users/invitations',
                 name: 'users-invitations',
                 component: () => import('pages/subscriber/agent/Invitations.vue'),
@@ -79,6 +81,11 @@ const routes: RouteRecordRaw[] = [
                         component: () => import('pages/subscriber/settings/testing/Index.vue'),
                     },
                 ],
+            },
+            {
+                path: '/access-denied',
+                name: 'access-denied',
+                component: () => import('pages/Error403.vue'),
             },
         ],
     },

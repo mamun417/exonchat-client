@@ -26,11 +26,16 @@
                     <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="profile.role.slug === 'admin'" icon="people" :to="{ name: 'users' }" flat>
+                <q-btn v-if="profile?.role?.slug === 'admin'" icon="people" :to="{ name: 'users' }" flat>
                     <q-tooltip :offset="[10, 10]">Users</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="profile.role.slug === 'admin'" icon="person_add" :to="{ name: 'users-invitations' }" flat>
+                <q-btn
+                    v-if="profile?.role?.slug === 'admin'"
+                    icon="person_add"
+                    :to="{ name: 'users-invitations' }"
+                    flat
+                >
                     <q-tooltip :offset="[10, 10]">User Invitations</q-tooltip>
                 </q-btn>
 

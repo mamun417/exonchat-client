@@ -30,7 +30,7 @@
         </template>
 
         <template v-slot:body="props">
-            <q-tr :props="props" :class="props.row.id === selectedRowId ? 'tw-bg-amber-100' : ''">
+            <q-tr :props="props" :class="props.row.id === rightBarState.conv_id ? 'tw-bg-amber-100' : ''">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!--                    <div class="text-red-14">-->
                     <!--                        <pre>{{ col.name }}</pre>-->
@@ -97,6 +97,7 @@ import { defineComponent } from 'vue';
 import ItalicBold from 'components/common/table/utilities/ItalicBold.vue';
 import EditBtn from 'components/common/table/utilities/EditBtn.vue';
 import DeleteBtn from 'components/common/table/utilities/DeleteBtn.vue';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: 'EcTable',
@@ -113,13 +114,15 @@ export default defineComponent({
             type: Object,
             default: () => ({}),
         },
-        selectedRowId: {
-            type: String,
-            default: '',
-        },
     },
     data(): any {
         return {};
+    },
+
+    computed: {
+        ...mapGetters({
+            rightBarState: 'setting_ui/rightBarState',
+        }),
     },
 
     setup() {
@@ -129,8 +132,6 @@ export default defineComponent({
     mounted() {
         console.log('ec table mounted');
     },
-
-    computed: {},
 
     methods: {},
 });

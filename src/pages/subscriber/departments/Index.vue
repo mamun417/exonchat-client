@@ -15,17 +15,20 @@
                     @handleDelete="showConfirmDeleteModal($event)"
                 >
                     <template v-slot:cell-assigned_agents="slotProps">
-                        <q-avatar
-                            v-for="(agent, key) in slotProps.row.assigned_agents"
-                            :key="agent.email"
-                            size="35px"
-                            :style="key !== 0 ? { marginLeft: '-8px' } : ''"
-                        >
-                            <img :src="agent.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg'" alt="" />
-                            <q-tooltip class="">
-                                {{ agent.email }}
-                            </q-tooltip>
-                        </q-avatar>
+                        <div v-if="slotProps.row.assigned_agents.length">
+                            <q-avatar
+                                v-for="(agent, key) in slotProps.row.assigned_agents"
+                                :key="agent.email"
+                                size="35px"
+                                :style="key !== 0 ? { marginLeft: '-8px' } : ''"
+                            >
+                                <img :src="agent.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg'" alt="" />
+                                <q-tooltip class="">
+                                    {{ agent.email }}
+                                </q-tooltip>
+                            </q-avatar>
+                        </div>
+                        <div v-else></div>
                     </template>
 
                     <template v-slot:action-at-middle="slotProps">
