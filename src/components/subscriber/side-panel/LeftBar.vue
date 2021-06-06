@@ -245,9 +245,11 @@
                                     clickable
                                 >
                                     <q-item-section avatar>
-                                        <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" alt="" />
-                                        </q-avatar>
+                                        <ec-avatar
+                                            :image_src="user?.user_meta?.attachment?.src"
+                                            :name="user?.user_meta?.display_name"
+                                            size="md"
+                                        ></ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
@@ -295,13 +297,14 @@
 </template>
 
 <script lang="ts">
+import EcAvatar from 'src/components/common/EcAvatar.vue';
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: 'LeftBar',
 
-    components: {},
+    components: { EcAvatar },
 
     setup() {
         return {};

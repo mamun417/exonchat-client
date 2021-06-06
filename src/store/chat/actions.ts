@@ -227,7 +227,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             const getMyConvWithUsers = window.socketSessionApi.get('conversations/user-to-user/me');
             const getUsers = window.api.get('users/active');
 
-            Promise.all([getMyConvWithUsers, getUsers]).then(([myConvWithUsers, users]) => {
+            Promise.all([getMyConvWithUsers, getUsers]).then(async ([myConvWithUsers, users]) => {
                 // collect convSessions array
                 const convSessions = myConvWithUsers.data
                     .map((conv: any) => {
@@ -247,6 +247,20 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
                     return user;
                 });
+
+                for (const chatUser of chatUsers) {
+                    if (chatUser?.user_meta?.attachment?.id) {
+                        try {
+                            const imgRes = await window.api.get(`attachments/${chatUser.user_meta.attachment.id}`, {
+                                responseType: 'arraybuffer',
+                            });
+
+                            chatUser.user_meta.attachment.src = URL.createObjectURL(
+                                new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                            );
+                        } catch (e) {}
+                    }
+                }
 
                 context.commit('storeUsers', chatUsers);
 

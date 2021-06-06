@@ -33,6 +33,15 @@ const mutation: MutationTree<AuthStateInterface> = {
         localStorage.setItem('token', token);
         state.token = token;
     },
+
+    updateUser(state, user) {
+        localStorage.setItem('user', JSON.stringify(user));
+        state.user = user;
+    },
+
+    updateUserProfileAvatar(state, imgSrc) {
+        state.user.user_meta.attachment.src = imgSrc;
+    },
 };
 
 export default mutation;

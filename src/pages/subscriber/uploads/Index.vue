@@ -104,7 +104,7 @@ export default defineComponent({
     methods: {
         getUploadedFiles() {
             window.api
-                .get('messages/attachments')
+                .get('attachments')
                 .then(async (res: any) => {
                     console.log(res.data);
                     this.uploadedFiles = res.data;
@@ -113,7 +113,7 @@ export default defineComponent({
                         if (!file.src) {
                             try {
                                 file.loading = false;
-                                const imgRes = await this.$socketSessionApi.get(`messages/attachments/${file.id}`, {
+                                const imgRes = await this.$socketSessionApi.get(`attachments/${file.id}`, {
                                     responseType: 'arraybuffer',
                                 });
 
@@ -133,7 +133,7 @@ export default defineComponent({
 
         deleteFile(file: any) {
             this.$socketSessionApi
-                .get(`messages/attachments/${file.id}/user-control`)
+                .get(`attachments/${file.id}/user-control`)
                 .then((res: any) => {
                     console.log(res);
 

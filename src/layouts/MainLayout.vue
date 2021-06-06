@@ -61,9 +61,11 @@
 
                 <q-btn class="tw-mr-2" :icon="rightDrawer ? 'menu_open' : 'menu'" @click="toggleRightDrawer" flat />
 
-                <q-avatar size="lg" class="cursor-pointer">
-                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
-
+                <ec-avatar
+                    :image_src="profile?.user_meta?.attachment?.src"
+                    :name="profile.user_meta.display_name"
+                    class="cursor-pointer"
+                >
                     <q-badge color="primary" floating rounded>2</q-badge>
 
                     <q-menu>
@@ -77,9 +79,11 @@
                             <q-separator vertical inset class="q-mx-lg" />
 
                             <div class="column items-center">
-                                <q-avatar size="72px">
-                                    <img src="https://cdn.quasar.dev/img/avatar4.jpg" alt="" />
-                                </q-avatar>
+                                <ec-avatar
+                                    size="72px"
+                                    :image_src="profile?.user_meta?.attachment?.src"
+                                    :name="profile.user_meta.display_name"
+                                />
 
                                 <div class="tw-text-xs tw-mt-2 tw-mb-1">
                                     {{ $_.upperFirst(profile.user_meta?.full_name) }}
@@ -90,7 +94,7 @@
                             </div>
                         </div>
                     </q-menu>
-                </q-avatar>
+                </ec-avatar>
             </q-toolbar>
         </q-header>
 
@@ -239,6 +243,9 @@ import { mapGetters, mapMutations } from 'vuex';
 import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
 import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
 
+import * as _l from 'lodash';
+import EcAvatar from 'src/components/common/EcAvatar.vue';
+
 declare global {
     interface Window {
         exonChat: any;
@@ -247,7 +254,7 @@ declare global {
 
 export default defineComponent({
     name: 'MainLayout',
-    components: { LeftBar, RightBar },
+    components: { LeftBar, RightBar, EcAvatar },
     data(): any {
         return {
             domReady: false,
@@ -365,6 +372,7 @@ export default defineComponent({
 
             this.getUsers();
             this.fireSocketListeners();
+            this.reloadForProfileImageLoad();
             this.$socket.emit('ec_get_logged_users', {});
         },
         fireSocketListeners() {
@@ -514,6 +522,11 @@ export default defineComponent({
                     fjs.parentNode.insertBefore(js, fjs);
                 })(document, 'script', 'exhonchat-chat-frame');
             }
+        },
+
+        reloadForProfileImageLoad() {
+            // clonedeep needed cz we are updating profiles image
+            this.$store.dispatch('setting_profile/reloadProfileImage', _l.cloneDeep(this.profile));
         },
 
         logout() {

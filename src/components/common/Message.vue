@@ -283,7 +283,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters } from 'vuex';
 
 import * as _l from 'lodash';
 import moment from 'moment';
@@ -700,7 +700,7 @@ export default defineComponent({
                     formData.append('attachments', img, img.name);
 
                     this.$socketSessionApi
-                        .post('messages/attachments', formData)
+                        .post('attachments', formData)
                         .then((res: any) => {
                             console.log(res.data);
                             const attachment = res.data.data[0];
@@ -752,7 +752,7 @@ export default defineComponent({
             );
 
             if (localCopy.id) {
-                this.$socketSessionApi.delete(`messages/attachments/${localCopy.id}`);
+                this.$socketSessionApi.delete(`attachments/${localCopy.id}`);
             }
         },
         handleAttachmentReject(entries: any) {
@@ -778,7 +778,7 @@ export default defineComponent({
                     for (const attch of msg.attachments) {
                         if (!attch.loaded && !attch.src) {
                             try {
-                                const imgRes = await this.$socketSessionApi.get(`messages/attachments/${attch.id}`, {
+                                const imgRes = await this.$socketSessionApi.get(`attachments/${attch.id}`, {
                                     responseType: 'arraybuffer',
                                 });
 

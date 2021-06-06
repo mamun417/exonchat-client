@@ -4,10 +4,14 @@
             <q-card-section>
                 <div class="tw-grid tw-grid-cols-2 tw-gap-4">
                     <div class="tw-flex">
-                        <q-avatar size="96px" class="tw-mr-4 ec-settings-profile-img">
-                            <img :src="existingAvaterUrl || defaultAvater" alt="image" />
+                        <div class="tw-mr-4 ec-settings-profile-img tw-relative">
+                            <ec-avatar
+                                :image_src="profile.user_meta.attachment.src"
+                                :name="profile.user_meta.display_name"
+                                size="96px"
+                            />
                             <q-btn
-                                @click="updateAvaterModalHandle"
+                                @click="updateAvatarModalHandle"
                                 icon="edit"
                                 :color="globalColor"
                                 class="ec-edit-profile-img tw-absolute tw-top-0 tw-right-0 tw-hidden"
@@ -15,14 +19,22 @@
                                 round
                                 unelevated
                                 dense
-                        /></q-avatar>
+                            />
+                        </div>
+
                         <div class="tw-self-center">
                             <div class="tw-font-medium tw-text-lg" :class="[globalTextColor]">
                                 {{ $_.upperFirst(profile.user_meta?.full_name) }}
                             </div>
-                            <div class="text-caption">{{ profile.chat_departments.length ? '' : 'All' }}</div>
+                            <div class="tw-text-xxs">
+                                Chat Department:
+                                <span :class="[globalTextColor]">{{
+                                    profile.chat_departments.length ? '' : 'All'
+                                }}</span>
+                            </div>
                         </div>
                     </div>
+
                     <div class="text-right tw-self-center">
                         <div class="tw-flex tw-justify-end tw-items-center">
                             <div class="tw-mr-1">
@@ -65,23 +77,35 @@
             <router-view></router-view>
         </div>
 
-        <q-dialog :model-value="updateAvaterModal" @hide="updateAvaterModal = false" persistent>
+        <q-dialog :model-value="updateAvatarModal" @hide="updateAvatarModal = false">
             <q-card style="min-width: 350px">
-                <q-card-section class="text-center">
-                    <q-avatar size="150px" class="tw-mr-4 ec-settings-profile-img">
-                        <img :src="previewAvater || existingAvaterUrl || defaultAvater" alt="" />
-                    </q-avatar>
+                <q-card-section class="text-center tw-pb-1">
+                    <ec-avatar
+                        :image_src="profile.user_meta.attachment.src"
+                        :name="profile.user_meta.display_name"
+                        :local_preview_src="previewAvatar"
+                        size="150px"
+                    />
+
                     <div>
-                        <q-btn @click="clickUploadImage" color="green" label="Upload Image" outline class="tw-mt-3" />
+                        <q-btn
+                            v-if="!previewAvatar"
+                            @click="clickUploadImage"
+                            color="green"
+                            label="Upload Image"
+                            outline
+                            class="tw-mt-3"
+                        />
+                        <q-btn v-else @click="updateAvatar" label="Save Change" color="green" class="tw-mt-3" outline />
                     </div>
                     <div class="tw-mt-3">
                         <q-file
-                            @update:model-value="loadAvater"
+                            @update:model-value="loadAvatar"
                             ref="submitBtn"
                             clearable
                             filled
                             color="purple-12"
-                            v-model="avater"
+                            v-model="avatar"
                             label="Label"
                             accept="image/*"
                             class="hidden"
@@ -89,30 +113,32 @@
                     </div>
                 </q-card-section>
 
-                <q-card-actions align="right">
-                    <q-btn flat label="Cancel" color="primary" v-close-popup />
-                    <q-btn @click="updateAvatar" label="Save Change" color="primary" flat />
-                </q-card-actions>
+                <!-- <q-card-actions align="right">
+                    <q-btn flat label="Cancel" color="orange" v-close-popup />
+                    <q-btn @click="updateAvatar" label="Save Change" color="green" flat />
+                </q-card-actions> -->
             </q-card>
         </q-dialog>
     </div>
 </template>
 
 <script lang="ts">
+import EcAvatar from 'src/components/common/EcAvatar.vue';
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
+import * as _l from 'lodash';
 
 export default defineComponent({
+    components: { EcAvatar },
     name: '',
     props: {},
 
     data(): any {
         return {
-            defaultAvater: 'https://cdn.quasar.dev/img/avatar1.jpg',
-            existingAvaterUrl: '',
-            updateAvaterModal: false,
-            previewAvater: '',
-            avater: '',
+            existingAvatarUrl: '',
+            updateAvatarModal: false,
+            previewAvatar: '',
+            avatar: '',
         };
     },
 
@@ -126,57 +152,57 @@ export default defineComponent({
 
     mounted() {
         if (this.profile && this.profile.user_meta.attachment) {
-            this.getExistingAvaterUrl();
+            this.getExistingAvatarUrl();
         }
     },
 
     methods: {
-        getExistingAvaterUrl() {
+        getExistingAvatarUrl() {
             this.$store
-                .dispatch('setting_profile/getAvaterPath', {
+                .dispatch('setting_profile/getAvatarPath', {
                     id: this.profile.user_meta.attachment.id,
                 })
                 .then((res: any) => {
-                    this.existingAvaterUrl = URL.createObjectURL(
+                    this.existingAvatarUrl = URL.createObjectURL(
                         new Blob([res.data], { type: res.headers['content-type'] })
                     );
                 });
         },
 
-        updateAvaterModalHandle() {
-            this.updateAvaterModal = !this.updateAvaterModal;
-            this.previewAvater = '';
-            this.avater = '';
+        updateAvatarModalHandle() {
+            this.updateAvatarModal = !this.updateAvatarModal;
+            this.previewAvatar = '';
+            this.avatar = '';
         },
 
         clickUploadImage() {
             this.$refs.submitBtn.pickFiles();
         },
 
-        loadAvater(file: any) {
-            if (!file) return (this.previewAvater = '');
+        loadAvatar(file: any) {
+            if (!file) return (this.previewAvatar = '');
 
             let reader = new FileReader();
             reader.readAsDataURL(file);
 
             reader.onload = (event: any) => {
-                this.previewAvater = event.target.result;
+                this.previewAvatar = event.target.result;
             };
         },
 
         async updateAvatar() {
             let formData = new FormData();
-            formData.append('avater', this.avater);
+            formData.append('attachments', this.avatar, this.avatar.name);
 
             try {
-                await this.$store.dispatch('setting_profile/updateAvater', formData);
-                await this.$store.dispatch('auth/updateAuthInfo');
-                this.getExistingAvaterUrl();
+                await this.$store.dispatch('setting_profile/updateAvatar', formData);
 
-                this.updateAvaterModal = false;
-                this.$helpers.showSuccessNotification(this, 'Avater update successful');
+                this.$store.dispatch('setting_profile/reloadProfileImage', _l.cloneDeep(this.profile));
+
+                this.updateAvatarModal = false;
+                this.$helpers.showSuccessNotification(this, 'Avatar update successful');
             } catch (err) {
-                this.$helpers.showErrorNotification(this, err.response.data.message);
+                this.$helpers.showErrorNotification(this, 'Avatar update failed');
             }
         },
     },
