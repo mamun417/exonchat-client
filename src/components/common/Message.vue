@@ -283,7 +283,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters } from 'vuex';
 
 import * as _l from 'lodash';
 import moment from 'moment';

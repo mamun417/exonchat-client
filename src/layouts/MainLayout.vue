@@ -487,6 +487,20 @@ export default defineComponent({
                 // msg = if you want to show notification or taster
                 // type = what type of action need
 
+                if (res.action === 'logout') {
+                    this.$q.notify({
+                        position: 'top',
+                        progress: true,
+                        message: res.msg,
+                        color: 'orange',
+                        timeout: 5000,
+                    });
+
+                    setTimeout(() => {
+                        this.logout();
+                    }, 6000);
+                }
+
                 console.log('from ec_from_api_events1', res);
             });
 
