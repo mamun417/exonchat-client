@@ -7,12 +7,7 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <!-- <pre>{{ clientConversations }}</pre> -->
-                <ec-table
-                    :rows="clientConversations"
-                    :columns="columns"
-                    :bodyCelTemplate="{}"
-                    :selected-row-id="selectedRowId"
-                >
+                <ec-table :rows="clientConversations" :columns="columns" :bodyCelTemplate="{}">
                     <template v-slot:cell-client_name="slotProps">
                         <div class="text-italic">
                             <!-- <pre>{{ slotProps.row }}</pre> -->
@@ -167,7 +162,6 @@ export default defineComponent({
     data(): any {
         return {
             conversationId: '',
-            selectedRowId: '',
             confirm: false,
         };
     },
@@ -185,8 +179,6 @@ export default defineComponent({
 
         clientConversations(): any {
             const clientConversations = this.$_.cloneDeep(this.$store.getters['chat/clientsConversation']);
-
-            console.log('client conversations', clientConversations);
 
             const mySocketSessionId = this.$helpers.getMySocketSessionId();
 
@@ -214,12 +206,14 @@ export default defineComponent({
                 if (messagesObj && Object.keys(messagesObj).length) {
                     const messages = _l.cloneDeep(Object.values(messagesObj));
 
-                    const tempMsgObj: any = _l.sortBy(
-                        Object.values(messages).filter(
-                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
-                        ),
-                        [(msg: any) => moment(msg.created_at).format('x')]
-                    )[0];
+                    const tempMsgObj: any = _l
+                        .sortBy(
+                            Object.values(messages).filter(
+                                (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                            ),
+                            [(msg: any) => moment(msg.created_at).format('x')]
+                        )
+                        .reverse()[0];
 
                     if (!tempMsgObj.msg) {
                         tempMsgObj.msg = 'Uploaded Attachments';

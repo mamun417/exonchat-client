@@ -18,15 +18,24 @@
                     <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>
                 </q-btn>
 
-                <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="lg">
-                    <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
-                </q-btn>
-
                 <q-btn icon="account_tree" :to="{ name: 'departments' }" flat>
                     <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="profile.role.slug === 'admin'" icon="person_add" :to="{ name: 'users-invitations' }" flat>
+                <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="lg">
+                    <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
+                </q-btn>
+
+                <q-btn v-if="profile?.role?.slug === 'admin'" icon="people" :to="{ name: 'users' }" flat>
+                    <q-tooltip :offset="[10, 10]">Users</q-tooltip>
+                </q-btn>
+
+                <q-btn
+                    v-if="profile?.role?.slug === 'admin'"
+                    icon="person_add"
+                    :to="{ name: 'users-invitations' }"
+                    flat
+                >
                     <q-tooltip :offset="[10, 10]">User Invitations</q-tooltip>
                 </q-btn>
 
@@ -490,6 +499,20 @@ export default defineComponent({
                 // reason = why this type sended
                 // msg = if you want to show notification or taster
                 // type = what type of action need
+
+                if (res.action === 'logout') {
+                    this.$q.notify({
+                        position: 'top',
+                        progress: true,
+                        message: res.msg,
+                        color: 'orange',
+                        timeout: 5000,
+                    });
+
+                    setTimeout(() => {
+                        this.logout();
+                    }, 6000);
+                }
 
                 console.log('from ec_from_api_events1', res);
             });

@@ -38,6 +38,14 @@ export default route<StateInterface>(function ({ store }) {
 
         if (to.path === '/web-chat') {
             return next();
+        } else if (to.matched.some((record) => record.meta.requiresRoleAdmin)) {
+            const profile = store.getters['auth/profile'];
+
+            if (profile.role.slug === 'admin') {
+                return next();
+            }
+
+            return next({ name: 'access-denied' });
         } else if (to.matched.some((record) => record.meta.requiresAuth)) {
             if (login) {
                 return next();

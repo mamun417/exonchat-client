@@ -153,12 +153,14 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(
-                    Object.values(conv.messages).filter(
-                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
-                    ),
-                    [(msg: any) => moment(msg.created_at).format('x')]
-                )[0];
+                return _l
+                    .sortBy(
+                        Object.values(conv.messages).filter(
+                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                        ),
+                        [(msg: any) => moment(msg.created_at).format('x')]
+                    )
+                    .reverse()[0];
             });
     },
     incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
@@ -174,12 +176,14 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(
-                    Object.values(conv.messages).filter(
-                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
-                    ),
-                    [(msg: any) => moment(msg.created_at).format('x')]
-                )[0];
+                return _l
+                    .sortBy(
+                        Object.values(conv.messages).filter(
+                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                        ),
+                        [(msg: any) => moment(msg.created_at).format('x')]
+                    )
+                    .reverse()[0];
             });
     },
 
@@ -188,7 +192,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             .filter((conv: any) => {
                 const sesInfo = _l.find(conv.sessions, [
                     'socket_session_id',
-                    rootGetters['auth/profile'].socket_session.id,
+                    rootGetters['auth/profile']?.socket_session?.id,
                 ]);
 
                 // Object.keys(conv.messages).length check for safe
@@ -202,12 +206,14 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(
-                    Object.values(conv.messages).filter(
-                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
-                    ),
-                    [(msg: any) => moment(msg.created_at).format('x')]
-                )[0];
+                return _l
+                    .sortBy(
+                        Object.values(conv.messages).filter(
+                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                        ),
+                        [(msg: any) => moment(msg.created_at).format('x')]
+                    )
+                    .reverse()[0];
             });
     },
 
@@ -216,7 +222,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             .filter((conv: any) => {
                 const sesInfo = _l.find(conv.sessions, [
                     'socket_session_id',
-                    rootGetters['auth/profile'].socket_session.id,
+                    rootGetters['auth/profile']?.socket_session?.id,
                 ]);
 
                 // Object.keys(conv.messages).length check for safe
@@ -229,12 +235,14 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l.sortBy(
-                    Object.values(conv.messages).filter(
-                        (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
-                    ),
-                    [(msg: any) => moment(msg.created_at).format('x')]
-                )[0];
+                return _l
+                    .sortBy(
+                        Object.values(conv.messages).filter(
+                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                        ),
+                        [(msg: any) => moment(msg.created_at).format('x')]
+                    )
+                    .reverse()[0];
             });
     },
 
