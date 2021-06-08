@@ -160,17 +160,19 @@
             ></q-btn>
         </div>
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <q-btn
+            <ec-emoji @clickEmoji="handleClickEmoji" :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']" :dense="mini_mode" />
+            <!--<q-btn
                 flat
                 color="green"
                 icon="mood"
                 :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
                 :dense="mini_mode"
-            ></q-btn>
+            ></q-btn>-->
         </div>
         <div class="tw-flex-auto tw-px-3">
             <!-- used keydown for instant catch n prevent -->
             <q-input
+                ref="messageInput"
                 v-model="msg"
                 debounce="0"
                 placeholder="Write Message..."
@@ -297,10 +299,11 @@ import { mapGetters } from 'vuex';
 import * as _l from 'lodash';
 import moment from 'moment';
 import EcAvatar from './EcAvatar.vue';
+import EcEmoji from 'components/common/EcEmoji.vue';
 
 export default defineComponent({
     name: 'Message',
-    components: { EcAvatar },
+    components: { EcEmoji, EcAvatar },
     props: {
         conv_id: {
             type: String,
@@ -459,6 +462,11 @@ export default defineComponent({
     },
 
     methods: {
+        handleClickEmoji($event: any) {
+            this.msg += $event;
+            this.$refs.messageInput.focus();
+        },
+
         getNewMessages() {
             if (
                 !this.gettingNewMessages && // and also check loading state of this conv
