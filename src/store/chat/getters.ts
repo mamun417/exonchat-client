@@ -1,5 +1,5 @@
 import moment from 'moment';
-import * as _l from 'lodash';
+import _, * as _l from 'lodash';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
@@ -11,6 +11,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     clientsConversation: (state) => {
         return Object.values(state.conversations).filter((conv: any) => !conv.users_only);
+    },
+
+    conversations: (state) => {
+        return state.conversations;
     },
 
     conversationInfo: (state) => (convId: any) => {
@@ -136,10 +140,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return stateAsMsg;
     },
 
-    chatRequests(state) {
-        return _l.sortBy(state.chatRequests, [(chatRequest) => moment(chatRequest.created_at).format('x')]).reverse();
-    },
-
     incomingChatRequests(state, getters, rootState, rootGetters) {
         return Object.values(state.conversations)
             .filter((conv: any) => {
@@ -153,7 +153,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l
+                const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
                             (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
@@ -161,6 +161,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )
                     .reverse()[0];
+
+                return { ...msg, conversation_session: conv.sessions[0] }; // conv.sessions[0] cz we are already filtering length 1
             });
     },
     incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
@@ -176,7 +178,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l
+                const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
                             (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
@@ -184,6 +186,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )
                     .reverse()[0];
+
+                return { ...msg, conversation_session: conv.sessions[0] }; // conv.sessions[0] cz we are already filtering length 1
             });
     },
 
@@ -206,7 +210,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l
+                const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
                             (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
@@ -214,6 +218,13 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )
                     .reverse()[0];
+
+                return {
+                    ...msg,
+                    conversation_session: _.find(conv.sessions, function (o) {
+                        return !o.socket_session.user;
+                    }),
+                };
             });
     },
 
@@ -235,7 +246,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 );
             })
             .map((conv: any) => {
-                return _l
+                const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
                             (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
@@ -243,6 +254,13 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )
                     .reverse()[0];
+
+                return {
+                    ...msg,
+                    conversation_session: _.find(conv.sessions, function (o) {
+                        return !o.socket_session.user;
+                    }),
+                };
             });
     },
 

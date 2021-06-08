@@ -60,6 +60,8 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     updateConversation(state: ChatStateInterface, convData: any) {
+        // console.log(convData);
+
         const convId = convData.conv_id;
 
         if (convId) {
@@ -143,6 +145,35 @@ const mutation: MutationTree<ChatStateInterface> = {
                     conv.sessions.push(convSession);
                 }
             }
+        }
+    },
+
+    updateConversationUserAvatar(state: ChatStateInterface, data: any) {
+        const convId = data.conv_id;
+        console.log(data);
+
+        if (convId) {
+            const conv = state.conversations[convId];
+
+            data.srcs.forEach((srcObj: any) => {
+                const foundSes = _l.find(conv.sessions, ['id', srcObj.conv_ses_id]);
+
+                if (foundSes) {
+                    foundSes.socket_session.user.user_meta.src = srcObj.src;
+                }
+            });
+        }
+    },
+
+    updateChatUsersAvatar(state: ChatStateInterface, data: any) {
+        if (data.length) {
+            data.forEach((srcObj: any) => {
+                const foundUser = _l.find(state.chatUsers, ['id', srcObj.user_id]);
+
+                if (foundUser) {
+                    foundUser.user_meta.src = srcObj.src;
+                }
+            });
         }
     },
 

@@ -6,7 +6,7 @@
                     <div class="tw-flex">
                         <div class="tw-mr-4 ec-settings-profile-img tw-relative">
                             <ec-avatar
-                                :image_src="profile.user_meta.attachment.src"
+                                :image_src="profile.user_meta.attachment?.src"
                                 :name="profile.user_meta.display_name"
                                 size="96px"
                             />
@@ -81,7 +81,7 @@
             <q-card style="min-width: 350px">
                 <q-card-section class="text-center tw-pb-1">
                     <ec-avatar
-                        :image_src="profile.user_meta.attachment.src"
+                        :image_src="profile.user_meta.attachment?.src"
                         :name="profile.user_meta.display_name"
                         :local_preview_src="previewAvatar"
                         size="150px"

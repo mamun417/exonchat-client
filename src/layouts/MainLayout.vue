@@ -279,6 +279,8 @@ export default defineComponent({
             typingHandler: null,
             mobileData: true,
             bluetooth: true,
+
+            usersAvatarLoading: false,
         };
     },
 
@@ -293,6 +295,7 @@ export default defineComponent({
         ...mapGetters({
             profile: 'auth/profile',
             chatUsers: 'chat/chatUsers',
+            conversations: 'chat/conversations',
             globalBgColor: 'setting_ui/globalBgColor',
             rightBarState: 'setting_ui/rightBarState',
         }),
@@ -333,6 +336,10 @@ export default defineComponent({
     methods: {
         ...mapMutations({ toggleRightDrawer: 'setting_ui/toggleRightDrawer' }),
 
+        getAllUsers() {
+            this.$store.dispatch('chat/getAllUsers');
+        },
+
         getUsers(ses_id = null) {
             // if ses_id => check for exist. if not then new user registered
             if (!ses_id || !this.chatUsers.hasOwnProperty(ses_id)) {
@@ -341,6 +348,9 @@ export default defineComponent({
                 this.$store.dispatch('chat/getUsers').then(() => {
                     // get new list first then get online
                     this.$socket.emit('ec_get_logged_users', {});
+
+                    // load all users so that we can load user avatar
+                    // this.getAllUsers();
                 });
             } else {
                 this.$socket.emit('ec_get_logged_users', {});
@@ -415,6 +425,12 @@ export default defineComponent({
                 this.$store.dispatch('chat/storeMessage', res);
 
                 console.log('from ec_msg_from_client', res);
+            });
+
+            this.socket.on('ec_reply_from_ai', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+
+                console.log('from ec_reply_from_ai', res);
             });
 
             // handle only other users typing
@@ -562,6 +578,10 @@ export default defineComponent({
                         position: 'top',
                     });
 
+                    if (this.socket) {
+                        this.socket.close();
+                    }
+
                     this.$socket.close();
                     this.$router.push({ name: 'login' });
                 })
@@ -570,6 +590,63 @@ export default defineComponent({
                 });
         },
     },
+
+    watch: {
+        // if you need to load avatars everywhere then watch conversation n use same way in the layout template
+        conversations: {
+            handler: async function () {
+                console.log('conversations watcher started');
+                if (this.usersAvatarLoading) return;
+
+                this.usersAvatarLoading = true;
+
+                if (this.conversations) {
+                    for (const convObj of Object.values(this.conversations)) {
+                        const conv: any = convObj;
+                        const tempArray: any = { conv_id: conv.id, srcs: [] };
+
+                        for (const convSes of conv.sessions) {
+                            if (convSes.socket_session.user) {
+                                // i can send attachment from db but for that i have to send from all the query
+                                // i have to get the image so y give hard time to api so here check that
+                                if (
+                                    convSes.socket_session.user?.user_meta?.attachment_id &&
+                                    !convSes.socket_session.user?.user_meta?.src
+                                ) {
+                                    try {
+                                        const imgRes = await this.$api.get(
+                                            `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
+                                            {
+                                                responseType: 'arraybuffer',
+                                            }
+                                        );
+
+                                        tempArray.srcs.push({
+                                            conv_ses_id: convSes.id,
+                                            src: URL.createObjectURL(
+                                                new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                            ),
+                                        });
+                                    } catch (e) {
+                                        console.log(e);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (tempArray.srcs.length) {
+                            this.$store.commit('chat/updateConversationUserAvatar', tempArray);
+                        }
+                    }
+                }
+
+                this.usersAvatarLoading = false;
+            },
+            deep: true,
+            immediate: true,
+        },
+    },
+
     unmounted() {
         //its safe then sorry
         console.log('calling unmounted from main layout');

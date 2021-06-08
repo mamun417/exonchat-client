@@ -1,26 +1,34 @@
 <template>
     <div v-if="users_conv_ses && users_conv_ses.length">
         <!-- {{ users_conv_ses }} -->
-        <q-avatar
+        <ec-avatar
             v-for="(userConv, key) in users_conv_ses"
+            :image_src="userConv.socket_session.user ? userConv.socket_session.user.user_meta.src || null : null"
+            :name="
+                userConv.socket_session.user
+                    ? userConv.socket_session.user.user_meta.display_name
+                    : userConv.socket_session.user.init_email
+            "
             :key="key"
-            size="35px"
-            :style="key !== 0 ? { marginLeft: '-8px' } : ''"
         >
-            <img src="https://cdn.quasar.dev/img/avatar1.jpg" alt="image" />
             <q-tooltip class="">
-                {{ userConv.socket_session.user.email }}
+                {{
+                    userConv.socket_session.user
+                        ? userConv.socket_session.user.email
+                        : userConv.socket_session.user.init_email
+                }}
             </q-tooltip>
-        </q-avatar>
+        </ec-avatar>
     </div>
 </template>
 
 <script lang="ts">
+import EcAvatar from 'src/components/common/EcAvatar.vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'ConnectedUsersFaces',
-    components: {},
+    components: { EcAvatar },
     props: {
         users_conv_ses: {
             type: Array,

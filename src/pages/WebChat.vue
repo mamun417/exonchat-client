@@ -354,6 +354,12 @@ export default defineComponent({
                 console.log('from ec_is_typing_from_user', res);
             });
 
+            this.socket.on('ec_reply_from_ai', (res: any) => {
+                this.$store.dispatch('chat/storeMessage', res);
+
+                console.log('from ec_reply_from_ai', res);
+            });
+
             // successfully sent to user
             this.socket.on('ec_msg_to_client', (res: any) => {
                 this.$store.dispatch('chat/storeMessage', res);

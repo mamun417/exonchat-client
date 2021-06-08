@@ -55,14 +55,16 @@
                                     active-class="text-white bg-blue-9"
                                 >
                                     <q-item-section avatar>
-                                        <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
-                                        </q-avatar>
+                                        <ec-avatar
+                                            :image_src="senderInfo(chatRequest).src || null"
+                                            :name="senderInfo(chatRequest).img_alt_name"
+                                            size="md"
+                                        ></ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ chatRequest.conversation_id }}
+                                            {{ senderInfo(chatRequest).display_name }}
                                         </q-item-label>
                                         <q-item-label lines="2" caption>
                                             {{ chatRequest.msg }}
@@ -95,14 +97,16 @@
                                     active-class="text-white bg-blue-9"
                                 >
                                     <q-item-section avatar>
-                                        <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
-                                        </q-avatar>
+                                        <ec-avatar
+                                            :image_src="senderInfo(chatRequest).src || null"
+                                            :name="senderInfo(chatRequest).img_alt_name"
+                                            size="md"
+                                        ></ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ chatRequest.conversation_id }}
+                                            {{ senderInfo(chatRequest).display_name }}
                                         </q-item-label>
                                         <q-item-label lines="2" caption>
                                             {{ chatRequest.msg }}
@@ -167,14 +171,16 @@
                                     active-class="text-white bg-blue-9"
                                 >
                                     <q-item-section avatar>
-                                        <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
-                                        </q-avatar>
+                                        <ec-avatar
+                                            :image_src="senderInfo(ongoingChat).src || null"
+                                            :name="senderInfo(ongoingChat).img_alt_name"
+                                            size="md"
+                                        ></ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ ongoingChat.conversation_id }}
+                                            {{ senderInfo(ongoingChat).display_name }}
                                         </q-item-label>
                                         <q-item-label lines="2" caption>
                                             {{ ongoingChat.msg }}
@@ -206,14 +212,16 @@
                                     active-class="text-white bg-blue-9"
                                 >
                                     <q-item-section avatar>
-                                        <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="image" />
-                                        </q-avatar>
+                                        <ec-avatar
+                                            :image_src="senderInfo(ongoingOtherChat).src || null"
+                                            :name="senderInfo(ongoingOtherChat).img_alt_name"
+                                            size="md"
+                                        ></ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ ongoingOtherChat.conversation_id }}
+                                            {{ senderInfo(ongoingOtherChat).display_name }}
                                         </q-item-label>
                                         <q-item-label lines="2" caption>
                                             {{ ongoingOtherChat.msg }}
@@ -311,7 +319,9 @@ export default defineComponent({
     },
 
     data(): any {
-        return {};
+        return {
+            chatUsersAvatarLoading: false,
+        };
     },
 
     async mounted() {
@@ -331,7 +341,6 @@ export default defineComponent({
             myOngoingChats: 'chat/myOngoingChats',
             ongoingOtherChats: 'chat/ongoingOtherChats',
 
-            chatRequests: 'chat/chatRequests',
             chatUsers: 'chat/chatUsers',
             globalBgColor: 'setting_ui/globalBgColor',
             globalColor: 'setting_ui/globalColor',
@@ -391,6 +400,62 @@ export default defineComponent({
 
             // no need this for now. cz returning if exists from api
             // this.$emitter.on('listen_error_ec_init_conv_from_user', fn);
+        },
+
+        senderInfo(conv: any) {
+            if (conv.conversation_session?.socket_session) {
+                return {
+                    display_name: conv.conversation_session.socket_session.init_name,
+                    img_alt_name: conv.conversation_session.socket_session.init_name,
+                    email: conv.conversation_session.socket_session.init_email,
+                };
+            }
+
+            return {};
+        },
+    },
+
+    watch: {
+        // if you need to load avatars everywhere then watch conversation n use same way in the layout template
+        chatUsers: {
+            handler: async function () {
+                console.log('chatUsers watcher started');
+                if (this.chatUsersAvatarLoading) return;
+
+                this.chatUsersAvatarLoading = true;
+                // console.log(this.chatUsers);
+
+                const tempArray: any = [];
+
+                if (this.chatUsers.length) {
+                    for (const chatUser of this.chatUsers) {
+                        if (chatUser.user_meta?.attachment_id && !chatUser.user_meta?.src) {
+                            try {
+                                const imgRes = await this.$api.get(`attachments/${chatUser.user_meta.attachment_id}`, {
+                                    responseType: 'arraybuffer',
+                                });
+
+                                tempArray.push({
+                                    user_id: chatUser.id,
+                                    src: URL.createObjectURL(
+                                        new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                    ),
+                                });
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }
+                    }
+                }
+
+                if (tempArray.length) {
+                    this.$store.commit('chat/updateChatUsersAvatar', tempArray);
+                }
+
+                this.chatUsersAvatarLoading = false;
+            },
+            deep: true,
+            immediate: true,
         },
     },
 });
