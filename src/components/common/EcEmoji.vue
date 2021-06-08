@@ -92,7 +92,7 @@ export default defineComponent({
     },
 
     mounted() {
-        this.emojis = emojiJson.filter((emoji) => !['smiling face'].includes(emoji.name));
+        this.emojis = emojiJson.filter((emoji: any) => !['smiling face'].includes(emoji.name));
 
         this.emojis.forEach((emoji: any) => {
             if (
