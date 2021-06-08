@@ -25,11 +25,10 @@
         <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg || (message.attachments && message.attachments.length)"
-                :name="msgSenderInfo(message, index).name"
-                avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-                :sent="checkOwnMessage(message)"
-                :text-color="checkOwnMessage(message) ? 'black' : 'white'"
-                :bg-color="checkOwnMessage(message) ? 'gray-9' : 'blue-9'"
+                :name="msgSenderInfo(message, index).display_name"
+                :sent="msgForRightSide(message)"
+                :text-color="msgForRightSide(message) ? 'black' : 'white'"
+                :bg-color="msgForRightSide(message) ? 'gray-9' : 'blue-9'"
                 :class="{ 'mini-mode-message-text-container': mini_mode }"
             >
                 <template v-slot:stamp>
@@ -39,10 +38,17 @@
                 </template>
 
                 <template v-slot:avatar>
-                    <q-avatar size="lg" class="tw-mr-2">
-                        <img src="https://cdn.quasar.dev/img/avatar1.jpg" alt="image" />
-                        <q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>
-                    </q-avatar>
+                    <ec-avatar
+                        :image_src="
+                            msgSenderInfo(message, index).type === 'ai'
+                                ? 'fas fa-robot'
+                                : msgSenderInfo(message, index).src
+                        "
+                        :name="msgSenderInfo(message, index).img_alt_name"
+                        :is_icon="msgSenderInfo(message, index).type === 'ai'"
+                        class="tw-mx-2"
+                        ><q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip></ec-avatar
+                    >
                 </template>
 
                 <div>
@@ -97,10 +103,13 @@
                 class="exonchat-is-typing"
             >
                 <template v-slot:avatar>
-                    <q-avatar size="lg" class="tw-mr-2">
-                        <img src="https://cdn.quasar.dev/img/avatar1.jpg" alt="image" />
-                        <q-tooltip class=""> email </q-tooltip>
-                    </q-avatar>
+                    <ec-avatar
+                        :image_src="msgSenderInfo(typing, 0).type === 'ai' ? 'fas fa-robot' : ''"
+                        :name="msgSenderInfo(typing, 0).img_alt_name"
+                        :is_icon="msgSenderInfo(typing, 0).type === 'ai'"
+                        class="tw-mx-2"
+                        ><q-tooltip class="">{{ msgSenderInfo(typing, 0).email }}</q-tooltip></ec-avatar
+                    >
                 </template>
 
                 <template v-slot:stamp>
@@ -287,10 +296,11 @@ import { mapGetters } from 'vuex';
 
 import * as _l from 'lodash';
 import moment from 'moment';
+import EcAvatar from './EcAvatar.vue';
 
 export default defineComponent({
     name: 'Message',
-    components: {},
+    components: { EcAvatar },
     props: {
         conv_id: {
             type: String,
@@ -348,6 +358,8 @@ export default defineComponent({
             chatTemplates: [],
             chatTemplateInputVal: '',
             getChatTemplateTimer: '',
+
+            usersAvatarLoading: false,
         };
     },
 
@@ -474,13 +486,17 @@ export default defineComponent({
             if (this.checkOwnMessage(message)) {
                 return true;
             } else {
-                if (this.$route.name === 'client-web-chat') {
+                if (this.$route.name !== 'client-web-chat') {
+                    if (!message.socket_session_id) {
+                        return true;
+                    }
+
                     const findSes = _l.find(this.conversationInfo.sessions, [
                         'socket_session_id',
                         message.socket_session_id,
                     ]);
 
-                    return !findSes.socket_session.user;
+                    return findSes.socket_session.user;
                 }
             }
 
@@ -490,28 +506,33 @@ export default defineComponent({
         msgSenderInfo(msg: any, index: any) {
             const prevMsg = this.messages[index - 1];
 
-            if (
-                index === 0 ||
-                !prevMsg.hasOwnProperty('msg') ||
-                (prevMsg.hasOwnProperty('msg') && msg.socket_session_id !== prevMsg.socket_session_id)
-            ) {
-                const findSes = _l.find(this.conversationInfo.sessions, ['socket_session_id', msg.socket_session_id]);
-
-                // if img then attach src here
-                if (findSes.socket_session.user) {
-                    return {
-                        name: findSes.socket_session.user.user_meta.display_name,
-                        email: findSes.socket_session.user.email,
-                    };
-                }
-
+            if (!msg.socket_session_id) {
                 return {
-                    name: findSes.socket_session.init_name,
-                    email: findSes.socket_session.init_email,
+                    display_name: 'AI',
+                    img_alt_name: 'AI',
+                    type: 'ai',
                 };
             }
 
-            return {};
+            const display_name_condition =
+                index === 0 || !prevMsg.hasOwnProperty('msg') || msg.socket_session_id !== prevMsg.socket_session_id;
+
+            const findSes = _l.find(this.conversationInfo.sessions, ['socket_session_id', msg.socket_session_id]);
+
+            if (findSes.socket_session.user) {
+                return {
+                    display_name: display_name_condition ? findSes.socket_session.user.user_meta.display_name : '',
+                    img_alt_name: findSes.socket_session.user.user_meta.display_name,
+                    email: findSes.socket_session.user.email,
+                    src: findSes.socket_session.user.user_meta.src || null,
+                };
+            }
+
+            return {
+                display_name: display_name_condition ? findSes.socket_session.init_name : '',
+                img_alt_name: findSes.socket_session.init_name,
+                email: findSes.socket_session.init_email,
+            };
         },
 
         getConvStateStatusMessage(message: any) {
@@ -804,26 +825,13 @@ export default defineComponent({
     },
 
     watch: {
-        // its calling many times. y need examination
-        // conversationInfo: {
-        //     handler: function () {
-        //         if (
-        //             !this.gettingNewMessages && // and also check loading state of this conv
-        //             this.conversationInfo &&
-        //             (!this.conversationInfo.hasOwnProperty('current_page') || this.conversationInfo.current_page === 0)
-        //         ) {
-        //             console.log('getting new messages. watch this if it calls many times without needed');
-
-        //             this.gettingNewMessages = true;
-
-        //             this.$store.dispatch('chat/getConvMessages', { convId: this.conv_id }).finally(() => {
-        //                 this.gettingNewMessages = false;
-        //             });
-        //         }
-        //     },
-        //     deep: true,
-        //     immediate: true,
-        // },
+        conversationInfo: {
+            handler: function () {
+                console.log('conversationInfo watcher started');
+            },
+            deep: true,
+            immediate: true,
+        },
 
         conv_id: {
             handler: function () {

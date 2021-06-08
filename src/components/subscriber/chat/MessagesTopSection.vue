@@ -2,10 +2,20 @@
     <q-card class="tw-shadow-lg">
         <q-card-section class="row no-wrap items-center" :class="{ 'tw-p-0': mini_mode }">
             <q-item class="tw-w-full">
-                <q-item-section avatar>
-                    <q-avatar :size="mini_mode ? 'md' : 'xl'">
-                        <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" alt="" />
-                    </q-avatar>
+                <q-item-section v-if="conversationWithUsersInfo.length === 1" avatar>
+                    <ec-avatar
+                        :size="mini_mode ? 'md' : 'xl'"
+                        :image_src="
+                            conversationWithUsersInfo[0].socket_session.user
+                                ? conversationWithUsersInfo[0].socket_session.user.user_meta.src || null
+                                : null
+                        "
+                        :name="
+                            conversationWithUsersInfo[0].socket_session.user
+                                ? conversationWithUsersInfo[0].socket_session.user.user_meta.display_name
+                                : conversationWithUsersInfo[0].socket_session.init_name
+                        "
+                    ></ec-avatar>
                 </q-item-section>
 
                 <q-item-section class="tw-w-full">
@@ -104,10 +114,11 @@ import ConversationStateConfirmModal from 'components/common/modal/ConversationS
 import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
 
 import { mapGetters, mapMutations } from 'vuex';
+import EcAvatar from 'src/components/common/EcAvatar.vue';
 
 export default defineComponent({
     name: 'MessagesTopSection',
-    components: { ConversationStateConfirmModal, ConnectedUsersFaces },
+    components: { ConversationStateConfirmModal, ConnectedUsersFaces, EcAvatar },
     props: {
         conv_id: {
             type: String,
