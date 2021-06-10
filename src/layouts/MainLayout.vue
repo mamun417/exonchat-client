@@ -393,6 +393,9 @@ export default defineComponent({
             this.fireSocketListeners();
             this.reloadForProfileImageLoad();
             this.$socket.emit('ec_get_logged_users', {});
+
+            // infuture handle a interval for page visiting update. check visiting time & mutate visiting value
+            // so that update reflects cz if a client's net gone or other issue happens visiting value might not change
         },
         fireSocketListeners() {
             this.socket.on('connect', () => {
@@ -460,7 +463,8 @@ export default defineComponent({
                 console.log('from ec_conv_initiated_from_client', data);
 
                 if (data.status === 'success') {
-                    //
+                    // convs search by clients ses then update socket session info
+                    // y? cz after join sesinfo changes for client
                 }
             });
 
@@ -516,6 +520,10 @@ export default defineComponent({
                 // msg = if you want to show notification or taster
                 // type = what type of action need
 
+                // in future handle if needed. if client logs by whmcs or other supported app
+                // then sesinfo will change & receive a emit
+                // then convs search by clients ses then update socket session info
+
                 if (res.action === 'logout') {
                     this.$q.notify({
                         position: 'top',
@@ -531,6 +539,12 @@ export default defineComponent({
                 }
 
                 console.log('from ec_from_api_events1', res);
+            });
+
+            this.socket.on('ec_page_visit_info_from_client', (res: any) => {
+                this.$store.dispatch('visitor/updateVisitor', res);
+
+                // console.log('from ec_page_visit_info_from_client', res);
             });
 
             this.socket.on('ec_error', (data: any) => {

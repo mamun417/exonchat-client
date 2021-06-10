@@ -9,6 +9,10 @@ const helpers = {
         return moment(timestamp).fromNow();
     },
 
+    diffAsMinute(timestamp: any) {
+        return moment.duration(moment(Date.now()).diff(timestamp)).humanize();
+    },
+
     myDate(timestamp: string, format = 'MMMM Do YYYY') {
         return moment(timestamp).format(format);
     },

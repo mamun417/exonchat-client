@@ -35,6 +35,7 @@ let exonChatContainer = document.getElementById('exhonchat-container');
 exonChatContainer.style = containerMinimizedStyle();
 
 let exonChatIFrame = document.createElement('iframe');
+exonChatIFrame.id = 'exhonchat-iframe-container';
 exonChatIFrame.style = 'border: 0';
 exonChatIFrame.src = 'http://localhost:8080/web-chat';
 

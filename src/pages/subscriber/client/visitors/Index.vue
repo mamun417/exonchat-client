@@ -16,12 +16,8 @@
                     </template>
 
                     <template v-slot:cell-status="slotProps">
-                        <q-badge :color="true ? 'green' : 'orange'">
-                            {{
-                                $_.last(slotProps.row.visits).last_stay_time + 5000 > Date.now()
-                                    ? 'In Page'
-                                    : 'Not IN Page'
-                            }}
+                        <q-badge :color="$_.last(slotProps.row.visits).visiting ? 'green' : 'orange'">
+                            {{ $_.last(slotProps.row.visits).visiting ? 'Visiting' : 'Not Visiting' }}
                         </q-badge>
                     </template>
 
@@ -29,6 +25,20 @@
                         <div class="text-italic">
                             <!-- <pre>{{ slotProps.row }}</pre> -->
                             {{ $_.last(slotProps.row.visits).url }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-stay_time="slotProps">
+                        <div class="text-italic">
+                            <!-- <pre>{{ slotProps.row }}</pre> -->
+                            {{ $helpers.diffAsMinute($_.last(slotProps.row.visits).first_visit_time) }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-last_seen_at="slotProps">
+                        <div class="text-italic">
+                            <!-- <pre>{{ slotProps.row }}</pre> -->
+                            {{ $helpers.fromNowTime($_.last(slotProps.row.visits).last_stay_time) }}
                         </div>
                     </template>
                 </ec-table>
@@ -99,7 +109,9 @@ export default defineComponent({
     },
 
     mounted() {
-        //
+        setInterval(() => {
+            this.$forceUpdate();
+        }, 10000);
     },
 
     methods: {},

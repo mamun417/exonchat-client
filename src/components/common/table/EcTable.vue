@@ -30,7 +30,7 @@
         </template>
 
         <template v-slot:body="props">
-            <q-tr :props="props" :class="props.row.id === rightBarState.conv_id ? 'tw-bg-amber-100' : ''">
+            <q-tr :props="props">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!--                    <div class="text-red-14">-->
                     <!--                        <pre>{{ col.name }}</pre>-->
