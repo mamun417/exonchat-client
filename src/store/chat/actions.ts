@@ -35,12 +35,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     // get client conversation messages from db
-    async getClientConvMessages(context, payload) {
-        const getConvStateInfo = window.socketSessionApi.get(`conversations/${payload.convId}/sessions`),
-            getConvMessages = window.socketSessionApi.get(`conversations/${payload.convId}/messages`);
-
-        return await context.dispatch('storeConvMessages', { getConvStateInfo, getConvMessages });
-    },
+    // async getClientConvMessages(context, payload) {
+    //     const getConvStateInfo = window.socketSessionApi.get(`conversations/${payload.convId}/sessions`),
+    //         getConvMessages = window.socketSessionApi.get(`conversations/${payload.convId}/messages`);
+    //
+    //     return await context.dispatch('storeConvMessages', { getConvStateInfo, getConvMessages });
+    // },
 
     // store conversation messages into state, so that getters can get the result
     getConvMessages(context, payload) {

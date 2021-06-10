@@ -46,7 +46,10 @@
                     <q-btn type="submit" @click="loginButtonClicked" color="green" class="tw-px-10" dense unelevated>
                         Login
                     </q-btn>
-                    <div class="text-green tw-cursor-pointer tw-font-medium" @click="$router.push('/auth/reset-pass')">
+                    <div
+                        class="text-green tw-cursor-pointer tw-font-medium"
+                        @click="$router.push({ name: 'password-email' })"
+                    >
                         Forgot Password?
                     </div>
                 </div>

@@ -72,7 +72,7 @@
 
                 <ec-avatar
                     :image_src="profile?.user_meta?.attachment?.src"
-                    :name="profile.user_meta.display_name"
+                    :name="profile?.user_meta?.display_name"
                     class="cursor-pointer"
                 >
                     <q-badge color="primary" floating rounded>2</q-badge>
@@ -342,7 +342,7 @@ export default defineComponent({
 
         getUsers(ses_id = null) {
             // if ses_id => check for exist. if not then new user registered
-            if (!ses_id || !this.chatUsers.hasOwnProperty(ses_id)) {
+            if (!ses_id || !this.chatUsers?.hasOwnProperty(ses_id)) {
                 console.log('reloading users list');
 
                 this.$store.dispatch('chat/getUsers').then(() => {
