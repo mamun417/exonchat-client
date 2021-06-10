@@ -29,6 +29,8 @@ const mutation: MutationTree<VisitorsStateInterface> = {
                     lastVisit.last_stay_time = visitorInfo.sent_at;
                     lastVisit.visiting = visitorInfo.visiting; // why um not using visitorInfo.visiting for other assign dont know
                 } else {
+                    lastVisit.visiting = false;
+
                     visitor.visits.push({
                         url: visitorInfo.url,
                         first_visit_time: visitorInfo.sent_at,

@@ -6,6 +6,10 @@ const getters: GetterTree<VisitorsStateInterface, StateInterface> = {
     visitors(state) {
         return Object.values(state.visitors);
     },
+
+    visits: (state) => (sesId: any) => {
+        return state.visitors[sesId]?.visits || [];
+    },
 };
 
 export default getters;

@@ -297,7 +297,7 @@ export default defineComponent({
             chatUsers: 'chat/chatUsers',
             conversations: 'chat/conversations',
             globalBgColor: 'setting_ui/globalBgColor',
-            rightBarState: 'setting_ui/rightBarState',
+            rightBarState: 'setting_ui/rightBarState', // its a mistake to store & get from there
         }),
 
         currentRouteName() {
