@@ -42,6 +42,9 @@ import { UserInvitationStateInterface } from './user-invitation/state';
 import user from './user';
 import { UserStateInterface } from './user/state';
 
+import visitor from './visitor';
+import { VisitorsStateInterface } from './visitor/state';
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -66,6 +69,7 @@ export interface StateInterface {
     department: DepartmentStateInterface;
     chat_template: ChatTemplateStateInterface;
     client_conversation: ClientConversationStateInterface;
+    visitor: VisitorsStateInterface;
     user_invitation: UserInvitationStateInterface;
     user: UserStateInterface;
 }
@@ -76,15 +80,21 @@ export default store(function (/* { ssrContext } */) {
             // example
             auth,
             socket,
+
             setting_ui,
             setting_profile,
             setting_app,
+
             chat,
             intent,
             speech,
             department,
+
             chat_template,
+            visitor,
+
             client_conversation,
+
             user_invitation,
             user,
         },

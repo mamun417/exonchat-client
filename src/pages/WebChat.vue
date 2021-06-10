@@ -192,6 +192,7 @@ export default defineComponent({
             msg: '',
 
             pageInFocus: false,
+            pageNotInFocusEmitted: false,
 
             typingHandler: {
                 typing: false,
@@ -285,7 +286,7 @@ export default defineComponent({
             if (!this.sesId) {
                 await window.api
                     .post('/socket-sessions', {
-                        api_key: 'test',
+                        api_key: window.parent.get_api_key(),
                     })
                     .then((res: any) => {
                         console.log(res.data);
@@ -441,6 +442,7 @@ export default defineComponent({
             // }
 
             // If the page is hidden, pause sending browsing state;
+            console.log('firePageVisitListner');
 
             // Warn if the browser doesn't support addEventListener or the Page Visibility API
             if (typeof document.addEventListener === 'undefined' || document.hidden === undefined) {
@@ -451,24 +453,43 @@ export default defineComponent({
                 // Handle page visibility change
                 document.addEventListener('visibilitychange', this.handlePageVisibilityChange, false);
 
+                this.pageInFocus = true;
+
+                // console.log('lalalalala', window.parent.document.URL);
+
                 if (!this.pageVisitingHandler) {
                     this.pageVisitingHandler = setInterval(() => {
                         this.sendPageVisitingInfo();
-                    }, 2000);
+                    }, 3000);
                 }
             }
         },
 
         handlePageVisibilityChange() {
-            this.pageInFocus = !document.hidden;
+            this.pageInFocus = document.visibilityState === 'visible';
         },
 
         sendPageVisitingInfo() {
-            if (this.pageInFocus && this.socketId) {
-                // this.socket.emit('ec_page_visit_info_from_client', {
-                //     url: '',
-                //     sent_at: 'timestamp',
-                // });
+            if (this.socketId) {
+                if (this.pageInFocus) {
+                    this.socket.emit('ec_page_visit_info_from_client', {
+                        url: window.parent.document.URL,
+                        sent_at: Date.now(),
+                        visiting: true,
+                    });
+
+                    this.pageNotInFocusEmitted = false;
+                } else {
+                    if (!this.pageNotInFocusEmitted) {
+                        this.socket.emit('ec_page_visit_info_from_client', {
+                            url: window.parent.document.URL,
+                            sent_at: Date.now(),
+                            visiting: false,
+                        });
+
+                        this.pageNotInFocusEmitted = true;
+                    }
+                }
             }
         },
 
