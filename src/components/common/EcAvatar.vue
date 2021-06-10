@@ -1,6 +1,9 @@
 <template>
     <q-avatar v-if="is_icon" :size="size" :icon="image_src" :class="`text-white ${globalBgColor}`"></q-avatar>
-    <q-avatar v-else-if="image_src" :size="size"><img :src="image_src" alt="" /> <slot name="default"></slot></q-avatar>
+    <q-avatar v-else-if="image_src && !local_preview_src" :size="size">
+        <img :src="image_src" alt="" />
+        <slot name="default"></slot>
+    </q-avatar>
 
     <q-avatar v-else :size="size" :class="`text-white ${globalBgColor}`">
         <img v-if="local_preview_src" :src="local_preview_src" alt="" />

@@ -76,51 +76,32 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
                 });
         });
     },
+
+    sendPasswordResetEmail(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('password/email', payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    resetPassword(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('password/reset', payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;
-
-// export function
-// export function refreshToken(context, payload) {
-//     return new Promise((resolve, reject) => {
-//         axios
-//             .post('auth/refresh')
-//             .then((res) => {
-//                 context.commit('updateToken', res.data.access_token);
-//                 resolve(res);
-//             })
-//             .catch((err) => {
-//                 reject(err);
-//             });
-//     });
-// }
-
-// export function sendPasswordResetEmail(context, payload) {
-//     return new Promise((resolve, reject) => {
-//         axios
-//             .post('password/email', payload.inputs)
-//             .then((res) => {
-//                 resolve(res);
-//             })
-//             .catch((err) => {
-//                 reject(err);
-//             });
-//     });
-// }
-
-// export function resetPassword(context, payload) {
-//     return new Promise((resolve, reject) => {
-//         axios
-//             .patch('password/reset', payload.inputs)
-//             .then((res) => {
-//                 resolve(res);
-//             })
-//             .catch((err) => {
-//                 reject(err);
-//             });
-//     });
-// }
-
-// export function updateToken(context, token) {
-//     context.commit('updateToken', token);
-// }

@@ -151,24 +151,10 @@ export default defineComponent({
     },
 
     mounted() {
-        if (this.profile && this.profile.user_meta.attachment) {
-            this.getExistingAvatarUrl();
-        }
+        //
     },
 
     methods: {
-        getExistingAvatarUrl() {
-            this.$store
-                .dispatch('setting_profile/getAvatarPath', {
-                    id: this.profile.user_meta.attachment.id,
-                })
-                .then((res: any) => {
-                    this.existingAvatarUrl = URL.createObjectURL(
-                        new Blob([res.data], { type: res.headers['content-type'] })
-                    );
-                });
-        },
-
         updateAvatarModalHandle() {
             this.updateAvatarModal = !this.updateAvatarModal;
             this.previewAvatar = '';
