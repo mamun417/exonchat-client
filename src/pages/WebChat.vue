@@ -250,6 +250,7 @@ export default defineComponent({
             }
         },
         clearSession() {
+            // handle actual close by emitting
             localStorage.clear();
             sessionStorage.clear();
             this.clientInitiateConvInfo = {};
@@ -414,6 +415,14 @@ export default defineComponent({
             });
 
             this.socket.on('ec_error', (res: any) => {
+                if (res.step === 'ec_init_conv_from_client') {
+                    this.$q.notify({
+                        type: 'warning',
+                        position: 'bottom',
+                        progress: true,
+                        message: res.reason.message ? res.reason.message[0] : res.reason,
+                    });
+                }
                 console.log('from ec_error', res);
             });
         },

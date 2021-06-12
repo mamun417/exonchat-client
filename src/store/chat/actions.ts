@@ -3,6 +3,8 @@ import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 import * as _l from 'lodash';
 
+import { Notify } from 'quasar';
+
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
         context.commit('storeClientInitiateConvInfo', payload);
@@ -210,6 +212,48 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
         return new Promise((resolve) => {
             context.commit('updateConversation', obj);
+
+            if (
+                messageRes.hasOwnProperty('socket_event') &&
+                messageRes.socket_event === 'ec_msg_from_client' &&
+                tempConv.conversation_sessions.length === 1
+            ) {
+                // check if this is my department then show notification until join
+                // for now my or other all department notify msg every time
+                // later handle from else
+                if (true) {
+                    const msgObj = _l.omit(messageRes, ['conversation']);
+                    const msg = msgObj.msg ? msgObj.msg : 'Uploaded Attachments...'; // we assume that if no msg then attachment
+
+                    Notify.create({
+                        group: tempConv.id,
+                        message: `${tempConv.conversation_sessions[0].socket_session.init_name} messaged you`,
+                        caption: msg,
+                        progress: true,
+                        multiLine: true,
+                        icon: 'announcement',
+                        color: 'grey-8',
+                        textColor: 'white',
+                        position: 'top-left',
+                        classes: 'tw-w-80 tw-p-2',
+                        timeout: 15000,
+                        badgeClass: 'hidden',
+                        actions: [
+                            {
+                                icon: 'send',
+                                color: 'white',
+                                size: 'xs',
+                                handler: () => {
+                                    window.router.push(`/chats/${tempConv.id}`);
+                                },
+                            },
+                        ],
+                    });
+
+                    new Audio('assets/sound/notification/notification-001.wav').play();
+                }
+            }
+
             resolve(true);
         });
     },

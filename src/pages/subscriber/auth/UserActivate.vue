@@ -120,6 +120,10 @@
                 <div class="tw-mt-8 tw-mb-4">
                     <q-btn color="green" dense class="full-width" @click="join">Activate</q-btn>
                 </div>
+
+                <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
+                    dont use actual password now. you can use 123
+                </div>
             </div>
 
             <div v-else>
