@@ -94,7 +94,7 @@
                 >
                     <q-card
                         ><q-card-section class="tw-p-0">
-                            <q-list ref="page_visit_list" class="">
+                            <q-list ref="page_visit_list" class="tw-break-all">
                                 <q-item v-for="(visit, key) of visits" :key="key" dense class="tw-text-xs">
                                     <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
                                         <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"> </q-icon>

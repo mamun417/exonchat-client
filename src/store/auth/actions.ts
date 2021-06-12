@@ -102,6 +102,19 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
                 });
         });
     },
+
+    changePassword(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('password/change', payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
 };
 
 export default actions;
