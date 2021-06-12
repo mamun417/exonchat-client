@@ -160,7 +160,7 @@ export default defineComponent({
 
             return this.$store.getters['chat/conversationWithUsersInfo'](
                 this.fullChatConvId,
-                this.profile.socket_session.id
+                this.profile?.socket_session?.id
             );
         },
 

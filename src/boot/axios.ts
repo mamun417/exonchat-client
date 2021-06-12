@@ -105,8 +105,10 @@ const api = function (store: any, router: any) {
 // socketUserApi
 // socketClientApi
 export const socketSessionApi = function (router: any) {
+    console.log(process.env.API);
+
     const insAxios = axios.create({
-        baseURL: 'http://127.0.0.1:3000',
+        baseURL: process.env.API,
         withCredentials: true,
     });
 

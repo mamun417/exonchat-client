@@ -156,11 +156,14 @@ export default defineComponent({
         }),
 
         conversationStatusForMe(): any {
-            return this.$store.getters['chat/conversationStatusForMe'](this.conv_id, this.profile.socket_session.id);
+            return this.$store.getters['chat/conversationStatusForMe'](this.conv_id, this.profile?.socket_session?.id);
         },
 
         conversationWithUsersInfo(): any {
-            return this.$store.getters['chat/conversationWithUsersInfo'](this.conv_id, this.profile.socket_session.id);
+            return this.$store.getters['chat/conversationWithUsersInfo'](
+                this.conv_id,
+                this.profile?.socket_session?.id
+            );
         },
 
         conversationConnectedUsers(): any {

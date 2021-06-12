@@ -312,7 +312,7 @@ export default defineComponent({
                 return;
             }
 
-            this.socket = io('http://localhost:3000', {
+            this.socket = io(process.env.API || 'http://localhost:3000', {
                 query: {
                     token: this.socketToken,
                 },

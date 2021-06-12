@@ -32,7 +32,7 @@
             </q-card> -->
             <messages-top-section :conv_id="$route.params['conv_id']" />
 
-            <message :conv_id="$route.params['conv_id']" :ses_id="profile.socket_session.id"></message>
+            <message :conv_id="$route.params['conv_id']" :ses_id="profile?.socket_session?.id"></message>
 
             <!-- <conversation-state-confirm-modal
                 v-if="confirm"
