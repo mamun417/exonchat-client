@@ -367,9 +367,9 @@ export default defineComponent({
     },
 
     mounted() {
-        // setInterval(() => {
-        //     this.$forceUpdate(); // now i have no idea why its needed
-        // }, 30000);
+        setInterval(() => {
+            this.$forceUpdate();
+        }, 30000);
     },
 
     computed: {
@@ -860,6 +860,19 @@ export default defineComponent({
             },
             deep: true,
             immediate: true,
+        },
+
+        typingState: {
+            handler: function (newVal, oldVal) {
+                console.log(oldVal, newVal);
+
+                if ('auto_scroll_to_bottom') {
+                    if (newVal.length > oldVal.length) {
+                        this.scrollToBottom();
+                    }
+                }
+            },
+            deep: true,
         },
     },
 });

@@ -425,6 +425,8 @@ export default defineComponent({
             });
 
             this.socket.on('ec_msg_from_client', (res: any) => {
+                res.socket_event = 'ec_msg_from_client';
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 console.log('from ec_msg_from_client', res);
