@@ -26,6 +26,10 @@
                     <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
                 </q-btn>
 
+                <q-btn icon="dynamic_feed" :to="{ name: 'visitors' }" flat>
+                    <q-tooltip :offset="[10, 10]">Visitors</q-tooltip>
+                </q-btn>
+
                 <q-btn v-if="profile?.role?.slug === 'admin'" icon="people" :to="{ name: 'users' }" flat>
                     <q-tooltip :offset="[10, 10]">Users</q-tooltip>
                 </q-btn>
@@ -80,9 +84,7 @@
                     <q-menu>
                         <div class="row no-wrap q-pa-md">
                             <div class="column">
-                                <div class="text-h6 q-mb-md">Settings</div>
-                                <q-toggle v-model="mobileData" label="Use Mobile Data" />
-                                <q-toggle v-model="bluetooth" label="Bluetooth" />
+                                <div class="text-h6 q-mb-md">upcomming...</div>
                             </div>
 
                             <q-separator vertical inset class="q-mx-lg" />
@@ -91,7 +93,7 @@
                                 <ec-avatar
                                     size="72px"
                                     :image_src="profile?.user_meta?.attachment?.src"
-                                    :name="profile.user_meta.display_name"
+                                    :name="profile?.user_meta?.display_name"
                                 />
 
                                 <div class="tw-text-xs tw-mt-2 tw-mb-1">

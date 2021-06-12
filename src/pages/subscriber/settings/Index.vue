@@ -6,8 +6,8 @@
                     <div class="tw-flex">
                         <div class="tw-mr-4 ec-settings-profile-img tw-relative">
                             <ec-avatar
-                                :image_src="profile.user_meta.attachment?.src"
-                                :name="profile.user_meta.display_name"
+                                :image_src="profile?.user_meta?.attachment?.src"
+                                :name="profile?.user_meta?.display_name"
                                 size="96px"
                             />
                             <q-btn
@@ -29,7 +29,7 @@
                             <div class="tw-text-xxs">
                                 Chat Department:
                                 <span :class="[globalTextColor]">{{
-                                    profile.chat_departments.length ? '' : 'All'
+                                    profile?.chat_departments?.length ? '' : 'All'
                                 }}</span>
                             </div>
                         </div>
