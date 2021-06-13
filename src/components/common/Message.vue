@@ -103,8 +103,11 @@
                 class="exonchat-is-typing"
             >
                 <template v-slot:avatar>
+                    {{ msgSenderInfo(typing, 0) }}
                     <ec-avatar
-                        :image_src="msgSenderInfo(typing, 0).type === 'ai' ? 'fas fa-robot' : ''"
+                        :image_src="
+                            msgSenderInfo(typing, 0).type === 'ai' ? 'fas fa-robot' : msgSenderInfo(typing, 0).src
+                        "
                         :name="msgSenderInfo(typing, 0).img_alt_name"
                         :is_icon="msgSenderInfo(typing, 0).type === 'ai'"
                         class="tw-mx-2"
