@@ -87,14 +87,13 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         const typingRes: any = [];
 
         Object.values(typingState).forEach((each: any) => {
-            const sesInfo = _l.find(conv.sessions, ['socket_session_id', each.session_id]);
+            const sesInfo = _l.find(conv.sessions, ['socket_session_id', each.socket_session_id]);
 
             if (sesInfo) {
                 typingRes.push({
                     ...each,
                     conv_ses_info: sesInfo,
                     socket_session: sesInfo.socket_session,
-                    socket_session_id: sesInfo.socket_session_id,
                 });
             }
         });

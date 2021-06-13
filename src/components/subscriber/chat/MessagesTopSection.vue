@@ -151,9 +151,12 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             profile: 'auth/profile',
-            conversationInfo: 'chat/conversationInfo',
             rightBarState: 'setting_ui/rightBarState',
         }),
+
+        conversationInfo(): any {
+            return this.$store.getters['chat/conversationInfo'](this.conv_id);
+        },
 
         conversationStatusForMe(): any {
             return this.$store.getters['chat/conversationStatusForMe'](this.conv_id, this.profile?.socket_session?.id);

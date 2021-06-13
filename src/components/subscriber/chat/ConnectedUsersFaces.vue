@@ -10,6 +10,7 @@
                     : userConv.socket_session.user.init_email
             "
             :key="key"
+            :style="key !== 0 ? 'margin-left: -7px' : ''"
         >
             <q-tooltip class="">
                 {{

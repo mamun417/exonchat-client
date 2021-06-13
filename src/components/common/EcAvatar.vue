@@ -1,11 +1,17 @@
 <template>
-    <q-avatar v-if="is_icon" :size="size" :icon="image_src" :class="`text-white ${globalBgColor}`"></q-avatar>
-    <q-avatar v-else-if="image_src && !local_preview_src" :size="size">
+    <q-avatar
+        v-if="is_icon"
+        class="shadow-1"
+        :size="size"
+        :icon="image_src"
+        :class="`text-white ${globalBgColor}`"
+    ></q-avatar>
+    <q-avatar v-else-if="image_src && !local_preview_src" class="shadow-1" :size="size">
         <img :src="image_src" alt="" />
         <slot name="default"></slot>
     </q-avatar>
 
-    <q-avatar v-else :size="size" :class="`text-white ${globalBgColor}`">
+    <q-avatar v-else class="shadow-1" :size="size" :class="`text-white ${globalBgColor}`">
         <img v-if="local_preview_src" :src="local_preview_src" alt="" />
         <template v-else>{{ name ? name[0].toUpperCase() : '' }}</template>
 
