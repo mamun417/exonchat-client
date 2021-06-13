@@ -9,25 +9,10 @@
                     class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
                 >
                     <div>Online - Chat With Us</div>
+
+                    <q-space></q-space>
                     <q-btn v-if="clientInitiateConvInfo.conv_id" icon="more_vert" flat>
                         <q-menu>
-                            <!-- <div
-                        class="tw-p-2 tw-border-1 tw-shadow-md"
-                        v-for="(m, i) in Object.keys($store._modules.root.state)"
-                        :key="i"
-                    >
-                        <div class="text-green text-center">{{ m }}</div>
-                        <div class="tw-my-2" v-for="(mv, k) in Object.keys($store._modules.root.state[m])" :key="k">
-                            <span>
-                                <pre>{{ mv }}</pre>
-                            </span>
-                            <span class="tw-mx-2">=></span>
-                            <span>
-                                <pre>{{ $store._modules.root.state[m][mv] }}</pre>
-                            </span>
-                        </div>
-                    </div> -->
-
                             <q-list style="min-width: 100px" dense>
                                 <q-item clickable dense v-close-popup>
                                     <q-item-section @click="clearSession" class="text-orange"
@@ -37,8 +22,7 @@
                             </q-list>
                         </q-menu>
                     </q-btn>
-                    <div style="max-height: 100px; overflow: auto"></div>
-                    <q-space></q-space>
+
                     <q-btn
                         :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
                         @click="toggleChatPanel(!panelVisibleStatus)"

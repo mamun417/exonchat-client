@@ -551,15 +551,15 @@ export default defineComponent({
 
         inputFocusHandle() {
             this.typingHandler = setInterval(() => {
-                this.msg = this.msg.trim();
+                const tempMsg = this.msg;
                 const dynamicSocket = this.socket || this.$socket;
 
-                if (this.msg) {
+                if (tempMsg.trim()) {
                     this.notTypingEmitted = false;
 
                     dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
                         conv_id: this.conv_id,
-                        msg: this.chatPanelType === 'user' ? '' : this.msg,
+                        msg: this.chatPanelType === 'user' ? '' : this.msg.trim(),
                         status: 'typing',
                     });
                 } else {

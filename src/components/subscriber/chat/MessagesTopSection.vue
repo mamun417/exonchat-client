@@ -45,7 +45,7 @@
                     </q-item-label>
                 </q-item-section>
 
-                <q-item-section side>
+                <q-item-section v-if="!conversationInfo.users_only" side>
                     <q-item-label>
                         <q-btn icon="more_vert" class="tw-px-1" unelevated>
                             <q-menu>

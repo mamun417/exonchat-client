@@ -189,12 +189,12 @@ const mutation: MutationTree<ChatStateInterface> = {
             state.typingStates[convId][sesId] = {
                 msg: typingStateObj.msg,
                 time: Date.now(),
-                session_id: sesId,
+                socket_session_id: sesId,
             };
         } else {
             state.typingStates[convId][sesId].msg = typingStateObj.msg;
             state.typingStates[convId][sesId].time = Date.now();
-            state.typingStates[convId][sesId].session_id = sesId;
+            state.typingStates[convId][sesId].socket_session_id = sesId;
             state.typingStates[convId][sesId].status = typingStateObj.status;
         }
     },
