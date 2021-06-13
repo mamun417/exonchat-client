@@ -12,6 +12,10 @@ const mutation: MutationTree<AuthStateInterface> = {
             state.token = userInfo.bearerToken;
         }
 
+        if (state.user.user_meta.attachment.src) {
+            userInfo.data.user_meta.attachment.src = state.user.user_meta.attachment.src;
+        }
+
         localStorage.setItem('user', JSON.stringify(userInfo.data));
         state.user = userInfo.data;
     },
