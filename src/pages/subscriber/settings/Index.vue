@@ -67,6 +67,7 @@
             <q-tabs align="left" class="shadow-2 tw-font-medium" :indicator-color="globalColor" no-caps>
                 <q-icon name="settings" class="tw-px-6" size="20px" :color="globalColor" />
                 <q-route-tab to="/settings/profile" exact>Profile</q-route-tab>
+                <q-route-tab to="/settings/change-password" exact>Change Password</q-route-tab>
                 <q-route-tab to="/settings/ui" exact>UI</q-route-tab>
                 <q-route-tab to="/settings/apps" exact>Apps</q-route-tab>
                 <q-route-tab to="/settings/testing" exact>Testing</q-route-tab>

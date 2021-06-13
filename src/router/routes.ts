@@ -72,6 +72,11 @@ const routes: RouteRecordRaw[] = [
                         component: () => import('pages/subscriber/settings/profile/Index.vue'),
                     },
                     {
+                        path: 'change-password',
+                        name: 'settings_change_password',
+                        component: () => import('pages/subscriber/settings/change-password/Index.vue'),
+                    },
+                    {
                         path: 'ui',
                         name: 'settings_ui',
                         component: () => import('pages/subscriber/settings/ui/Index.vue'),

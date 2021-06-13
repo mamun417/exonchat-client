@@ -63,7 +63,7 @@ export default defineComponent({
         return {
             emojiKeyword: '',
             emojis: [],
-            emojiGroup: 'all',
+            emojiGroup: 'Smileys & Emotion',
             emojiGroups: [
                 {
                     name: 'all',
