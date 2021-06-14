@@ -575,7 +575,7 @@ export default defineComponent({
                     js = d.createElement(s);
                     js.id = id;
                     js.setAttribute('data-api-key', self.profile.subscriber.api_key);
-                    js.src = 'http://localhost:8080/assets/js/web-chat/web-chat.js';
+                    js.src = `${location.origin}/assets/js/web-chat/web-chat.js`; // for other site dont use location.origin
                     fjs.parentNode.insertBefore(js, fjs);
                 })(document, 'script', 'exhonchat-chat-frame');
             }

@@ -10,8 +10,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require('quasar/wrappers');
 
-console.log(process.env);
-
 module.exports = configure(function (ctx) {
     return {
         // https://quasar.dev/quasar-cli/supporting-ts
