@@ -19,43 +19,58 @@ function addDom(d, s, id, src, crossorigin = null, integrity = null) {
     fjs.parentNode.insertBefore(js, fjs);
 }
 
-const ecChatScriptTag = document.getElementById('exhonchat-chat-frame');
+const ecChatScriptTag = document.getElementById('exhonchat-chat-script');
 
-const api_key = ecChatScriptTag.getAttribute('data-api-key');
+const widget_id = ecChatScriptTag.getAttribute('data-widget-id');
 const whmcs_client_id = ecChatScriptTag.getAttribute('data-whmcs-client-id');
 
-function get_api_key() {
-    return api_key;
+addDom(document, 'div', 'exhonchat-chat-box-container');
+
+let ecChatContainer = document.getElementById('exhonchat-chat-box-container');
+ecChatContainer.style = 'display: none';
+
+let ecChatIFrame = document.createElement('iframe');
+ecChatIFrame.id = 'exhonchat-iframe-container';
+ecChatIFrame.style = 'border: 0; height: 100%; width: 100%; overflow: hidden; display: block';
+ecChatIFrame.src = `${new URL(ecChatScriptTag.src).origin}/web-chat`;
+
+ecChatContainer.appendChild(ecChatIFrame);
+
+function ec_mounted() {
+    // send others with are needed
+    ecChatIFrame.contentWindow.postMessage({ res: 'widget_id', value: widget_id }, '*');
 }
 
-addDom(document, 'div', 'exhonchat-container');
-
-let exonChatContainer = document.getElementById('exhonchat-container');
-
-exonChatContainer.style = containerMinimizedStyle();
-
-let exonChatIFrame = document.createElement('iframe');
-exonChatIFrame.id = 'exhonchat-iframe-container';
-exonChatIFrame.style = 'border: 0';
-exonChatIFrame.src = `${location.origin}/web-chat`;
-
-exonChatContainer.appendChild(exonChatIFrame);
-
-function maximizeChatPanel() {
+function ec_maximize_panel(style = 'position: fixed; bottom: 20px; right: 0px; z-index: 9999999') {
     console.log('maximize chat panel');
 
-    exonChatContainer.style =
-        'position: fixed; bottom: 20px; right: 0px; height: 600px; width: 100%; max-width: 320px; z-index: 9999999';
-    exonChatIFrame.style = 'height: 100%; border: 0';
+    ecChatContainer.style = style;
 }
 
-function minimizeChatPanel() {
+function ec_minimize_panel(style = 'position: fixed; bottom: 20px; right: 0px; z-index: 9999999') {
     console.log('minimize chat panel');
 
-    exonChatContainer.style = containerMinimizedStyle();
-    exonChatIFrame.style = 'border: 0';
+    ecChatContainer.style = style;
 }
 
-function containerMinimizedStyle() {
-    return 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999';
+function ec_page_visit_info() {
+    // console.log('sending page info');
+
+    ecChatIFrame.contentWindow.postMessage({ res: 'page_visit_info', value: window.document.URL }, '*');
 }
+
+window.parent.document.URL;
+
+window.addEventListener(
+    'message',
+    (event) => {
+        if (event.origin !== new URL(ecChatScriptTag.src).origin) return;
+
+        // console.log(event);
+
+        const fn = event.data?.action ? window[event.data.action] : null;
+
+        if (fn) fn(event.data?.param);
+    },
+    false
+);
