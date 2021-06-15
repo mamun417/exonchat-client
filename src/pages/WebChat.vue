@@ -2,7 +2,7 @@
     <q-page class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
         <div
             v-if="panelVisibleStatus"
-            class="tw-h-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
+            class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
         >
             <template v-if="hasApiKey">
                 <div
@@ -12,7 +12,7 @@
 
                     <q-space></q-space>
                     <q-btn v-if="clientInitiateConvInfo.conv_id" icon="more_vert" flat>
-                        <q-menu>
+                        <q-menu anchor="bottom right" self="top right">
                             <q-list style="min-width: 100px" dense>
                                 <q-item clickable dense v-close-popup>
                                     <q-item-section @click="clearSession" class="text-orange"
@@ -54,9 +54,6 @@
 
                     <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
                         <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
-                            <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
-                                <q-icon name="account_circle" size="xl" color="green"></q-icon>
-                            </div>
                             <div class="tw-px-4 tw-py-16">
                                 <q-input
                                     v-model="convInitFields.name"
@@ -143,7 +140,7 @@ declare global {
     interface Window {
         maximizeChatPanel: any;
         minimizeChatPanel: any;
-        get_api_key: any;
+        get_widget_id: any;
     }
 }
 
@@ -155,11 +152,14 @@ export default defineComponent({
     },
     data(): any {
         return {
+            api_key: null,
             hasApiKey: false,
-            panelVisibleStatus: !!window.localStorage.getItem('chat_panel_visible'),
-            socket: null,
 
+            panelVisibleStatus: !!window.localStorage.getItem('chat_panel_visible'),
+
+            socket: null,
             socketId: null,
+
             sesId: null,
             soketToken: null,
 
@@ -186,21 +186,40 @@ export default defineComponent({
         };
     },
 
-    async mounted() {
+    mounted() {
         console.log('WebChat Mounted');
+
+        // initiate first for listen response from parent
+        window.addEventListener(
+            'message',
+            (event) => {
+                if (event.data.res === 'widget_id') {
+                    if (this.api_key === event.data.res) return; // a safe check
+
+                    this.api_key = event.data.value;
+                    this.hasApiKey = true;
+
+                    this.initializeSocket();
+                }
+
+                if (event.data.res === 'page_visit_info') {
+                    this.sendPageVisitingInfo(event.data.value);
+                }
+
+                // handle other res
+
+                // if res is like whmcs_client_id then assign it
+                // after that watch for it do what is needed
+            },
+            false
+        );
+
+        // send mounted to parent so that it can send infos
+        window.parent.postMessage({ action: 'ec_mounted' }, '*');
 
         this.handleChatPanelVisibility();
 
-        console.log(window.parent.get_api_key());
-
-        if (!window.parent.get_api_key()) {
-            this.hasApiKey = false;
-            return;
-        }
-
-        this.hasApiKey = true;
-
-        await this.initializeSocket();
+        // await this.initializeSocket();
     },
 
     computed: {
@@ -217,22 +236,44 @@ export default defineComponent({
     methods: {
         handleChatPanelVisibility() {
             if (this.panelVisibleStatus) {
-                window.parent.maximizeChatPanel();
+                this.panelMaximize();
             } else {
-                window.parent.minimizeChatPanel();
+                this.panelMinimize();
             }
         },
         toggleChatPanel(toggleTo: any) {
             if (toggleTo) {
                 window.localStorage.setItem('chat_panel_visible', 'true');
                 this.panelVisibleStatus = true;
-                window.parent.maximizeChatPanel();
+
+                this.panelMaximize();
             } else {
                 window.localStorage.removeItem('chat_panel_visible');
                 this.panelVisibleStatus = false;
-                window.parent.minimizeChatPanel();
+
+                this.panelMinimize();
             }
         },
+
+        panelMaximize() {
+            window.parent.postMessage(
+                {
+                    action: 'ec_maximize_panel',
+                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; height: 560px; width: 320px',
+                },
+                '*'
+            );
+        },
+        panelMinimize() {
+            window.parent.postMessage(
+                {
+                    action: 'ec_minimize_panel',
+                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: 50px; height: 50px',
+                },
+                '*'
+            );
+        },
+
         clearSession() {
             // handle actual close by emitting
             localStorage.clear();
@@ -260,6 +301,8 @@ export default defineComponent({
         },
 
         async initializeSocket() {
+            if (!this.api_key) return;
+
             // get conversation information
             const clientInitiateConvInfo: any = localStorage.getItem('clientInitiateConvInfo');
             this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
@@ -271,7 +314,7 @@ export default defineComponent({
             if (!this.sesId) {
                 await window.api
                     .post('/socket-sessions', {
-                        api_key: window.parent.get_api_key(),
+                        api_key: this.api_key,
                     })
                     .then((res: any) => {
                         console.log(res.data);
@@ -452,7 +495,7 @@ export default defineComponent({
 
                 if (!this.pageVisitingHandler) {
                     this.pageVisitingHandler = setInterval(() => {
-                        this.sendPageVisitingInfo();
+                        window.parent.postMessage({ action: 'ec_page_visit_info' }, '*');
                     }, 3000);
                 }
             }
@@ -462,11 +505,11 @@ export default defineComponent({
             this.pageInFocus = document.visibilityState === 'visible';
         },
 
-        sendPageVisitingInfo() {
+        sendPageVisitingInfo(url: any) {
             if (this.socketId) {
                 if (this.pageInFocus) {
                     this.socket.emit('ec_page_visit_info_from_client', {
-                        url: window.parent.document.URL,
+                        url: url,
                         sent_at: Date.now(),
                         visiting: true,
                     });
@@ -475,7 +518,7 @@ export default defineComponent({
                 } else {
                     if (!this.pageNotInFocusEmitted) {
                         this.socket.emit('ec_page_visit_info_from_client', {
-                            url: window.parent.document.URL,
+                            url: url,
                             sent_at: Date.now(),
                             visiting: false,
                         });

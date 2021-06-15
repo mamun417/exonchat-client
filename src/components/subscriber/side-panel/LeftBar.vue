@@ -264,6 +264,11 @@
                                         <q-item-label class="text-weight-bold tw-text-xs">
                                             {{ user.user_meta.display_name }}
                                         </q-item-label>
+
+                                        <q-item-label lines="2" caption>
+                                            <!-- {{ teamConversations }} -->
+                                            {{ teammateMsg(user.conversation_id, user.socket_sessions[0].id) }}
+                                        </q-item-label>
                                     </q-item-section>
 
                                     <q-item-section side>
@@ -309,6 +314,9 @@ import EcAvatar from 'src/components/common/EcAvatar.vue';
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
 
+import * as _l from 'lodash';
+import moment from 'moment';
+
 export default defineComponent({
     name: 'LeftBar',
 
@@ -345,6 +353,41 @@ export default defineComponent({
             globalBgColor: 'setting_ui/globalBgColor',
             globalColor: 'setting_ui/globalColor',
         }),
+
+        teamConversations(): any {
+            const teamConversations = this.$_.cloneDeep(this.$store.getters['chat/teamConversation']);
+
+            if (teamConversations.length) {
+                return teamConversations.map((conv: any) => {
+                    conv.message = msgMaker(conv.messages);
+
+                    return conv;
+                });
+            }
+
+            function msgMaker(messagesObj: any) {
+                if (messagesObj && Object.keys(messagesObj).length) {
+                    const messages = _l.cloneDeep(Object.values(messagesObj));
+
+                    const tempMsgObj: any = _l
+                        .sortBy(
+                            messages.filter((msg: any) => msg.msg || (msg.attachments && msg.attachments.length)),
+                            [(msg: any) => moment(msg.created_at).format('x')]
+                        )
+                        .reverse()[0];
+
+                    if (!tempMsgObj.msg) {
+                        tempMsgObj.msg = 'Uploaded Attachments';
+                    }
+
+                    return tempMsgObj;
+                }
+
+                return null;
+            }
+
+            return [];
+        },
     },
 
     methods: {
@@ -356,6 +399,26 @@ export default defineComponent({
         },
         async getJoinedChatsWithMe() {
             await this.$store.dispatch('chat/getJoinedChatsWithMe');
+        },
+
+        teammateMsg(convId: any, sesId: any) {
+            if (!convId) return '';
+
+            const typingStates = this.$store.getters['chat/typingState'](convId);
+            const sesTypingState = _l.find(typingStates, ['socket_session_id', sesId]);
+
+            if (sesTypingState && sesTypingState.status === 'typing') {
+                return 'Typing...';
+            }
+
+            const conv: any = _l.cloneDeep(this.teamConversations).filter((conv: any) => conv.id === convId);
+            // console.log(conv.length, convId, conv[0]);
+
+            if (conv.length && conv[0].message) {
+                return conv[0].message.msg;
+            }
+
+            return '';
         },
 
         openUserToUserConversation(user: any) {
