@@ -273,7 +273,29 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
             Promise.all([getMyConvWithUsers, getUsers]).then(async ([myConvWithUsers, users]) => {
                 // collect convSessions array
-                const convSessions = myConvWithUsers.data
+                myConvWithUsers.data.forEach((conv: any) => {
+                    context.commit('updateConversation', {
+                        conv_id: conv.id,
+                        conversation: _l.pick(conv, [
+                            'id',
+                            'users_only',
+                            'type',
+                            'closed_at',
+                            'created_by_id',
+                            'closed_by_id',
+                        ]),
+                        sessions: conv.conversation_sessions,
+                        chat_department: conv.chat_department,
+                        // now for sure that at least 1 msg will be available. cz ai will reply after a msg
+                        // if later we implement other way then review this
+                        messages: conv.messages,
+                        ai_is_replying: conv.ai_is_replying,
+                        closed_by: conv.closed_by,
+                    });
+                });
+
+                const convSessions = _l
+                    .cloneDeep(myConvWithUsers.data)
                     .map((conv: any) => {
                         return conv.conversation_sessions;
                     })

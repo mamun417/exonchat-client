@@ -13,6 +13,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return Object.values(state.conversations).filter((conv: any) => !conv.users_only);
     },
 
+    teamConversation: (state) => {
+        return Object.values(state.conversations).filter((conv: any) => conv.users_only);
+    },
+
     conversations: (state) => {
         return state.conversations;
     },
@@ -155,7 +159,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
-                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                            (msg: any) =>
+                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
                         ),
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )
@@ -180,7 +185,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
-                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                            (msg: any) =>
+                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
                         ),
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )
@@ -212,7 +218,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
-                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                            (msg: any) =>
+                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
                         ),
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )
@@ -248,7 +255,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 const msg: any = _l
                     .sortBy(
                         Object.values(conv.messages).filter(
-                            (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                            (msg: any) =>
+                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
                         ),
                         [(msg: any) => moment(msg.created_at).format('x')]
                     )

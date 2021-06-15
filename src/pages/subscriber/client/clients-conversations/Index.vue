@@ -209,7 +209,8 @@ export default defineComponent({
                     const tempMsgObj: any = _l
                         .sortBy(
                             Object.values(messages).filter(
-                                (msg: any) => msg.msg || (msg.attachments && msg.attachments.length)
+                                (msg: any) =>
+                                    msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
                             ),
                             [(msg: any) => moment(msg.created_at).format('x')]
                         )
