@@ -32,11 +32,61 @@
                 </div>
                 <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div
-                        v-if="clientInitiateConvInfo.conv_id"
+                        v-if="clientInitiateConvInfo.conv_id && !clientInitiateConvInfo.showRatingForm"
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
                         <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id"></message>
+                    </div>
+
+                    <div
+                        v-else-if="clientInitiateConvInfo.showRatingForm"
+                        class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5"
+                    >
+                        <q-card>
+                            <q-card-section>
+                                <div class="tw-text-xl tw-text-center">Rate Chat</div>
+                            </q-card-section>
+
+                            <q-card-actions align="around">
+                                <q-btn
+                                    @click="ratingForm.rate = true"
+                                    color="green"
+                                    icon="thumb_up"
+                                    label="Good"
+                                    :flat="!ratingForm.rate"
+                                />
+                                <q-btn
+                                    @click="ratingForm.rate = false"
+                                    color="red"
+                                    icon="thumb_down"
+                                    label="Bad"
+                                    :flat="ratingForm.rate"
+                                />
+
+                                <q-input
+                                    v-model="convInitFields.name"
+                                    dense
+                                    label="Your Comment"
+                                    color="green"
+                                    class="tw-py-5"
+                                >
+                                    <template v-slot:prepend>
+                                        <q-icon name="insert_comment" size="xs" color="green" />
+                                    </template>
+                                </q-input>
+
+                                <q-btn
+                                    :disable="ratingForm.rate === ''"
+                                    dense
+                                    color="green"
+                                    class="full-width tw-my-2"
+                                    no-caps
+                                >
+                                    Submit Rate
+                                </q-btn>
+                            </q-card-actions>
+                        </q-card>
                     </div>
 
                     <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
@@ -183,6 +233,9 @@ export default defineComponent({
             },
             pageVisitingHandler: null,
             gotoBottomBtnShow: false,
+            ratingForm: {
+                rate: '',
+            },
         };
     },
 
@@ -211,6 +264,10 @@ export default defineComponent({
         // which messages store by getConvMessages()
         conversationInfo(): any {
             return this.$store.getters['chat/conversationInfo'](this.clientInitiateConvInfo.conv_id);
+        },
+
+        me() {
+            return localStorage.getItem('me');
         },
     },
 
@@ -389,11 +446,12 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
-                this.$store.dispatch('chat/clearClientChatInitiate');
+                // this.$store.dispatch('chat/clearClientChatInitiate');
+                this.$store.commit('chat/showRatingForm');
 
-                this.socket.close();
-                // force reload dom
-                location.reload();
+                // this.socket.close();
+                // // force reload dom
+                // location.reload();
 
                 console.log('from ec_is_closed_from_conversation', res);
             });

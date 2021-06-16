@@ -13,10 +13,13 @@ export interface ChatStateInterface {
 function state(): ChatStateInterface {
     const convStateInfo = localStorage.getItem('convStateInfo');
     const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
+    const clientInitiateConvInfoObj = clientInitiateConvInfo
+        ? { ...JSON.parse(clientInitiateConvInfo), showRatingForm: !!localStorage.getItem('showRatingForm') }
+        : {};
     const conversations = localStorage.getItem('ec_conversations');
 
     return {
-        clientInitiateConvInfo: clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {},
+        clientInitiateConvInfo: clientInitiateConvInfoObj,
         convStateInfo: convStateInfo ? JSON.parse(convStateInfo) : {},
         chatPanels: [],
         selectedPanel: null,

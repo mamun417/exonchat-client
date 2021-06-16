@@ -208,6 +208,11 @@ const mutation: MutationTree<ChatStateInterface> = {
         sessionStorage.clear();
         state.clientInitiateConvInfo = {};
     },
+
+    showRatingForm(state: ChatStateInterface) {
+        localStorage.setItem('showRatingForm', 'true');
+        state.clientInitiateConvInfo.showRatingForm = true;
+    },
 };
 
 export default mutation;
