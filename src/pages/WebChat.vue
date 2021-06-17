@@ -193,7 +193,7 @@ export default defineComponent({
         window.addEventListener(
             'message',
             (event) => {
-                if (event.data.res === 'widget_id') {
+                if (event.data.res === 'widget_id' && event.data.value) {
                     if (this.api_key === event.data.res) return; // a safe check
 
                     this.api_key = event.data.value;
