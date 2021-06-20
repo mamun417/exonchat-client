@@ -15,9 +15,7 @@
                         <q-menu>
                             <q-list style="min-width: 100px" dense>
                                 <q-item clickable dense v-close-popup>
-                                    <q-item-section @click="clearSession" class="text-orange"
-                                        >Close Chat</q-item-section
-                                    >
+                                    <q-item-section @click="closeChat" class="text-orange">Close Chat</q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>
@@ -43,50 +41,7 @@
                         v-else-if="clientInitiateConvInfo.showRatingForm"
                         class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5"
                     >
-                        <q-card>
-                            <q-card-section>
-                                <div class="tw-text-xl tw-text-center">Rate Chat</div>
-                            </q-card-section>
-
-                            <q-card-actions align="around">
-                                <q-btn
-                                    @click="ratingForm.rate = true"
-                                    color="green"
-                                    icon="thumb_up"
-                                    label="Good"
-                                    :flat="!ratingForm.rate"
-                                />
-                                <q-btn
-                                    @click="ratingForm.rate = false"
-                                    color="red"
-                                    icon="thumb_down"
-                                    label="Bad"
-                                    :flat="ratingForm.rate"
-                                />
-
-                                <q-input
-                                    v-model="convInitFields.name"
-                                    dense
-                                    label="Your Comment"
-                                    color="green"
-                                    class="tw-py-5"
-                                >
-                                    <template v-slot:prepend>
-                                        <q-icon name="insert_comment" size="xs" color="green" />
-                                    </template>
-                                </q-input>
-
-                                <q-btn
-                                    :disable="ratingForm.rate === ''"
-                                    dense
-                                    color="green"
-                                    class="full-width tw-my-2"
-                                    no-caps
-                                >
-                                    Submit Rate
-                                </q-btn>
-                            </q-card-actions>
-                        </q-card>
+                        <chat-rating @ratedByClient="clearSession" />
                     </div>
 
                     <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
@@ -188,6 +143,7 @@ import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
+import ChatRating from 'components/subscriber/chat/ChatRating.vue';
 
 declare global {
     interface Window {
@@ -199,7 +155,7 @@ declare global {
 
 export default defineComponent({
     name: 'WebChat',
-    components: { Message },
+    components: { ChatRating, Message },
     setup() {
         return {};
     },
@@ -233,9 +189,6 @@ export default defineComponent({
             },
             pageVisitingHandler: null,
             gotoBottomBtnShow: false,
-            ratingForm: {
-                rate: '',
-            },
         };
     },
 
@@ -292,6 +245,7 @@ export default defineComponent({
         },
         clearSession() {
             // handle actual close by emitting
+            this.socket.close();
             localStorage.clear();
             sessionStorage.clear();
             this.clientInitiateConvInfo = {};
@@ -569,6 +523,14 @@ export default defineComponent({
             setInterval(() => {
                 this.typingHandler.typing = false;
             }, 2000);
+        },
+
+        closeChat() {
+            this.socket.emit('ec_close_conversation', {
+                conv_id: this.clientInitiateConvInfo.conv_id,
+            });
+
+            this.$store.commit('chat/showRatingForm');
         },
     },
 

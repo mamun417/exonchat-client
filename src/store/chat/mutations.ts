@@ -145,6 +145,10 @@ const mutation: MutationTree<ChatStateInterface> = {
                     conv.sessions.push(convSession);
                 }
             }
+
+            if (convData.hasOwnProperty('rating')) {
+                state.conversations[convId].rating = convData.rating;
+            }
         }
     },
 

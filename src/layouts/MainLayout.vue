@@ -551,6 +551,11 @@ export default defineComponent({
                 // console.log('from ec_page_visit_info_from_client', res);
             });
 
+            this.socket.on('ec_conversation_rated_from_client', (res: any) => {
+                this.$store.dispatch('chat/updateConvRating', res);
+                console.log('from ec_conversation_rated_from_client', res);
+            });
+
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
                 // check if has if not then new event
