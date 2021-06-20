@@ -551,6 +551,35 @@ export default defineComponent({
                 // console.log('from ec_page_visit_info_from_client', res);
             });
 
+            this.socket.on('ec_apps_notification', (res: any) => {
+                if (res.app === 'whmcs' && res.type === 'ticket') {
+                    const ticket = res.data;
+
+                    this.$q.notify({
+                        group: 1,
+                        message: `Ticket#${ticket.tid} From:${ticket.email}`,
+                        caption: ticket.subject,
+                        progress: true,
+                        multiLine: true,
+                        icon: 'confirmation_number',
+                        color: 'grey-10',
+                        textColor: 'white',
+                        position: 'top-right',
+                        classes: 'tw-w-80 tw-p-2',
+                        timeout: 20000,
+                        badgeClass: 'hidden',
+                        actions: [
+                            {
+                                icon: 'close',
+                                color: 'orange',
+                                size: 'xs',
+                            },
+                        ],
+                    });
+                }
+                console.log('from ec_apps_notification', res);
+            });
+
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
                 // check if has if not then new event

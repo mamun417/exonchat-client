@@ -62,6 +62,12 @@ const routes: RouteRecordRaw[] = [
             },
 
             {
+                path: 'apps/whmcs/tickets',
+                name: 'whmcs_tickets',
+                component: () => import('pages/subscriber/apps/third-party/whmcs/Ticket.vue'),
+            },
+
+            {
                 path: 'settings',
                 name: 'settings',
                 component: () => import('pages/subscriber/settings/Index.vue'),
