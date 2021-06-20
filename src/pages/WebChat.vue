@@ -15,9 +15,7 @@
                         <q-menu anchor="bottom right" self="top right">
                             <q-list style="min-width: 100px" dense>
                                 <q-item clickable dense v-close-popup>
-                                    <q-item-section @click="clearSession" class="text-orange"
-                                        >Close Chat</q-item-section
-                                    >
+                                    <q-item-section @click="closeChat" class="text-orange">Close Chat</q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>
@@ -32,11 +30,18 @@
                 </div>
                 <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div
-                        v-if="clientInitiateConvInfo.conv_id"
+                        v-if="clientInitiateConvInfo.conv_id && !clientInitiateConvInfo.showRatingForm"
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
                         <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id"></message>
+                    </div>
+
+                    <div
+                        v-else-if="clientInitiateConvInfo.showRatingForm"
+                        class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5"
+                    >
+                        <chat-rating @ratedByClient="clearSession" />
                     </div>
 
                     <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
@@ -135,6 +140,7 @@ import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
+import ChatRating from 'components/subscriber/chat/ChatRating.vue';
 
 declare global {
     interface Window {
@@ -146,7 +152,7 @@ declare global {
 
 export default defineComponent({
     name: 'WebChat',
-    components: { Message },
+    components: { ChatRating, Message },
     setup() {
         return {};
     },
@@ -231,6 +237,10 @@ export default defineComponent({
         conversationInfo(): any {
             return this.$store.getters['chat/conversationInfo'](this.clientInitiateConvInfo.conv_id);
         },
+
+        me() {
+            return localStorage.getItem('me');
+        },
     },
 
     methods: {
@@ -276,6 +286,7 @@ export default defineComponent({
 
         clearSession() {
             // handle actual close by emitting
+            this.socket.close();
             localStorage.clear();
             sessionStorage.clear();
             this.clientInitiateConvInfo = {};
@@ -432,11 +443,12 @@ export default defineComponent({
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
-                this.$store.dispatch('chat/clearClientChatInitiate');
+                // this.$store.dispatch('chat/clearClientChatInitiate');
+                this.$store.commit('chat/showRatingForm');
 
-                this.socket.close();
-                // force reload dom
-                location.reload();
+                // this.socket.close();
+                // // force reload dom
+                // location.reload();
 
                 console.log('from ec_is_closed_from_conversation', res);
             });
@@ -554,6 +566,14 @@ export default defineComponent({
             setInterval(() => {
                 this.typingHandler.typing = false;
             }, 2000);
+        },
+
+        closeChat() {
+            this.socket.emit('ec_close_conversation', {
+                conv_id: this.clientInitiateConvInfo.conv_id,
+            });
+
+            this.$store.commit('chat/showRatingForm');
         },
     },
 

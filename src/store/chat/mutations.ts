@@ -145,6 +145,10 @@ const mutation: MutationTree<ChatStateInterface> = {
                     conv.sessions.push(convSession);
                 }
             }
+
+            if (convData.hasOwnProperty('rating')) {
+                state.conversations[convId].rating = convData.rating;
+            }
         }
     },
 
@@ -207,6 +211,11 @@ const mutation: MutationTree<ChatStateInterface> = {
         localStorage.clear();
         sessionStorage.clear();
         state.clientInitiateConvInfo = {};
+    },
+
+    showRatingForm(state: ChatStateInterface) {
+        localStorage.setItem('showRatingForm', 'true');
+        state.clientInitiateConvInfo.showRatingForm = true;
     },
 };
 

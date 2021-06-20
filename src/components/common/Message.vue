@@ -124,6 +124,31 @@
             </q-chat-message>
         </template>
 
+        <div v-if="conversationInfo.rating" class="text-center">
+            <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                <div>
+                    Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
+                    {{ $helpers.fromNowTime(conversationInfo.rating.created_at) }}
+                </div>
+                <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
+                <div class="tw-mt-2">
+                    <div>Chat rating</div>
+                    <div>
+                        <q-btn
+                            size="sm"
+                            :color="conversationInfo.rating.rating === 5 ? 'green' : 'red'"
+                            :icon="conversationInfo.rating.rating === 5 ? 'thumb_up' : 'thumb_down'"
+                            :label="conversationInfo.rating.rating === 5 ? 'Good' : 'Bad'"
+                            outline
+                            class="tw-mt-1"
+                        />
+                    </div>
+                </div>
+                <!--<pre>{{ conversationInfo.rating }}</pre>-->
+                <!--<pre>{{ conversationWithUsersInfo[0].socket_session }}</pre>-->
+            </div>
+        </div>
+
         <!-- <q-btn
             v-if="gotoBottomBtnShow"
             @click="scrollToBottom"
@@ -378,6 +403,7 @@ export default defineComponent({
         ...mapGetters({
             globalBgColor: 'setting_ui/globalBgColor',
             globalColor: 'setting_ui/globalColor',
+            profile: 'auth/profile',
         }),
 
         chatPanelType(): any {
@@ -460,6 +486,13 @@ export default defineComponent({
             }
 
             return mappedChatTemplates;
+        },
+
+        conversationWithUsersInfo(): any {
+            return this.$store.getters['chat/conversationWithUsersInfo'](
+                this.conv_id,
+                this.profile?.socket_session?.id
+            );
         },
     },
 

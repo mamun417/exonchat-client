@@ -74,6 +74,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         messages: conv.messages,
                         ai_is_replying: conv.ai_is_replying,
                         closed_by: conv.closed_by,
+                        rating: conv.conversation_rating,
                     });
 
                     resolve(res);
@@ -345,6 +346,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     clearClientChatInitiate(context) {
         context.commit('clearClientChatInitiate');
+    },
+
+    updateConvRating(context, convRatingInfo) {
+        context.commit('updateConversation', {
+            conv_id: convRatingInfo.conversation_id,
+            rating: convRatingInfo,
+        });
     },
 };
 
