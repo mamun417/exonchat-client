@@ -112,6 +112,35 @@
                         ></q-card
                     >
                 </q-expansion-item>
+
+                <q-expansion-item
+                    icon="web"
+                    label="Previous Chats"
+                    dense
+                    default-opened
+                    header-class="text-weight-bold bg-green-1"
+                    class="tw-py-2"
+                >
+                    <q-card
+                        ><q-card-section class="tw-p-0">
+                            <q-list v-if="clientPreviousChats.length" class="tw-break-all">
+                                <q-item v-for="(conv, key) of clientPreviousChats" :key="key" dense class="tw-text-xs">
+                                    <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
+                                        <q-icon name="'chat_bubble_outline'" size="xs"> </q-icon>
+                                    </q-item-section>
+                                    <q-item-section
+                                        ><q-item-label>{{ conv.messages[0].msg }}</q-item-label
+                                        ><q-item-label caption>{{
+                                            $helpers.myDate(conv.created_at)
+                                        }}</q-item-label></q-item-section
+                                    ></q-item
+                                >
+                            </q-list>
+
+                            <div v-else class="text-center">No previous chats</div>
+                        </q-card-section>
+                    </q-card>
+                </q-expansion-item>
             </q-list>
         </q-scroll-area>
     </div>
@@ -137,6 +166,8 @@ export default defineComponent({
         return {
             sesId: '',
             confirm: false,
+
+            clientPreviousChats: [],
         };
     },
 
@@ -175,7 +206,7 @@ export default defineComponent({
                 ? this.conversationWithUsersInfo[0].socket_session.init_user_agent
                 : '';
 
-            console.log(uaString, UAParser(uaString));
+            // console.log(uaString, UAParser(uaString));
 
             return UAParser(uaString);
         },
@@ -188,13 +219,45 @@ export default defineComponent({
             if (
                 this.$route.name === 'chats' &&
                 this.rightBarState.mode === 'client_info' &&
-                this.conversationWithUsersInfo.length
+                this.conversationWithUsersInfo?.length
             ) {
                 this.$refs.page_visit_list.$forceUpdate();
             }
         }, 10000);
+
+        if (
+            this.$route.name === 'chats' &&
+            this.rightBarState.mode === 'client_info' &&
+            this.conversationWithUsersInfo?.length
+        ) {
+        }
     },
 
     methods: {},
+
+    watch: {
+        conversationWithUsersInfo: {
+            handler: function (newVal, oldVal) {
+                console.log(newVal, oldVal);
+
+                if (newVal?.length && (!oldVal?.length || newVal[0].conversation_id !== oldVal[0].conversation_id)) {
+                    window.api
+                        .get(
+                            `/conversations/client-previous-conversations?email=${this.conversationWithUsersInfo[0].socket_session.init_email}`
+                        )
+                        .then((res: any) => {
+                            // console.log(res.data);
+                            this.clientPreviousChats = res.data.filter((conv: any) => {
+                                return conv.id !== newVal[0].conversation_id;
+                            });
+                        })
+                        .catch((e: any) => {
+                            e;
+                        });
+                }
+            },
+            immediate: true,
+        },
+    },
 });
 </script>
