@@ -1,10 +1,20 @@
 <template>
     <div>
+        <!--<pre>{{ conversationInfo }}</pre>-->
+        <div class="text-center tw-mb-5" v-if="conversationInfo.closed_by">
+            {{
+                $_.upperFirst(
+                    conversationInfo.closed_by.user
+                        ? conversationInfo.closed_by.user.user_meta.display_name
+                        : conversationInfo.closed_by.init_name
+                )
+            }}
+            closed {{ $helpers.fromNowTime(conversationInfo.closed_by.created_at) }}
+        </div>
         <q-card>
             <q-card-section>
                 <div class="tw-text-xl tw-text-center">Rate Chat</div>
             </q-card-section>
-
             <q-card-actions align="around">
                 <q-btn
                     @click="ratingForm.ratingTempValue = true"

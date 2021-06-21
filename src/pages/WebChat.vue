@@ -287,9 +287,14 @@ export default defineComponent({
         clearSession() {
             // handle actual close by emitting
             this.socket.close();
-            localStorage.clear();
-            sessionStorage.clear();
+
+            localStorage.removeItem('clientInitiateConvInfo');
+            localStorage.removeItem('ec_client_socket_token');
+            localStorage.removeItem('ec_client_socket_ses_id');
+            localStorage.removeItem('showRatingForm');
+
             this.clientInitiateConvInfo = {};
+
             location.reload();
         },
         getChatDepartments() {

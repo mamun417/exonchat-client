@@ -102,7 +102,7 @@
             v-if="confirmModal"
             :conv-state-button-info="{ name: modalForState }"
             @convStateHandle="convStateHandle($event)"
-            @hide="confirm = false"
+            @hide="confirmModal = false"
         />
     </q-card>
 </template>
