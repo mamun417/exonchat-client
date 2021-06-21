@@ -42,7 +42,7 @@
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
-                    <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
+                    <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                         <q-icon name="language" size="xs"> </q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
@@ -53,7 +53,7 @@
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
-                    <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
+                    <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                         <q-icon name="devices" size="xs"> </q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
@@ -64,7 +64,7 @@
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
-                    <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
+                    <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                         <q-icon name="dns" size="xs"> </q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
@@ -73,7 +73,7 @@
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
-                    <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
+                    <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                         <q-icon name="schedule" size="xs"> </q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
@@ -89,14 +89,14 @@
                     label="User Visiting"
                     dense
                     default-opened
-                    header-class="text-weight-bold bg-green-1"
-                    class="tw-py-2"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
+                    class="tw-pt-2"
                 >
                     <q-card
                         ><q-card-section class="tw-p-0">
-                            <q-list ref="page_visit_list" class="tw-break-all">
+                            <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
                                 <q-item v-for="(visit, key) of visits" :key="key" dense class="tw-text-xs">
-                                    <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
+                                    <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                                         <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"> </q-icon>
                                     </q-item-section>
                                     <q-item-section
@@ -108,25 +108,25 @@
                                         }}</q-item-label></q-item-section
                                     ></q-item
                                 ></q-list
-                            ></q-card-section
+                            >
+                            <div v-else class="text-center tw-text-xs tw-py-2">No visit info</div></q-card-section
                         ></q-card
                     >
                 </q-expansion-item>
 
                 <q-expansion-item
-                    icon="web"
+                    icon="question_answer"
                     label="Previous Chats"
                     dense
                     default-opened
-                    header-class="text-weight-bold bg-green-1"
-                    class="tw-py-2"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
                 >
                     <q-card
                         ><q-card-section class="tw-p-0">
                             <q-list v-if="clientPreviousChats.length" class="tw-break-all">
                                 <q-item v-for="(conv, key) of clientPreviousChats" :key="key" dense class="tw-text-xs">
-                                    <q-item-section class="tw-max-w-xs tw-pr-0" avatar>
-                                        <q-icon name="'chat_bubble_outline'" size="xs"> </q-icon>
+                                    <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
+                                        <q-icon name="chat_bubble_outline" size="xs"> </q-icon>
                                     </q-item-section>
                                     <q-item-section
                                         ><q-item-label>{{ conv.messages[0].msg }}</q-item-label
@@ -138,6 +138,39 @@
                             </q-list>
 
                             <div v-else class="text-center">No previous chats</div>
+                        </q-card-section>
+                    </q-card>
+                </q-expansion-item>
+
+                <q-expansion-item
+                    icon="confirmation_number"
+                    label="Tickets"
+                    dense
+                    default-opened
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
+                >
+                    <q-card
+                        ><q-card-section class="tw-p-0">
+                            <q-list v-if="clientTickets.length" class="tw-break-all">
+                                <q-item v-for="(ticket, key) of clientTickets" :key="key" dense class="tw-text-xs">
+                                    <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
+                                        <q-icon name="confirmation_number" size="xs"> </q-icon>
+                                    </q-item-section>
+                                    <q-item-section
+                                        ><q-item-label>{{ ticket.subject }}</q-item-label
+                                        ><q-item-label caption
+                                            ><div class="tw-flex tw-justify-between tw-items-center">
+                                                <div class="tw-mr-2">{{ $helpers.myDate(ticket.date) }}</div>
+                                                <q-badge :color="ticket.status === 'Answered' ? 'green' : 'orange'">
+                                                    {{ ticket.status }}
+                                                </q-badge>
+                                            </div></q-item-label
+                                        ></q-item-section
+                                    ></q-item
+                                >
+                            </q-list>
+
+                            <div v-else class="text-center">No tickets found</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -168,6 +201,7 @@ export default defineComponent({
             confirm: false,
 
             clientPreviousChats: [],
+            clientTickets: [],
         };
     },
 
@@ -176,6 +210,8 @@ export default defineComponent({
             rightBarState: 'setting_ui/rightBarState',
             conversationInfo: 'chat/conversationInfo',
             profile: 'auth/profile',
+            globalBgColor: 'setting_ui/globalBgColor',
+            globalColor: 'setting_ui/globalColor',
         }),
 
         fullChatConvId(): any {
@@ -221,7 +257,7 @@ export default defineComponent({
                 this.rightBarState.mode === 'client_info' &&
                 this.conversationWithUsersInfo?.length
             ) {
-                this.$refs.page_visit_list.$forceUpdate();
+                this.$refs.page_visit_list?.$forceUpdate();
             }
         }, 10000);
 
@@ -250,6 +286,16 @@ export default defineComponent({
                             this.clientPreviousChats = res.data.filter((conv: any) => {
                                 return conv.id !== newVal[0].conversation_id;
                             });
+                        })
+                        .catch((e: any) => {
+                            e;
+                        });
+
+                    window.api
+                        .get(`/apps/whmcs/tickets?email=${this.conversationWithUsersInfo[0].socket_session.init_email}`)
+                        .then((res: any) => {
+                            // console.log(res.data);
+                            this.clientTickets = res.data.tickets?.ticket || [];
                         })
                         .catch((e: any) => {
                             e;

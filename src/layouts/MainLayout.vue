@@ -127,7 +127,7 @@
                 class="tw-shadow-lgl"
                 side="right"
                 breakpoint="xs"
-                :width="this.rightBarState.mode === 'conversation' ? 300 : 250"
+                :width="this.rightBarState.mode === 'conversation' ? 300 : 260"
                 persistent
             >
                 <right-bar></right-bar>
