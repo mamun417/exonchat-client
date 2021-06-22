@@ -6,10 +6,23 @@ import * as _l from 'lodash';
 const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
     getClientConversations(context) {
         return new Promise((resolve, reject) => {
+            // console.log(context.state.paginationMeta.current_page);
             window.api
-                .post('conversations/clients-conversation')
+                .post('conversations/clients-conversation', null, {
+                    params: {
+                        p: context.state.paginationMeta.current_page,
+                        pp: 2,
+                    },
+                })
                 .then((res: any) => {
-                    const clientConvs = res.data || [];
+                    context.commit('updatePaginationMeta', res.data.conversations.pagination);
+
+                    const clientConvs = res.data.conversations.data || [];
+
+                    context.commit(
+                        'test',
+                        clientConvs.map((conv: any) => conv.id)
+                    );
 
                     clientConvs.forEach((conv: any) => {
                         context.commit(
@@ -42,6 +55,20 @@ const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
                 });
         });
     },
+
+    updateCurrentPage(context, currentPage) {
+        return new Promise((resolve) => {
+            context.commit('updateCurrentPage', currentPage);
+            resolve(true);
+        });
+    },
+
+    // updatePipeline(context, payload) {
+    //     return new Promise((resolve) => {
+    //         context.commit('updatePipeline', payload);
+    //         resolve(true);
+    //     });
+    // },
 };
 
 export default actions;

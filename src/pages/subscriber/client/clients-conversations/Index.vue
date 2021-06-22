@@ -6,12 +6,16 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <!-- <pre>{{ clientConversations }}</pre> -->
                 <ec-table :rows="clientConversations" :columns="columns" :bodyCelTemplate="{}">
                     <template v-slot:cell-client_name="slotProps">
                         <div class="text-italic">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
                             {{ slotProps.row.client_info.socket_session.init_name }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-client_email="slotProps">
+                        <div class="text-italic">
+                            {{ slotProps.row.client_info.socket_session.init_email }}
                         </div>
                     </template>
 
@@ -78,6 +82,14 @@
                         />
                     </template>
                 </ec-table>
+
+                <div v-if="clientConvPaginationMeta.total_page > 1" class="tw-mt-10 flex flex-center">
+                    <pagination
+                        :current_page="clientConvPaginationMeta.current_page"
+                        :last_page="clientConvPaginationMeta.total_page"
+                        @handlePagination="clientConvPaginationHandle"
+                    />
+                </div>
             </div>
         </div>
 
@@ -103,6 +115,7 @@ import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFa
 
 import * as _l from 'lodash';
 import moment from 'moment';
+import Pagination from 'components/common/Pagination.vue';
 
 const columns = [
     {
@@ -110,6 +123,12 @@ const columns = [
         align: 'left',
         label: 'Client Name',
         field: 'client_name',
+    },
+    {
+        name: 'client_email',
+        align: 'left',
+        label: 'Client Email',
+        field: 'client_email',
     },
     {
         name: 'msg',
@@ -151,6 +170,7 @@ const columns = [
 
 export default defineComponent({
     components: {
+        Pagination,
         ConversationStateConfirmModal,
         ViewConversationBtn,
         CloseConversationBtn,
@@ -161,6 +181,7 @@ export default defineComponent({
     },
     data(): any {
         return {
+            currentPage: 1,
             conversationId: '',
             confirm: false,
         };
@@ -175,10 +196,16 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             rightBarState: 'setting_ui/rightBarState',
+            clientConvPaginationMeta: 'client_conversation/paginationMeta',
+            newIds: 'client_conversation/newIds',
         }),
 
         clientConversations(): any {
-            const clientConversations = this.$_.cloneDeep(this.$store.getters['chat/clientsConversation']);
+            const clientConversations = this.$_.cloneDeep(
+                this.$store.getters['chat/clientsConversation'].filter((clientConv: any) =>
+                    this.newIds.includes(clientConv.id)
+                )
+            );
 
             const mySocketSessionId = this.$helpers.getMySocketSessionId();
 
@@ -210,7 +237,7 @@ export default defineComponent({
                         .sortBy(
                             Object.values(messages).filter(
                                 (msg: any) =>
-                                    msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
+                                    msg.sender_type !== 'ai' || msg.msg || (msg.attachments && msg.attachments.length)
                             ),
                             [(msg: any) => moment(msg.created_at).format('x')]
                         )
@@ -253,6 +280,12 @@ export default defineComponent({
 
             this.$socket.emit('ec_close_conversation', {
                 conv_id: convId,
+            });
+        },
+
+        clientConvPaginationHandle(page: any) {
+            this.$store.dispatch('client_conversation/updateCurrentPage', page).then(() => {
+                this.getClientConversations();
             });
         },
     },
