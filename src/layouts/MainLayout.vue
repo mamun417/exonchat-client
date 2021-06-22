@@ -1,6 +1,6 @@
 <template>
     <q-layout view="hHh LpR fff" class="bg-white">
-        <q-header :class="[`${globalBgColor}-8`]" elevated>
+        <!-- <q-header :class="[`${globalBgColor}-8`]" elevated>
             <q-toolbar class="tw-px-8">
                 <q-btn icon="mediation" flat />
                 <q-btn :icon="leftDrawer ? 'menu_open' : 'menu'" @click="leftDrawer = !leftDrawer" flat />
@@ -107,19 +107,135 @@
                     </q-menu>
                 </ec-avatar>
             </q-toolbar>
-        </q-header>
+        </q-header> -->
 
         <template v-if="domReady">
             <q-drawer
-                v-model="leftDrawer"
+                :model-value="true"
                 class="tw-shadow-lgr"
                 side="left"
                 breakpoint="xs"
-                width="250"
+                :width="!leftDrawer ? 65 : 300"
                 persistent
                 show-if-above
             >
-                <left-bar></left-bar>
+                <div class="tw-flex tw-h-full">
+                    <div
+                        id="left-bar-menu"
+                        class="tw-w-16 tw-flex tw-flex-col tw-justify-between tw-py-3 text-white"
+                        :class="[`${globalBgColor}-8`]"
+                    >
+                        <div class="tw-flex tw-flex-col tw-items-center">
+                            <q-btn icon="mediation" class="tw-mb-2" flat size="lg" />
+
+                            <q-btn icon="mark_chat_unread" @click="leftDrawer = !leftDrawer" flat size="18px"
+                                ><q-tooltip :offset="[10, 10]">Show/Hide Requests Panel</q-tooltip></q-btn
+                            >
+
+                            <q-btn icon="insert_comment" :to="{ name: 'chat-templates' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Chat templates</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="smart_toy" :to="{ name: 'intents' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Intents</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="record_voice_over" :to="{ name: 'speech-recognition' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="account_tree" :to="{ name: 'departments' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="dynamic_feed" :to="{ name: 'visitors' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Visitors</q-tooltip>
+                            </q-btn>
+
+                            <q-btn
+                                v-if="profile?.role?.slug === 'admin'"
+                                icon="people"
+                                :to="{ name: 'users' }"
+                                flat
+                                size="18px"
+                            >
+                                <q-tooltip :offset="[10, 10]">Users</q-tooltip>
+                            </q-btn>
+                        </div>
+
+                        <div class="tw-flex tw-flex-col tw-items-center">
+                            <q-btn icon="info" flat>
+                                <q-tooltip :offset="[10, 10]">Developer debug</q-tooltip>
+
+                                <q-menu class="tw-p-2" style="min-width: 350px">
+                                    <div
+                                        class="tw-p-2 tw-border-1 tw-shadow-md"
+                                        v-for="(m, i) in Object.keys($store._modules.root.state)"
+                                        :key="i"
+                                    >
+                                        <div class="text-green text-center">{{ m }}</div>
+                                        <div
+                                            class="tw-my-2"
+                                            v-for="(mv, k) in Object.keys($store._modules.root.state[m])"
+                                            :key="k"
+                                        >
+                                            <span>
+                                                <pre>{{ mv }}</pre>
+                                            </span>
+                                            <span class="tw-mx-2">=></span>
+                                            <span>
+                                                <pre>{{ $store._modules.root.state[m][mv] }}</pre>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </q-menu>
+                            </q-btn>
+
+                            <!-- <q-btn class="tw-mr-2" :icon="rightDrawer ? 'menu_open' : 'menu'" @click="toggleRightDrawer" flat /> -->
+                            <q-btn icon="settings" :to="{ name: 'settings_ui' }" flat>
+                                <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
+                            </q-btn>
+
+                            <ec-avatar
+                                :image_src="profile?.user_meta?.attachment?.src"
+                                :name="profile?.user_meta?.display_name"
+                                class="cursor-pointer tw-mt-3"
+                            >
+                                <q-badge color="primary" floating rounded>2</q-badge>
+
+                                <q-menu>
+                                    <div class="row no-wrap q-pa-md">
+                                        <div class="column">
+                                            <div class="text-h6 q-mb-md">upcomming...</div>
+                                        </div>
+
+                                        <q-separator vertical inset class="q-mx-lg" />
+
+                                        <div class="column items-center">
+                                            <ec-avatar
+                                                size="72px"
+                                                :image_src="profile?.user_meta?.attachment?.src"
+                                                :name="profile?.user_meta?.display_name"
+                                            />
+
+                                            <div class="tw-text-xs tw-mt-2 tw-mb-1">
+                                                {{ $_.upperFirst(profile.user_meta?.full_name) }}
+                                            </div>
+                                            <div class="tw-text-xxs tw-mb-2">{{ profile.email }}</div>
+
+                                            <q-btn @click="logout" color="orange" label="Logout" size="sm" />
+                                        </div>
+                                    </div>
+                                </q-menu>
+                            </ec-avatar>
+                        </div>
+                    </div>
+                    <left-bar v-show="leftDrawer"></left-bar>
+                </div>
             </q-drawer>
 
             <q-drawer
@@ -360,6 +476,7 @@ export default defineComponent({
         },
 
         async socketInitialize() {
+            return;
             this.sesId = this.$helpers.getMySocketSessionId();
             this.socketToken = sessionStorage.getItem('ec_user_socket_token');
             console.log(this.sesId);
