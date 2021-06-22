@@ -603,7 +603,7 @@ export default defineComponent({
                     if (d.getElementById(id)) return;
                     js = d.createElement(s);
                     js.id = id;
-                    js.setAttribute('data-api-key', self.profile.subscriber.api_key);
+                    js.setAttribute('data-widget-id', self.profile.subscriber.api_key);
                     js.src = `${location.origin}/assets/js/web-chat/web-chat.js`; // for other site dont use location.origin
                     fjs.parentNode.insertBefore(js, fjs);
                 })(document, 'script', 'exhonchat-chat-script');

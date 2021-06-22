@@ -163,7 +163,12 @@
             ></q-btn>
         </div>
         <div class="tw-flex tw-flex-col tw-justify-end">
-            <ec-emoji @clickEmoji="handleClickEmoji" :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']" :dense="mini_mode" />
+            <ec-emoji
+                @clickEmoji="handleClickEmoji"
+                :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
+                :dense="mini_mode"
+                :mini_box="mini_mode || chatPanelType === 'client'"
+            />
             <!--<q-btn
                 flat
                 color="green"

@@ -194,7 +194,7 @@ export default defineComponent({
             'message',
             (event) => {
                 if (event.data.res === 'widget_id') {
-                    if (this.api_key === event.data.res) return; // a safe check
+                    if (this.api_key === event.data.value) return; // a safe check
 
                     this.api_key = event.data.value;
                     this.hasApiKey = true;
@@ -283,9 +283,9 @@ export default defineComponent({
         },
         getChatDepartments() {
             window.socketSessionApi
-                .get('departments')
+                .get('/departments')
                 .then((res: any) => {
-                    console.log(res);
+                    // console.log('webchat departments', res);
                     this.chatDepartments = res.data;
                 })
                 .catch((e: any) => {
