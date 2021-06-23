@@ -18,12 +18,7 @@ const routes: RouteRecordRaw[] = [
                 name: 'users',
                 component: () => import('pages/subscriber/agent/Index.vue'),
             },
-            {
-                meta: { requiresRoleAdmin: true },
-                path: 'users/invitations',
-                name: 'users-invitations',
-                component: () => import('pages/subscriber/agent/Invitations.vue'),
-            },
+
             {
                 path: 'departments',
                 name: 'departments',

@@ -36,51 +36,51 @@
                         <q-item-label class="text-weight-bold tw-text-lg">
                             {{ $_.upperFirst(conversationWithUsersInfo[0].socket_session.init_name) }}
                         </q-item-label>
-                        <q-item-label caption>{{
-                            conversationWithUsersInfo[0].socket_session.init_email
-                        }}</q-item-label>
+                        <q-item-label caption
+                            >{{ conversationWithUsersInfo[0].socket_session.init_email }}
+                        </q-item-label>
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
-                        <q-icon name="language" size="xs"> </q-icon>
+                        <q-icon name="language" size="xs"></q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
-                        <q-item-label class="text-weight-bold">Browser</q-item-label
-                        ><q-item-label caption
-                            >{{ parsedUaString.browser.name }} {{ parsedUaString.browser.version }}</q-item-label
-                        >
+                        <q-item-label class="text-weight-bold">Browser </q-item-label>
+                        <q-item-label caption
+                            >{{ parsedUaString.browser.name }} {{ parsedUaString.browser.version }}
+                        </q-item-label>
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
-                        <q-icon name="devices" size="xs"> </q-icon>
+                        <q-icon name="devices" size="xs"></q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
-                        <q-item-label class="text-weight-bold">Operating System</q-item-label
-                        ><q-item-label caption>
+                        <q-item-label class="text-weight-bold">Operating System </q-item-label>
+                        <q-item-label caption>
                             {{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
                         </q-item-label>
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
-                        <q-icon name="dns" size="xs"> </q-icon>
+                        <q-icon name="dns" size="xs"></q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
-                        <q-item-label class="text-weight-bold">User IP</q-item-label
-                        ><q-item-label caption>{{ conversationWithUsersInfo[0].socket_session.init_ip }}</q-item-label>
+                        <q-item-label class="text-weight-bold">User IP </q-item-label>
+                        <q-item-label caption>{{ conversationWithUsersInfo[0].socket_session.init_ip }}</q-item-label>
                     </q-item-section>
                 </q-item>
                 <q-item class="tw-text-xs tw-w-full" dense>
                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
-                        <q-icon name="schedule" size="xs"> </q-icon>
+                        <q-icon name="schedule" size="xs"></q-icon>
                     </q-item-section>
                     <q-item-section no-wrap>
-                        <q-item-label class="text-weight-bold">Initiated At</q-item-label
-                        ><q-item-label caption>{{
-                            $helpers.myDate(conversationWithUsersInfo[0].created_at, 'MMMM Do YYYY HH:MM')
-                        }}</q-item-label>
+                        <q-item-label class="text-weight-bold">Initiated At </q-item-label>
+                        <q-item-label caption
+                            >{{ $helpers.myDate(conversationWithUsersInfo[0].created_at, 'MMMM Do YYYY HH:MM') }}
+                        </q-item-label>
                     </q-item-section>
                 </q-item>
 
@@ -92,26 +92,28 @@
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
                     class="tw-pt-2"
                 >
-                    <q-card
-                        ><q-card-section class="tw-p-0">
+                    <q-card>
+                        <q-card-section class="tw-p-0">
                             <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
                                 <q-item v-for="(visit, key) of visits" :key="key" dense class="tw-text-xs">
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
-                                        <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"> </q-icon>
+                                        <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"></q-icon>
                                     </q-item-section>
-                                    <q-item-section
-                                        ><q-item-label>{{ visit.url }}</q-item-label
-                                        ><q-item-label caption>{{
-                                            visit.visiting
-                                                ? $helpers.diffAsMinute(visit.first_visit_time)
-                                                : $helpers.fromNowTime(visit.last_stay_time)
-                                        }}</q-item-label></q-item-section
-                                    ></q-item
-                                ></q-list
-                            >
-                            <div v-else class="text-center tw-text-xs tw-py-2">No visit info</div></q-card-section
-                        ></q-card
-                    >
+                                    <q-item-section>
+                                        <q-item-label>{{ visit.url }} </q-item-label>
+                                        <q-item-label caption
+                                            >{{
+                                                visit.visiting
+                                                    ? $helpers.diffAsMinute(visit.first_visit_time)
+                                                    : $helpers.fromNowTime(visit.last_stay_time)
+                                            }}
+                                        </q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                            <div v-else class="text-center tw-text-xs tw-py-2">No visit info</div>
+                        </q-card-section>
+                    </q-card>
                 </q-expansion-item>
 
                 <q-expansion-item
@@ -121,20 +123,18 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
                 >
-                    <q-card
-                        ><q-card-section class="tw-p-0">
+                    <q-card>
+                        <q-card-section class="tw-p-0">
                             <q-list v-if="clientPreviousChats.length" class="tw-break-all">
                                 <q-item v-for="(conv, key) of clientPreviousChats" :key="key" dense class="tw-text-xs">
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
-                                        <q-icon name="chat_bubble_outline" size="xs"> </q-icon>
+                                        <q-icon name="chat_bubble_outline" size="xs"></q-icon>
                                     </q-item-section>
-                                    <q-item-section
-                                        ><q-item-label>{{ conv.messages[0].msg }}</q-item-label
-                                        ><q-item-label caption>{{
-                                            $helpers.myDate(conv.created_at)
-                                        }}</q-item-label></q-item-section
-                                    ></q-item
-                                >
+                                    <q-item-section>
+                                        <q-item-label>{{ conv.messages[0].msg }} </q-item-label>
+                                        <q-item-label caption>{{ $helpers.myDate(conv.created_at) }} </q-item-label>
+                                    </q-item-section>
+                                </q-item>
                             </q-list>
 
                             <div v-else class="text-center">No previous chats</div>
@@ -149,25 +149,25 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
                 >
-                    <q-card
-                        ><q-card-section class="tw-p-0">
+                    <q-card>
+                        <q-card-section class="tw-p-0">
                             <q-list v-if="clientTickets.length" class="tw-break-all">
                                 <q-item v-for="(ticket, key) of clientTickets" :key="key" dense class="tw-text-xs">
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
-                                        <q-icon name="confirmation_number" size="xs"> </q-icon>
+                                        <q-icon name="confirmation_number" size="xs"></q-icon>
                                     </q-item-section>
-                                    <q-item-section
-                                        ><q-item-label>{{ ticket.subject }}</q-item-label
-                                        ><q-item-label caption
-                                            ><div class="tw-flex tw-justify-between tw-items-center">
+                                    <q-item-section>
+                                        <q-item-label>{{ ticket.subject }} </q-item-label>
+                                        <q-item-label caption>
+                                            <div class="tw-flex tw-justify-between tw-items-center">
                                                 <div class="tw-mr-2">{{ $helpers.myDate(ticket.date) }}</div>
                                                 <q-badge :color="ticket.status === 'Answered' ? 'green' : 'orange'">
                                                     {{ ticket.status }}
                                                 </q-badge>
-                                            </div></q-item-label
-                                        ></q-item-section
-                                    ></q-item
-                                >
+                                            </div>
+                                        </q-item-label>
+                                    </q-item-section>
+                                </q-item>
                             </q-list>
 
                             <div v-else class="text-center">No tickets found</div>

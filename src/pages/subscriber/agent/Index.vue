@@ -2,12 +2,12 @@
     <div class="tw-flex tw-flex-col">
         <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">My Agents</div>
-            <q-btn color="green" icon="add" label="Assign" @click="assignAgentModal = true"></q-btn>
+            <q-btn color="green" icon="add" label="Invite" @click="assignAgentModal = true"></q-btn>
         </div>
 
-        <div class="tw-flex-grow">
+        <div>
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :rows="mappedUsers" :columns="columns" :bodyCelTemplate="bodyCelTemplate">
+                <ec-table :rows="mappedUsers" :columns="userColumns" :bodyCelTemplate="bodyCelTemplate">
                     <template v-slot:cell-info="slotProps">
                         <div class="tw-flex tw-items-center">
                             <q-avatar size="sm"><img :src="slotProps.row.img" alt="" /></q-avatar>
@@ -26,22 +26,18 @@
                     <template v-slot:cell-action="slotProps">
                         <q-btn icon="settings" text-color="green" size="sm" dense flat>
                             <q-menu anchor="bottom right" self="top end">
-                                <q-item class="text-green" clickable dense>
-                                    <q-item-section @click="handleConvertType(slotProps.row)">
-                                        Convert To
-                                        {{ slotProps.row.role.slug === 'agent' ? 'User' : 'Agent' }}
-                                    </q-item-section>
-                                </q-item>
-                                <q-item class="text-green" clickable dense>
+                                <q-item clickable dense>
                                     <q-item-section>Role & permission</q-item-section>
                                 </q-item>
+
                                 <q-separator />
-                                <q-item class="text-green" clickable dense>
+
+                                <q-item clickable dense>
                                     <q-item-section>
                                         <q-checkbox
                                             size="sm"
                                             color="green"
-                                            label="Activate"
+                                            label="Active"
                                             class="ec-list-setting-left-label-checkbox"
                                             v-model="slotProps.row.active"
                                             @update:model-value="handleActivateDeactivate(slotProps.row)"
@@ -58,15 +54,143 @@
                 </ec-table>
             </div>
         </div>
+
+        <div class="tw-mt-7 tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Invitations</div>
+        </div>
+
+        <div class="tw-flex-grow">
+            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+                <ec-table
+                    :rows="mappedInvitations"
+                    :columns="invitationColumns"
+                    @handleDelete="showConfirmDeleteModal($event)"
+                    :status-success-values="statusSuccessValues"
+                    :bodyCelTemplate="bodyCelTemplate"
+                >
+                    <template v-slot:cell-sent_at="slotProps">
+                        {{ $helpers.myDate(slotProps.row.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
+                    </template>
+
+                    <template v-slot:cell-is_agent="slotProps">
+                        <q-badge :color="slotProps.row.is_agent ? 'green' : 'orange'">
+                            {{ slotProps.row.is_agent }}
+                        </q-badge>
+                    </template>
+
+                    <template v-slot:cell-active="slotProps">
+                        <q-badge :color="slotProps.row.active ? 'green' : 'orange'">{{ slotProps.row.active }}</q-badge>
+                    </template>
+
+                    <template v-slot:cell-action="slotProps">
+                        <q-btn icon="settings" text-color="green" size="sm" dense flat>
+                            <q-menu anchor="bottom right" self="top end">
+                                <!--<q-item class="text-green" clickable dense>
+                                    <q-item-section>Resend Code</q-item-section>
+                                </q-item>
+                                <q-separator />-->
+                                <!-- bottom two will show until user registers. & will be handled by one api -->
+
+                                <q-item clickable dense>
+                                    <q-item-section>
+                                        <q-checkbox
+                                            size="sm"
+                                            color="green"
+                                            label="Active After Verify"
+                                            class="ec-list-setting-left-label-checkbox"
+                                            v-model="slotProps.row.active"
+                                            @update:model-value="handleActivateDeactivateInvitation(slotProps.row)"
+                                            left-label
+                                            :disable="slotProps.row.status !== 'pending'"
+                                            dense
+                                        />
+                                    </q-item-section>
+                                </q-item>
+                            </q-menu>
+                        </q-btn>
+
+                        <q-btn
+                            @click="showConfirmDeleteModal(slotProps.row)"
+                            icon="delete"
+                            text-color="red"
+                            size="sm"
+                            dense
+                            flat
+                        ></q-btn>
+                    </template>
+                </ec-table>
+            </div>
+        </div>
+
+        <q-dialog
+            @hide="resetForm"
+            v-model="assignAgentModal"
+            @update:modelValue="(value) => (assignAgentModal = value)"
+            persistent
+        >
+            <q-card style="max-width: 500px">
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
+                    <div class="tw-text-lg text-green">Add New Agent</div>
+                    <q-space></q-space>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
+                </q-card-section>
+
+                <q-card-section class="q-py-2 tw-mx-6">
+                    <q-input
+                        :error-message="sendInvitationFormDataErrors.email"
+                        :error="!!sendInvitationFormDataErrors.email"
+                        @update:model-value="sendInvitationFormDataErrors.email = ''"
+                        v-model="sendInvitationFormData.email"
+                        label="Email"
+                        color="green"
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="mail" color="green" />
+                        </template>
+                    </q-input>
+
+                    <q-checkbox
+                        v-model="sendInvitationFormData.active"
+                        label="Active when verified"
+                        color="green"
+                        class="tw-mt-3"
+                        dense
+                    />
+
+                    <div class="tw-text-xs tw-mt-4 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div>A verification email will be send with a random generated password to this email</div>
+                    </div>
+
+                    <div class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div>
+                            Uncheck 'activate when verified' if you want to change role or permissions after verify
+                        </div>
+                    </div>
+                </q-card-section>
+
+                <q-card-actions class="tw-mx-6 tw-mb-4">
+                    <q-btn
+                        color="green"
+                        :loading="sendingInvitation"
+                        label="submit"
+                        class="full-width"
+                        @click="sendInvitation"
+                    />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+
+        <confirm-modal v-if="showDeleteModal" @confirmed="deleteInvitation" @hide="showDeleteModal = false" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import EcTable from 'components/common/table/EcTable.vue';
+import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 import { mapGetters } from 'vuex';
 
-const columns = [
+const userColumns = [
     {
         name: 'info',
         required: true,
@@ -100,21 +224,74 @@ const columns = [
     },
 ];
 
+const invitationColumns = [
+    {
+        name: 'email',
+        align: 'left',
+        label: 'Email',
+        field: 'email',
+    },
+    {
+        name: 'sent_at',
+        label: 'Sent At',
+        field: 'created_at',
+        align: 'left',
+    },
+    {
+        name: 'status',
+        label: 'Status',
+        field: 'status',
+        align: 'center',
+    },
+    {
+        name: 'is_agent',
+        label: 'Is Agent',
+        field: 'is_agent',
+        align: 'center',
+    },
+    {
+        name: 'active',
+        label: 'Active',
+        field: 'active',
+        align: 'center',
+    },
+    {
+        name: 'action',
+        label: 'Actions',
+        field: 'action',
+        align: 'left',
+    },
+];
+
 export default defineComponent({
     name: 'Users',
-    components: { EcTable },
+    components: { EcTable, ConfirmModal },
     data(): any {
         return {
             users: [],
-            assignAgentModal: false,
             userAssignFormDataErrors: {},
             bodyCelTemplate: {},
+
+            // invitation
+            sendingInvitation: false,
+            assignAgentModal: false,
+            invitations: [],
+            sendInvitationFormData: {
+                email: '',
+                type: 'agent',
+                active: true,
+            },
+            sendInvitationFormDataErrors: {},
+            deleteInvitationId: '',
+            showDeleteModal: false,
+            statusSuccessValues: ['success'],
         };
     },
 
     setup() {
         return {
-            columns,
+            userColumns,
+            invitationColumns,
         };
     },
 
@@ -135,10 +312,21 @@ export default defineComponent({
                     return user.email !== this.profile.email;
                 });
         },
+
+        mappedInvitations(): any {
+            return this.invitations.map((inv: any) => {
+                inv.status = inv.status === 'success' ? 'success' : 'pending';
+                inv.is_agent = inv.type === 'agent';
+                inv.sent_at = inv.created_at;
+
+                return inv;
+            });
+        },
     },
 
     mounted() {
         this.getUsers();
+        this.getInvitations();
     },
 
     methods: {
@@ -153,25 +341,26 @@ export default defineComponent({
                 });
         },
 
-        handleConvertType(user: any) {
-            const data = this.$_.cloneDeep(user);
-            data.convert_to = data.role.slug === 'agent' ? 'user' : 'agent';
-
-            this.$store
-                .dispatch('user/convertType', {
-                    inputs: data,
-                })
-                .then((res: any) => {
-                    const index = this.users.findIndex((user: any) => user.id === res.data.id);
-
-                    this.users[index] = res.data;
-
-                    this.$helpers.showSuccessNotification(this, `User convert to ${res.data.role.slug} successful`);
-                })
-                .catch((err: any) => {
-                    this.assignUserErrorHandle(err);
-                });
-        },
+        // currently off
+        // handleConvertType(user: any) {
+        //     const data = this.$_.cloneDeep(user);
+        //     data.convert_to = data.role.slug === 'agent' ? 'user' : 'agent';
+        //
+        //     this.$store
+        //         .dispatch('user/convertType', {
+        //             inputs: data,
+        //         })
+        //         .then((res: any) => {
+        //             const index = this.users.findIndex((user: any) => user.id === res.data.id);
+        //
+        //             this.users[index] = res.data;
+        //
+        //             this.$helpers.showSuccessNotification(this, `User convert to ${res.data.role.slug} successful`);
+        //         })
+        //         .catch((err: any) => {
+        //             this.assignUserErrorHandle(err);
+        //         });
+        // },
 
         handleActivateDeactivate(user: any) {
             this.$store
@@ -196,6 +385,87 @@ export default defineComponent({
             } else {
                 this.$helpers.showErrorNotification(this, err.response.data.message);
             }
+        },
+
+        getInvitations() {
+            this.$store
+                .dispatch('user_invitation/getInvitations')
+                .then((res: any) => {
+                    this.invitations = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+        },
+
+        sendInvitation() {
+            this.sendingInvitation = true;
+
+            this.$store
+                .dispatch('user_invitation/sendInvitation', {
+                    inputs: this.sendInvitationFormData,
+                })
+                .then((res: any) => {
+                    this.$helpers.showSuccessNotification(this, res.data.msg);
+                    this.assignAgentModal = false;
+                    this.getInvitations();
+                })
+                .catch((err: any) => this.sendInvitationErrorHandle(err))
+                .then(() => {
+                    this.sendingInvitation = false;
+                });
+        },
+
+        sendInvitationErrorHandle(err: any) {
+            if (this.$_.isObject(err.response.data.message)) {
+                this.sendInvitationFormDataErrors = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
+        },
+
+        resetForm() {
+            this.sendInvitationFormData = {};
+            this.sendInvitationFormData.active = true;
+            this.sendInvitationFormDataErrors = {};
+        },
+
+        showConfirmDeleteModal(invitation: any) {
+            this.showDeleteModal = !this.showDeleteModal;
+            this.deleteInvitationId = invitation.id;
+        },
+
+        deleteInvitation() {
+            this.$store
+                .dispatch('user_invitation/deleteInvitation', {
+                    id: this.deleteInvitationId,
+                })
+                .then(() => {
+                    this.showDeleteModal = false;
+                    this.getInvitations();
+
+                    this.$helpers.showSuccessNotification(this, 'Invitation deleted successful');
+                })
+                .catch((err: any) => {
+                    this.$helpers.showErrorNotification(this, err.response.data.message);
+                });
+        },
+
+        handleActivateDeactivateInvitation(invitation: any) {
+            this.$store
+                .dispatch('user_invitation/convertType', {
+                    inputs: invitation,
+                })
+                .then((res: any) => {
+                    const index = this.invitations.findIndex((invitation: any) => invitation.id === res.data.id);
+
+                    this.invitations[index] = res.data;
+
+                    this.$helpers.showSuccessNotification(this, 'Invitation status change successful');
+                })
+                .catch((err: any) => {
+                    this.sendInvitationErrorHandle(err);
+                });
         },
     },
 });

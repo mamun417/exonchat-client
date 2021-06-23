@@ -34,8 +34,8 @@
                             v-if="conversationInfo.closed_at"
                             color="orange"
                             :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
-                            >Closed</q-badge
-                        >
+                            >Closed
+                        </q-badge>
                     </q-item-label>
                 </q-item-section>
 
@@ -48,46 +48,67 @@
                 <q-item-section v-if="!conversationInfo.users_only" side>
                     <q-item-label>
                         <q-btn icon="more_vert" class="tw-px-1" unelevated>
-                            <q-menu>
+                            <q-menu anchor="bottom right" self="top right">
                                 <q-list dense style="min-width: 100px">
                                     <template v-if="!conversationInfo.users_only">
                                         <q-item v-if="!conversationStatusForMe" clickable v-close-popup>
+                                            <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                                <q-icon name="add" />
+                                            </q-item-section>
                                             <q-item-section
                                                 @click="
                                                     modalForState = 'join';
                                                     confirmModal = !confirmModal;
                                                 "
-                                                >Join Chat</q-item-section
-                                            >
+                                                >Join Chat
+                                            </q-item-section>
                                         </q-item>
+
+                                        <q-item v-if="!conversationInfo.closed_at" clickable v-close-popup>
+                                            <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                                <q-icon name="confirmation_number" />
+                                            </q-item-section>
+                                            <q-item-section @click="openTicket">Open Ticket</q-item-section>
+                                        </q-item>
+
                                         <q-item v-if="conversationStatusForMe === 'joined'" clickable v-close-popup>
+                                            <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                                <q-icon name="exit_to_app" />
+                                            </q-item-section>
                                             <q-item-section
                                                 @click="
                                                     modalForState = 'leave';
                                                     confirmModal = !confirmModal;
                                                 "
-                                                >Leave Chat</q-item-section
-                                            >
+                                                >Leave Chat
+                                            </q-item-section>
                                         </q-item>
                                         <q-item
                                             v-if="['joined', 'left'].includes(conversationStatusForMe)"
                                             clickable
                                             v-close-popup
                                         >
+                                            <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                                <q-icon name="close" />
+                                            </q-item-section>
                                             <q-item-section
                                                 @click="
                                                     modalForState = 'close';
                                                     confirmModal = !confirmModal;
                                                 "
-                                                >Close Chat</q-item-section
-                                            >
+                                                >Close Chat
+                                            </q-item-section>
                                         </q-item>
                                     </template>
+
                                     <template v-if="rightBarState.mode === 'conversation'">
                                         <q-item clickable v-close-popup>
+                                            <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                                <q-icon name="close_fullscreen" />
+                                            </q-item-section>
                                             <q-item-section @click="updateRightDrawerState({ mode: 'client_info' })"
-                                                >Close tracking</q-item-section
-                                            >
+                                                >Close tracking
+                                            </q-item-section>
                                         </q-item>
                                     </template>
                                 </q-list>
@@ -180,6 +201,17 @@ export default defineComponent({
         convStateHandle() {
             if (!this.modalForState) return;
             this[`${this.modalForState}Conversation`](this.conv_id);
+        },
+
+        openTicket() {
+            window.socketSessionApi
+                .post(`/apps/whmcs/tickets/open/${this.conv_id}`)
+                .then((res: any) => {
+                    console.log(res);
+                })
+                .catch((e: any) => {
+                    console.log(e);
+                });
         },
 
         joinConversation(conv_id: any) {

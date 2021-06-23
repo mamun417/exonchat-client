@@ -1,5 +1,5 @@
 <template>
-    <div id="realtime-left-bar" class="tw-h-full tw-h-full">
+    <div id="realtime-left-bar" class="tw-w-full tw-h-full">
         <div></div>
 
         <q-scroll-area

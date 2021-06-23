@@ -128,9 +128,9 @@
                         <div class="tw-flex tw-flex-col tw-items-center">
                             <q-btn icon="mediation" class="tw-mb-2" flat size="lg" />
 
-                            <q-btn icon="mark_chat_unread" @click="leftDrawer = !leftDrawer" flat size="18px"
-                                ><q-tooltip :offset="[10, 10]">Show/Hide Requests Panel</q-tooltip></q-btn
-                            >
+                            <q-btn icon="mark_chat_unread" @click="leftDrawer = !leftDrawer" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Show/Hide Requests Panel</q-tooltip>
+                            </q-btn>
 
                             <q-btn icon="insert_comment" :to="{ name: 'chat-templates' }" flat size="18px">
                                 <q-tooltip :offset="[10, 10]">Chat templates</q-tooltip>
@@ -260,107 +260,109 @@
             <q-spinner-facebook size="50px" color="primary" />
         </q-inner-loading>
 
-        <div v-if="false">
-            <!-- add style pointer event none for accessing the underlying parent elements -->
-            <!-- and also add opacity if user moved to parent -->
-            <div class="tw-fixed tw-bottom-0" style="z-index: 99999; right: 75px">
-                <q-card
-                    class="bg-white shadow-5 tw-flex tw-flex-col"
-                    style="width: 300px"
-                    :style="{ height: '!mini' ? '450px' : 'auto' }"
-                >
-                    <!-- change bg color by status -->
-                    <q-card-section class="row no-wrap bg-green items-center tw-p-0">
-                        <q-item class="">
-                            <q-item-section avatar>
-                                <q-avatar size="lg">
-                                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
+        <!--        don't remove these blocks-->
+        <!--        <div v-if="false">-->
+        <!--            &lt;!&ndash; add style pointer event none for accessing the underlying parent elements &ndash;&gt;-->
+        <!--            &lt;!&ndash; and also add opacity if user moved to parent &ndash;&gt;-->
+        <!--            <div class="tw-fixed tw-bottom-0" style="z-index: 99999; right: 75px">-->
+        <!--                <q-card-->
+        <!--                    class="bg-white shadow-5 tw-flex tw-flex-col"-->
+        <!--                    style="width: 300px"-->
+        <!--                    :style="{ height: '!mini' ? '450px' : 'auto' }"-->
+        <!--                >-->
+        <!--                    &lt;!&ndash; change bg color by status &ndash;&gt;-->
+        <!--                    <q-card-section class="row no-wrap bg-green items-center tw-p-0">-->
+        <!--                        <q-item class="">-->
+        <!--                            <q-item-section avatar>-->
+        <!--                                <q-avatar size="lg">-->
+        <!--                                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />-->
 
-                                    <!-- <q-badge label="." color="green" text-color="green" rounded floating /> -->
-                                </q-avatar>
-                            </q-item-section>
+        <!--                                    &lt;!&ndash; <q-badge label="." color="green" text-color="green" rounded floating /> &ndash;&gt;-->
+        <!--                                </q-avatar>-->
+        <!--                            </q-item-section>-->
 
-                            <q-item-section class="tw-w-full">
-                                <q-item-label class="text-weight-bold text-white tw-text-md">Hasan</q-item-label>
-                                <!-- <q-item-label caption>
-                                    <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>
-                                </q-item-label> -->
-                            </q-item-section>
-                        </q-item>
+        <!--                            <q-item-section class="tw-w-full">-->
+        <!--                                <q-item-label class="text-weight-bold text-white tw-text-md">Hasan</q-item-label>-->
+        <!--                                &lt;!&ndash; <q-item-label caption>-->
+        <!--                                    <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>-->
+        <!--                                </q-item-label> &ndash;&gt;-->
+        <!--                            </q-item-section>-->
+        <!--                        </q-item>-->
 
-                        <q-space />
+        <!--                        <q-space />-->
 
-                        <q-btn class="tw-px-2" icon="more_horiz" color="green" unelevated />
-                        <q-btn
-                            class="tw-px-2"
-                            :icon="!'mini' ? 'arrow_drop_up' : 'arrow_drop_down'"
-                            color="green"
-                            unelevated
-                        />
-                        <!-- <q-btn class="tw-mr-2 tw-px-2" icon="close" color="white" flat /> -->
-                    </q-card-section>
+        <!--                        <q-btn class="tw-px-2" icon="more_horiz" color="green" unelevated />-->
+        <!--                        <q-btn-->
+        <!--                            class="tw-px-2"-->
+        <!--                            :icon="!'mini' ? 'arrow_drop_up' : 'arrow_drop_down'"-->
+        <!--                            color="green"-->
+        <!--                            unelevated-->
+        <!--                        />-->
+        <!--                        &lt;!&ndash; <q-btn class="tw-mr-2 tw-px-2" icon="close" color="white" flat /> &ndash;&gt;-->
+        <!--                    </q-card-section>-->
 
-                    <q-card-section v-if="'!mini'" class="tw-p-0 tw-flex-1 tw-flex tw-flex-col">
-                        <q-scroll-area
-                            @scroll="handleScroll"
-                            ref="msgScrollArea"
-                            class="tw-flex-1 tw-px-1 tw-py-2"
-                            style="height: 1px"
-                            :bar-style="{
-                                background: '#60A5FA',
-                                width: '4px',
-                                opacity: 0.2,
-                                borderRadius: '10px',
-                            }"
-                            :thumb-style="{
-                                borderRadius: '9px',
-                                backgroundColor: '#60A5FA',
-                                width: '4px',
-                                opacity: 0.7,
-                            }"
-                            :content-style="{}"
-                        >
-                        </q-scroll-area>
+        <!--                    <q-card-section v-if="'!mini'" class="tw-p-0 tw-flex-1 tw-flex tw-flex-col">-->
+        <!--                        <q-scroll-area-->
+        <!--                            @scroll="handleScroll"-->
+        <!--                            ref="msgScrollArea"-->
+        <!--                            class="tw-flex-1 tw-px-1 tw-py-2"-->
+        <!--                            style="height: 1px"-->
+        <!--                            :bar-style="{-->
+        <!--                                background: '#60A5FA',-->
+        <!--                                width: '4px',-->
+        <!--                                opacity: 0.2,-->
+        <!--                                borderRadius: '10px',-->
+        <!--                            }"-->
+        <!--                            :thumb-style="{-->
+        <!--                                borderRadius: '9px',-->
+        <!--                                backgroundColor: '#60A5FA',-->
+        <!--                                width: '4px',-->
+        <!--                                opacity: 0.7,-->
+        <!--                            }"-->
+        <!--                            :content-style="{}"-->
+        <!--                        >-->
+        <!--                        </q-scroll-area>-->
 
-                        <div class="tw-w-full tw-flex tw-px-1 tw-self-end">
-                            <q-btn flat color="green" icon="attachment"></q-btn>
-                            <q-btn flat color="green" icon="mood"></q-btn>
-                            <q-input
-                                debounce="0"
-                                placeholder="Write Message..."
-                                color="green-8"
-                                class="tw-flex-auto"
-                                autogrow
-                                borderless
-                                dense
-                            ></q-input>
-                            <q-btn icon="send" flat color="green-8"></q-btn>
-                        </div>
-                    </q-card-section>
+        <!--                        <div class="tw-w-full tw-flex tw-px-1 tw-self-end">-->
+        <!--                            <q-btn flat color="green" icon="attachment"></q-btn>-->
+        <!--                            <q-btn flat color="green" icon="mood"></q-btn>-->
+        <!--                            <q-input-->
+        <!--                                debounce="0"-->
+        <!--                                placeholder="Write Message..."-->
+        <!--                                color="green-8"-->
+        <!--                                class="tw-flex-auto"-->
+        <!--                                autogrow-->
+        <!--                                borderless-->
+        <!--                                dense-->
+        <!--                            ></q-input>-->
+        <!--                            <q-btn icon="send" flat color="green-8"></q-btn>-->
+        <!--                        </div>-->
+        <!--                    </q-card-section>-->
 
-                    <q-badge v-if="!'!mini'" label="5" color="orange" text-color="black" rounded floating />
-                </q-card>
-            </div>
+        <!--                    <q-badge v-if="!'!mini'" label="5" color="orange" text-color="black" rounded floating />-->
+        <!--                </q-card>-->
+        <!--            </div>-->
 
-            <q-fab
-                color="green"
-                icon="chat"
-                direction="up"
-                class="tw-fixed tw-bottom-4"
-                style="z-index: 99999; right: 10px"
-                persistent
-            >
-                <q-fab-action
-                    v-for="(a, i) in [1, 2, 3]"
-                    :key="i"
-                    padding="1px"
-                    label="a new message"
-                    anchor="start"
-                    color="green"
-                    ><q-avatar><img :src="`https://cdn.quasar.dev/img/avatar${i + 1}.jpg`" /></q-avatar
-                ></q-fab-action>
-            </q-fab>
-        </div>
+        <!--            <q-fab-->
+        <!--                color="green"-->
+        <!--                icon="chat"-->
+        <!--                direction="up"-->
+        <!--                class="tw-fixed tw-bottom-4"-->
+        <!--                style="z-index: 99999; right: 10px"-->
+        <!--                persistent-->
+        <!--            >-->
+        <!--                <q-fab-action-->
+        <!--                    v-for="(a, i) in [1, 2, 3]"-->
+        <!--                    :key="i"-->
+        <!--                    padding="1px"-->
+        <!--                    label="a new message"-->
+        <!--                    anchor="start"-->
+        <!--                    color="green"-->
+        <!--                >-->
+        <!--                    <q-avatar><img :src="`https://cdn.quasar.dev/img/avatar${i + 1}.jpg`" /></q-avatar>-->
+        <!--                </q-fab-action>-->
+        <!--            </q-fab>-->
+        <!--        </div>-->
     </q-layout>
 </template>
 
@@ -513,7 +515,7 @@ export default defineComponent({
             this.reloadForProfileImageLoad();
             this.$socket.emit('ec_get_logged_users', {});
 
-            // infuture handle a interval for page visiting update. check visiting time & mutate visiting value
+            // in future handle interval for page visiting update. check visiting time & mutate visiting value
             // so that update reflects cz if a client's net gone or other issue happens visiting value might not change
         },
         fireSocketListeners() {

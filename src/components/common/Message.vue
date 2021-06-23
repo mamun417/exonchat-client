@@ -47,8 +47,9 @@
                         :name="msgSenderInfo(message, index).img_alt_name"
                         :is_icon="msgSenderInfo(message, index).type === 'ai'"
                         class="tw-mx-2"
-                        ><q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip></ec-avatar
                     >
+                        <q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>
+                    </ec-avatar>
                 </template>
 
                 <div>
@@ -73,14 +74,14 @@
                                 "
                                 :src="attachment.src"
                             >
-                                <q-tooltip class="bg-green" anchor="bottom middle" :offset="[10, 10]">{{
-                                    attachment.original_name
-                                }}</q-tooltip>
+                                <q-tooltip class="bg-green" anchor="bottom middle" :offset="[10, 10]"
+                                    >{{ attachment.original_name }}
+                                </q-tooltip>
                             </q-img>
                         </div>
                     </div>
-                </div></q-chat-message
-            >
+                </div>
+            </q-chat-message>
 
             <q-chat-message
                 v-else-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
@@ -89,9 +90,9 @@
                 <template v-slot:label>
                     <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
                         {{ getConvStateStatusMessage(message) }}
-                    </div></template
-                ></q-chat-message
-            >
+                    </div>
+                </template>
+            </q-chat-message>
         </template>
 
         <!-- {{ typingState }} -->
@@ -111,8 +112,9 @@
                         :name="msgSenderInfo(typing, 0).img_alt_name"
                         :is_icon="msgSenderInfo(typing, 0).type === 'ai'"
                         class="tw-mx-2"
-                        ><q-tooltip class="">{{ msgSenderInfo(typing, 0).email }}</q-tooltip></ec-avatar
                     >
+                        <q-tooltip class="">{{ msgSenderInfo(typing, 0).email }}</q-tooltip>
+                    </ec-avatar>
                 </template>
 
                 <template v-slot:stamp>
@@ -187,16 +189,17 @@
                 color="green-8"
                 class="ec-msg-input"
                 :class="[`ec-msg-input-${uid}`, mini_mode ? 'tw-text-xxs ec-mini-mode-msg-input' : '']"
+                :autofocus="messageInputAutoFocus"
                 @keyup.enter.exact="sendMessage"
                 @keydown="keyUpHandle"
                 @focus="inputFocusHandle"
                 @blur="inputBlurHandle"
                 hide-bottom-space
-                :autofocus="messageInputAutoFocus"
                 autogrow
                 borderless
                 dense
-                ><q-menu
+            >
+                <q-menu
                     v-if="chatPanelType !== 'client'"
                     anchor="bottom left"
                     self="bottom left"
@@ -210,8 +213,8 @@
                 >
                     <div class="tw-font-bold tw-text-xs text-green tw-px-4 tw-py-2">Suggestions</div>
                     <q-separator />
-                    <q-list separator style="min-width: 300px"
-                        ><q-item
+                    <q-list separator style="min-width: 300px">
+                        <q-item
                             v-for="(template, key) in mappedChatTemplates"
                             :key="key"
                             :active="template.is_focused"
@@ -221,12 +224,12 @@
                             @keyup.enter.exact="chatTemplateSelectHandle(key)"
                             clickable
                         >
-                            <q-item-section
-                                ><q-item-label class="tw-text-xs">{{ template.tag }}</q-item-label
-                                ><q-item-label caption>{{ template.content }}</q-item-label></q-item-section
-                            >
-                        </q-item></q-list
-                    >
+                            <q-item-section>
+                                <q-item-label class="tw-text-xs">{{ template.tag }} </q-item-label>
+                                <q-item-label caption>{{ template.content }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                    </q-list>
                     <q-separator />
                     <div class="tw-px-4">
                         <!-- n here keyup is for finally done press so that i dont call this func continiously -->
@@ -238,8 +241,10 @@
                             autofocus
                             borderless
                             dense
-                        /></div></q-menu
-            ></q-input>
+                        />
+                    </div>
+                </q-menu>
+            </q-input>
             <div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
                 <q-avatar
                     v-for="(attachmentObj, key) in finalAttachments"
@@ -264,11 +269,12 @@
                         floating
                         color="red"
                         @click="attachmentRemoveHandle(attachmentObj)"
-                        ><q-icon name="close" />
+                    >
+                        <q-icon name="close" />
                     </q-badge>
-                    <q-tooltip class="bg-green" anchor="top middle" self="bottom middle" :offset="[10, 10]">{{
-                        attachmentObj.original_name
-                    }}</q-tooltip>
+                    <q-tooltip class="bg-green" anchor="top middle" self="bottom middle" :offset="[10, 10]"
+                        >{{ attachmentObj.original_name }}
+                    </q-tooltip>
                 </q-avatar>
             </div>
         </div>
@@ -289,9 +295,9 @@
                     <div class="absolute-bottom text-subtitle1 text-center">
                         {{ attachmentPreview.original_name }}
                     </div>
-                    <q-badge class="tw-cursor-pointer" floating v-close-popup
-                        ><q-icon name="close" class="text-orange tw-text-lg"
-                    /></q-badge>
+                    <q-badge class="tw-cursor-pointer" floating v-close-popup>
+                        <q-icon name="close" class="text-orange tw-text-lg" />
+                    </q-badge>
                 </q-img>
             </q-responsive>
 
