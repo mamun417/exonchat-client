@@ -1,7 +1,14 @@
 <template>
     <q-table :rows="rows" :columns="columns" row-key="name" :pagination="{ rowsPerPage: 0 }" hide-pagination flat>
         <template v-if="!hideSearch" v-slot:top-left>
-            <q-input dense debounce="300" placeholder="Search" color="green">
+            <q-input
+                @update:model-value="$emit('handlePipeline', $event)"
+                :model-value="searchValue"
+                dense
+                debounce="300"
+                placeholder="Search"
+                color="green"
+            >
                 <template v-slot:append>
                     <q-icon name="search" />
                 </template>
@@ -103,6 +110,7 @@ export default defineComponent({
     name: 'EcTable',
     components: { DeleteBtn, EditBtn, ItalicBold },
     props: {
+        searchValue: { type: String, default: '' },
         rows: [],
         columns: [],
         noDataMsg: { type: String, default: 'Well this is sad... No data found' },
@@ -134,5 +142,14 @@ export default defineComponent({
     },
 
     methods: {},
+
+    // watch: {
+    //     searchValue: {
+    //         handler: function (searchValue: any) {
+    //             this.keyword = searchValue;
+    //         },
+    //         immediate: true,
+    //     },
+    // },
 });
 </script>

@@ -1,4 +1,5 @@
 import moment from 'moment';
+import * as _l from 'lodash';
 
 const helpers = {
     getTempId() {
@@ -35,6 +36,21 @@ const helpers = {
             message: message,
             position: 'top',
         });
+    },
+
+    updatePipeline(storeState: any, payloadState: any) {
+        const payloadStateKeys = Object.keys(payloadState);
+        storeState = _l.cloneDeep(storeState);
+
+        if (!payloadStateKeys.length) return storeState;
+
+        payloadStateKeys.forEach((pipelineKey) => {
+            if (storeState.hasOwnProperty(pipelineKey)) {
+                storeState[pipelineKey] = payloadState[pipelineKey];
+            }
+        });
+
+        return storeState;
     },
 };
 

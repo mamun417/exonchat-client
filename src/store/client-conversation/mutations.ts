@@ -1,5 +1,6 @@
 import { MutationTree } from 'vuex';
 import { ClientConversationStateInterface } from './state';
+import helpers from '../../boot/helpers/helpers';
 
 const mutation: MutationTree<ClientConversationStateInterface> = {
     storeClientConversations(state: ClientConversationStateInterface, clientConversations: any) {
@@ -22,9 +23,13 @@ const mutation: MutationTree<ClientConversationStateInterface> = {
         state.paginationMeta.current_page = currentPage;
     },
 
-    test(state, newIds) {
-        state.newIds = [];
-        state.newIds = newIds;
+    updatePipeline(state, payload) {
+        state.pipeline = helpers.updatePipeline(state.pipeline, payload.pipeline);
+    },
+
+    updateNewLoadedConversationIds(state, newIds) {
+        state.newLoadedConversationIds = [];
+        state.newLoadedConversationIds = newIds;
     },
 
     // updatePipeline(state, payload) {

@@ -6,7 +6,12 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :rows="clientConversations" :columns="columns" :bodyCelTemplate="{}">
+                <ec-table
+                    @handlePipeline="handlePipeline({ s: $event })"
+                    :search-value="clientConvPipeline.s"
+                    :rows="clientConversations"
+                    :columns="columns"
+                >
                     <template v-slot:cell-client_name="slotProps">
                         <div class="text-italic">
                             {{ slotProps.row.client_info.socket_session.init_name }}
@@ -197,13 +202,14 @@ export default defineComponent({
         ...mapGetters({
             rightBarState: 'setting_ui/rightBarState',
             clientConvPaginationMeta: 'client_conversation/paginationMeta',
-            newIds: 'client_conversation/newIds',
+            clientConvPipeline: 'client_conversation/pipeline',
+            newLoadedConversationIds: 'client_conversation/newLoadedConversationIds',
         }),
 
         clientConversations(): any {
             const clientConversations = this.$_.cloneDeep(
                 this.$store.getters['chat/clientsConversation'].filter((clientConv: any) =>
-                    this.newIds.includes(clientConv.id)
+                    this.newLoadedConversationIds.includes(clientConv.id)
                 )
             );
 
@@ -287,6 +293,16 @@ export default defineComponent({
             this.$store.dispatch('client_conversation/updateCurrentPage', page).then(() => {
                 this.getClientConversations();
             });
+        },
+
+        handlePipeline(pipeline: any) {
+            this.$store
+                .dispatch('client_conversation/updatePipeline', {
+                    pipeline: pipeline,
+                })
+                .then(() => {
+                    this.getClientConversations();
+                });
         },
     },
 });

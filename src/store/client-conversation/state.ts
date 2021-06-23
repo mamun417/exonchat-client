@@ -3,7 +3,7 @@ export interface ClientConversationStateInterface {
     clientConversations: any;
     paginationMeta: any;
     pipeline: any;
-    newIds: any;
+    newLoadedConversationIds: any;
 }
 
 function state(): ClientConversationStateInterface {
@@ -14,8 +14,10 @@ function state(): ClientConversationStateInterface {
             total_page: 1,
             total: 0,
         },
-        pipeline: {},
-        newIds: [],
+        pipeline: {
+            s: '',
+        },
+        newLoadedConversationIds: [],
     };
 }
 

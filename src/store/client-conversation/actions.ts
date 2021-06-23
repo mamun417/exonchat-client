@@ -12,6 +12,7 @@ const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
                     params: {
                         p: context.state.paginationMeta.current_page,
                         pp: 2,
+                        s: context.state.pipeline.s,
                     },
                 })
                 .then((res: any) => {
@@ -20,7 +21,7 @@ const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
                     const clientConvs = res.data.conversations.data || [];
 
                     context.commit(
-                        'test',
+                        'updateNewLoadedConversationIds',
                         clientConvs.map((conv: any) => conv.id)
                     );
 
@@ -63,12 +64,13 @@ const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
         });
     },
 
-    // updatePipeline(context, payload) {
-    //     return new Promise((resolve) => {
-    //         context.commit('updatePipeline', payload);
-    //         resolve(true);
-    //     });
-    // },
+    updatePipeline(context, payload) {
+        return new Promise((resolve) => {
+            context.commit('updatePipeline', payload);
+            context.commit('updateCurrentPage', 1);
+            resolve(true);
+        });
+    },
 };
 
 export default actions;

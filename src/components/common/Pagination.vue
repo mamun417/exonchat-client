@@ -1,6 +1,6 @@
 <template>
     <q-pagination
-        v-model="current_page"
+        :model-value="current_page"
         :max="last_page"
         @update:model-value="$emit('handlePagination', $event)"
         :direction-links="true"
@@ -11,8 +11,7 @@
         icon-next="fast_forward"
         :max-pages="15"
         :boundary-numbers="true"
-    >
-    </q-pagination>
+    />
 </template>
 
 <script>

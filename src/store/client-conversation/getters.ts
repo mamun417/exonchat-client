@@ -13,8 +13,8 @@ const getters: GetterTree<ClientConversationStateInterface, StateInterface> = {
         return state.pipeline;
     },
 
-    newIds(state) {
-        return state.newIds;
+    newLoadedConversationIds(state) {
+        return state.newLoadedConversationIds;
     },
 
     getClientConversations(state) {
