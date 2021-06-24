@@ -31,13 +31,6 @@ const mutation: MutationTree<ClientConversationStateInterface> = {
         state.newLoadedConversationIds = [];
         state.newLoadedConversationIds = newIds;
     },
-
-    // updatePipeline(state, payload) {
-    //     return new Promise((resolve) => {
-    //         state.pipeline = payload.vm.$updatePipeline(state.pipeline, payload.pipeline);
-    //         resolve(true);
-    //     });
-    // },
 };
 
 export default mutation;

@@ -217,6 +217,10 @@ const mutation: MutationTree<ChatStateInterface> = {
         localStorage.setItem('showRatingForm', 'true');
         state.clientInitiateConvInfo.showRatingForm = true;
     },
+
+    updateConvMessagesCurrentPage(state) {
+        state.convMessagesPaginationMeta.current_page = parseInt(state.convMessagesPaginationMeta.current_page) + 1;
+    },
 };
 
 export default mutation;

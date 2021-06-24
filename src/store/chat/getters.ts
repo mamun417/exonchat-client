@@ -23,7 +23,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     conversationInfo: (state) => (convId: any) => {
         if (state.conversations[convId]) {
-            console.log(state.conversations[convId]);
             return _l.omit(state.conversations[convId], ['messages']);
         }
 
@@ -304,6 +303,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         const authInfo = rootGetters['auth/profile'];
 
         return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
+    },
+
+    convMessagesPaginationMeta(state) {
+        return state.convMessagesPaginationMeta;
     },
 };
 

@@ -22,6 +22,7 @@
         {{ conversationInfo }}
         {{ messages }}
         </pre> -->
+        <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
         <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg || (message.attachments && message.attachments.length)"
@@ -401,6 +402,7 @@ export default defineComponent({
             getChatTemplateTimer: '',
 
             usersAvatarLoading: false,
+            lastTopVerticalPosition: 0,
         };
     },
 
@@ -754,6 +756,21 @@ export default defineComponent({
         handleScroll(info: any) {
             let verticalPercentage = info.verticalPercentage;
             this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
+
+            // get next page messages (pagination)
+            const topScrolling = this.lastTopVerticalPosition > info.verticalPosition;
+            this.lastTopVerticalPosition = info.verticalPosition;
+
+            if (topScrolling && verticalPercentage < 0.025 && this.messages?.length > 0) {
+                this.gettingNewMessages = true;
+
+                setTimeout(() => {
+                    this.$store.dispatch('chat/updateConvMessagesCurrentPage').then(() => {
+                        this.gettingNewMessages = false;
+                        this.getNewMessages();
+                    });
+                }, 1000);
+            }
         },
         scrollToBottom() {
             const msgScrollArea = this.$refs.msgScrollArea;

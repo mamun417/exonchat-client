@@ -51,11 +51,16 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             const callerApi = payload.client_page ? window.socketSessionApi : window.api;
 
             callerApi
-                .get(`conversations/${payload.convId}/messages?p=${payload.page || 1}&pp=50`)
+                .get(`conversations/${payload.convId}/messages`, {
+                    params: {
+                        p: context.state.convMessagesPaginationMeta.current_page,
+                        pp: 5,
+                    },
+                })
                 .then((res: any) => {
-                    const conv = res.data;
+                    const conv = res.data.conversations.data;
 
-                    conv.current_page = payload.page || 1; // now only for temp & test
+                    // conv.current_page = payload.page || 1; // now only for temp & test
 
                     context.commit('updateConversation', {
                         conv_id: conv.id,
@@ -365,6 +370,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('updateConversation', {
             conv_id: convRatingInfo.conversation_id,
             rating: convRatingInfo,
+        });
+    },
+
+    updateConvMessagesCurrentPage(context) {
+        return new Promise((resolve) => {
+            context.commit('updateConvMessagesCurrentPage');
+            resolve(true);
         });
     },
 };

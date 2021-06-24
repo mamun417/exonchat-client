@@ -8,6 +8,7 @@ export interface ChatStateInterface {
     chatUsers: any;
     conversations: any;
     typingStates: any;
+    convMessagesPaginationMeta: any;
 }
 
 function state(): ChatStateInterface {
@@ -28,6 +29,9 @@ function state(): ChatStateInterface {
         chatUsers: {},
         conversations: conversations ? JSON.parse(conversations) : {},
         typingStates: {},
+        convMessagesPaginationMeta: {
+            current_page: 1,
+        },
     };
 }
 
