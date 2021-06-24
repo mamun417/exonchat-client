@@ -86,8 +86,8 @@
                             <div v-else>{{ props.row[col.name] }}</div>
                         </template>
                     </slot>
-                </q-td>
-            </q-tr>
+                </q-td> </q-tr
+            ><q-inner-loading :showing="loading" color="green"></q-inner-loading>
         </template>
 
         <template v-slot:no-data>
@@ -95,6 +95,7 @@
                 <q-icon size="2em" name="sentiment_dissatisfied" />
                 <span> {{ noDataMsg }} </span>
             </div>
+            <q-inner-loading :showing="loading" color="green"></q-inner-loading>
         </template>
     </q-table>
 </template>
@@ -121,6 +122,11 @@ export default defineComponent({
         bodyCelTemplate: {
             type: Object,
             default: () => ({}),
+        },
+
+        loading: {
+            type: Boolean,
+            default: false,
         },
     },
     data(): any {

@@ -8,14 +8,26 @@
                 <div
                     class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
                 >
-                    <div>Online - Chat With Us</div>
+                    <div>Chat With Us</div>
 
                     <q-space></q-space>
                     <q-btn v-if="clientInitiateConvInfo.conv_id" icon="more_vert" flat>
                         <q-menu anchor="bottom right" self="top right">
+                            <q-item clickable v-close-popup>
+                                <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                    <q-icon name="confirmation_number" />
+                                </q-item-section>
+                                <q-item-section @click="openTicket">Open Ticket</q-item-section>
+                            </q-item>
+
                             <q-list style="min-width: 100px" dense>
                                 <q-item clickable dense v-close-popup>
-                                    <q-item-section @click="closeChat" class="text-orange">Close Chat</q-item-section>
+                                    <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                        <q-icon name="close" />
+                                    </q-item-section>
+                                    <q-item-section @click="clearSession" class="text-orange"
+                                        >Close Chat
+                                    </q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>
@@ -30,7 +42,7 @@
                 </div>
                 <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div
-                        v-if="clientInitiateConvInfo.conv_id && !clientInitiateConvInfo.showRatingForm"
+                        v-if="clientInitiateConvInfo.conv_id"
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
@@ -43,19 +55,6 @@
                     >
                         <chat-rating @ratedByClient="clearSession" />
                     </div>
-
-                    <!-- <div v-else-if="userLogged" class="tw-flex tw-flex-col justify-center tw-flex-grow">
-                <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
-                    <div class="tw-absolute tw-m-auto full-width text-center" style="top: -25px">
-                        <q-icon name="chat" size="xl" color="green"></q-icon>
-                    </div>
-                    <div class="tw-px-4 tw-py-16">
-                        <q-select dense label="Chat Department" color="green" class="tw-mb-3"></q-select>
-
-                        <q-btn dense color="green" class="full-width tw-mt-6">Start Chat</q-btn>
-                    </div>
-                </div>
-            </div> -->
 
                     <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
                         <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
@@ -94,9 +93,11 @@
                                     emit-value
                                     map-options
                                     dense
-                                    ><template v-slot:prepend>
-                                        <q-icon name="person" size="xs" color="green" /> </template
-                                ></q-select>
+                                >
+                                    <template v-slot:prepend>
+                                        <q-icon name="person" size="xs" color="green" />
+                                    </template>
+                                </q-select>
 
                                 <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize" no-caps
                                     >Start Chat as Guest
@@ -106,20 +107,21 @@
                     </div>
                 </div>
             </template>
+
             <div v-else class="tw-p-6 tw-flex tw-flex-col tw-flex-grow">
                 <div class="tw-flex tw-flex-col tw-flex-grow tw-justify-center text-center">
-                    <div class="text-orange tw-font-medium tw-text-lg">No API Key found</div>
-                    <div class="text-caption">Please contact support or see manual for how to set api</div>
+                    <div class="text-orange tw-font-medium tw-text-lg">API Key Invalid</div>
+                    <div class="text-caption">Please contact support or Notify site owner</div>
                     <q-btn
                         color="green"
                         class="tw-mt-4"
-                        label="Hide Panle"
+                        label="Hide Panel"
                         @click="toggleChatPanel(false)"
                         no-caps
                         unelevated
                     />
                 </div>
-                <div class="text-center">powerd by exonhost</div>
+                <div class="text-center">powered by <b>Exonhost</b></div>
             </div>
         </div>
         <div v-else>
@@ -167,7 +169,6 @@ export default defineComponent({
             socketId: null,
 
             sesId: null,
-            soketToken: null,
 
             showChatForm: false,
             userLogged: false,
@@ -200,10 +201,9 @@ export default defineComponent({
             'message',
             (event) => {
                 if (event.data.res === 'widget_id' && event.data.value) {
-                    if (this.api_key === event.data.res) return; // a safe check
+                    if (this.api_key === event.data.value) return; // a safe check
 
                     this.api_key = event.data.value;
-                    this.hasApiKey = true;
 
                     this.initializeSocket();
                 }
@@ -299,9 +299,9 @@ export default defineComponent({
         },
         getChatDepartments() {
             window.socketSessionApi
-                .get('departments')
+                .get('/departments')
                 .then((res: any) => {
-                    console.log(res);
+                    // console.log('webchat departments', res);
                     this.chatDepartments = res.data;
                 })
                 .catch((e: any) => {
@@ -327,7 +327,7 @@ export default defineComponent({
             this.sesId = localStorage.getItem('ec_client_socket_ses_id');
             this.socketToken = localStorage.getItem('ec_client_socket_token');
 
-            if (!this.sesId) {
+            if (!this.sesId || !this.socketToken) {
                 await window.api
                     .post('/socket-sessions', {
                         api_key: this.api_key,
@@ -342,17 +342,22 @@ export default defineComponent({
                         localStorage.setItem('ec_client_socket_token', this.socketToken);
                     })
                     .catch((err: any) => {
-                        console.log(err);
+                        console.log('from web chat error', err.response);
+
+                        if (err.response.status === 204) {
+                            this.hasApiKey = false;
+                        }
                     });
             }
 
             console.log(this.sesId);
 
-            if (!this.socketToken) {
+            if (!this.sesId || !this.socketToken) {
                 // handle error
-                console.log('socket token not found for this sesId');
-
+                console.log('socket token or session not found for this sesId');
                 return;
+            } else {
+                this.hasApiKey = true;
             }
 
             this.socket = io(process.env.API || 'http://localhost:3000', {

@@ -18,12 +18,7 @@ const routes: RouteRecordRaw[] = [
                 name: 'users',
                 component: () => import('pages/subscriber/agent/Index.vue'),
             },
-            {
-                meta: { requiresRoleAdmin: true },
-                path: 'users/invitations',
-                name: 'users-invitations',
-                component: () => import('pages/subscriber/agent/Invitations.vue'),
-            },
+
             {
                 path: 'departments',
                 name: 'departments',
@@ -59,6 +54,12 @@ const routes: RouteRecordRaw[] = [
                 path: 'visitors',
                 name: 'visitors',
                 component: () => import('pages/subscriber/client/visitors/Index.vue'),
+            },
+
+            {
+                path: 'apps/whmcs/tickets',
+                name: 'whmcs_tickets',
+                component: () => import('pages/subscriber/apps/third-party/whmcs/Ticket.vue'),
             },
 
             {

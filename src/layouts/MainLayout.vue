@@ -1,6 +1,6 @@
 <template>
     <q-layout view="hHh LpR fff" class="bg-white">
-        <q-header :class="[`${globalBgColor}-8`]" elevated>
+        <!-- <q-header :class="[`${globalBgColor}-8`]" elevated>
             <q-toolbar class="tw-px-8">
                 <q-btn icon="mediation" flat />
                 <q-btn :icon="leftDrawer ? 'menu_open' : 'menu'" @click="leftDrawer = !leftDrawer" flat />
@@ -107,19 +107,135 @@
                     </q-menu>
                 </ec-avatar>
             </q-toolbar>
-        </q-header>
+        </q-header> -->
 
         <template v-if="domReady">
             <q-drawer
-                v-model="leftDrawer"
+                :model-value="true"
                 class="tw-shadow-lgr"
                 side="left"
                 breakpoint="xs"
-                width="250"
+                :width="!leftDrawer ? 65 : 300"
                 persistent
                 show-if-above
             >
-                <left-bar></left-bar>
+                <div class="tw-flex tw-h-full">
+                    <div
+                        id="left-bar-menu"
+                        class="tw-w-16 tw-flex tw-flex-col tw-justify-between tw-py-3 text-white"
+                        :class="[`${globalBgColor}-8`]"
+                    >
+                        <div class="tw-flex tw-flex-col tw-items-center">
+                            <q-btn icon="mediation" class="tw-mb-2" flat size="lg" />
+
+                            <q-btn icon="mark_chat_unread" @click="leftDrawer = !leftDrawer" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Show/Hide Requests Panel</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="insert_comment" :to="{ name: 'chat-templates' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Chat templates</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="smart_toy" :to="{ name: 'intents' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Intents</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="record_voice_over" :to="{ name: 'speech-recognition' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="account_tree" :to="{ name: 'departments' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="dynamic_feed" :to="{ name: 'visitors' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Visitors</q-tooltip>
+                            </q-btn>
+
+                            <q-btn
+                                v-if="profile?.role?.slug === 'admin'"
+                                icon="people"
+                                :to="{ name: 'users' }"
+                                flat
+                                size="18px"
+                            >
+                                <q-tooltip :offset="[10, 10]">Users</q-tooltip>
+                            </q-btn>
+                        </div>
+
+                        <div class="tw-flex tw-flex-col tw-items-center">
+                            <q-btn icon="info" flat>
+                                <q-tooltip :offset="[10, 10]">Developer debug</q-tooltip>
+
+                                <q-menu class="tw-p-2" style="min-width: 350px">
+                                    <div
+                                        class="tw-p-2 tw-border-1 tw-shadow-md"
+                                        v-for="(m, i) in Object.keys($store._modules.root.state)"
+                                        :key="i"
+                                    >
+                                        <div class="text-green text-center">{{ m }}</div>
+                                        <div
+                                            class="tw-my-2"
+                                            v-for="(mv, k) in Object.keys($store._modules.root.state[m])"
+                                            :key="k"
+                                        >
+                                            <span>
+                                                <pre>{{ mv }}</pre>
+                                            </span>
+                                            <span class="tw-mx-2">=></span>
+                                            <span>
+                                                <pre>{{ $store._modules.root.state[m][mv] }}</pre>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </q-menu>
+                            </q-btn>
+
+                            <!-- <q-btn class="tw-mr-2" :icon="rightDrawer ? 'menu_open' : 'menu'" @click="toggleRightDrawer" flat /> -->
+                            <q-btn icon="settings" :to="{ name: 'settings_ui' }" flat>
+                                <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
+                            </q-btn>
+
+                            <ec-avatar
+                                :image_src="profile?.user_meta?.attachment?.src"
+                                :name="profile?.user_meta?.display_name"
+                                class="cursor-pointer tw-mt-3"
+                            >
+                                <q-badge color="primary" floating rounded>2</q-badge>
+
+                                <q-menu>
+                                    <div class="row no-wrap q-pa-md">
+                                        <div class="column">
+                                            <div class="text-h6 q-mb-md">upcomming...</div>
+                                        </div>
+
+                                        <q-separator vertical inset class="q-mx-lg" />
+
+                                        <div class="column items-center">
+                                            <ec-avatar
+                                                size="72px"
+                                                :image_src="profile?.user_meta?.attachment?.src"
+                                                :name="profile?.user_meta?.display_name"
+                                            />
+
+                                            <div class="tw-text-xs tw-mt-2 tw-mb-1">
+                                                {{ $_.upperFirst(profile.user_meta?.full_name) }}
+                                            </div>
+                                            <div class="tw-text-xxs tw-mb-2">{{ profile.email }}</div>
+
+                                            <q-btn @click="logout" color="orange" label="Logout" size="sm" />
+                                        </div>
+                                    </div>
+                                </q-menu>
+                            </ec-avatar>
+                        </div>
+                    </div>
+                    <left-bar v-show="leftDrawer"></left-bar>
+                </div>
             </q-drawer>
 
             <q-drawer
@@ -127,7 +243,7 @@
                 class="tw-shadow-lgl"
                 side="right"
                 breakpoint="xs"
-                :width="this.rightBarState.mode === 'conversation' ? 300 : 250"
+                :width="this.rightBarState.mode === 'conversation' ? 300 : 260"
                 persistent
             >
                 <right-bar></right-bar>
@@ -144,107 +260,109 @@
             <q-spinner-facebook size="50px" color="primary" />
         </q-inner-loading>
 
-        <div v-if="false">
-            <!-- add style pointer event none for accessing the underlying parent elements -->
-            <!-- and also add opacity if user moved to parent -->
-            <div class="tw-fixed tw-bottom-0" style="z-index: 99999; right: 75px">
-                <q-card
-                    class="bg-white shadow-5 tw-flex tw-flex-col"
-                    style="width: 300px"
-                    :style="{ height: '!mini' ? '450px' : 'auto' }"
-                >
-                    <!-- change bg color by status -->
-                    <q-card-section class="row no-wrap bg-green items-center tw-p-0">
-                        <q-item class="">
-                            <q-item-section avatar>
-                                <q-avatar size="lg">
-                                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />
+        <!--        don't remove these blocks-->
+        <!--        <div v-if="false">-->
+        <!--            &lt;!&ndash; add style pointer event none for accessing the underlying parent elements &ndash;&gt;-->
+        <!--            &lt;!&ndash; and also add opacity if user moved to parent &ndash;&gt;-->
+        <!--            <div class="tw-fixed tw-bottom-0" style="z-index: 99999; right: 75px">-->
+        <!--                <q-card-->
+        <!--                    class="bg-white shadow-5 tw-flex tw-flex-col"-->
+        <!--                    style="width: 300px"-->
+        <!--                    :style="{ height: '!mini' ? '450px' : 'auto' }"-->
+        <!--                >-->
+        <!--                    &lt;!&ndash; change bg color by status &ndash;&gt;-->
+        <!--                    <q-card-section class="row no-wrap bg-green items-center tw-p-0">-->
+        <!--                        <q-item class="">-->
+        <!--                            <q-item-section avatar>-->
+        <!--                                <q-avatar size="lg">-->
+        <!--                                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />-->
 
-                                    <!-- <q-badge label="." color="green" text-color="green" rounded floating /> -->
-                                </q-avatar>
-                            </q-item-section>
+        <!--                                    &lt;!&ndash; <q-badge label="." color="green" text-color="green" rounded floating /> &ndash;&gt;-->
+        <!--                                </q-avatar>-->
+        <!--                            </q-item-section>-->
 
-                            <q-item-section class="tw-w-full">
-                                <q-item-label class="text-weight-bold text-white tw-text-md">Hasan</q-item-label>
-                                <!-- <q-item-label caption>
-                                    <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>
-                                </q-item-label> -->
-                            </q-item-section>
-                        </q-item>
+        <!--                            <q-item-section class="tw-w-full">-->
+        <!--                                <q-item-label class="text-weight-bold text-white tw-text-md">Hasan</q-item-label>-->
+        <!--                                &lt;!&ndash; <q-item-label caption>-->
+        <!--                                    <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>-->
+        <!--                                </q-item-label> &ndash;&gt;-->
+        <!--                            </q-item-section>-->
+        <!--                        </q-item>-->
 
-                        <q-space />
+        <!--                        <q-space />-->
 
-                        <q-btn class="tw-px-2" icon="more_horiz" color="green" unelevated />
-                        <q-btn
-                            class="tw-px-2"
-                            :icon="!'mini' ? 'arrow_drop_up' : 'arrow_drop_down'"
-                            color="green"
-                            unelevated
-                        />
-                        <!-- <q-btn class="tw-mr-2 tw-px-2" icon="close" color="white" flat /> -->
-                    </q-card-section>
+        <!--                        <q-btn class="tw-px-2" icon="more_horiz" color="green" unelevated />-->
+        <!--                        <q-btn-->
+        <!--                            class="tw-px-2"-->
+        <!--                            :icon="!'mini' ? 'arrow_drop_up' : 'arrow_drop_down'"-->
+        <!--                            color="green"-->
+        <!--                            unelevated-->
+        <!--                        />-->
+        <!--                        &lt;!&ndash; <q-btn class="tw-mr-2 tw-px-2" icon="close" color="white" flat /> &ndash;&gt;-->
+        <!--                    </q-card-section>-->
 
-                    <q-card-section v-if="'!mini'" class="tw-p-0 tw-flex-1 tw-flex tw-flex-col">
-                        <q-scroll-area
-                            @scroll="handleScroll"
-                            ref="msgScrollArea"
-                            class="tw-flex-1 tw-px-1 tw-py-2"
-                            style="height: 1px"
-                            :bar-style="{
-                                background: '#60A5FA',
-                                width: '4px',
-                                opacity: 0.2,
-                                borderRadius: '10px',
-                            }"
-                            :thumb-style="{
-                                borderRadius: '9px',
-                                backgroundColor: '#60A5FA',
-                                width: '4px',
-                                opacity: 0.7,
-                            }"
-                            :content-style="{}"
-                        >
-                        </q-scroll-area>
+        <!--                    <q-card-section v-if="'!mini'" class="tw-p-0 tw-flex-1 tw-flex tw-flex-col">-->
+        <!--                        <q-scroll-area-->
+        <!--                            @scroll="handleScroll"-->
+        <!--                            ref="msgScrollArea"-->
+        <!--                            class="tw-flex-1 tw-px-1 tw-py-2"-->
+        <!--                            style="height: 1px"-->
+        <!--                            :bar-style="{-->
+        <!--                                background: '#60A5FA',-->
+        <!--                                width: '4px',-->
+        <!--                                opacity: 0.2,-->
+        <!--                                borderRadius: '10px',-->
+        <!--                            }"-->
+        <!--                            :thumb-style="{-->
+        <!--                                borderRadius: '9px',-->
+        <!--                                backgroundColor: '#60A5FA',-->
+        <!--                                width: '4px',-->
+        <!--                                opacity: 0.7,-->
+        <!--                            }"-->
+        <!--                            :content-style="{}"-->
+        <!--                        >-->
+        <!--                        </q-scroll-area>-->
 
-                        <div class="tw-w-full tw-flex tw-px-1 tw-self-end">
-                            <q-btn flat color="green" icon="attachment"></q-btn>
-                            <q-btn flat color="green" icon="mood"></q-btn>
-                            <q-input
-                                debounce="0"
-                                placeholder="Write Message..."
-                                color="green-8"
-                                class="tw-flex-auto"
-                                autogrow
-                                borderless
-                                dense
-                            ></q-input>
-                            <q-btn icon="send" flat color="green-8"></q-btn>
-                        </div>
-                    </q-card-section>
+        <!--                        <div class="tw-w-full tw-flex tw-px-1 tw-self-end">-->
+        <!--                            <q-btn flat color="green" icon="attachment"></q-btn>-->
+        <!--                            <q-btn flat color="green" icon="mood"></q-btn>-->
+        <!--                            <q-input-->
+        <!--                                debounce="0"-->
+        <!--                                placeholder="Write Message..."-->
+        <!--                                color="green-8"-->
+        <!--                                class="tw-flex-auto"-->
+        <!--                                autogrow-->
+        <!--                                borderless-->
+        <!--                                dense-->
+        <!--                            ></q-input>-->
+        <!--                            <q-btn icon="send" flat color="green-8"></q-btn>-->
+        <!--                        </div>-->
+        <!--                    </q-card-section>-->
 
-                    <q-badge v-if="!'!mini'" label="5" color="orange" text-color="black" rounded floating />
-                </q-card>
-            </div>
+        <!--                    <q-badge v-if="!'!mini'" label="5" color="orange" text-color="black" rounded floating />-->
+        <!--                </q-card>-->
+        <!--            </div>-->
 
-            <q-fab
-                color="green"
-                icon="chat"
-                direction="up"
-                class="tw-fixed tw-bottom-4"
-                style="z-index: 99999; right: 10px"
-                persistent
-            >
-                <q-fab-action
-                    v-for="(a, i) in [1, 2, 3]"
-                    :key="i"
-                    padding="1px"
-                    label="a new message"
-                    anchor="start"
-                    color="green"
-                    ><q-avatar><img :src="`https://cdn.quasar.dev/img/avatar${i + 1}.jpg`" /></q-avatar
-                ></q-fab-action>
-            </q-fab>
-        </div>
+        <!--            <q-fab-->
+        <!--                color="green"-->
+        <!--                icon="chat"-->
+        <!--                direction="up"-->
+        <!--                class="tw-fixed tw-bottom-4"-->
+        <!--                style="z-index: 99999; right: 10px"-->
+        <!--                persistent-->
+        <!--            >-->
+        <!--                <q-fab-action-->
+        <!--                    v-for="(a, i) in [1, 2, 3]"-->
+        <!--                    :key="i"-->
+        <!--                    padding="1px"-->
+        <!--                    label="a new message"-->
+        <!--                    anchor="start"-->
+        <!--                    color="green"-->
+        <!--                >-->
+        <!--                    <q-avatar><img :src="`https://cdn.quasar.dev/img/avatar${i + 1}.jpg`" /></q-avatar>-->
+        <!--                </q-fab-action>-->
+        <!--            </q-fab>-->
+        <!--        </div>-->
     </q-layout>
 </template>
 
@@ -396,7 +514,7 @@ export default defineComponent({
             this.reloadForProfileImageLoad();
             this.$socket.emit('ec_get_logged_users', {});
 
-            // infuture handle a interval for page visiting update. check visiting time & mutate visiting value
+            // in future handle interval for page visiting update. check visiting time & mutate visiting value
             // so that update reflects cz if a client's net gone or other issue happens visiting value might not change
         },
         fireSocketListeners() {
@@ -549,6 +667,35 @@ export default defineComponent({
                 this.$store.dispatch('visitor/updateVisitor', res);
 
                 // console.log('from ec_page_visit_info_from_client', res);
+            });
+
+            this.socket.on('ec_apps_notification', (res: any) => {
+                if (res.app === 'whmcs' && res.type === 'ticket') {
+                    const ticket = res.data;
+
+                    this.$q.notify({
+                        group: 1,
+                        message: `Ticket#${ticket.tid} From:${ticket.email}`,
+                        caption: ticket.subject,
+                        progress: true,
+                        multiLine: true,
+                        icon: 'confirmation_number',
+                        color: 'grey-10',
+                        textColor: 'white',
+                        position: 'top-right',
+                        classes: 'tw-w-80 tw-p-2',
+                        timeout: 20000,
+                        badgeClass: 'hidden',
+                        actions: [
+                            {
+                                icon: 'close',
+                                color: 'orange',
+                                size: 'xs',
+                            },
+                        ],
+                    });
+                }
+                console.log('from ec_apps_notification', res);
             });
 
             this.socket.on('ec_conversation_rated_from_client', (res: any) => {
