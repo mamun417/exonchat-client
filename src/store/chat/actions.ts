@@ -33,6 +33,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             // not destructuring convInfo. decision for later
             closed_at: convInfo.closed_at,
             closed_by_id: convInfo.closed_by_id,
+            sessions: convInfo.conversation_sessions,
         });
     },
 
@@ -64,7 +65,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             'type',
                             'closed_at',
                             'created_by_id',
-                            'closed_by_id',
+                            // 'closed_by_id',
                             'current_page',
                         ]),
                         sessions: conv.conversation_sessions,
@@ -74,6 +75,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         messages: conv.messages,
                         ai_is_replying: conv.ai_is_replying,
                         closed_by: conv.closed_by,
+                        closed_at: conv.closed_at,
                         rating: conv.conversation_rating,
                     });
 
@@ -103,7 +105,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'type',
                                 'closed_at',
                                 'created_by_id',
-                                'closed_by_id',
+                                // 'closed_by_id',
                             ]),
                             sessions: request.conversation_sessions,
                             chat_department: request.chat_department,
@@ -112,6 +114,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             message: request.messages[0],
                             ai_is_replying: request.ai_is_replying,
                             closed_by: request.closed_by,
+                            closed_at: request.closed_at,
                         });
                     });
                     resolve(res);
@@ -140,7 +143,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'type',
                                 'closed_at',
                                 'created_by_id',
-                                'closed_by_id',
+                                // 'closed_by_id',
                             ]),
                             sessions: conv.conversation_sessions,
                             chat_department: conv.chat_department,
@@ -149,6 +152,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             message: conv.messages[0],
                             ai_is_replying: conv.ai_is_replying,
                             closed_by: conv.closed_by,
+                            closed_at: conv.closed_at,
                         });
                     });
 
@@ -177,7 +181,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'type',
                                 'closed_at',
                                 'created_by_id',
-                                'closed_by_id',
+                                // 'closed_by_id',
                             ]),
                             sessions: request.conversation_sessions,
                             chat_department: request.chat_department,
@@ -186,6 +190,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             message: request.messages[0],
                             ai_is_replying: request.ai_is_replying,
                             closed_by: request.closed_by,
+                            closed_at: request.closed_at,
                         });
                     });
                     resolve(res);
@@ -202,12 +207,19 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
         const obj = {
             conv_id: tempConv.id,
-            conversation: _l.pick(tempConv, ['id', 'users_only', 'type', 'closed_at', 'created_by_id', 'closed_by_id']),
+            conversation: _l.pick(tempConv, [
+                'id',
+                'users_only',
+                'type',
+                'closed_at',
+                'created_by_id' /*'closed_by_id'*/,
+            ]),
             message: _l.omit(messageRes, ['conversation']),
             ai_is_replying: messageRes.ai_is_replying,
             sessions: tempConv.conversation_sessions,
             chat_department: tempConv.chat_department,
             closed_by: tempConv.closed_by,
+            closed_at: tempConv.closed_at,
             from: 'socket',
         };
 
@@ -283,7 +295,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             'type',
                             'closed_at',
                             'created_by_id',
-                            'closed_by_id',
+                            // 'closed_by_id',
                         ]),
                         sessions: conv.conversation_sessions,
                         chat_department: conv.chat_department,
@@ -292,6 +304,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         messages: conv.messages,
                         ai_is_replying: conv.ai_is_replying,
                         closed_by: conv.closed_by,
+                        closed_at: conv.closed_at,
                     });
                 });
 

@@ -449,6 +449,8 @@ export default defineComponent({
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
                 // this.$store.dispatch('chat/clearClientChatInitiate');
+                this.$store.dispatch('chat/updateConvStateToClosed', res.data.conv_data);
+
                 this.$store.commit('chat/showRatingForm');
 
                 // this.socket.close();

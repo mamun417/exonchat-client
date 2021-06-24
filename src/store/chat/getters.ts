@@ -23,6 +23,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     conversationInfo: (state) => (convId: any) => {
         if (state.conversations[convId]) {
+            console.log(state.conversations[convId]);
             return _l.omit(state.conversations[convId], ['messages']);
         }
 
