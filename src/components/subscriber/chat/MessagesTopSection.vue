@@ -1,6 +1,14 @@
 <template>
     <q-card class="tw-shadow-lg">
         <q-card-section class="row no-wrap items-center" :class="{ 'tw-p-0': mini_mode }">
+            <q-btn
+                icon="arrow_back"
+                class="tw-px-1"
+                color="grey-3"
+                text-color="black"
+                @click="$router.push({ name: 'clients-conversations' })"
+                unelevated
+            ></q-btn>
             <q-item class="tw-w-full">
                 <q-item-section v-if="conversationWithUsersInfo.length === 1" avatar>
                     <ec-avatar
@@ -205,7 +213,7 @@ export default defineComponent({
 
         openTicket() {
             window.socketSessionApi
-                .post(`/apps/whmcs/tickets/open/${this.conv_id}`)
+                .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: 'this is a ticket subject' })
                 .then((res: any) => {
                     console.log(res);
                 })

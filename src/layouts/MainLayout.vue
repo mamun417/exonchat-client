@@ -133,23 +133,23 @@
                             </q-btn>
 
                             <q-btn icon="insert_comment" :to="{ name: 'chat-templates' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Chat templates</q-tooltip>
+                                <q-tooltip :offset="[10, 10]">Predefined Chat Replies</q-tooltip>
                             </q-btn>
 
-                            <q-btn icon="smart_toy" :to="{ name: 'intents' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Intents</q-tooltip>
-                            </q-btn>
+                            <!--                            <q-btn icon="smart_toy" :to="{ name: 'intents' }" flat size="18px">-->
+                            <!--                                <q-tooltip :offset="[10, 10]">Intents</q-tooltip>-->
+                            <!--                            </q-btn>-->
 
-                            <q-btn icon="record_voice_over" :to="{ name: 'speech-recognition' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>
-                            </q-btn>
+                            <!--                            <q-btn icon="record_voice_over" :to="{ name: 'speech-recognition' }" flat size="18px">-->
+                            <!--                                <q-tooltip :offset="[10, 10]">Speech recognitions</q-tooltip>-->
+                            <!--                            </q-btn>-->
 
                             <q-btn icon="account_tree" :to="{ name: 'departments' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Departments</q-tooltip>
+                                <q-tooltip :offset="[10, 10]">Chat Departments</q-tooltip>
                             </q-btn>
 
                             <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Clients conversations</q-tooltip>
+                                <q-tooltip :offset="[10, 10]">Chat History</q-tooltip>
                             </q-btn>
 
                             <q-btn icon="dynamic_feed" :to="{ name: 'visitors' }" flat size="18px">

@@ -27,49 +27,60 @@
                     </template>
 
                     <template v-slot:cell-action="slotProps">
-                        <q-btn @click="showTicketDetail(slotProps.row)" icon="visibility" color="green" flat />
+                        <q-btn
+                            @click="
+                                ticketSelected = slotProps.row;
+                                detailModal = true;
+                            "
+                            icon="visibility"
+                            color="green"
+                            flat
+                        />
                     </template>
                 </ec-table>
             </div>
         </div>
 
-        <q-dialog v-model="detailModal" @update:modelValue="(value) => (detailModal = value)">
-            <q-card>
-                <q-card-section class="tw-border-b-2 tw-py-2 text-italic tw-font-medium"
-                    >Ticket #{{ ticketDetail.tid }} {{ ticketDetail.subject }}</q-card-section
-                >
+        <ticket-detail :ticket="ticketSelected" :modal_show="detailModal" @modalUpdate="detailModal = $event" />
 
-                <q-card-section>
-                    <q-timeline layout="loose" color="secondary">
-                        <q-timeline-entry
-                            v-for="(reply, key) of ticketDetail?.replies?.reply"
-                            :key="reply.replyid"
-                            :title="reply.email"
-                            :subtitle="reply.date"
-                            :side="key % 2 === 0 ? 'left' : 'right'"
-                        >
-                            <template v-slot:title>
-                                <div class="text-italic tw-font-medium tw-text-sm">{{ reply.email }}</div>
-                            </template>
-                            <div>
-                                {{ reply.message }}
-                            </div>
-                        </q-timeline-entry>
-                    </q-timeline>
-                </q-card-section>
+        <!--        <q-dialog v-model="detailModal" @update:modelValue="(value) => (detailModal = value)" full-width>-->
+        <!--            <q-card>-->
+        <!--                <q-card-section class="tw-border-b-2 tw-py-2 text-italic tw-font-medium"-->
+        <!--                    >Ticket #{{ ticketDetail.tid }} {{ ticketDetail.subject }}</q-card-section-->
+        <!--                >-->
 
-                <q-inner-loading :showing="loadingDetail" color="green" />
-            </q-card>
-        </q-dialog>
+        <!--                <q-card-section>-->
+        <!--                    <q-timeline layout="dense" color="secondary">-->
+        <!--                        <q-timeline-entry-->
+        <!--                            v-for="(reply, key) of ticketDetail?.replies?.reply"-->
+        <!--                            :key="reply.replyid"-->
+        <!--                            :title="reply.email"-->
+        <!--                            :subtitle="reply.date"-->
+        <!--                            :side="key % 2 === 0 ? 'left' : 'right'"-->
+        <!--                        >-->
+        <!--                            <template v-slot:title>-->
+        <!--                                <div class="text-italic tw-font-medium tw-text-sm">{{ reply.email }}</div>-->
+        <!--                            </template>-->
+        <!--                            <div class="tw-text-xs tw-whitespace-pre-wrap">-->
+        <!--                                {{ reply.message }}-->
+        <!--                            </div>-->
+        <!--                        </q-timeline-entry>-->
+        <!--                    </q-timeline>-->
+        <!--                </q-card-section>-->
+
+        <!--                <q-inner-loading :showing="loadingDetail" color="green" />-->
+        <!--            </q-card>-->
+        <!--        </q-dialog>-->
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import EcTable from 'components/common/table/EcTable.vue';
+import TicketDetail from 'components/apps/whmcs/TicketDetail.vue';
 
 export default defineComponent({
-    components: { EcTable },
+    components: { TicketDetail, EcTable },
     data(): any {
         return {
             columns: [
@@ -83,10 +94,9 @@ export default defineComponent({
             ],
             tickets: [],
 
-            ticketDetail: {},
+            ticketSelected: null,
 
             loadingData: false,
-            loadingDetail: false,
 
             detailModal: false,
         };
@@ -115,21 +125,6 @@ export default defineComponent({
                     console.log('finally executed');
 
                     this.loadingData = false;
-                });
-        },
-
-        showTicketDetail(ticket: any) {
-            this.loadingDetail = true;
-            this.detailModal = true;
-
-            window.api
-                .get(`/apps/whmcs/tickets/${ticket.id}`)
-                .then((res: any) => {
-                    // console.log(res.data);
-                    this.ticketDetail = res.data;
-                })
-                .finally(() => {
-                    this.loadingDetail = false;
                 });
         },
     },

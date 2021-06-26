@@ -152,7 +152,17 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list v-if="clientTickets.length" class="tw-break-all">
-                                <q-item v-for="(ticket, key) of clientTickets" :key="key" dense class="tw-text-xs">
+                                <q-item
+                                    v-for="(ticket, key) of clientTickets"
+                                    :key="key"
+                                    class="tw-text-xs"
+                                    @click="
+                                        ticketSelected = ticket;
+                                        ticketDetailModal = true;
+                                    "
+                                    dense
+                                    clickable
+                                >
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                                         <q-icon name="confirmation_number" size="xs"></q-icon>
                                     </q-item-section>
@@ -161,7 +171,10 @@
                                         <q-item-label caption>
                                             <div class="tw-flex tw-justify-between tw-items-center">
                                                 <div class="tw-mr-2">{{ $helpers.myDate(ticket.date) }}</div>
-                                                <q-badge :color="ticket.status === 'Answered' ? 'green' : 'orange'">
+                                                <q-badge
+                                                    :color="ticket.status === 'Answered' ? 'green' : 'orange'"
+                                                    class="tw-text-xxs"
+                                                >
                                                     {{ ticket.status }}
                                                 </q-badge>
                                             </div>
@@ -174,6 +187,12 @@
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
+
+                <ticket-detail
+                    :ticket="ticketSelected"
+                    :modal_show="ticketDetailModal"
+                    @modalUpdate="ticketDetailModal = $event"
+                />
             </q-list>
         </q-scroll-area>
     </div>
@@ -188,10 +207,11 @@ import MessagesTopSection from 'components/subscriber/chat/MessagesTopSection.vu
 import EcAvatar from 'src/components/common/EcAvatar.vue';
 
 import UAParser from 'ua-parser-js';
+import TicketDetail from 'components/apps/whmcs/TicketDetail.vue';
 
 export default defineComponent({
     name: 'RightBar',
-    components: { MessagesTopSection, Message, EcAvatar },
+    components: { TicketDetail, MessagesTopSection, Message, EcAvatar },
     setup() {
         return {};
     },
@@ -202,6 +222,9 @@ export default defineComponent({
 
             clientPreviousChats: [],
             clientTickets: [],
+
+            ticketSelected: null,
+            ticketDetailModal: false,
         };
     },
 
