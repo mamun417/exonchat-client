@@ -305,9 +305,9 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
     },
 
-    convMessagesPaginationMeta(state) {
-        return state.convMessagesPaginationMeta;
-    },
+    // convMessagesPaginationMeta(state) {
+    //     return state.convMessagesPaginationMeta;
+    // },
 };
 
 export default getters;

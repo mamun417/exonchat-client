@@ -525,9 +525,6 @@ export default defineComponent({
                 this.$store
                     .dispatch('chat/getConvMessages', {
                         convId: this.conv_id,
-                        page: !this.conversationInfo.hasOwnProperty('current_page')
-                            ? 1
-                            : parseInt(this.conversationInfo.current_page) + 1,
                     })
                     .finally(() => {
                         this.gettingNewMessages = false;
@@ -765,10 +762,17 @@ export default defineComponent({
                 this.gettingNewMessages = true;
 
                 setTimeout(() => {
-                    this.$store.dispatch('chat/updateConvMessagesCurrentPage').then(() => {
-                        this.gettingNewMessages = false;
-                        this.getNewMessages();
-                    });
+                    this.$store
+                        .dispatch('chat/updateConvMessagesCurrentPage', {
+                            conv_id: this.conv_id,
+                            pagination_meta: {
+                                current_page: parseInt(this.conversationInfo.pagination_meta.current_page) + 1,
+                            },
+                        })
+                        .then(() => {
+                            this.gettingNewMessages = false;
+                            this.getNewMessages();
+                        });
                 }, 1000);
             }
         },
@@ -777,6 +781,9 @@ export default defineComponent({
 
             if (msgScrollArea) {
                 const scrollTarget = msgScrollArea.getScrollTarget();
+
+                console.log(scrollTarget.scrollHeight);
+                console.log('------------------');
 
                 msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 500);
             }
@@ -906,7 +913,8 @@ export default defineComponent({
 
         conv_id: {
             handler: function () {
-                if (!this.conversationInfo.hasOwnProperty('current_page')) {
+                // if (!this.conversationInfo.hasOwnProperty('current_page')) {
+                if (!this.conversationInfo.hasOwnProperty('pagination_meta')) {
                     this.getNewMessages();
                 }
             },

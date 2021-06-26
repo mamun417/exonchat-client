@@ -50,15 +50,24 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve, reject) => {
             const callerApi = payload.client_page ? window.socketSessionApi : window.api;
 
+            let current_page = 1;
+
+            const conversationInfo = context.getters['conversationInfo'](payload.convId);
+
+            if (conversationInfo && conversationInfo.pagination_meta) {
+                current_page = conversationInfo.pagination_meta.current_page;
+            }
+
             callerApi
                 .get(`conversations/${payload.convId}/messages`, {
                     params: {
-                        p: context.state.convMessagesPaginationMeta.current_page,
+                        p: current_page,
                         pp: 5,
                     },
                 })
                 .then((res: any) => {
                     const conv = res.data.conversations.data;
+                    const pagination = res.data.conversations.pagination;
 
                     // conv.current_page = payload.page || 1; // now only for temp & test
 
@@ -82,6 +91,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         closed_by: conv.closed_by,
                         closed_at: conv.closed_at,
                         rating: conv.conversation_rating,
+                        pagination_meta: pagination,
                     });
 
                     resolve(res);
@@ -367,15 +377,18 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     updateConvRating(context, convRatingInfo) {
-        context.commit('updateConversation', {
-            conv_id: convRatingInfo.conversation_id,
-            rating: convRatingInfo,
+        return new Promise((resolve) => {
+            context.commit('updateConversation', {
+                conv_id: convRatingInfo.conversation_id,
+                rating: convRatingInfo,
+            });
+            resolve(true);
         });
     },
 
-    updateConvMessagesCurrentPage(context) {
+    updateConvMessagesCurrentPage(context, payload) {
         return new Promise((resolve) => {
-            context.commit('updateConvMessagesCurrentPage');
+            context.commit('updateConversation', payload);
             resolve(true);
         });
     },
