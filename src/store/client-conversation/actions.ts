@@ -6,12 +6,10 @@ import * as _l from 'lodash';
 const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
     getClientConversations(context) {
         return new Promise((resolve, reject) => {
-            // console.log(context.state.paginationMeta.current_page);
             window.api
                 .post('conversations/clients-conversation', null, {
                     params: {
                         p: context.state.paginationMeta.current_page,
-                        pp: 2,
                         s: context.state.pipeline.s,
                     },
                 })

@@ -2,7 +2,7 @@
     <q-table :rows="rows" :columns="columns" row-key="name" :pagination="{ rowsPerPage: 0 }" hide-pagination flat>
         <template v-if="!hideSearch" v-slot:top-left>
             <q-input
-                @update:model-value="$emit('handlePipeline', $event)"
+                @update:model-value="handlePipeline"
                 :model-value="searchValue"
                 dense
                 debounce="300"
@@ -130,7 +130,9 @@ export default defineComponent({
         },
     },
     data(): any {
-        return {};
+        return {
+            handlePipelineTimer: '',
+        };
     },
 
     computed: {
@@ -147,15 +149,14 @@ export default defineComponent({
         console.log('ec table mounted');
     },
 
-    methods: {},
+    methods: {
+        handlePipeline($event: any) {
+            clearTimeout(this.handlePipelineTimer);
 
-    // watch: {
-    //     searchValue: {
-    //         handler: function (searchValue: any) {
-    //             this.keyword = searchValue;
-    //         },
-    //         immediate: true,
-    //     },
-    // },
+            this.handlePipelineTimer = setTimeout(() => {
+                this.$emit('handlePipeline', $event);
+            }, 300);
+        },
+    },
 });
 </script>
