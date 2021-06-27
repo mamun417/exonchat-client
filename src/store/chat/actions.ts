@@ -229,7 +229,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             if (
                 messageRes.hasOwnProperty('socket_event') &&
                 messageRes.socket_event === 'ec_msg_from_client' &&
-                tempConv.conversation_sessions.length === 1
+                !messageRes.ai_is_replying &&
+                tempConv.conversation_sessions.length === 1 &&
+                messageRes.notify
             ) {
                 // check if this is my department then show notification until join
                 // for now my or other all department notify msg every time
