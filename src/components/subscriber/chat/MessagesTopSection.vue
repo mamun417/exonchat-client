@@ -72,11 +72,53 @@
                                             </q-item-section>
                                         </q-item>
 
+                                        <q-expansion-item
+                                            v-if="['joined', 'left'].includes(conversationStatusForMe)"
+                                            expand-separator
+                                            dense
+                                        >
+                                            <template v-slot:header>
+                                                <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                                    <q-icon name="shortcut" />
+                                                </q-item-section>
+                                                <q-item-section>Transfer Chat </q-item-section>
+                                            </template>
+
+                                            <q-list dense style="min-width: 100px" separator>
+                                                <q-item
+                                                    v-for="user of onlineUsers"
+                                                    :key="user.id"
+                                                    @click="transferChat(user)"
+                                                    clickable
+                                                    v-close-popup
+                                                >
+                                                    <q-item-section>
+                                                        <q-item-label>{{ user.user_meta.display_name }}</q-item-label>
+                                                        <q-item-label caption>
+                                                            {{ user.email }}
+                                                        </q-item-label>
+                                                    </q-item-section>
+                                                    <q-item-section side
+                                                        ><q-badge rounded :color="user.is_online ? 'green' : 'grey'"
+                                                    /></q-item-section>
+
+                                                    <q-tooltip
+                                                        v-if="!user.is_online"
+                                                        class="bg-warning text-black"
+                                                        anchor="bottom middle"
+                                                        self="bottom middle"
+                                                    >
+                                                        Not Online
+                                                    </q-tooltip>
+                                                </q-item>
+                                            </q-list>
+                                        </q-expansion-item>
+
                                         <q-item v-if="!conversationInfo.closed_at" clickable v-close-popup>
                                             <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                                 <q-icon name="confirmation_number" />
                                             </q-item-section>
-                                            <q-item-section @click="openTicket">Open Ticket</q-item-section>
+                                            <q-item-section @click="openTicketModal = true">Open Ticket</q-item-section>
                                         </q-item>
 
                                         <q-item v-if="conversationStatusForMe === 'joined'" clickable v-close-popup>
@@ -127,6 +169,24 @@
             </q-item>
         </q-card-section>
 
+        <q-dialog v-model="openTicketModal">
+            <q-card style="min-width: 350px">
+                <q-card-section class="tw-border-b-2 tw-py-3 tw-px-2">
+                    <span class="q-ml-sm">You are going to open a support ticket</span>
+                </q-card-section>
+
+                <q-card-section>
+                    <div class="tw-text-xs">Write ticket subject</div>
+                    <q-input v-model="ticketSubject" placeholder="Subject" dense></q-input>
+                </q-card-section>
+
+                <q-card-section class="tw-py-3 text-center"
+                    ><q-btn size="sm" label="Submit" color="green" class="full-width" @click="openTicket" unelevated
+                /></q-card-section>
+            </q-card>
+            <q-inner-loading :showing="ticketSubmitLoader" color="green" />
+        </q-dialog>
+
         <conversation-state-confirm-modal
             v-if="confirmModal"
             :conv-state-button-info="{ name: modalForState }"
@@ -170,6 +230,13 @@ export default defineComponent({
         return {
             confirmModal: false,
             modalForState: '',
+
+            openTicketModal: false,
+            ticketSubmitLoader: false,
+            ticketSubject: '',
+
+            transferChatToExpand: false,
+            transferChatToFilter: '',
         };
     },
 
@@ -182,6 +249,12 @@ export default defineComponent({
             profile: 'auth/profile',
             rightBarState: 'setting_ui/rightBarState',
         }),
+
+        onlineUsers(): any {
+            const users = this.$store.getters['chat/chatUsers'];
+
+            return this.transferChatToFilter ? users : users;
+        },
 
         conversationInfo(): any {
             return this.$store.getters['chat/conversationInfo'](this.conv_id);
@@ -212,14 +285,41 @@ export default defineComponent({
         },
 
         openTicket() {
+            this.ticketSubmitLoader = true;
+
             window.socketSessionApi
-                .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: 'this is a ticket subject' })
-                .then((res: any) => {
-                    console.log(res);
+                .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: this.ticketSubject })
+                .then(() => {
+                    this.$helpers.showSuccessNotification(this, 'Ticket submitted successfully');
                 })
                 .catch((e: any) => {
                     console.log(e);
+                    this.$helpers.showErrorNotification(this, e.response.data.message);
+                })
+                .finally(() => {
+                    this.openTicketModal = false;
+                    this.ticketSubmitLoader = false;
                 });
+        },
+
+        transferChat(agent: any) {
+            if (!agent.is_online) {
+                this.$helpers.showErrorNotification(
+                    this,
+                    'Transfer chat not possible. Agent is not online',
+                    'warning',
+                    'black'
+                );
+                return;
+            }
+
+            console.log('transferchat => ', agent);
+
+            this.$socket.emit('ec_chat_transfer_from_user', {
+                conv_id: this.conv_id,
+                notify_to: agent.socket_sessions[0].id,
+                agent_info: agent,
+            });
         },
 
         joinConversation(conv_id: any) {
