@@ -750,13 +750,19 @@ export default defineComponent({
             this.finalAttachments = [];
         },
 
-        handleScroll(info: any) {
+        async handleScroll(info: any) {
             let verticalPercentage = info.verticalPercentage;
             this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
 
             // get next page messages (pagination)
             const topScrolling = this.lastTopVerticalPosition > info.verticalPosition;
             this.lastTopVerticalPosition = info.verticalPosition;
+
+            await this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                conv_id: this.conv_id,
+                auto_scroll_to_bottom: verticalPercentage === 1,
+                last_position: verticalPercentage,
+            });
 
             if (topScrolling && verticalPercentage < 0.025 && this.messages?.length > 0) {
                 this.gettingNewMessages = true;
@@ -772,20 +778,17 @@ export default defineComponent({
                         .then(() => {
                             this.gettingNewMessages = false;
                             this.getNewMessages();
+                            this.scrollToPosition(0.3);
                         });
                 }, 1000);
             }
         },
-        scrollToBottom() {
+
+        scrollToPosition(position = 0) {
             const msgScrollArea = this.$refs.msgScrollArea;
 
             if (msgScrollArea) {
-                const scrollTarget = msgScrollArea.getScrollTarget();
-
-                console.log(scrollTarget.scrollHeight);
-                console.log('------------------');
-
-                msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 500);
+                msgScrollArea.setScrollPercentage('vertical', position, 500);
             }
         },
 
@@ -913,7 +916,6 @@ export default defineComponent({
 
         conv_id: {
             handler: function () {
-                // if (!this.conversationInfo.hasOwnProperty('current_page')) {
                 if (!this.conversationInfo.hasOwnProperty('pagination_meta')) {
                     this.getNewMessages();
                 }
@@ -925,8 +927,8 @@ export default defineComponent({
             handler: function () {
                 this.handleAttachmentLoading();
 
-                if ('auto_scroll_to_bottom') {
-                    this.scrollToBottom();
+                if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
+                    this.scrollToPosition(); // scrollToBottom
                 }
             },
             deep: true,
@@ -937,9 +939,9 @@ export default defineComponent({
             handler: function (newVal, oldVal) {
                 console.log(oldVal, newVal);
 
-                if ('auto_scroll_to_bottom') {
+                if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
                     if (newVal.length > oldVal.length) {
-                        this.scrollToBottom();
+                        this.scrollToPosition();
                     }
                 }
             },

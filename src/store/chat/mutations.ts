@@ -60,7 +60,7 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     updateConversation(state: ChatStateInterface, convData: any) {
-        // console.log(convData);
+        // console.log('>>>>>>>', convData.caller, convData.conversation);
 
         const convId = convData.conv_id;
 
@@ -152,6 +152,10 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             if (convData.hasOwnProperty('pagination_meta')) {
                 state.conversations[convId].pagination_meta = convData.pagination_meta;
+            }
+
+            if (convData.hasOwnProperty('scroll_info')) {
+                state.conversations[convId].scroll_info = convData.scroll_info;
             }
         }
     },

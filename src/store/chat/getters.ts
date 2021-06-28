@@ -148,6 +148,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             .filter((conv: any) => {
                 // Object.keys(conv.messages).length check for safe
                 return (
+                    conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
                     !_l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
@@ -174,6 +175,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             .filter((conv: any) => {
                 // Object.keys(conv.messages).length check for safe
                 return (
+                    conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
                     _l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
@@ -244,6 +246,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
                 // Object.keys(conv.messages).length check for safe
                 return (
+                    conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
                     conv.sessions.length > 1 &&
