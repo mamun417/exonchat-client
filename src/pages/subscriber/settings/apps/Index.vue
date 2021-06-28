@@ -2,7 +2,7 @@
     <div>
         <q-card class="tw-my-2">
             <q-card-section>
-                <div class="text-center text-green">Third Party Apps</div>
+                <div class="text-center tw-font-bold">Third Party Apps</div>
             </q-card-section>
         </q-card>
 
@@ -95,6 +95,7 @@
                     :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
                     color="green"
                     class="tw-mb-4"
+                    size="sm"
                 >
                     Update App Setting
                 </q-btn>

@@ -1,7 +1,7 @@
 <template>
     <q-page class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
         <div
-            v-if="panelVisibleStatus"
+            v-show="panelVisibleStatus"
             class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
         >
             <template v-if="hasApiKey">
@@ -124,7 +124,7 @@
                 <div class="text-center">powered by <b>Exonhost</b></div>
             </div>
         </div>
-        <div v-else>
+        <div v-show="!panelVisibleStatus">
             <q-btn
                 icon="forum"
                 size="md"
@@ -394,6 +394,9 @@ export default defineComponent({
             });
 
             this.socket.on('ec_msg_from_user', (res: any) => {
+                res.socket_event = 'ec_msg_from_user';
+                res.caller_page = 'web-chat';
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 console.log('from ec_msg_from_user', res);

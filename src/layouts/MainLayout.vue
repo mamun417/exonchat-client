@@ -539,6 +539,8 @@ export default defineComponent({
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
             this.socket.on('ec_msg_from_user', (res: any) => {
+                res.socket_event = 'ec_msg_from_user';
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 console.log('from ec_msg_from_user', res);
@@ -703,9 +705,49 @@ export default defineComponent({
                 console.log('from ec_conversation_rated_from_client', res);
             });
 
+            this.socket.on('ec_chat_transfer_from_user', (data: any) => {
+                this.$q.notify({
+                    group: `${data.conv_id}_notify`,
+                    message: `Chat transfer request from agent ${data.agent_info.user_meta.display_name}`,
+                    caption: 'Click send button to open this conversation',
+                    progress: true,
+                    multiLine: true,
+                    icon: 'announcement',
+                    color: 'grey-8',
+                    textColor: 'white',
+                    position: 'top-right',
+                    classes: 'tw-w-80 tw-p-2',
+                    timeout: 15000,
+                    badgeClass: 'hidden',
+                    actions: [
+                        {
+                            icon: 'send',
+                            color: 'white',
+                            size: 'xs',
+                            handler: () => {
+                                window.router.push(`/chats/${data.conv_id}`);
+                            },
+                        },
+                    ],
+                });
+                new Audio('assets/sound/notification/notification-001.wav').play();
+
+                console.log('from ec_chat_transfer_from_user', data);
+            });
+
             this.socket.on('ec_error', (data: any) => {
                 console.log('from ec_error', data);
-                // check if has if not then new event
+
+                if (data.step === 'ec_chat_transfer_from_user') {
+                    this.$q.notify({
+                        color: 'warning',
+                        textColor: 'black',
+                        message: data.reason,
+                        position: 'top',
+                    });
+                }
+
+                // check if not then new event
                 this.$emitter.emit(`listen_error_${data.step}`, data);
             });
         },

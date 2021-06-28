@@ -83,6 +83,11 @@ const routes: RouteRecordRaw[] = [
                         component: () => import('pages/subscriber/settings/ui/Index.vue'),
                     },
                     {
+                        path: 'chat',
+                        name: 'settings_chat',
+                        component: () => import('pages/subscriber/settings/chat/Index.vue'),
+                    },
+                    {
                         path: 'apps',
                         name: 'settings_apps',
                         component: () => import('pages/subscriber/settings/apps/Index.vue'),
@@ -94,6 +99,7 @@ const routes: RouteRecordRaw[] = [
                     },
                 ],
             },
+
             {
                 path: '/access-denied',
                 name: 'access-denied',

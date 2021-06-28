@@ -22,9 +22,10 @@ const helpers = {
         return sessionStorage.getItem('ec_user_socket_ses_id');
     },
 
-    showErrorNotification(vm: any, message: any) {
+    showErrorNotification(vm: any, message: any, color = 'negative', textColor = 'white') {
         vm.$q.notify({
-            color: 'negative',
+            color: color,
+            textColor: textColor,
             message: message,
             position: 'top',
         });

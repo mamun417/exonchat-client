@@ -69,6 +69,7 @@
                 <q-route-tab to="/settings/profile" exact>Profile</q-route-tab>
                 <q-route-tab to="/settings/change-password" exact>Change Password</q-route-tab>
                 <q-route-tab to="/settings/ui" exact>UI</q-route-tab>
+                <q-route-tab to="/settings/chat" exact>Chat</q-route-tab>
                 <q-route-tab to="/settings/apps" exact>Apps</q-route-tab>
                 <q-route-tab to="/settings/testing" exact>Testing</q-route-tab>
                 <q-route-tab>Others</q-route-tab>

@@ -3,7 +3,7 @@
         <q-card>
             <q-card-section>
                 <div class="tw-font-medium tw-mb-2">Global Color</div>
-                <div class="tw-flex tw-flex-wrap tw-gap-4 tw-justify-between">
+                <div class="tw-flex tw-flex-wrap tw-gap-4 tw-justify-start">
                     <div
                         v-for="color in [
                             'green',
@@ -25,13 +25,9 @@
                             `bg-${color}`,
                             { [`tw-border-2 tw-border-${color}-600 inset-shadow`]: color === globalColor },
                         ]"
-                        class="tw-h-24 tw-w-24 tw-rounded-lg tw-items-center tw-flex tw-cursor-pointer shadow-3"
+                        class="tw-h-12 tw-w-12 tw-rounded-lg tw-cursor-pointer shadow-3"
                         @click="updateGlobalColor(color)"
-                    >
-                        <div class="text-center text-white tw-w-full">
-                            {{ color === 'green' ? 'default' : color }}
-                        </div>
-                    </div>
+                    ></div>
                 </div>
             </q-card-section>
         </q-card>

@@ -249,17 +249,28 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve) => {
             context.commit('updateConversation', obj);
 
+            if (messageRes.hasOwnProperty('socket_event') && messageRes.socket_event === 'ec_msg_from_user') {
+                if (messageRes.hasOwnProperty('caller_page') && messageRes.caller_page === 'web-chat') {
+                    new Audio('assets/sound/notification/notification-reply-001.mp3').play();
+                }
+            }
+
             if (
                 messageRes.hasOwnProperty('socket_event') &&
                 messageRes.socket_event === 'ec_msg_from_client' &&
-                tempConv.conversation_sessions.length === 1
+                !messageRes.ai_is_replying &&
+                // tempConv.conversation_sessions.length === 1 && // this check not possible cz again notify will not work
+                messageRes.notify
             ) {
+                // I think below comments & check are not needed
                 // check if this is my department then show notification until join
                 // for now my or other all department notify msg every time
                 // later handle from else
                 if (true) {
                     const msgObj = _l.omit(messageRes, ['conversation']);
                     const msg = msgObj.msg ? msgObj.msg : 'Uploaded Attachments...'; // we assume that if no msg then attachment
+
+                    new Audio('assets/sound/notification/notification-request-001.mp3').play();
 
                     Notify.create({
                         group: tempConv.id,
@@ -285,8 +296,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             },
                         ],
                     });
-
-                    new Audio('assets/sound/notification/notification-001.wav').play();
+                }
+            } else {
+                if (messageRes.hasOwnProperty('socket_event') && messageRes.socket_event === 'ec_msg_from_client') {
+                    new Audio('assets/sound/notification/notification-reply-002.mp3').play();
                 }
             }
 
