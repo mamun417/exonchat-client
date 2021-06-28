@@ -22,6 +22,7 @@
         {{ conversationInfo }}
         {{ messages }}
         </pre> -->
+        <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
         <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg || (message.attachments && message.attachments.length)"
@@ -401,6 +402,7 @@ export default defineComponent({
             getChatTemplateTimer: '',
 
             usersAvatarLoading: false,
+            lastTopVerticalPosition: 0,
         };
     },
 
@@ -523,9 +525,6 @@ export default defineComponent({
                 this.$store
                     .dispatch('chat/getConvMessages', {
                         convId: this.conv_id,
-                        page: !this.conversationInfo.hasOwnProperty('current_page')
-                            ? 1
-                            : parseInt(this.conversationInfo.current_page) + 1,
                     })
                     .finally(() => {
                         this.gettingNewMessages = false;
@@ -751,17 +750,45 @@ export default defineComponent({
             this.finalAttachments = [];
         },
 
-        handleScroll(info: any) {
+        async handleScroll(info: any) {
             let verticalPercentage = info.verticalPercentage;
             this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
+
+            // get next page messages (pagination)
+            const topScrolling = this.lastTopVerticalPosition > info.verticalPosition;
+            this.lastTopVerticalPosition = info.verticalPosition;
+
+            await this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                conv_id: this.conv_id,
+                auto_scroll_to_bottom: verticalPercentage === 1,
+                last_position: verticalPercentage,
+            });
+
+            if (topScrolling && verticalPercentage < 0.025 && this.messages?.length > 0) {
+                this.gettingNewMessages = true;
+
+                setTimeout(() => {
+                    this.$store
+                        .dispatch('chat/updateConvMessagesCurrentPage', {
+                            conv_id: this.conv_id,
+                            pagination_meta: {
+                                current_page: parseInt(this.conversationInfo.pagination_meta.current_page) + 1,
+                            },
+                        })
+                        .then(() => {
+                            this.gettingNewMessages = false;
+                            this.getNewMessages();
+                            this.scrollToPosition(0.3);
+                        });
+                }, 1000);
+            }
         },
-        scrollToBottom() {
+
+        scrollToPosition(position = 0) {
             const msgScrollArea = this.$refs.msgScrollArea;
 
             if (msgScrollArea) {
-                const scrollTarget = msgScrollArea.getScrollTarget();
-
-                msgScrollArea.setScrollPosition('vertical', scrollTarget.scrollHeight, 500);
+                msgScrollArea.setScrollPercentage('vertical', position, 500);
             }
         },
 
@@ -889,7 +916,7 @@ export default defineComponent({
 
         conv_id: {
             handler: function () {
-                if (!this.conversationInfo.hasOwnProperty('current_page')) {
+                if (!this.conversationInfo.hasOwnProperty('pagination_meta')) {
                     this.getNewMessages();
                 }
             },
@@ -900,8 +927,8 @@ export default defineComponent({
             handler: function () {
                 this.handleAttachmentLoading();
 
-                if ('auto_scroll_to_bottom') {
-                    this.scrollToBottom();
+                if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
+                    this.scrollToPosition(); // scrollToBottom
                 }
             },
             deep: true,
@@ -912,9 +939,9 @@ export default defineComponent({
             handler: function (newVal, oldVal) {
                 console.log(oldVal, newVal);
 
-                if ('auto_scroll_to_bottom') {
+                if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
                     if (newVal.length > oldVal.length) {
-                        this.scrollToBottom();
+                        this.scrollToPosition();
                     }
                 }
             },

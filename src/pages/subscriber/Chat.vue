@@ -30,7 +30,7 @@
                     ></q-btn>
                 </q-card-section>
             </q-card> -->
-            <messages-top-section :conv_id="$route.params['conv_id']" />
+            <messages-top-section :conv_id="$route.params['conv_id']" style="height: 400px" />
 
             <message :conv_id="$route.params['conv_id']" :ses_id="profile?.socket_session?.id"></message>
 

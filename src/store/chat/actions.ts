@@ -17,6 +17,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             sessions: conv.conversation_sessions,
             chat_department: conv.chat_department,
             ai_is_replying: conv.ai_is_replying,
+            caller: 'storeClientInitiateConvInfo',
         });
     },
 
@@ -24,6 +25,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         context.commit('updateConversation', {
             conv_id: convSesInfo.conversation_id,
             session: convSesInfo,
+            caller: 'updateConvState',
         });
     },
     updateConvStateToClosed(context, convInfo) {
@@ -34,6 +36,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             closed_at: convInfo.closed_at,
             closed_by_id: convInfo.closed_by_id,
             sessions: convInfo.conversation_sessions,
+            caller: 'updateConvStateToClosed',
         });
     },
 
@@ -50,12 +53,26 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve, reject) => {
             const callerApi = payload.client_page ? window.socketSessionApi : window.api;
 
-            callerApi
-                .get(`conversations/${payload.convId}/messages?p=${payload.page || 1}&pp=50`)
-                .then((res: any) => {
-                    const conv = res.data;
+            let current_page = 1;
 
-                    conv.current_page = payload.page || 1; // now only for temp & test
+            const conversationInfo = context.getters['conversationInfo'](payload.convId);
+
+            if (conversationInfo && conversationInfo.pagination_meta) {
+                current_page = conversationInfo.pagination_meta.current_page;
+            }
+
+            callerApi
+                .get(`conversations/${payload.convId}/messages`, {
+                    params: {
+                        p: current_page,
+                        pp: 5,
+                    },
+                })
+                .then((res: any) => {
+                    const conv = res.data.conversations.data;
+                    const pagination = res.data.conversations.pagination;
+
+                    // conv.current_page = payload.page || 1; // now only for temp & test
 
                     context.commit('updateConversation', {
                         conv_id: conv.id,
@@ -77,6 +94,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         closed_by: conv.closed_by,
                         closed_at: conv.closed_at,
                         rating: conv.conversation_rating,
+                        pagination_meta: pagination,
+                        caller: 'getConvMessages',
                     });
 
                     resolve(res);
@@ -115,6 +134,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             ai_is_replying: request.ai_is_replying,
                             closed_by: request.closed_by,
                             closed_at: request.closed_at,
+                            caller: 'getChatRequests',
                         });
                     });
                     resolve(res);
@@ -153,6 +173,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             ai_is_replying: conv.ai_is_replying,
                             closed_by: conv.closed_by,
                             closed_at: conv.closed_at,
+                            caller: 'getOtherJoinedChats',
                         });
                     });
 
@@ -191,6 +212,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             ai_is_replying: request.ai_is_replying,
                             closed_by: request.closed_by,
                             closed_at: request.closed_at,
+                            caller: 'getJoinedChatsWithMe',
                         });
                     });
                     resolve(res);
@@ -221,6 +243,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             closed_by: tempConv.closed_by,
             closed_at: tempConv.closed_at,
             from: 'socket',
+            caller: 'storeMessage',
         };
 
         return new Promise((resolve) => {
@@ -305,6 +328,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         ai_is_replying: conv.ai_is_replying,
                         closed_by: conv.closed_by,
                         closed_at: conv.closed_at,
+                        caller: 'getUsers',
                     });
                 });
 
@@ -362,9 +386,38 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     updateConvRating(context, convRatingInfo) {
-        context.commit('updateConversation', {
-            conv_id: convRatingInfo.conversation_id,
-            rating: convRatingInfo,
+        return new Promise((resolve) => {
+            context.commit('updateConversation', {
+                conv_id: convRatingInfo.conversation_id,
+                rating: convRatingInfo,
+                caller: 'updateConvRating',
+            });
+            resolve(true);
+        });
+    },
+
+    updateConvMessagesCurrentPage(context, convPaginationInfo) {
+        return new Promise((resolve) => {
+            context.commit('updateConversation', {
+                conv_id: convPaginationInfo.conv_id,
+                pagination_meta: convPaginationInfo.pagination_meta,
+                caller: 'updateConvMessagesCurrentPage',
+            });
+            resolve(true);
+        });
+    },
+
+    updateConvMessagesAutoScrollToBottom(context, scrollInfo) {
+        // const storeScrollInfo = context.state.conversations[payload.conv_id]?.scroll_info;
+
+        return new Promise((resolve) => {
+            context.commit('updateConversation', {
+                conv_id: scrollInfo.conv_id,
+                scroll_info: scrollInfo,
+                // scroll_info: { ...storeScrollInfo, ...payload },
+                caller: 'updateConvMessagesAutoScrollToBottom',
+            });
+            resolve(true);
         });
     },
 };

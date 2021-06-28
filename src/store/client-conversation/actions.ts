@@ -43,6 +43,7 @@ const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
                                 message: conv.messages[0],
                                 ai_is_replying: conv.ai_is_replying,
                                 closed_by: conv.closed_by,
+                                caller: 'getClientConversations',
                             },
                             { root: true }
                         );

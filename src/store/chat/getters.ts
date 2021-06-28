@@ -23,7 +23,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     conversationInfo: (state) => (convId: any) => {
         if (state.conversations[convId]) {
-            console.log(state.conversations[convId]);
             return _l.omit(state.conversations[convId], ['messages']);
         }
 
@@ -149,6 +148,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             .filter((conv: any) => {
                 // Object.keys(conv.messages).length check for safe
                 return (
+                    conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
                     !_l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
@@ -175,6 +175,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             .filter((conv: any) => {
                 // Object.keys(conv.messages).length check for safe
                 return (
+                    conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
                     _l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
@@ -245,6 +246,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
                 // Object.keys(conv.messages).length check for safe
                 return (
+                    conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
                     conv.sessions.length > 1 &&
@@ -305,6 +307,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
     },
+
+    // convMessagesPaginationMeta(state) {
+    //     return state.convMessagesPaginationMeta;
+    // },
 };
 
 export default getters;
