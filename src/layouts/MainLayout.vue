@@ -539,6 +539,8 @@ export default defineComponent({
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
             this.socket.on('ec_msg_from_user', (res: any) => {
+                res.socket_event = 'ec_msg_from_user';
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 console.log('from ec_msg_from_user', res);
