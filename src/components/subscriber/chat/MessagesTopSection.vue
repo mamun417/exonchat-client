@@ -167,8 +167,6 @@
                     </q-item-label>
                 </q-item-section>
             </q-item>
-
-            <pre>{{ conversationInfo.scroll_info }}</pre>
         </q-card-section>
 
         <q-dialog v-model="openTicketModal">
