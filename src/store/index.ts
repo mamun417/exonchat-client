@@ -18,6 +18,9 @@ import { SettingProfileInterface } from './setting/profile/state';
 import setting_app from './setting/app';
 import { SettingAppInterface } from './setting/app/state';
 
+import setting_chat from './setting/chat';
+import { SettingChatInterface } from './setting/chat/state';
+
 import chat from './chat';
 import { ChatStateInterface } from './chat/state';
 
@@ -64,6 +67,7 @@ export interface StateInterface {
     setting_ui: SettingUiStateInterface;
     setting_profile: SettingProfileInterface;
     setting_app: SettingAppInterface;
+    setting_chat: SettingChatInterface;
     intent: IntentStateInterface;
     speech: SpeechStateInterface;
     department: DepartmentStateInterface;
@@ -84,6 +88,7 @@ export default store(function (/* { ssrContext } */) {
             setting_ui,
             setting_profile,
             setting_app,
+            setting_chat,
 
             chat,
             intent,

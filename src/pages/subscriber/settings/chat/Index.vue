@@ -19,7 +19,7 @@
                         :class="{
                             'tw-border-green-500': formInputs.conversation_at_initiate_notify_policy === 'auto',
                         }"
-                        @click="updateAssignmentPolicy('auto')"
+                        @click="updateDistributedPolicy('auto')"
                     >
                         <div class="tw-mb-1 tw-font-medium">Auto</div>
                         <div class="tw-text-xs">
@@ -32,7 +32,7 @@
                         :class="{
                             'tw-border-green-500': formInputs.conversation_at_initiate_notify_policy === 'manual',
                         }"
-                        @click="updateAssignmentPolicy('manual')"
+                        @click="updateDistributedPolicy('manual')"
                     >
                         <div class="tw-mb-1 tw-font-medium">Manual</div>
                         <div class="tw-text-xs">
@@ -56,27 +56,68 @@ export default defineComponent({
     data(): any {
         return {
             formInputs: {
-                conversation_at_initiate_notify_policy: 'manual',
+                conversation_at_initiate_notify_policy: '',
             },
         };
     },
 
     mounted() {
-        // this.getChatSetting();
+        this.getChatSetting();
     },
 
     methods: {
-        updateAssignmentPolicy(policy: any) {
-            this.formInputs.conversation_at_initiate_notify_policy = policy;
+        getChatSetting() {
+            this.$store
+                .dispatch('setting_chat/getChatSetting')
+                .then((res: any) => {
+                    res.data.forEach((chatSetting: any) => {
+                        this.formInputs[chatSetting.slug] = this.getSingleInputValue(chatSetting);
+                    });
+                })
+                .catch((err: any) => {
+                    console.log(err.response.data);
+                });
         },
-        // getChatSetting() {
-        //     this.$store
-        //         .dispatch('')
-        //         .then((res: any) => {})
-        //         .catch((err: any) => {
-        //             console.log(err.response.data);
-        //         });
-        // },
+
+        updateDistributedPolicy(conversationAtInitiateNotifyPolicy: any) {
+            this.formInputs.conversation_at_initiate_notify_policy = conversationAtInitiateNotifyPolicy;
+            this.updateChatSetting();
+        },
+
+        updateChatSetting() {
+            const data = Object.keys(this.formInputs).map((inputName: any) => {
+                return {
+                    name: inputName,
+                    value: this.formInputs[inputName].toString(),
+                };
+            });
+
+            this.$store
+                .dispatch('setting_chat/updateChatSetting', {
+                    inputs: {
+                        chat_settings: data,
+                    },
+                })
+                .then(() => {
+                    this.$helpers.showSuccessNotification(this, 'Chat setting update successful');
+                    this.getChatSetting();
+                })
+                .catch((err: any) => {
+                    if (this.$_.isObject(err.response.data.message)) {
+                        this.formDataErrors = err.response.data.message;
+                    } else {
+                        this.$helpers.showErrorNotification(this, err.response.data.message);
+                    }
+                });
+        },
+
+        getSingleInputValue(appSetting: any) {
+            const value = appSetting.user_settings_value.length
+                ? appSetting.user_settings_value[0].value
+                : appSetting.default_value;
+
+            return appSetting.input_type === 'checkbox' ? value === 'true' : value;
+        },
     },
 
     watch: {},
