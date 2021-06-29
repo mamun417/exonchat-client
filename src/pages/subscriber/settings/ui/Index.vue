@@ -2,6 +2,7 @@
     <div>
         <q-card>
             <q-card-section>
+                <pre>{{ formInputs }}</pre>
                 <div class="tw-font-medium tw-mb-2">Global Color</div>
                 <div class="tw-flex tw-flex-wrap tw-gap-4 tw-justify-start">
                     <div
