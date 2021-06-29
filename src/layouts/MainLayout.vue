@@ -451,6 +451,8 @@ export default defineComponent({
         if (this.currentRouteName === 'chats') {
             this.rightDrawer = true;
         }
+
+        this.$store.dispatch('setting_ui/getUiSetting');
     },
 
     methods: {

@@ -27,7 +27,9 @@
                         ]"
                         class="tw-h-12 tw-w-12 tw-rounded-lg tw-cursor-pointer shadow-3"
                         @click="updateGlobalColor(color)"
-                    ></div>
+                    >
+                        <q-tooltip> {{ $_.upperFirst(color) }} </q-tooltip>
+                    </div>
                 </div>
             </q-card-section>
         </q-card>
@@ -74,7 +76,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapMutations, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: '',
@@ -82,6 +84,9 @@ export default defineComponent({
 
     data(): any {
         return {
+            formInputs: {
+                global_color: '',
+            },
             leftBarItems: [
                 { name: 'incoming chat requests', show: true, open: true },
                 { name: 'chat requests for me', show: true, open: false },
@@ -95,8 +100,65 @@ export default defineComponent({
         ...mapGetters({ globalColor: 'setting_ui/globalColor' }),
     },
 
+    mounted() {
+        this.getUiSetting();
+    },
+
     methods: {
-        ...mapMutations({ updateGlobalColor: 'setting_ui/updateGlobalColor' }),
+        // ...mapMutations({ updateGlobalColor: 'setting_ui/updateGlobalColor' }),
+
+        getUiSetting() {
+            this.$store
+                .dispatch('setting_ui/getUiSetting')
+                .then((res: any) => {
+                    res.data.forEach((uiSetting: any) => {
+                        this.formInputs[uiSetting.slug] = this.getSingleInputValue(uiSetting);
+                    });
+                })
+                .catch((err: any) => {
+                    console.log(err.response.data);
+                });
+        },
+
+        updateGlobalColor(color: any) {
+            this.formInputs.global_color = color;
+            this.updateUiSetting();
+        },
+
+        updateUiSetting() {
+            const data = Object.keys(this.formInputs).map((inputName: any) => {
+                return {
+                    name: inputName,
+                    value: this.formInputs[inputName].toString(),
+                };
+            });
+
+            this.$store
+                .dispatch('setting_ui/updateUiSetting', {
+                    inputs: {
+                        ui_settings: data,
+                    },
+                })
+                .then(() => {
+                    this.$helpers.showSuccessNotification(this, 'Ui setting update successful');
+                    this.getUiSetting();
+                })
+                .catch((err: any) => {
+                    if (this.$_.isObject(err.response.data.message)) {
+                        console.log(err.response.data.messages);
+                    } else {
+                        this.$helpers.showErrorNotification(this, err.response.data.message);
+                    }
+                });
+        },
+
+        getSingleInputValue(uiSetting: any) {
+            const value = uiSetting.user_settings_value.length
+                ? uiSetting.user_settings_value[0].value
+                : uiSetting.default_value;
+
+            return uiSetting.input_type === 'checkbox' ? value === 'true' : value;
+        },
     },
 
     watch: {},

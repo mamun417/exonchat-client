@@ -174,18 +174,18 @@ export default defineComponent({
                     this.getAppSetting();
                 })
                 .catch((err: any) => {
-                    console.log(err.response.data);
+                    if (this.$_.isObject(err.response.data.message)) {
+                        this.formDataErrors = err.response.data.message;
+                    } else {
+                        this.$helpers.showErrorNotification(this, err.response.data.message);
+                    }
                 });
         },
 
         getSingleInputValue(appSetting: any) {
-            let value: any;
-
-            if (appSetting.user_settings_value.length) {
-                value = appSetting.user_settings_value[0].value;
-            } else {
-                value = appSetting.default_value;
-            }
+            const value = appSetting.user_settings_value.length
+                ? appSetting.user_settings_value[0].value
+                : appSetting.default_value;
 
             return appSetting.input_type === 'checkbox' ? value === 'true' : value;
         },
