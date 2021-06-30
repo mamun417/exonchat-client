@@ -1,5 +1,5 @@
 <template>
-    <q-page class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
+    <q-page v-if="allCheck" class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
         <div
             v-show="panelVisibleStatus"
             class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
@@ -160,6 +160,7 @@ export default defineComponent({
     },
     data(): any {
         return {
+            allCheck: false,
             api_key: null,
             hasApiKey: false,
 
@@ -365,6 +366,8 @@ export default defineComponent({
                     token: this.socketToken,
                 },
             });
+
+            this.allCheck = true;
 
             this.fireSocketListeners();
 
