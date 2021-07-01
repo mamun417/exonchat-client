@@ -99,11 +99,19 @@
                                                         </q-item-label>
                                                     </q-item-section>
                                                     <q-item-section side
-                                                        ><q-badge rounded :color="user.is_online ? 'green' : 'grey'"
+                                                        ><q-badge
+                                                            rounded
+                                                            :color="
+                                                                user.online_status === 'online'
+                                                                    ? 'green'
+                                                                    : user.online_status === 'offline'
+                                                                    ? 'red'
+                                                                    : 'grey'
+                                                            "
                                                     /></q-item-section>
 
                                                     <q-tooltip
-                                                        v-if="!user.is_online"
+                                                        v-if="user.online_status !== 'online'"
                                                         class="bg-warning text-black"
                                                         anchor="bottom middle"
                                                         self="bottom middle"
@@ -303,7 +311,7 @@ export default defineComponent({
         },
 
         transferChat(agent: any) {
-            if (!agent.is_online) {
+            if (agent.online_status !== 'online') {
                 this.$helpers.showErrorNotification(
                     this,
                     'Transfer chat not possible. Agent is not online',

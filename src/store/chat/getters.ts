@@ -151,6 +151,32 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                     conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
+                    conv.sessions.length === 1
+                );
+            })
+            .map((conv: any) => {
+                const msg: any = _l
+                    .sortBy(
+                        Object.values(conv.messages).filter(
+                            (msg: any) =>
+                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
+                        ),
+                        [(msg: any) => moment(msg.created_at).format('x')]
+                    )
+                    .reverse()[0];
+
+                return { ...msg, conversation_session: conv.sessions[0] }; // conv.sessions[0] cz we are already filtering length 1
+            });
+    },
+
+    incomingOtherDepartmentChatRequests(state, getters, rootState, rootGetters) {
+        return Object.values(state.conversations)
+            .filter((conv: any) => {
+                // Object.keys(conv.messages).length check for safe
+                return (
+                    conv.hasOwnProperty('users_only') &&
+                    !conv.users_only &&
+                    !conv.closed_at &&
                     !_l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
                     conv.sessions.length === 1 &&
                     Object.keys(conv.messages).length
@@ -207,14 +233,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 ]);
 
                 // Object.keys(conv.messages).length check for safe
-                return (
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    conv.sessions.length > 1 &&
-                    sesInfo &&
-                    !sesInfo.left_at &&
-                    Object.keys(conv.messages).length
-                );
+                return !conv.users_only && !conv.closed_at && conv.sessions.length > 1 && sesInfo && !sesInfo.left_at;
             })
             .map((conv: any) => {
                 const msg: any = _l

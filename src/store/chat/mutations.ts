@@ -55,7 +55,13 @@ const mutation: MutationTree<ChatStateInterface> = {
     // update online users
     updateOnlineUsers(state: ChatStateInterface, onlineUsers: any) {
         Object.values(state.chatUsers).map((user: any) => {
-            user.is_online = user.online_status && onlineUsers.includes(user.socket_sessions[0].id);
+            if (user.online_status === 'online') {
+                const foundAsLogged = _l.find(onlineUsers, ['ses_id', user.socket_sessions[0].id]);
+
+                if (!foundAsLogged) {
+                    user.online_status = 'offline';
+                }
+            }
         });
     },
 
@@ -107,6 +113,7 @@ const mutation: MutationTree<ChatStateInterface> = {
                 });
             }
 
+            // here sessions means [conversation_session...]
             if (convData.hasOwnProperty('sessions') && convData.sessions.length) {
                 if (state.conversations[convId].sessions.length) {
                     // later
@@ -129,6 +136,7 @@ const mutation: MutationTree<ChatStateInterface> = {
                 }
             }
 
+            // here session means conversation_session
             if (convData.hasOwnProperty('session')) {
                 const convSession = convData.session;
 
@@ -148,6 +156,10 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             if (convData.hasOwnProperty('rating')) {
                 state.conversations[convId].rating = convData.rating;
+            }
+
+            if (convData.hasOwnProperty('notify_status')) {
+                state.conversations[convId].notify_status = convData.notify_status;
             }
 
             if (convData.hasOwnProperty('pagination_meta')) {
