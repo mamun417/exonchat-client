@@ -28,6 +28,20 @@
                         class="tw-h-12 tw-w-12 tw-rounded-lg tw-cursor-pointer shadow-3"
                         @click="updateGlobalColor(color)"
                     >
+                        <div v-if="color === globalColor" class="tw-flex tw-justify-center tw-mt-2">
+                            <q-icon name="check" color="white" size="sm" />
+                        </div>
+                        <q-btn
+                            icon="edit"
+                            color="white"
+                            style="display: inline-flex"
+                            class="tw-absolute tw-top-0 tw-right-0 tw-hidden"
+                            size="sm"
+                            round
+                            unelevated
+                            dense
+                        />
+
                         <q-tooltip> {{ $_.upperFirst(color) }} </q-tooltip>
                     </div>
                 </div>

@@ -18,18 +18,13 @@
         }"
         :content-style="{}"
     >
-        <!-- <pre>
-        {{ conversationInfo }}
-        {{ messages }}
-        </pre> -->
-        <pre>{{ speakingWithInfo }}</pre>
-        <div class="tw-text-center">
-            <ec-avatar
-                :size="mini_mode ? 'md' : 'xl'"
-                image_src="blob:https://chat.exonhost.com/0ac70c79-c884-48cd-8f46-bba8fcc3a190"
-                :name="TEst"
-            ></ec-avatar>
-            <div class="tw-mt-2">You are currently speaking to Mohammad Younus</div>
+        <div v-if="speakingWithInfo.name" class="tw-text-center">
+            <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name">
+                <q-tooltip class="">
+                    {{ speakingWithInfo.email }}
+                </q-tooltip>
+            </ec-avatar>
+            <div class="tw-mt-2">You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}</div>
         </div>
 
         <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
@@ -137,7 +132,7 @@
             </q-chat-message>
         </template>
 
-        <div v-if="conversationInfo.rating" class="text-center">
+        <div v-if="conversationInfo.rating" class="text-center tw-pb-2">
             <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
                 <div>
                     Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
@@ -545,14 +540,13 @@ export default defineComponent({
                             speakingWithInfo.email = sessionInfo.socket_session.init_email;
                         } else {
                             const user = sessionInfo.socket_session.user;
-
                             // get first agent info (when multiple agent join)
 
-                            const test = this.conversationConnectedUsers.find(
-                                (connectedUserSession: any) => connectedUserSession.id === sessionInfo.id
-                            );
-
-                            return test;
+                            // const test = this.conversationConnectedUsers.find(
+                            //     (connectedUserSession: any) => connectedUserSession.id === sessionInfo.id
+                            // );
+                            //
+                            // return test;
 
                             speakingWithInfo.name = user.user_meta.display_name;
                             speakingWithInfo.email = user.email;

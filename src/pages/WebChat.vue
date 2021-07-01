@@ -20,12 +20,12 @@
                                 <q-item-section @click="openTicket">Open Ticket</q-item-section>
                             </q-item>
 
-                            <q-list style="min-width: 100px" dense>
+                            <q-list v-if="!conversationInfo.closed_by" style="min-width: 100px" dense>
                                 <q-item clickable dense v-close-popup>
                                     <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                         <q-icon name="close" />
                                     </q-item-section>
-                                    <q-item-section @click="clearSession" class="text-orange"
+                                    <q-item-section @click="closeChatModal = true" class="text-orange"
                                         >Close Chat
                                     </q-item-section>
                                 </q-item>
@@ -40,9 +40,24 @@
                         flat
                     ></q-btn>
                 </div>
-                <div class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+
+                <div v-if="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+                    <div class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5">
+                        <q-card>
+                            <q-card-section>
+                                <div class="tw-text-md tw-text-center">Are you sure you want to close chat?</div>
+                            </q-card-section>
+                            <q-card-actions align="center">
+                                <q-btn @click="closeChat" color="green" label="Yes" style="width: 70px" />
+                                <q-btn @click="closeChatModal = false" color="green" label="No" style="width: 70px" />
+                            </q-card-actions>
+                        </q-card>
+                    </div>
+                </div>
+
+                <div v-else class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div
-                        v-if="clientInitiateConvInfo.conv_id"
+                        v-if="clientInitiateConvInfo.conv_id && !clientInitiateConvInfo.showRatingForm"
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
@@ -53,7 +68,7 @@
                         v-else-if="clientInitiateConvInfo.showRatingForm"
                         class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5"
                     >
-                        <chat-rating @ratedByClient="clearSession" />
+                        <chat-rating-form @ratedByClient="clearSession" />
                     </div>
 
                     <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
@@ -142,7 +157,7 @@ import { defineComponent } from 'vue';
 import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
-import ChatRating from 'components/subscriber/chat/ChatRating.vue';
+import ChatRatingForm from 'components/common/ChatRatingForm.vue';
 
 declare global {
     interface Window {
@@ -154,12 +169,13 @@ declare global {
 
 export default defineComponent({
     name: 'WebChat',
-    components: { ChatRating, Message },
+    components: { ChatRatingForm, Message },
     setup() {
         return {};
     },
     data(): any {
         return {
+            closeChatModal: false,
             allCheck: false,
             api_key: null,
             hasApiKey: false,
@@ -592,6 +608,8 @@ export default defineComponent({
             });
 
             this.$store.commit('chat/showRatingForm');
+
+            this.closeChatModal = false;
         },
     },
 

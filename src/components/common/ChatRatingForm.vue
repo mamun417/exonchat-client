@@ -4,12 +4,10 @@
         <div class="text-center tw-mb-5" v-if="conversationInfo.closed_by">
             {{
                 $_.upperFirst(
-                    conversationInfo.closed_by.user
-                        ? conversationInfo.closed_by.user.user_meta.display_name
-                        : conversationInfo.closed_by.init_name
+                    conversationInfo.closed_by.user ? conversationInfo.closed_by.user.user_meta.display_name : 'You'
                 )
             }}
-            closed {{ $helpers.fromNowTime(conversationInfo.closed_by.created_at) }}
+            closed {{ $helpers.fromNowTime(conversationInfo.closed_at) }}
         </div>
         <q-card>
             <q-card-section>
@@ -56,7 +54,7 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-    name: 'ChatRating',
+    name: 'ChatRatingForm',
     data(): any {
         return {
             conv_id: '',
@@ -70,6 +68,10 @@ export default defineComponent({
     },
 
     mounted() {
+        setInterval(() => {
+            this.$forceUpdate();
+        }, 30000);
+
         this.conv_id = JSON.parse(localStorage.getItem('clientInitiateConvInfo') || '').conv_id;
     },
 
@@ -77,19 +79,13 @@ export default defineComponent({
         conversationInfo(): any {
             return this.$store.getters['chat/conversationInfo'](this.conv_id);
         },
+
+        // geEcClientSocketSesId(): any {
+        //     return localStorage.getItem('ec_client_socket_ses_id');
+        // },
     },
 
     methods: {
-        // getConvStateStatusMessage() {
-        //     if (this.conversationInfo) {
-        //         return `${
-        //             this.conversationInfo.socket_session.user
-        //                 ? this.conversationInfo.socket_session.user.user_meta.display_name
-        //                 : this.conversationInfo.socket_session.init_name
-        //         } ${this.conversationInfo.state} ${this.$helpers.fromNowTime(this.conversationInfo.created_at)}`;
-        //     }
-        // },
-
         submitRating() {
             this.ratingForm.conversation_id = this.conv_id;
             this.ratingForm.rating = this.ratingForm.ratingTempValue ? 5 : 1;
