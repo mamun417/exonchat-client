@@ -518,8 +518,6 @@ export default defineComponent({
         },
 
         speakingWithInfo(): any {
-            // return this.conversationConnectedUsers;
-
             let speakingWithInfo: any = {
                 name: '',
                 email: '',
@@ -540,13 +538,6 @@ export default defineComponent({
                             speakingWithInfo.email = sessionInfo.socket_session.init_email;
                         } else {
                             const user = sessionInfo.socket_session.user;
-                            // get first agent info (when multiple agent join)
-
-                            // const test = this.conversationConnectedUsers.find(
-                            //     (connectedUserSession: any) => connectedUserSession.id === sessionInfo.id
-                            // );
-                            //
-                            // return test;
 
                             speakingWithInfo.name = user.user_meta.display_name;
                             speakingWithInfo.email = user.email;

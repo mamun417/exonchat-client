@@ -247,6 +247,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
+            conversations: 'chat/conversations',
             clientInitiateConvInfo: 'chat/clientInitiateConvInfo',
         }),
 
@@ -620,6 +621,62 @@ export default defineComponent({
         if (this.socket) {
             this.socket.close();
         }
+    },
+
+    watch: {
+        // if you need to load avatars everywhere then watch conversation n use same way in the layout template
+        conversations: {
+            handler: async function () {
+                console.log('conversations watcher started');
+                if (this.usersAvatarLoading) return;
+
+                this.usersAvatarLoading = true;
+
+                if (this.conversations) {
+                    for (const convObj of Object.values(this.conversations)) {
+                        const conv: any = convObj;
+                        const tempArray: any = { conv_id: conv.id, srcs: [] };
+
+                        for (const convSes of conv.sessions) {
+                            if (convSes.socket_session.user) {
+                                // i can send attachment from db but for that i have to send from all the query
+                                // i have to get the image so y give hard time to api so here check that
+                                if (
+                                    convSes.socket_session.user?.user_meta?.attachment_id &&
+                                    !convSes.socket_session.user?.user_meta?.src
+                                ) {
+                                    try {
+                                        const imgRes = await this.$api.get(
+                                            `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
+                                            {
+                                                responseType: 'arraybuffer',
+                                            }
+                                        );
+
+                                        tempArray.srcs.push({
+                                            conv_ses_id: convSes.id,
+                                            src: URL.createObjectURL(
+                                                new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                            ),
+                                        });
+                                    } catch (e) {
+                                        console.log(e);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (tempArray.srcs.length) {
+                            this.$store.commit('chat/updateConversationUserAvatar', tempArray);
+                        }
+                    }
+                }
+
+                this.usersAvatarLoading = false;
+            },
+            deep: true,
+            immediate: true,
+        },
     },
 });
 </script>

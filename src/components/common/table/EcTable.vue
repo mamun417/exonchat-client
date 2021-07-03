@@ -8,6 +8,7 @@
                 debounce="300"
                 placeholder="Search"
                 color="green"
+                clearable
             >
                 <template v-slot:append>
                     <q-icon name="search" />

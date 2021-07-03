@@ -149,6 +149,10 @@
                             </q-btn>
 
                             <q-btn icon="forum" :to="{ name: 'clients-conversations' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Chat History Backup</q-tooltip>
+                            </q-btn>
+
+                            <q-btn icon="history" :to="{ name: 'chat-history' }" flat size="18px">
                                 <q-tooltip :offset="[10, 10]">Chat History</q-tooltip>
                             </q-btn>
 
