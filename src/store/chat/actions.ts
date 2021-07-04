@@ -14,7 +14,15 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
         context.commit('updateConversation', {
             conv_id: conv.id,
-            conversation: _l.pick(conv, ['id', 'users_only', 'type', 'closed_at', 'created_by_id', 'closed_by_id']),
+            conversation: _l.pick(conv, [
+                'id',
+                'users_only',
+                'type',
+                'closed_at',
+                'created_by_id',
+                'closed_by_id',
+                'created_at',
+            ]),
             sessions: conv.conversation_sessions,
             chat_department: conv.chat_department,
             ai_is_replying: conv.ai_is_replying,
@@ -23,13 +31,15 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     storeNewChatFromClient(context, convInfo) {
+        const convData = convInfo.conv_data;
+
         if (convInfo.notify) {
-            const msgDom = `<div class='tw-flex tw-gap-2 tw-mb-2 text-white tw-text-base'><div>${convInfo.conversation_sessions[0].socket_session.init_name}</div><div>|</div><div class='tw-px-2 bg-blue-grey-6 tw-rounded-md'>${convInfo.chat_department.tag}</div></div>`;
+            const msgDom = `<div class='tw-flex tw-gap-2 tw-mb-2 text-white tw-text-base'><div>${convData.conversation_sessions[0].socket_session.init_name}</div><div>|</div><div class='tw-px-2 bg-blue-grey-6 tw-rounded-md'>${convData.chat_department.tag}</div></div>`;
 
             Notify.create({
-                group: convInfo.id,
+                group: convData.id,
                 message: msgDom,
-                caption: `Online for ${moment(convInfo.conversation_sessions[0].socket_session.created_at).fromNow(
+                caption: `Online for ${moment(convData.conversation_sessions[0].socket_session.created_at).fromNow(
                     true
                 )}`,
                 html: true,
@@ -50,27 +60,30 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         handler: () => {
                             // handle join then push
                             window.socketInstance.emit('ec_join_conversation', {
-                                conv_id: convInfo.id,
+                                conv_id: convData.id,
                             });
-                            window.router.push(`/chats/${convInfo.id}`);
+                            window.router.push(`/chats/${convData.id}`);
                         },
                     },
                 ],
             });
+
+            new Audio('assets/sound/notification/notification-request-001.mp3').play();
         }
 
         context.commit('updateConversation', {
-            conv_id: convInfo.id,
-            conversation: _l.pick(convInfo, [
+            conv_id: convData.id,
+            conversation: _l.pick(convData, [
                 'id',
                 'users_only',
                 'type',
                 'closed_at',
                 'created_by_id' /*'closed_by_id'*/,
+                'created_at',
             ]),
-            sessions: convInfo.conversation_sessions,
-            chat_department: convInfo.chat_department,
-            notify_status: convInfo.notify,
+            sessions: convData.conversation_sessions,
+            chat_department: convData.chat_department,
+            notify_status: convInfo.notify, // of this action if notify then true
             caller: 'storeNewChatFromClient',
         });
     },
@@ -138,6 +151,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             'created_by_id',
                             // 'closed_by_id',
                             'current_page',
+                            'created_at',
                         ]),
                         sessions: conv.conversation_sessions,
                         chat_department: conv.chat_department,
@@ -179,6 +193,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'closed_at',
                                 'created_by_id',
                                 // 'closed_by_id',
+                                'created_at',
                             ]),
                             sessions: request.conversation_sessions,
                             chat_department: request.chat_department,
@@ -218,6 +233,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'closed_at',
                                 'created_by_id',
                                 // 'closed_by_id',
+                                'created_at',
                             ]),
                             sessions: conv.conversation_sessions,
                             chat_department: conv.chat_department,
@@ -257,6 +273,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'closed_at',
                                 'created_by_id',
                                 // 'closed_by_id',
+                                'created_at',
                             ]),
                             sessions: request.conversation_sessions,
                             chat_department: request.chat_department,
@@ -289,6 +306,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 'type',
                 'closed_at',
                 'created_by_id' /*'closed_by_id'*/,
+                'created_at',
             ]),
             message: _l.omit(messageRes, ['conversation']),
             ai_is_replying: messageRes.ai_is_replying,
@@ -342,6 +360,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             'closed_at',
                             'created_by_id',
                             // 'closed_by_id',
+                            'created_at',
                         ]),
                         sessions: conv.conversation_sessions,
                         chat_department: conv.chat_department,

@@ -197,31 +197,21 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             });
     },
     incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
-        return Object.values(state.conversations)
+        const requests = Object.values(state.conversations)
             .filter((conv: any) => {
                 // Object.keys(conv.messages).length check for safe
                 return (
-                    conv.hasOwnProperty('users_only') &&
                     !conv.users_only &&
                     !conv.closed_at &&
                     _l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
-                    conv.sessions.length === 1 &&
-                    Object.keys(conv.messages).length
+                    conv.sessions.length === 1
                 );
             })
             .map((conv: any) => {
-                const msg: any = _l
-                    .sortBy(
-                        Object.values(conv.messages).filter(
-                            (msg: any) =>
-                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
-                        ),
-                        [(msg: any) => moment(msg.created_at).format('x')]
-                    )
-                    .reverse()[0];
-
-                return { ...msg, conversation_session: conv.sessions[0] }; // conv.sessions[0] cz we are already filtering length 1
+                return { conversation_session: conv.sessions[0], ..._l.pick(conv, ['id', 'created_at']) }; // conv.sessions[0] cz we are already filtering length 1
             });
+
+        return _l.sortBy(requests, (conv: any) => moment(conv.created_at).format('x')).reverse();
     },
 
     myOngoingChats(state, getters, rootState, rootGetters) {

@@ -81,13 +81,18 @@ export default defineComponent({
             profile: 'auth/profile',
             rightBarState: 'setting_ui/rightBarState',
         }),
+
+        conversationInfo(): any {
+            return this.$store.getters['chat/conversationInfo'](this.$route.params['conv_id']);
+        },
     },
 
     beforeRouteEnter(to, from, next) {
         next((vm: any) => {
             // vm.messageInputAutoFocus = from.name === 'clients-conversations';
+            console.log('mmmmmmm');
             if (!vm.rightBarState.mode || vm.rightBarState.mode === 'client_info') {
-                vm.updateRightDrawerState({ mode: 'client_info', visible: true });
+                vm.updateRightDrawerState({ mode: 'client_info' });
             }
         });
     },
@@ -112,6 +117,23 @@ export default defineComponent({
         // if (this.rightBarState.mode && this.rightBarState.mode === 'client_info') {
         //     this.updateRightDrawerState({ mode: null, visible: false });
         // }
+    },
+
+    watch: {
+        conversationInfo: {
+            handler: function (newVal, oldVal) {
+                if (newVal && newVal.id && newVal.id !== oldVal?.id) {
+                    console.log(this.rightBarState, this.conversationInfo, 'kkkkkkkkkk');
+                    if (this.conversationInfo.users_only && this.rightBarState.mode === 'client_info') {
+                        this.updateRightDrawerState({ mode: '', visible: false });
+                    } else {
+                        this.updateRightDrawerState({ visible: true, mode: 'client_info' });
+                    }
+                }
+            },
+            immediate: true,
+            deep: true,
+        },
     },
 });
 </script>

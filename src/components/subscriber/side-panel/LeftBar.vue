@@ -89,8 +89,19 @@
                 >
                     <q-card>
                         <q-card-section class="tw-p-4 tw-flex tw-justify-between tw-items-center">
-                            <div class="tw-font-bold">{{ 2 || '-' }} Chat{{ 2 > 1 ? 's' : '' }}</div>
-                            <q-btn label="Accept Next" color="green" size="sm" :disable="2 < 0" unelevated />
+                            <div class="tw-font-bold">
+                                {{ incomingChatRequestsForMe.length || '-' }} Chat{{
+                                    incomingChatRequestsForMe.length > 1 ? 's' : ''
+                                }}
+                            </div>
+                            <q-btn
+                                label="Accept Next"
+                                color="green"
+                                size="sm"
+                                :disable="incomingChatRequestsForMe.length < 0"
+                                @click="acceptNextChatHandler(incomingChatRequestsForMe[0].id)"
+                                unelevated
+                            />
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -111,7 +122,7 @@
                                     clickable
                                     v-ripple
                                     :active="true"
-                                    active-class="text-white bg-blue-9"
+                                    :active-class="`text-black ${globalBgColor}-2`"
                                     dense
                                 >
                                     <q-item-section class="tw-min-w-0" avatar>
@@ -184,11 +195,11 @@
                                     :key="index"
                                     clickable
                                 >
-                                    <q-item-section avatar>
+                                    <q-item-section class="tw-min-w-0" avatar>
                                         <ec-avatar
                                             :image_src="user?.user_meta?.attachment?.src"
                                             :name="user?.user_meta?.display_name"
-                                            size="md"
+                                            size="20px"
                                         ></ec-avatar>
                                     </q-item-section>
 
@@ -228,7 +239,7 @@
 <script lang="ts">
 import EcAvatar from 'src/components/common/EcAvatar.vue';
 import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 import * as _l from 'lodash';
 import moment from 'moment';
@@ -257,13 +268,11 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            incomingChatRequests: 'chat/incomingChatRequests',
             incomingChatRequestsForMe: 'chat/incomingChatRequestsForMe',
 
             departmentalChatRequestsCount: 'chat/departmentalChatRequestsCount',
 
             myOngoingChats: 'chat/myOngoingChats',
-            ongoingOtherChats: 'chat/ongoingOtherChats',
 
             chatUsers: 'chat/chatUsers',
             globalBgColor: 'setting_ui/globalBgColor',
@@ -307,6 +316,8 @@ export default defineComponent({
     },
 
     methods: {
+        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+
         async getChatRequest() {
             await this.$store.dispatch('chat/getChatRequests');
         },
@@ -315,6 +326,14 @@ export default defineComponent({
         },
         async getJoinedChatsWithMe() {
             await this.$store.dispatch('chat/getJoinedChatsWithMe');
+        },
+
+        acceptNextChatHandler(convId: any) {
+            this.$socket.emit('ec_join_conversation', {
+                conv_id: convId,
+            });
+
+            this.$router.push({ name: 'chats', params: { conv_id: convId } });
         },
 
         teammateMsg(convId: any, sesId: any) {
@@ -339,7 +358,16 @@ export default defineComponent({
 
         openUserToUserConversation(user: any) {
             if (user.conversation_id) {
-                this.$router.push({ name: 'chats', params: { conv_id: user.conversation_id } });
+                if (this.$route.name === 'chats') {
+                    this.updateRightDrawerState({
+                        conv_id: user.conversation_id,
+                        mode: 'conversation',
+                        visible: true,
+                    });
+                } else {
+                    this.$router.push({ name: 'chats', params: { conv_id: user.conversation_id } });
+                }
+
                 return;
             }
 
@@ -366,7 +394,15 @@ export default defineComponent({
                         conv_id: data.data.conv_id,
                     });
 
-                    this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                    if (this.$route.name === 'chats') {
+                        this.updateRightDrawerState({
+                            conv_id: data.data.conv_id,
+                            mode: 'conversation',
+                            visible: true,
+                        });
+                    } else {
+                        this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                    }
                 }
 
                 this.$emitter.off('listen_ec_init_conv_from_user', fn);

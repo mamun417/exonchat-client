@@ -271,7 +271,7 @@ export default defineComponent({
         },
 
         rightDrawerVisible() {
-            if (this.rightBarState.visible) {
+            if (this.rightBarState.visible && this.rightBarState.mode) {
                 if (this.$route.name !== 'chats' && this.rightBarState.mode === 'client_info') {
                     return false;
                 }
@@ -585,7 +585,7 @@ export default defineComponent({
                     this.$q.notify({
                         color: 'warning',
                         textColor: 'black',
-                        message: data.reason,
+                        message: data.reason.message ? data.reason.message : data.reason,
                         position: 'top',
                     });
                 }

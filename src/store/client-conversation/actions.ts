@@ -35,6 +35,7 @@ const actions: ActionTree<ClientConversationStateInterface, StateInterface> = {
                                     'closed_at',
                                     'created_by_id',
                                     'closed_by_id',
+                                    'created_at',
                                 ]),
                                 sessions: conv.conversation_sessions,
                                 chat_department: conv.chat_department,
