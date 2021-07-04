@@ -118,6 +118,9 @@
                                 <q-select
                                     v-model="convInitFields.department"
                                     :options="chatDepartments"
+                                    @update:model-value="
+                                        convInitFields.department_tag = $_.find(chatDepartments, ['id', $event]).tag
+                                    "
                                     option-value="id"
                                     option-label="tag"
                                     label="Chat Department"
@@ -213,6 +216,7 @@ export default defineComponent({
                 name: '',
                 email: '',
                 department: '',
+                department_tag: '',
             },
 
             msg: '',
@@ -471,7 +475,7 @@ export default defineComponent({
                         await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
                     } else {
                         // if (this.conv_id === res.data.conversation_id) {
-                        //     //no idea for now what to do if conv_id donst match
+                        //     no idea for now what to do if conv_id donst match
                         // }
                     }
                 }
@@ -512,7 +516,7 @@ export default defineComponent({
                         type: 'warning',
                         position: 'bottom',
                         progress: true,
-                        message: res.reason.message ? res.reason.message[0] : res.reason,
+                        message: res.reason.message ? res.reason.message : res.reason,
                     });
                 }
                 console.log('from ec_error', res);

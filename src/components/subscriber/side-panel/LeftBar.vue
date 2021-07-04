@@ -24,98 +24,124 @@
                     </div> -->
 
             <q-list class="tw-text-gray-600">
-                <!-- <q-item class="text-weight-bold tw-pr-2">
-                    <q-item-section>Real Time Info</q-item-section>
-                    <q-item-section side
-                        ><q-btn
-                            icon="navigate_before"
-                            color="green"
-                            class="tw-px-2"
-                            flat
-                        ></q-btn
-                    ></q-item-section>
-                </q-item> -->
-
+                <q-item>
+                    <q-item-section>
+                        <q-item-label class="text-center tw-font-bold">INTERACTION</q-item-label>
+                    </q-item-section>
+                </q-item>
                 <q-expansion-item
-                    default-opened
-                    label="Incoming chat request"
-                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
+                    :header-class="{ 'bg-green-8 text-white': true }"
+                    :expand-icon-class="{ 'text-white': true }"
                     dense
                 >
+                    <template v-slot:header>
+                        <q-item-section>
+                            <q-item-label
+                                ><span class="tw-mr-2">Chat:</span
+                                ><span class="tw-font-bold">Available</span></q-item-label
+                            >
+                        </q-item-section>
+                    </template>
+
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="incomingChatRequests.length">
+                            <q-list>
                                 <q-item
-                                    v-for="chatRequest in incomingChatRequests"
-                                    :to="{ name: 'chats', params: { conv_id: chatRequest.conversation_id } }"
-                                    :key="chatRequest.conversation_id"
+                                    v-for="(onlineStatus, key) in [
+                                        { status: 'online', label: 'Available' },
+                                        { status: 'offline', label: 'Away' },
+                                        { status: 'invisible', label: 'Invisible' },
+                                    ]"
+                                    :key="key"
                                     clickable
-                                    v-ripple
-                                    :active="true"
-                                    :active-class="`bg-${globalColor}-2`"
+                                    dense
                                 >
-                                    <q-item-section avatar>
-                                        <ec-avatar
-                                            :image_src="senderInfo(chatRequest).src || null"
-                                            :name="senderInfo(chatRequest).img_alt_name"
-                                            size="md"
-                                        ></ec-avatar>
-                                    </q-item-section>
-
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ senderInfo(chatRequest).display_name }}
-                                        </q-item-label>
-                                        <q-item-label lines="2" caption>
-                                            {{ chatRequest.msg }}
+                                        <q-item-label class="tw-flex tw-items-center">
+                                            <q-badge
+                                                rounded
+                                                class="tw-mr-2"
+                                                :color="
+                                                    onlineStatus.status === 'online'
+                                                        ? 'green'
+                                                        : onlineStatus.status === 'offline'
+                                                        ? 'red'
+                                                        : 'grey'
+                                                "
+                                            />
+                                            {{ onlineStatus.label }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
+                        </q-card-section>
+                    </q-card>
+                </q-expansion-item>
 
-                            <div v-else class="tw-p-4">Currently no chat requests</div>
+                <q-expansion-item
+                    :model-value="true"
+                    default-opened
+                    label="INCOMING REQUESTS"
+                    expand-icon-class="hidden"
+                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
+                    dense
+                    expand-icon-toggle
+                >
+                    <q-card>
+                        <q-card-section class="tw-p-4 tw-flex tw-justify-between tw-items-center">
+                            <div class="tw-font-bold">
+                                {{ incomingChatRequestsForMe.length || '-' }} Chat{{
+                                    incomingChatRequestsForMe.length > 1 ? 's' : ''
+                                }}
+                            </div>
+                            <q-btn
+                                label="Accept Next"
+                                color="green"
+                                size="sm"
+                                :disable="incomingChatRequestsForMe.length < 0"
+                                @click="acceptNextChatHandler(incomingChatRequestsForMe[0].id)"
+                                unelevated
+                            />
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
 
                 <q-expansion-item
                     default-opened
-                    dense
-                    label="Chat Requests For Me"
+                    label="Conversations"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
+                    dense
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="incomingChatRequestsForMe.length">
+                            <q-list v-if="myOngoingChats.length">
                                 <q-item
-                                    v-for="chatRequest in incomingChatRequestsForMe"
-                                    :to="{ name: 'chats', params: { conv_id: chatRequest.conversation_id } }"
-                                    :key="chatRequest.conversation_id"
+                                    v-for="ongoingChat in myOngoingChats"
+                                    :to="{ name: 'chats', params: { conv_id: ongoingChat.conversation_id } }"
+                                    :key="ongoingChat.conversation_id"
                                     clickable
                                     v-ripple
                                     :active="true"
-                                    :active-class="`bg-${globalColor}-2`"
+                                    :active-class="`text-black ${globalBgColor}-2`"
+                                    dense
                                 >
-                                    <q-item-section avatar>
+                                    <q-item-section class="tw-min-w-0" avatar>
                                         <ec-avatar
-                                            :image_src="senderInfo(chatRequest).src || null"
-                                            :name="senderInfo(chatRequest).img_alt_name"
-                                            size="md"
+                                            :image_src="senderInfo(ongoingChat).src || null"
+                                            :name="senderInfo(ongoingChat).img_alt_name"
+                                            size="20px"
                                         ></ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
                                         <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ senderInfo(chatRequest).display_name }}
-                                        </q-item-label>
-                                        <q-item-label lines="2" caption>
-                                            {{ chatRequest.msg }}
+                                            {{ senderInfo(ongoingChat).display_name }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
 
-                            <div v-else class="tw-p-4">Currently no chat requests</div>
+                            <div v-else class="tw-px-4 tw-py-2 tw-text-xs">Currently no ongoing chats</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -141,96 +167,13 @@
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label side class="text-weight-bold text-right tw-text-xs"
-                                            >{{ department.count }} chats</q-item-label
-                                        >
+                                            >{{ department.count }} chats
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
 
                             <div v-else class="tw-p-4">None</div>
-                        </q-card-section>
-                    </q-card>
-                </q-expansion-item>
-
-                <q-expansion-item
-                    default-opened
-                    label="My Ongoing Chats"
-                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
-                    dense
-                >
-                    <q-card>
-                        <q-card-section class="tw-p-0">
-                            <q-list v-if="myOngoingChats.length">
-                                <q-item
-                                    v-for="ongoingChat in myOngoingChats"
-                                    :to="{ name: 'chats', params: { conv_id: ongoingChat.conversation_id } }"
-                                    :key="ongoingChat.conversation_id"
-                                    clickable
-                                    v-ripple
-                                    :active="true"
-                                    active-class="text-white bg-blue-9"
-                                >
-                                    <q-item-section avatar>
-                                        <ec-avatar
-                                            :image_src="senderInfo(ongoingChat).src || null"
-                                            :name="senderInfo(ongoingChat).img_alt_name"
-                                            size="md"
-                                        ></ec-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ senderInfo(ongoingChat).display_name }}
-                                        </q-item-label>
-                                        <q-item-label lines="2" caption>
-                                            {{ ongoingChat.msg }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-
-                            <div v-else class="tw-p-4">Currently no ongoing chats</div>
-                        </q-card-section>
-                    </q-card>
-                </q-expansion-item>
-
-                <q-expansion-item
-                    label="Ongoing Others Chats"
-                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
-                    dense
-                >
-                    <q-card>
-                        <q-card-section class="tw-p-0">
-                            <q-list v-if="ongoingOtherChats.length">
-                                <q-item
-                                    v-for="ongoingOtherChat in ongoingOtherChats"
-                                    :to="{ name: 'chats', params: { conv_id: ongoingOtherChat.conversation_id } }"
-                                    :key="ongoingOtherChat.conversation_id"
-                                    clickable
-                                    v-ripple
-                                    :active="true"
-                                    active-class="text-white bg-blue-9"
-                                >
-                                    <q-item-section avatar>
-                                        <ec-avatar
-                                            :image_src="senderInfo(ongoingOtherChat).src || null"
-                                            :name="senderInfo(ongoingOtherChat).img_alt_name"
-                                            size="md"
-                                        ></ec-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
-                                            {{ senderInfo(ongoingOtherChat).display_name }}
-                                        </q-item-label>
-                                        <q-item-label lines="2" caption>
-                                            {{ ongoingOtherChat.msg }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-
-                            <div v-else class="tw-p-4">Currently no ongoing other chats</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -252,11 +195,11 @@
                                     :key="index"
                                     clickable
                                 >
-                                    <q-item-section avatar>
+                                    <q-item-section class="tw-min-w-0" avatar>
                                         <ec-avatar
                                             :image_src="user?.user_meta?.attachment?.src"
                                             :name="user?.user_meta?.display_name"
-                                            size="md"
+                                            size="20px"
                                         ></ec-avatar>
                                     </q-item-section>
 
@@ -272,37 +215,21 @@
                                     </q-item-section>
 
                                     <q-item-section side>
-                                        <q-badge rounded :color="user.is_online ? 'green' : 'grey'" />
+                                        <q-badge
+                                            rounded
+                                            :color="
+                                                user.online_status === 'online'
+                                                    ? 'green'
+                                                    : user.online_status === 'offline'
+                                                    ? 'red'
+                                                    : 'grey'
+                                            "
+                                        />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
                         </q-card-section>
                     </q-card>
-                </q-expansion-item>
-
-                <q-expansion-item
-                    label="Some Old Chats With Me"
-                    :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
-                    dense
-                >
-                    <!-- <q-card>
-                        <q-card-section class="tw-p-0">
-                            <q-list v-for="n in 3" :key="n">
-                                <q-item class="" clickable>
-                                    <q-item-section avatar>
-                                        <q-avatar size="md">
-                                            <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`" />
-                                        </q-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs">Mamun</q-item-label>
-                                        <q-item-label caption lines="2">hi hello & thank you!</q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-card-section>
-                    </q-card> -->
                 </q-expansion-item>
             </q-list>
         </q-scroll-area>
@@ -312,7 +239,7 @@
 <script lang="ts">
 import EcAvatar from 'src/components/common/EcAvatar.vue';
 import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 import * as _l from 'lodash';
 import moment from 'moment';
@@ -341,13 +268,11 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            incomingChatRequests: 'chat/incomingChatRequests',
             incomingChatRequestsForMe: 'chat/incomingChatRequestsForMe',
 
             departmentalChatRequestsCount: 'chat/departmentalChatRequestsCount',
 
             myOngoingChats: 'chat/myOngoingChats',
-            ongoingOtherChats: 'chat/ongoingOtherChats',
 
             chatUsers: 'chat/chatUsers',
             globalBgColor: 'setting_ui/globalBgColor',
@@ -391,6 +316,8 @@ export default defineComponent({
     },
 
     methods: {
+        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+
         async getChatRequest() {
             await this.$store.dispatch('chat/getChatRequests');
         },
@@ -399,6 +326,14 @@ export default defineComponent({
         },
         async getJoinedChatsWithMe() {
             await this.$store.dispatch('chat/getJoinedChatsWithMe');
+        },
+
+        acceptNextChatHandler(convId: any) {
+            this.$socket.emit('ec_join_conversation', {
+                conv_id: convId,
+            });
+
+            this.$router.push({ name: 'chats', params: { conv_id: convId } });
         },
 
         teammateMsg(convId: any, sesId: any) {
@@ -423,7 +358,16 @@ export default defineComponent({
 
         openUserToUserConversation(user: any) {
             if (user.conversation_id) {
-                this.$router.push({ name: 'chats', params: { conv_id: user.conversation_id } });
+                if (this.$route.name === 'chats') {
+                    this.updateRightDrawerState({
+                        conv_id: user.conversation_id,
+                        mode: 'conversation',
+                        visible: true,
+                    });
+                } else {
+                    this.$router.push({ name: 'chats', params: { conv_id: user.conversation_id } });
+                }
+
                 return;
             }
 
@@ -450,7 +394,15 @@ export default defineComponent({
                         conv_id: data.data.conv_id,
                     });
 
-                    this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                    if (this.$route.name === 'chats') {
+                        this.updateRightDrawerState({
+                            conv_id: data.data.conv_id,
+                            mode: 'conversation',
+                            visible: true,
+                        });
+                    } else {
+                        this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                    }
                 }
 
                 this.$emitter.off('listen_ec_init_conv_from_user', fn);

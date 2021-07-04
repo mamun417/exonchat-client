@@ -2,6 +2,7 @@ import { ActionTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
 import * as _l from 'lodash';
+import moment from 'moment';
 
 import { Notify } from 'quasar';
 
@@ -13,11 +14,77 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
         context.commit('updateConversation', {
             conv_id: conv.id,
-            conversation: _l.pick(conv, ['id', 'users_only', 'type', 'closed_at', 'created_by_id', 'closed_by_id']),
+            conversation: _l.pick(conv, [
+                'id',
+                'users_only',
+                'type',
+                'closed_at',
+                'created_by_id',
+                'closed_by_id',
+                'created_at',
+            ]),
             sessions: conv.conversation_sessions,
             chat_department: conv.chat_department,
             ai_is_replying: conv.ai_is_replying,
             caller: 'storeClientInitiateConvInfo',
+        });
+    },
+
+    storeNewChatFromClient(context, convInfo) {
+        const convData = convInfo.conv_data;
+
+        if (convInfo.notify) {
+            const msgDom = `<div class='tw-flex tw-gap-2 tw-mb-2 text-white tw-text-base'><div>${convData.conversation_sessions[0].socket_session.init_name}</div><div>|</div><div class='tw-px-2 bg-blue-grey-6 tw-rounded-md'>${convData.chat_department.tag}</div></div>`;
+
+            Notify.create({
+                group: convData.id,
+                message: msgDom,
+                caption: `Online for ${moment(convData.conversation_sessions[0].socket_session.created_at).fromNow(
+                    true
+                )}`,
+                html: true,
+                progress: true,
+                multiLine: true,
+                icon: 'chat_bubble',
+                color: 'blue-grey-7',
+                textColor: 'white',
+                position: 'top',
+                classes: 'tw-w-full tw-p-2',
+                timeout: 5000,
+                badgeClass: 'hidden',
+                actions: [
+                    {
+                        label: 'Take this Chat',
+                        color: 'white',
+                        size: 'md',
+                        handler: () => {
+                            // handle join then push
+                            window.socketInstance.emit('ec_join_conversation', {
+                                conv_id: convData.id,
+                            });
+                            window.router.push(`/chats/${convData.id}`);
+                        },
+                    },
+                ],
+            });
+
+            new Audio('assets/sound/notification/notification-request-001.mp3').play();
+        }
+
+        context.commit('updateConversation', {
+            conv_id: convData.id,
+            conversation: _l.pick(convData, [
+                'id',
+                'users_only',
+                'type',
+                'closed_at',
+                'created_by_id' /*'closed_by_id'*/,
+                'created_at',
+            ]),
+            sessions: convData.conversation_sessions,
+            chat_department: convData.chat_department,
+            notify_status: convInfo.notify, // of this action if notify then true
+            caller: 'storeNewChatFromClient',
         });
     },
 
@@ -84,6 +151,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             'created_by_id',
                             // 'closed_by_id',
                             'current_page',
+                            'created_at',
                         ]),
                         sessions: conv.conversation_sessions,
                         chat_department: conv.chat_department,
@@ -125,6 +193,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'closed_at',
                                 'created_by_id',
                                 // 'closed_by_id',
+                                'created_at',
                             ]),
                             sessions: request.conversation_sessions,
                             chat_department: request.chat_department,
@@ -164,6 +233,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'closed_at',
                                 'created_by_id',
                                 // 'closed_by_id',
+                                'created_at',
                             ]),
                             sessions: conv.conversation_sessions,
                             chat_department: conv.chat_department,
@@ -203,6 +273,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                                 'closed_at',
                                 'created_by_id',
                                 // 'closed_by_id',
+                                'created_at',
                             ]),
                             sessions: request.conversation_sessions,
                             chat_department: request.chat_department,
@@ -235,6 +306,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 'type',
                 'closed_at',
                 'created_by_id' /*'closed_by_id'*/,
+                'created_at',
             ]),
             message: _l.omit(messageRes, ['conversation']),
             ai_is_replying: messageRes.ai_is_replying,
@@ -255,52 +327,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 }
             }
 
-            if (
-                messageRes.hasOwnProperty('socket_event') &&
-                messageRes.socket_event === 'ec_msg_from_client' &&
-                !messageRes.ai_is_replying &&
-                // tempConv.conversation_sessions.length === 1 && // this check not possible cz again notify will not work
-                messageRes.notify
-            ) {
-                // I think below comments & check are not needed
-                // check if this is my department then show notification until join
-                // for now my or other all department notify msg every time
-                // later handle from else
-                if (true) {
-                    const msgObj = _l.omit(messageRes, ['conversation']);
-                    const msg = msgObj.msg ? msgObj.msg : 'Uploaded Attachments...'; // we assume that if no msg then attachment
-
-                    new Audio('assets/sound/notification/notification-request-001.mp3').play();
-
-                    Notify.create({
-                        group: tempConv.id,
-                        message: `${tempConv.conversation_sessions[0].socket_session.init_name} messaged you`,
-                        caption: msg,
-                        progress: true,
-                        multiLine: true,
-                        icon: 'announcement',
-                        color: 'grey-8',
-                        textColor: 'white',
-                        position: 'top-left',
-                        classes: 'tw-w-80 tw-p-2',
-                        timeout: 15000,
-                        badgeClass: 'hidden',
-                        actions: [
-                            {
-                                icon: 'send',
-                                color: 'white',
-                                size: 'xs',
-                                handler: () => {
-                                    window.router.push(`/chats/${tempConv.id}`);
-                                },
-                            },
-                        ],
-                    });
-                }
-            } else {
-                if (messageRes.hasOwnProperty('socket_event') && messageRes.socket_event === 'ec_msg_from_client') {
-                    new Audio('assets/sound/notification/notification-reply-002.mp3').play();
-                }
+            if (messageRes.hasOwnProperty('socket_event') && messageRes.socket_event === 'ec_msg_from_client') {
+                new Audio('assets/sound/notification/notification-reply-002.mp3').play();
             }
 
             resolve(true);
@@ -332,6 +360,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             'closed_at',
                             'created_by_id',
                             // 'closed_by_id',
+                            'created_at',
                         ]),
                         sessions: conv.conversation_sessions,
                         chat_department: conv.chat_department,

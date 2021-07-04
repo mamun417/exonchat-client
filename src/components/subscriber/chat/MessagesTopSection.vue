@@ -2,6 +2,7 @@
     <q-card class="tw-shadow-lg">
         <q-card-section class="row no-wrap items-center" :class="{ 'tw-p-0': mini_mode }">
             <q-btn
+                v-if="!mini_mode"
                 icon="arrow_back"
                 class="tw-px-1"
                 color="grey-3"
@@ -53,7 +54,7 @@
                     </q-item-label>
                 </q-item-section>
 
-                <q-item-section v-if="!conversationInfo.users_only" side>
+                <q-item-section side>
                     <q-item-label>
                         <q-btn icon="more_vert" class="tw-px-1" unelevated>
                             <q-menu anchor="bottom right" self="top right">
@@ -99,11 +100,19 @@
                                                         </q-item-label>
                                                     </q-item-section>
                                                     <q-item-section side
-                                                        ><q-badge rounded :color="user.is_online ? 'green' : 'grey'"
+                                                        ><q-badge
+                                                            rounded
+                                                            :color="
+                                                                user.online_status === 'online'
+                                                                    ? 'green'
+                                                                    : user.online_status === 'offline'
+                                                                    ? 'red'
+                                                                    : 'grey'
+                                                            "
                                                     /></q-item-section>
 
                                                     <q-tooltip
-                                                        v-if="!user.is_online"
+                                                        v-if="user.online_status !== 'online'"
                                                         class="bg-warning text-black"
                                                         anchor="bottom middle"
                                                         self="bottom middle"
@@ -156,7 +165,12 @@
                                             <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                                 <q-icon name="close_fullscreen" />
                                             </q-item-section>
-                                            <q-item-section @click="updateRightDrawerState({ mode: 'client_info' })"
+                                            <q-item-section
+                                                @click="
+                                                    updateRightDrawerState({
+                                                        mode: 'client_info',
+                                                    })
+                                                "
                                                 >Close tracking
                                             </q-item-section>
                                         </q-item>
@@ -303,7 +317,7 @@ export default defineComponent({
         },
 
         transferChat(agent: any) {
-            if (!agent.is_online) {
+            if (agent.online_status !== 'online') {
                 this.$helpers.showErrorNotification(
                     this,
                     'Transfer chat not possible. Agent is not online',
