@@ -18,6 +18,8 @@
         }"
         :content-style="{}"
     >
+        <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
+
         <div v-if="speakingWithInfo.name" class="tw-text-center">
             <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name">
                 <q-tooltip class="">
@@ -27,7 +29,6 @@
             <div class="tw-mt-2">You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}</div>
         </div>
 
-        <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
         <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
             <q-chat-message
                 v-if="message.msg || (message.attachments && message.attachments.length)"
@@ -167,6 +168,8 @@
             size="sm"
             round
         /> -->
+
+        <slot name="scroll-area-last-section"> </slot>
     </q-scroll-area>
 
     <div v-if="showSendMessageInput" class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded">
@@ -344,10 +347,11 @@ import * as _l from 'lodash';
 import moment from 'moment';
 import EcAvatar from './EcAvatar.vue';
 import EcEmoji from 'components/common/EcEmoji.vue';
+import ChatRatingForm from 'components/common/ChatRatingForm.vue';
 
 export default defineComponent({
     name: 'Message',
-    components: { EcEmoji, EcAvatar },
+    components: { ChatRatingForm, EcEmoji, EcAvatar },
     props: {
         conv_id: {
             type: String,

@@ -9,9 +9,10 @@
                     class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
                 >
                     <div>Chat With Us</div>
-
                     <q-space></q-space>
-                    <q-btn v-if="clientInitiateConvInfo.conv_id" icon="more_vert" flat>
+
+                    <q-btn v-if="!conversationInfo.closed_at" @click="closeChatModal = true" icon="clear" flat />
+                    <!--<q-btn v-if="clientInitiateConvInfo.conv_id" icon="more_vert" flat>
                         <q-menu anchor="bottom right" self="top right">
                             <q-item clickable v-close-popup>
                                 <q-item-section class="tw-w-8 tw-min-w-0" avatar>
@@ -31,7 +32,7 @@
                                 </q-item>
                             </q-list>
                         </q-menu>
-                    </q-btn>
+                    </q-btn>-->
 
                     <q-btn
                         :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
@@ -57,19 +58,36 @@
 
                 <div v-else class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div
-                        v-if="clientInitiateConvInfo.conv_id && !clientInitiateConvInfo.showRatingForm"
+                        v-if="clientInitiateConvInfo.conv_id"
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
-                        <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id"></message>
+                        <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id">
+                            <template v-slot:scroll-area-last-section>
+                                <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-p-5">
+                                    <chat-rating-form />
+                                </div>
+                            </template>
+                        </message>
+
+                        <q-btn
+                            v-if="conversationInfo.closed_at"
+                            @click="clearSession"
+                            dense
+                            color="green"
+                            class="tw-mb-4 tw-mx-5"
+                            no-caps
+                        >
+                            Start New Chat
+                        </q-btn>
                     </div>
 
-                    <div
+                    <!--<div
                         v-else-if="clientInitiateConvInfo.showRatingForm"
                         class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5"
                     >
                         <chat-rating-form @ratedByClient="clearSession" />
-                    </div>
+                    </div>-->
 
                     <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
                         <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
@@ -479,7 +497,7 @@ export default defineComponent({
                 // this.$store.dispatch('chat/clearClientChatInitiate');
                 this.$store.dispatch('chat/updateConvStateToClosed', res.data.conv_data);
 
-                this.$store.commit('chat/showRatingForm');
+                this.$store.commit('chat/showRatingForm', true);
 
                 // this.socket.close();
                 // // force reload dom

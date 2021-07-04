@@ -56,7 +56,7 @@
 
                     <template v-slot:cell-last_sent="slotProps">
                         <div class="tw-text-xss">
-                            {{ $helpers.myDate(slotProps.row.messages.created_at, 'MMMM D YYYY, h:mm a') }}
+                            {{ $helpers.myDate(slotProps.row.created_at, 'MMMM Do YYYY, h:mm a') }}
                         </div>
                     </template>
 
@@ -230,14 +230,16 @@ export default defineComponent({
         }),
 
         chatHistories(): any {
-            const chatHistories = _l.sortBy(
-                this.$_.cloneDeep(
-                    this.$store.getters['chat/clientsConversation'].filter((clientConv: any) =>
-                        this.newLoadedChatHistoriesIds.includes(clientConv.id)
+            const chatHistories = _l
+                .sortBy(
+                    this.$_.cloneDeep(
+                        this.$store.getters['chat/clientsConversation'].filter((clientConv: any) =>
+                            this.newLoadedChatHistoriesIds.includes(clientConv.id)
+                        )
                     ),
                     [(clientConv: any) => moment(clientConv.created_at).format('x')]
                 )
-            );
+                .reverse();
 
             const mySocketSessionId = this.$helpers.getMySocketSessionId();
 

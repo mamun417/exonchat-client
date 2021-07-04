@@ -3,7 +3,7 @@
         <!-- {{ users_conv_ses }} -->
         <ec-avatar
             v-for="(userConv, key) in users_conv_ses"
-            :image_src="userConv.socket_session.user ? userConv.socket_session.user.user_meta.src || null : null"
+            :image_src="userConv.socket_session.user?.user_meta?.src || null"
             :name="
                 userConv.socket_session.user
                     ? userConv.socket_session.user.user_meta.display_name

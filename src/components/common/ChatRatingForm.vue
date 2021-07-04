@@ -1,17 +1,17 @@
 <template>
     <div>
         <!--<pre>{{ conversationInfo }}</pre>-->
-        <div class="text-center tw-mb-5" v-if="conversationInfo.closed_by">
+        <!--<div class="text-center tw-mb-5" v-if="conversationInfo.closed_by">
             {{
                 $_.upperFirst(
                     conversationInfo.closed_by.user ? conversationInfo.closed_by.user.user_meta.display_name : 'You'
                 )
             }}
             closed {{ $helpers.fromNowTime(conversationInfo.closed_at) }}
-        </div>
+        </div>-->
         <q-card>
-            <q-card-section>
-                <div class="tw-text-xl tw-text-center">Rate Chat</div>
+            <q-card-section class="tw-pb-2">
+                <div class="tw-text-base tw-text-center">Rate Chat</div>
             </q-card-section>
             <q-card-actions align="around">
                 <q-btn
@@ -19,6 +19,7 @@
                     color="green"
                     icon="thumb_up"
                     label="Good"
+                    size="sm"
                     :flat="!ratingForm.ratingTempValue"
                 />
                 <q-btn
@@ -26,10 +27,11 @@
                     color="red"
                     icon="thumb_down"
                     label="Bad"
+                    size="sm"
                     :flat="ratingForm.ratingTempValue"
                 />
 
-                <q-input v-model="ratingForm.comment" dense label="Your Comment" color="green" class="tw-py-5">
+                <q-input v-model="ratingForm.comment" dense label="Your Comment" color="green" class="tw-py-3">
                     <template v-slot:prepend>
                         <q-icon name="insert_comment" size="xs" color="green" />
                     </template>
@@ -94,7 +96,7 @@ export default defineComponent({
                 .post('ratings', this.ratingForm)
                 .then((res: any) => {
                     console.log(res.data);
-                    this.$emit('ratedByClient', res.data);
+                    this.$store.commit('chat/showRatingForm', false);
                 })
                 .catch((err: any) => {
                     console.log(err.response.data);

@@ -14,7 +14,11 @@ function state(): ChatStateInterface {
     const convStateInfo = localStorage.getItem('convStateInfo');
     const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
     const clientInitiateConvInfoObj = clientInitiateConvInfo
-        ? { ...JSON.parse(clientInitiateConvInfo), showRatingForm: !!localStorage.getItem('showRatingForm') }
+        ? {
+              ...JSON.parse(clientInitiateConvInfo),
+              showRatingForm:
+                  !!localStorage.getItem('showRatingForm') && localStorage.getItem('showRatingForm') === 'true',
+          }
         : {};
     const conversations = localStorage.getItem('ec_conversations');
 

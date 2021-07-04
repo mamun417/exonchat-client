@@ -33,6 +33,7 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                                     'users_only',
                                     'type',
                                     'closed_at',
+                                    'created_at',
                                     'created_by_id',
                                     'closed_by_id',
                                 ]),

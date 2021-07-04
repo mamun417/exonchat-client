@@ -162,7 +162,6 @@ const mutation: MutationTree<ChatStateInterface> = {
 
     updateConversationUserAvatar(state: ChatStateInterface, data: any) {
         const convId = data.conv_id;
-        console.log(data);
 
         if (convId) {
             const conv = state.conversations[convId];
@@ -221,9 +220,9 @@ const mutation: MutationTree<ChatStateInterface> = {
         state.clientInitiateConvInfo = {};
     },
 
-    showRatingForm(state: ChatStateInterface) {
-        localStorage.setItem('showRatingForm', 'true');
-        state.clientInitiateConvInfo.showRatingForm = true;
+    showRatingForm(state: ChatStateInterface, ratingFormState) {
+        localStorage.setItem('showRatingForm', ratingFormState);
+        state.clientInitiateConvInfo.showRatingForm = ratingFormState;
     },
 };
 
