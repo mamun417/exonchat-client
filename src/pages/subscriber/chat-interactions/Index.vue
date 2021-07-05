@@ -219,64 +219,6 @@ export default defineComponent({
             ongoingAllChats: 'chat/ongoingAllChats',
             visitors: 'visitor/visitors',
         }),
-        //
-        // chatHistories(): any {
-        //     const chatHistories = _l
-        //         .sortBy(
-        //             this.$_.cloneDeep(
-        //                 this.$store.getters['chat/clientsConversation'].filter((clientConv: any) =>
-        //                     this.newLoadedChatHistoriesIds.includes(clientConv.id)
-        //                 )
-        //             ),
-        //             [(clientConv: any) => moment(clientConv.created_at).format('x')]
-        //         )
-        //         .reverse();
-        //
-        //     const mySocketSessionId = this.$helpers.getMySocketSessionId();
-        //
-        //     if (chatHistories.length) {
-        //         return chatHistories.map((conv: any) => {
-        //             conv.client_info = this.$store.getters['chat/conversationWithUsersInfo'](
-        //                 conv.id,
-        //                 mySocketSessionId
-        //             )[0];
-        //
-        //             conv.message = msgMaker(conv.messages);
-        //
-        //             conv.self_status = this.$store.getters['chat/conversationStatusForMe'](conv.id, mySocketSessionId);
-        //
-        //             conv.connected_agents = this.$store.getters['chat/conversationConnectedUsers'](conv.id);
-        //
-        //             return conv;
-        //         });
-        //     }
-        //
-        //     function msgMaker(messagesObj: any) {
-        //         if (messagesObj && Object.keys(messagesObj).length) {
-        //             const messages = _l.cloneDeep(Object.values(messagesObj));
-        //
-        //             const tempMsgObj: any = _l
-        //                 .sortBy(
-        //                     Object.values(messages).filter(
-        //                         (msg: any) =>
-        //                             msg.sender_type !== 'ai' || msg.msg || (msg.attachments && msg.attachments.length)
-        //                     ),
-        //                     [(msg: any) => moment(msg.created_at).format('x')]
-        //                 )
-        //                 .reverse()[0];
-        //
-        //             if (!tempMsgObj.msg) {
-        //                 tempMsgObj.msg = 'Uploaded Attachments';
-        //             }
-        //
-        //             return tempMsgObj;
-        //         }
-        //
-        //         return null;
-        //     }
-        //
-        //     return [];
-        // },
     },
 
     methods: {

@@ -143,7 +143,10 @@
                                             </q-item-section>
                                         </q-item>
                                         <q-item
-                                            v-if="['joined', 'left'].includes(conversationStatusForMe)"
+                                            v-if="
+                                                ['joined', 'left'].includes(conversationStatusForMe) &&
+                                                !conversationInfo.closed_at
+                                            "
                                             clickable
                                             v-close-popup
                                         >

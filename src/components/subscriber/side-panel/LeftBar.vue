@@ -54,7 +54,7 @@
                         <q-card-section class="tw-p-0">
                             <q-list>
                                 <q-item
-                                    v-for="(onlineStatus, key) in onlineStatus"
+                                    v-for="(onlineStatus, key) in selectAbleOnlineStatus"
                                     :key="key"
                                     @click="updateOnlineStatus(onlineStatus.status)"
                                     clickable
@@ -321,6 +321,12 @@ export default defineComponent({
             }
 
             return [];
+        },
+
+        selectAbleOnlineStatus(): any {
+            return this.onlineStatus.filter(
+                (onlineStatus: any) => onlineStatus.status !== this.getMyOnlineStatus.status
+            );
         },
 
         getMyOnlineStatus(): any {

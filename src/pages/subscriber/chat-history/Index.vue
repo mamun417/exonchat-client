@@ -11,14 +11,15 @@
                     :search-value="chatHistoryPipeline.s"
                     :rows="chatHistories"
                     :columns="columns"
+                    @rowClick="rowClickHandle"
                 >
                     <template v-slot:cell-msg="slotProps">
                         <div v-if="!slotProps.row.connected_agents.length" class="tw-text-xxs">
                             <q-badge color="primary">MISSED CHAT</q-badge>
-                            {{ slotProps.row.message.msg }}
+                            {{ slotProps.row.message?.msg }}
                         </div>
                         <div v-else class="tw-text-xxs">
-                            {{ slotProps.row.message.msg }}
+                            {{ slotProps.row.message?.msg }}
                         </div>
                     </template>
 
@@ -328,6 +329,14 @@ export default defineComponent({
                 .then(() => {
                     this.getChatHistories();
                 });
+        },
+
+        rowClickHandle(row: any) {
+            this.updateRightDrawerState({
+                mode: 'conversation',
+                visible: true,
+                conv_id: row.id,
+            });
         },
     },
 });

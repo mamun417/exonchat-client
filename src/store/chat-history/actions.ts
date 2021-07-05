@@ -44,6 +44,7 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                                 message: conv.messages[0],
                                 ai_is_replying: conv.ai_is_replying,
                                 closed_by: conv.closed_by,
+                                closed_at: conv.closed_at,
                                 rating: conv.conversation_rating,
                                 caller: 'getClientConversations',
                             },
