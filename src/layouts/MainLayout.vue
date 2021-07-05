@@ -35,7 +35,7 @@
                                 <q-tooltip :offset="[10, 10]">Visitors</q-tooltip>
                             </q-btn>
 
-                            <q-btn icon="history" :to="{ name: 'clients-conversations' }" flat size="18px">
+                            <q-btn icon="history" :to="{ name: 'chat-history' }" flat size="18px">
                                 <q-tooltip :offset="[10, 10]">Chat History</q-tooltip>
                             </q-btn>
                         </div>
@@ -300,6 +300,12 @@ export default defineComponent({
 
         this.$store.dispatch('setting_ui/getUiSetting');
     },
+
+    // hit update profile
+    // 160. then fire event "ec_updated_socket_room_info"
+    // listen event "ec_updated_socket_room_info_res" => {
+    // 148.emit "ec_get_logged_users"
+    //}
 
     methods: {
         ...mapMutations({ toggleRightDrawer: 'setting_ui/toggleRightDrawer' }),
@@ -578,6 +584,15 @@ export default defineComponent({
                 new Audio('assets/sound/notification/notification-001.wav').play();
 
                 console.log('from ec_chat_transfer_from_user', data);
+            });
+
+            this.socket.on('ec_updated_socket_room_info_res', (data: any) => {
+                this.$store.dispatch('chat/updateOnlineUsers', [
+                    { online_status: data.data.online_status, ses_id: data.ses_id, db_change: true },
+                ]);
+
+                this.socket.emit('ec_get_logged_users', {});
+                console.log('from ec_updated_socket_room_info_res', data);
             });
 
             this.socket.on('ec_error', (data: any) => {

@@ -12,7 +12,7 @@ const mutation: MutationTree<AuthStateInterface> = {
             state.token = userInfo.bearerToken;
         }
 
-        if (state.user.user_meta && state.user.user_meta.attachment.src) {
+        if (state.user.user_meta && state.user.user_meta.attachment?.src) {
             userInfo.data.user_meta.attachment.src = state.user.user_meta.attachment.src;
         }
 

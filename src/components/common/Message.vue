@@ -347,11 +347,10 @@ import * as _l from 'lodash';
 import moment from 'moment';
 import EcAvatar from './EcAvatar.vue';
 import EcEmoji from 'components/common/EcEmoji.vue';
-import ChatRatingForm from 'components/common/ChatRatingForm.vue';
 
 export default defineComponent({
     name: 'Message',
-    components: { ChatRatingForm, EcEmoji, EcAvatar },
+    components: { EcEmoji, EcAvatar },
     props: {
         conv_id: {
             type: String,
