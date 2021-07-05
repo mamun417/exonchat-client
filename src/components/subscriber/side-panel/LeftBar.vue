@@ -30,16 +30,23 @@
                     </q-item-section>
                 </q-item>
                 <q-expansion-item
-                    :header-class="{ 'bg-green-8 text-white': true }"
+                    :header-class="[
+                        getMyOnlineStatus?.status === 'online'
+                            ? 'bg-green'
+                            : getMyOnlineStatus?.status === 'offline'
+                            ? 'bg-red-5'
+                            : 'bg-grey',
+                        'text-white',
+                    ]"
                     :expand-icon-class="{ 'text-white': true }"
                     dense
                 >
                     <template v-slot:header>
                         <q-item-section>
-                            <q-item-label
-                                ><span class="tw-mr-2">Chat:</span
-                                ><span class="tw-font-bold">Available</span></q-item-label
-                            >
+                            <q-item-label>
+                                <span class="tw-mr-2">Chat:</span>
+                                <span class="tw-font-bold">{{ getMyOnlineStatus?.label }}</span>
+                            </q-item-label>
                         </q-item-section>
                     </template>
 
@@ -47,12 +54,9 @@
                         <q-card-section class="tw-p-0">
                             <q-list>
                                 <q-item
-                                    v-for="(onlineStatus, key) in [
-                                        { status: 'online', label: 'Available' },
-                                        { status: 'offline', label: 'Away' },
-                                        { status: 'invisible', label: 'Invisible' },
-                                    ]"
+                                    v-for="(onlineStatus, key) in onlineStatus"
                                     :key="key"
+                                    @click="updateOnlineStatus(onlineStatus.status)"
                                     clickable
                                     dense
                                 >
@@ -129,7 +133,7 @@
                                         <ec-avatar
                                             :image_src="senderInfo(ongoingChat).src || null"
                                             :name="senderInfo(ongoingChat).img_alt_name"
-                                            size="20px"
+                                            size="23px"
                                         ></ec-avatar>
                                     </q-item-section>
 
@@ -199,8 +203,20 @@
                                         <ec-avatar
                                             :image_src="user?.user_meta?.attachment?.src"
                                             :name="user?.user_meta?.display_name"
-                                            size="20px"
-                                        ></ec-avatar>
+                                            size="23px"
+                                        >
+                                            <q-badge
+                                                floating
+                                                rounded
+                                                :color="
+                                                    user.online_status === 'online'
+                                                        ? 'green'
+                                                        : user.online_status === 'offline'
+                                                        ? 'red'
+                                                        : 'grey'
+                                                "
+                                            />
+                                        </ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
@@ -212,19 +228,6 @@
                                             <!-- {{ teamConversations }} -->
                                             {{ teammateMsg(user.conversation_id, user.socket_sessions[0].id) }}
                                         </q-item-label>
-                                    </q-item-section>
-
-                                    <q-item-section side>
-                                        <q-badge
-                                            rounded
-                                            :color="
-                                                user.online_status === 'online'
-                                                    ? 'green'
-                                                    : user.online_status === 'offline'
-                                                    ? 'red'
-                                                    : 'grey'
-                                            "
-                                        />
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -255,6 +258,11 @@ export default defineComponent({
 
     data(): any {
         return {
+            onlineStatus: [
+                { status: 'online', label: 'Available' },
+                { status: 'offline', label: 'Away' },
+                { status: 'invisible', label: 'Invisible' },
+            ],
             chatUsersAvatarLoading: false,
         };
     },
@@ -277,6 +285,7 @@ export default defineComponent({
             chatUsers: 'chat/chatUsers',
             globalBgColor: 'setting_ui/globalBgColor',
             globalColor: 'setting_ui/globalColor',
+            profile: 'auth/profile',
         }),
 
         teamConversations(): any {
@@ -312,6 +321,10 @@ export default defineComponent({
             }
 
             return [];
+        },
+
+        getMyOnlineStatus(): any {
+            return this.onlineStatus.find((onlineStatus: any) => onlineStatus.status === this.profile.online_status);
         },
     },
 
@@ -428,6 +441,32 @@ export default defineComponent({
 
             return {};
         },
+
+        async updateOnlineStatus(status: any) {
+            // try {
+            await this.$store.dispatch('setting_profile/updateOnlineStatus', {
+                inputs: {
+                    online_status: status,
+                },
+            });
+
+            await this.$store.dispatch('auth/updateAuthInfo');
+
+            this.$socket.emit('ec_updated_socket_room_info', {
+                online_status: status,
+            });
+            // } catch (err) {
+            //     this.updateOnlineStatusErrorHandle(err);
+            // }
+        },
+
+        // updateOnlineStatusErrorHandle(err: any) {
+        //     if (this.$_.isObject(err.response.data.message)) {
+        //         this.formDataErrors = err.response.data.message;
+        //     } else {
+        //         this.$helpers.showErrorNotification(this, err.response.data.message);
+        //     }
+        // },
     },
 
     watch: {

@@ -102,7 +102,7 @@ export default defineComponent({
                 })
                 .then(() => {
                     this.$helpers.showSuccessNotification(this, 'Login successful');
-                    this.$router.push({ name: 'chat-history' });
+                    this.$router.push({ name: 'settings_ui' });
                 })
                 .catch((err: any) => {
                     console.log(err);

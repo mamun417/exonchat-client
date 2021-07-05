@@ -42,6 +42,19 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
         });
     },
 
+    updateOnlineStatus(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post('profile/update-online-status', payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
     getAvatarPath(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
