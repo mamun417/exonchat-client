@@ -98,7 +98,7 @@
                                 label="Accept Next"
                                 color="green"
                                 size="sm"
-                                :disable="incomingChatRequestsForMe.length < 0"
+                                :disable="!incomingChatRequestsForMe.length"
                                 @click="acceptNextChatHandler(incomingChatRequestsForMe[0].id)"
                                 unelevated
                             />
@@ -108,7 +108,7 @@
 
                 <q-expansion-item
                     default-opened
-                    label="Conversations"
+                    label="CONVERSATIONS"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
                     dense
                 >
@@ -117,8 +117,8 @@
                             <q-list v-if="myOngoingChats.length">
                                 <q-item
                                     v-for="ongoingChat in myOngoingChats"
-                                    :to="{ name: 'chats', params: { conv_id: ongoingChat.conversation_id } }"
-                                    :key="ongoingChat.conversation_id"
+                                    :to="{ name: 'chats', params: { conv_id: ongoingChat.id } }"
+                                    :key="ongoingChat.id"
                                     clickable
                                     v-ripple
                                     :active="true"
@@ -148,7 +148,7 @@
 
                 <q-expansion-item
                     default-opened
-                    label="Chats by department"
+                    label="CHATS"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
                     dense
                 >
@@ -180,7 +180,7 @@
 
                 <q-expansion-item
                     default-opened
-                    label="Teammates"
+                    label="AGENTS"
                     :header-class="`text-weight-bold ${globalBgColor}-1 tw-text-xs`"
                     dense
                 >

@@ -9,9 +9,9 @@
             }}
             closed {{ $helpers.fromNowTime(conversationInfo.closed_at) }}
         </div>-->
-        <q-card>
+        <q-card class="shadow-0">
             <q-card-section class="tw-pb-2">
-                <div class="tw-text-base tw-text-center">Rate Chat</div>
+                <div class="tw-text-base tw-text-center tw-font-medium">Rate This Chat</div>
             </q-card-section>
             <q-card-actions align="around">
                 <q-btn
@@ -44,6 +44,7 @@
                     color="green"
                     class="full-width tw-my-2"
                     no-caps
+                    unelevated
                 >
                     Submit Rate
                 </q-btn>

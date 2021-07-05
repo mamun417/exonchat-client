@@ -102,10 +102,10 @@ export default defineComponent({
                 })
                 .then(() => {
                     this.$helpers.showSuccessNotification(this, 'Login successful');
-                    this.$router.push({ name: 'clients-conversations' });
+                    this.$router.push({ name: 'chat-history' });
                 })
                 .catch((err: any) => {
-                    console.log(err.response.data);
+                    console.log(err);
                     this.$helpers.showErrorNotification(this, err.response.data.message);
                 });
         },

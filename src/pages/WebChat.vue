@@ -11,28 +11,14 @@
                     <div>Chat With Us</div>
                     <q-space></q-space>
 
-                    <q-btn v-if="!conversationInfo.closed_at" @click="closeChatModal = true" icon="clear" flat />
-                    <!--<q-btn v-if="clientInitiateConvInfo.conv_id" icon="more_vert" flat>
-                        <q-menu anchor="bottom right" self="top right">
-                            <q-item clickable v-close-popup>
-                                <q-item-section class="tw-w-8 tw-min-w-0" avatar>
-                                    <q-icon name="confirmation_number" />
-                                </q-item-section>
-                                <q-item-section @click="openTicket">Open Ticket</q-item-section>
-                            </q-item>
-
-                            <q-list v-if="!conversationInfo.closed_by" style="min-width: 100px" dense>
-                                <q-item clickable dense v-close-popup>
-                                    <q-item-section class="tw-w-8 tw-min-w-0" avatar>
-                                        <q-icon name="close" />
-                                    </q-item-section>
-                                    <q-item-section @click="closeChatModal = true" class="text-orange"
-                                        >Close Chat
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-menu>
-                    </q-btn>-->
+                    <q-btn
+                        v-if="conversationInfo.id && !conversationInfo.closed_at"
+                        @click="closeChatModal = true"
+                        icon="clear"
+                        class="tw-mr-1"
+                        flat
+                        dense
+                    />
 
                     <q-btn
                         :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
@@ -63,6 +49,19 @@
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
                         <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id">
+                            <template v-slot:scroll-area-top-section>
+                                <div
+                                    v-if="
+                                        conversationInfo.sessions?.length === 1 &&
+                                        !conversationInfo.sessions[0].socket_session.user
+                                    "
+                                    class="tw-p-5"
+                                >
+                                    <div class="text-center tw-mb-1">Your chat is currently in queue</div>
+                                    <div class="text-center tw-font-bold">Someone will be with you shortly</div>
+                                </div>
+                            </template>
+
                             <template v-slot:scroll-area-last-section>
                                 <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-p-5">
                                     <chat-rating-form />
@@ -233,7 +232,7 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log('WebChat Mounted');
+        // console.log('WebChat Mounted');
 
         // initiate first for listen response from parent
         window.addEventListener(
@@ -373,8 +372,8 @@ export default defineComponent({
                         api_key: this.api_key,
                     })
                     .then((res: any) => {
-                        console.log(res.data);
-
+                        // console.log(res.data);
+                        //
                         this.sesId = res.data.data.socket_session.id;
                         this.socketToken = res.data.bearerToken;
 
@@ -390,7 +389,7 @@ export default defineComponent({
                     });
             }
 
-            console.log(this.sesId);
+            // console.log(this.sesId);
 
             if (!this.sesId || !this.socketToken) {
                 // handle error
@@ -441,32 +440,32 @@ export default defineComponent({
 
                 this.$store.dispatch('chat/storeMessage', res);
 
-                console.log('from ec_msg_from_user', res);
+                // console.log('from ec_msg_from_user', res);
             });
             this.socket.on('ec_is_typing_from_user', (res: any) => {
                 this.$store.dispatch('chat/updateTypingState', res);
 
-                console.log('from ec_is_typing_from_user', res);
+                // console.log('from ec_is_typing_from_user', res);
             });
 
             this.socket.on('ec_reply_from_ai', (res: any) => {
                 this.$store.dispatch('chat/storeMessage', res);
 
-                console.log('from ec_reply_from_ai', res);
+                // console.log('from ec_reply_from_ai', res);
             });
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', (res: any) => {
                 this.$store.dispatch('chat/storeMessage', res);
 
-                console.log('from ec_msg_to_client', res);
+                // console.log('from ec_msg_to_client', res);
             });
             // this.socket.on('ec_is_typing_to_client', (res: any) => {
             //     console.log('from ec_is_typing_to_client', res);
             // });
 
             this.socket.on('ec_conv_initiated_to_client', async (res: any) => {
-                console.log('from ec_conv_initiated_to_client', res);
+                // console.log('from ec_conv_initiated_to_client', res);
 
                 const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
 
@@ -486,7 +485,7 @@ export default defineComponent({
 
                 this.$store.dispatch('chat/updateConvState', convInfo);
 
-                console.log('from ec_is_joined_from_conversation', convInfo);
+                // console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
@@ -494,7 +493,7 @@ export default defineComponent({
 
                 this.$store.dispatch('chat/updateConvState', convInfo);
 
-                console.log('from ec_is_leaved_from_conversation', convInfo);
+                // console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
             this.socket.on('ec_is_closed_from_conversation', (res: any) => {
@@ -507,7 +506,7 @@ export default defineComponent({
                 // // force reload dom
                 // location.reload();
 
-                console.log('from ec_is_closed_from_conversation', res);
+                // console.log('from ec_is_closed_from_conversation', res);
             });
 
             this.socket.on('ec_error', (res: any) => {
@@ -519,7 +518,7 @@ export default defineComponent({
                         message: res.reason.message ? res.reason.message : res.reason,
                     });
                 }
-                console.log('from ec_error', res);
+                // console.log('from ec_error', res);
             });
         },
 
@@ -547,7 +546,7 @@ export default defineComponent({
             // }
 
             // If the page is hidden, pause sending browsing state;
-            console.log('firePageVisitListner');
+            // console.log('firePageVisitListner');
 
             // Warn if the browser doesn't support addEventListener or the Page Visibility API
             if (typeof document.addEventListener === 'undefined' || document.hidden === undefined) {
@@ -649,7 +648,7 @@ export default defineComponent({
         // if you need to load avatars everywhere then watch conversation n use same way in the layout template
         conversations: {
             handler: async function () {
-                console.log('conversations watcher started');
+                // console.log('conversations watcher started');
                 if (this.usersAvatarLoading) return;
 
                 this.usersAvatarLoading = true;
@@ -661,8 +660,8 @@ export default defineComponent({
 
                         for (const convSes of conv.sessions) {
                             if (convSes.socket_session.user) {
-                                // i can send attachment from db but for that i have to send from all the query
-                                // i have to get the image so y give hard time to api so here check that
+                                // I can send attachment from db but for that I have to send from all the query
+                                // I have to get the image so y give hard time to api so here check that
                                 if (
                                     convSes.socket_session.user?.user_meta?.attachment_id &&
                                     !convSes.socket_session.user?.user_meta?.src

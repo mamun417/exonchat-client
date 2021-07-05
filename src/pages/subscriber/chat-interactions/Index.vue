@@ -1,0 +1,294 @@
+<template>
+    <div class="tw-flex tw-flex-col">
+        <div class="tw-shadow-lg tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
+                <q-icon name="chat_bubble" class="tw-mr-2" />
+                <div>Chat</div>
+            </div>
+        </div>
+
+        <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
+                <div>CHATS IN QUEUE: {{ chatsInQueue.length }}</div>
+            </div>
+        </div>
+
+        <div class="tw-mb-5">
+            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+                <ec-table :columns="typeOneColumns" :rows="chatsInQueue" @rowClick="rowClickHandle" hide-search>
+                    <template v-slot:cell-client="slotProps">
+                        <div class="text-italic">
+                            {{ slotProps.row.client_info.socket_session.init_name }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-currently_on="slotProps">
+                        <div class="text-xss">
+                            {{
+                                $_.last(
+                                    $_.find(visitors, ['session_id', slotProps.row.client_info.socket_session_id])
+                                        ?.visits
+                                )?.url
+                            }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-department="slotProps">
+                        <div class="text-xss">
+                            {{ slotProps.row.chat_department.tag }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-elapsed_time="slotProps">
+                        <div class="text-xss">
+                            {{ $helpers.fromNowTime(slotProps.row.created_at, true) }}
+                        </div>
+                    </template>
+                </ec-table>
+            </div>
+        </div>
+
+        <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
+                <div>MY CHATS: {{ myRunningChats.length }}</div>
+            </div>
+        </div>
+
+        <div class="tw-mb-5">
+            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+                <ec-table :columns="typeTwoColumns" :rows="myRunningChats" @rowClick="rowClickHandle" hide-search>
+                    <template v-slot:cell-client="slotProps">
+                        <div class="text-italic">
+                            {{ slotProps.row.client_info.socket_session.init_name }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-currently_on="slotProps">
+                        <div class="text-xss">
+                            {{
+                                $_.last(
+                                    $_.find(visitors, ['session_id', slotProps.row.client_info.socket_session_id])
+                                        ?.visits
+                                )?.url
+                            }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-department="slotProps">
+                        <div class="text-xss">
+                            {{ slotProps.row.chat_department.tag }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-chat_time="slotProps">
+                        <div class="text-xss">
+                            {{ $helpers.fromNowTime(slotProps.row.created_at, true) }}
+                        </div>
+                    </template>
+                </ec-table>
+            </div>
+        </div>
+
+        <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
+                <div>ACTIVE CHATS: {{ ongoingAllChats.length }}</div>
+            </div>
+        </div>
+
+        <div class="">
+            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+                <ec-table :columns="typeOneColumns" :rows="ongoingAllChats" @rowClick="rowClickHandle" hide-search>
+                    <template v-slot:cell-client="slotProps">
+                        <div class="text-italic">
+                            {{ slotProps.row.client_info.socket_session.init_name }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-currently_on="slotProps">
+                        <div class="text-xss">
+                            {{
+                                $_.last(
+                                    $_.find(visitors, ['session_id', slotProps.row.client_info.socket_session_id])
+                                        ?.visits
+                                )?.url
+                            }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-department="slotProps">
+                        <div class="text-xss">
+                            {{ slotProps.row.chat_department.tag }}
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-elapsed_time="slotProps">
+                        <div class="text-xss">
+                            {{ $helpers.fromNowTime(slotProps.row.created_at, true) }}
+                        </div>
+                    </template>
+                </ec-table>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+import { mapMutations, mapGetters } from 'vuex';
+import EcTable from 'components/common/table/EcTable.vue';
+// import TrackingConversationBtn from 'components/common/table/utilities/TrackingConversationBtn.vue';
+// import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn.vue';
+// import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
+// import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
+// import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
+// import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
+//
+// import * as _l from 'lodash';
+// import moment from 'moment';
+// import Pagination from 'components/common/Pagination.vue';
+
+const columns = [
+    {
+        name: 'client',
+        align: 'left',
+        label: 'Client',
+        field: 'client',
+    },
+    {
+        name: 'currently_on',
+        align: 'center',
+        label: 'Currently On',
+        field: 'currently_on',
+    },
+    {
+        name: 'department',
+        align: 'left',
+        label: 'Department',
+        field: 'department',
+    },
+];
+
+export default defineComponent({
+    components: {
+        // Pagination,
+        // ConversationStateConfirmModal,
+        // ViewConversationBtn,
+        // CloseConversationBtn,
+        // DirectMessageBtn,
+        // TrackingConversationBtn,
+        EcTable,
+        // ConnectedUsersFaces,
+    },
+    data(): any {
+        return {
+            currentPage: 1,
+            conversationId: '',
+            confirm: false,
+        };
+    },
+
+    setup() {
+        return {
+            typeOneColumns: [
+                ...columns,
+
+                {
+                    name: 'elapsed_time',
+                    align: 'center',
+                    label: 'Elapsed Time',
+                    field: 'elapsed_time',
+                },
+            ],
+            typeTwoColumns: [
+                ...columns,
+
+                {
+                    name: 'chat_time',
+                    align: 'center',
+                    label: 'Chat Time',
+                    field: 'chat_time',
+                },
+            ],
+        };
+    },
+
+    computed: {
+        ...mapGetters({
+            chatsInQueue: 'chat/incomingChatRequestsForMe',
+            myRunningChats: 'chat/myOngoingChats',
+            ongoingAllChats: 'chat/ongoingAllChats',
+            visitors: 'visitor/visitors',
+        }),
+        //
+        // chatHistories(): any {
+        //     const chatHistories = _l
+        //         .sortBy(
+        //             this.$_.cloneDeep(
+        //                 this.$store.getters['chat/clientsConversation'].filter((clientConv: any) =>
+        //                     this.newLoadedChatHistoriesIds.includes(clientConv.id)
+        //                 )
+        //             ),
+        //             [(clientConv: any) => moment(clientConv.created_at).format('x')]
+        //         )
+        //         .reverse();
+        //
+        //     const mySocketSessionId = this.$helpers.getMySocketSessionId();
+        //
+        //     if (chatHistories.length) {
+        //         return chatHistories.map((conv: any) => {
+        //             conv.client_info = this.$store.getters['chat/conversationWithUsersInfo'](
+        //                 conv.id,
+        //                 mySocketSessionId
+        //             )[0];
+        //
+        //             conv.message = msgMaker(conv.messages);
+        //
+        //             conv.self_status = this.$store.getters['chat/conversationStatusForMe'](conv.id, mySocketSessionId);
+        //
+        //             conv.connected_agents = this.$store.getters['chat/conversationConnectedUsers'](conv.id);
+        //
+        //             return conv;
+        //         });
+        //     }
+        //
+        //     function msgMaker(messagesObj: any) {
+        //         if (messagesObj && Object.keys(messagesObj).length) {
+        //             const messages = _l.cloneDeep(Object.values(messagesObj));
+        //
+        //             const tempMsgObj: any = _l
+        //                 .sortBy(
+        //                     Object.values(messages).filter(
+        //                         (msg: any) =>
+        //                             msg.sender_type !== 'ai' || msg.msg || (msg.attachments && msg.attachments.length)
+        //                     ),
+        //                     [(msg: any) => moment(msg.created_at).format('x')]
+        //                 )
+        //                 .reverse()[0];
+        //
+        //             if (!tempMsgObj.msg) {
+        //                 tempMsgObj.msg = 'Uploaded Attachments';
+        //             }
+        //
+        //             return tempMsgObj;
+        //         }
+        //
+        //         return null;
+        //     }
+        //
+        //     return [];
+        // },
+    },
+
+    methods: {
+        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+
+        rowClickHandle(row: any) {
+            this.updateRightDrawerState({
+                mode: 'conversation',
+                visible: true,
+                conv_id: row.id,
+            });
+        },
+    },
+});
+</script>

@@ -22,12 +22,17 @@
                             <ec-avatar
                                 :image_src="profile?.user_meta?.attachment?.src"
                                 :name="profile?.user_meta?.display_name"
+                                icon_color="text-white"
                                 class="cursor-pointer tw-my-3"
                             >
                                 <q-tooltip :offset="[10, 10]">Profile</q-tooltip>
                             </ec-avatar>
 
-                            <q-btn icon="question_answer" @click="leftDrawer = !leftDrawer" flat size="18px">
+                            <!--                            <q-btn icon="question_answer" @click="leftDrawer = !leftDrawer" flat size="18px">-->
+                            <!--                                <q-tooltip :offset="[10, 10]">Interactions</q-tooltip>-->
+                            <!--                            </q-btn>-->
+
+                            <q-btn icon="question_answer" :to="{ name: 'chat-interaction' }" flat size="18px">
                                 <q-tooltip :offset="[10, 10]">Interactions</q-tooltip>
                             </q-btn>
 
@@ -35,7 +40,7 @@
                                 <q-tooltip :offset="[10, 10]">Visitors</q-tooltip>
                             </q-btn>
 
-                            <q-btn icon="history" :to="{ name: 'clients-conversations' }" flat size="18px">
+                            <q-btn icon="history" :to="{ name: 'chat-history' }" flat size="18px">
                                 <q-tooltip :offset="[10, 10]">Chat History</q-tooltip>
                             </q-btn>
                         </div>
@@ -45,26 +50,7 @@
                                 <q-tooltip :offset="[10, 10]">Developer debug</q-tooltip>
 
                                 <q-menu class="tw-p-2" style="min-width: 350px">
-                                    <div
-                                        class="tw-p-2 tw-border-1 tw-shadow-md"
-                                        v-for="(m, i) in Object.keys($store._modules.root.state)"
-                                        :key="i"
-                                    >
-                                        <div class="text-green text-center">{{ m }}</div>
-                                        <div
-                                            class="tw-my-2"
-                                            v-for="(mv, k) in Object.keys($store._modules.root.state[m])"
-                                            :key="k"
-                                        >
-                                            <span>
-                                                <pre>{{ mv }}</pre>
-                                            </span>
-                                            <span class="tw-mx-2">=></span>
-                                            <span>
-                                                <pre>{{ $store._modules.root.state[m][mv] }}</pre>
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <store-debug></store-debug>
                                 </q-menu>
                             </q-btn>
 
@@ -218,6 +204,7 @@ import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
 
 import * as _l from 'lodash';
 import EcAvatar from 'src/components/common/EcAvatar.vue';
+import StoreDebug from 'src/components/debug/StoreDebug.vue';
 
 declare global {
     interface Window {
@@ -227,7 +214,7 @@ declare global {
 
 export default defineComponent({
     name: 'MainLayout',
-    components: { LeftBar, RightBar, EcAvatar },
+    components: { StoreDebug, LeftBar, RightBar, EcAvatar },
     data(): any {
         return {
             domReady: false,

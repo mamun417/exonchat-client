@@ -11,12 +11,12 @@
         <slot name="default"></slot>
     </q-avatar>
 
-    <q-avatar v-else class="shadow-1" :size="size" :class="`text-white ${globalBgColor}`">
-        <img v-if="local_preview_src" :src="local_preview_src" alt="" />
-        <template v-else>{{ name ? name[0].toUpperCase() : '' }}</template>
-
-        <slot name="default"></slot>
+    <q-avatar v-else-if="local_preview_src" class="shadow-1" :size="size" :class="`text-white ${globalBgColor}`">
+        <img :src="local_preview_src" alt="" />
     </q-avatar>
+    <q-avatar v-else :size="size" icon="person" :class="`shadow-1 ${icon_color}`">
+        <slot name="default"></slot
+    ></q-avatar>
 </template>
 
 <script lang="ts">
@@ -44,6 +44,10 @@ export default defineComponent({
         is_icon: {
             type: Boolean,
             default: false,
+        },
+        icon_color: {
+            type: String,
+            default: 'text-grey-8',
         },
     },
 

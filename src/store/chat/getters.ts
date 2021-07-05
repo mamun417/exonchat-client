@@ -1,5 +1,5 @@
 import moment from 'moment';
-import _, * as _l from 'lodash';
+import * as _l from 'lodash';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
@@ -143,77 +143,41 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return stateAsMsg;
     },
 
-    incomingChatRequests(state, getters, rootState, rootGetters) {
-        return Object.values(state.conversations)
+    // ongoing all chats => for interaction page
+    ongoingAllChats(state) {
+        const chats = Object.values(state.conversations)
             .filter((conv: any) => {
-                // Object.keys(conv.messages).length check for safe
-                return (
-                    conv.hasOwnProperty('users_only') &&
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    conv.sessions.length === 1
-                );
+                return !conv.users_only && !conv.closed_at && conv.sessions.length > 1;
             })
             .map((conv: any) => {
-                const msg: any = _l
-                    .sortBy(
-                        Object.values(conv.messages).filter(
-                            (msg: any) =>
-                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
-                        ),
-                        [(msg: any) => moment(msg.created_at).format('x')]
-                    )
-                    .reverse()[0];
+                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
 
-                return { ...msg, conversation_session: conv.sessions[0] }; // conv.sessions[0] cz we are already filtering length 1
+                return { conversation_session: conv.sessions[0], ...conv, client_info }; // conv.sessions[0] cz we are already filtering length 1
             });
+
+        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x')).reverse();
     },
 
-    incomingOtherDepartmentChatRequests(state, getters, rootState, rootGetters) {
-        return Object.values(state.conversations)
-            .filter((conv: any) => {
-                // Object.keys(conv.messages).length check for safe
-                return (
-                    conv.hasOwnProperty('users_only') &&
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    !_l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
-                    conv.sessions.length === 1 &&
-                    Object.keys(conv.messages).length
-                );
-            })
-            .map((conv: any) => {
-                const msg: any = _l
-                    .sortBy(
-                        Object.values(conv.messages).filter(
-                            (msg: any) =>
-                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
-                        ),
-                        [(msg: any) => moment(msg.created_at).format('x')]
-                    )
-                    .reverse()[0];
-
-                return { ...msg, conversation_session: conv.sessions[0] }; // conv.sessions[0] cz we are already filtering length 1
-            });
-    },
+    // chat requests for me => for left bar & interaction page
     incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
-        const requests = Object.values(state.conversations)
+        const chats = Object.values(state.conversations)
             .filter((conv: any) => {
-                // Object.keys(conv.messages).length check for safe
                 return (
                     !conv.users_only &&
                     !conv.closed_at &&
-                    _l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv.chat_department.tag]) &&
+                    _l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv?.chat_department?.tag]) &&
                     conv.sessions.length === 1
                 );
             })
             .map((conv: any) => {
-                return { conversation_session: conv.sessions[0], ..._l.pick(conv, ['id', 'created_at']) }; // conv.sessions[0] cz we are already filtering length 1
+                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
+                return { ...conv, client_info };
             });
 
-        return _l.sortBy(requests, (conv: any) => moment(conv.created_at).format('x')).reverse();
+        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x')).reverse();
     },
 
+    // my running chats => for left bar & interaction page
     myOngoingChats(state, getters, rootState, rootGetters) {
         return Object.values(state.conversations)
             .filter((conv: any) => {
@@ -223,66 +187,16 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 ]);
 
                 // Object.keys(conv.messages).length check for safe
-                return !conv.users_only && !conv.closed_at && conv.sessions.length > 1 && sesInfo && !sesInfo.left_at;
+                return !conv.users_only && !conv.closed_at && sesInfo && !sesInfo.left_at;
             })
             .map((conv: any) => {
-                const msg: any = _l
-                    .sortBy(
-                        Object.values(conv.messages).filter(
-                            (msg: any) =>
-                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
-                        ),
-                        [(msg: any) => moment(msg.created_at).format('x')]
-                    )
-                    .reverse()[0];
+                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
 
-                return {
-                    ...msg,
-                    conversation_session: _.find(conv.sessions, function (o) {
-                        return !o.socket_session.user;
-                    }),
-                };
+                return { conversation_session: conv.sessions[0], ...conv, client_info }; // conv.sessions[0] cz we are already filtering length 1
             });
     },
 
-    ongoingOtherChats(state, getters, rootState, rootGetters) {
-        return Object.values(state.conversations)
-            .filter((conv: any) => {
-                const sesInfo = _l.find(conv.sessions, [
-                    'socket_session_id',
-                    rootGetters['auth/profile']?.socket_session?.id,
-                ]);
-
-                // Object.keys(conv.messages).length check for safe
-                return (
-                    conv.hasOwnProperty('users_only') &&
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    conv.sessions.length > 1 &&
-                    !sesInfo &&
-                    Object.keys(conv.messages).length
-                );
-            })
-            .map((conv: any) => {
-                const msg: any = _l
-                    .sortBy(
-                        Object.values(conv.messages).filter(
-                            (msg: any) =>
-                                msg.sender_type !== 'ai' && (msg.msg || (msg.attachments && msg.attachments.length))
-                        ),
-                        [(msg: any) => moment(msg.created_at).format('x')]
-                    )
-                    .reverse()[0];
-
-                return {
-                    ...msg,
-                    conversation_session: _.find(conv.sessions, function (o) {
-                        return !o.socket_session.user;
-                    }),
-                };
-            });
-    },
-
+    // departmental chat requests count => for left bar
     departmentalChatRequestsCount(state) {
         const departments: any = {};
 
@@ -309,6 +223,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return departments;
     },
 
+    // teammates => for left bar
     chatUsers(state, getters, rootState, rootGetters) {
         const allUsers = state.chatUsers;
 
@@ -316,10 +231,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
     },
-
-    // convMessagesPaginationMeta(state) {
-    //     return state.convMessagesPaginationMeta;
-    // },
 };
 
 export default getters;

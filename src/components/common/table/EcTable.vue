@@ -38,7 +38,7 @@
         </template>
 
         <template v-slot:body="props">
-            <q-tr :props="props">
+            <q-tr :props="props" @click="rowClickHandle(props.row)">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!--                    <div class="text-red-14">-->
                     <!--                        <pre>{{ col.name }}</pre>-->
@@ -151,6 +151,10 @@ export default defineComponent({
     },
 
     methods: {
+        rowClickHandle(row: any) {
+            console.log(row, 'aaa');
+            this.$emit('rowClick', row);
+        },
         handlePipeline($event: any) {
             clearTimeout(this.handlePipelineTimer);
 

@@ -46,6 +46,12 @@ const routes: RouteRecordRaw[] = [
             },
 
             {
+                path: 'interaction',
+                name: 'chat-interaction',
+                component: () => import('pages/subscriber/chat-interactions/Index.vue'),
+            },
+
+            {
                 path: 'chat-history',
                 name: 'chat-history',
                 component: () => import('pages/subscriber/chat-history/Index.vue'),

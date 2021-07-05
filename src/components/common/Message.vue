@@ -18,6 +18,8 @@
         }"
         :content-style="{}"
     >
+        <slot name="scroll-area-top-section"></slot>
+
         <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
 
         <div v-if="speakingWithInfo.name" class="tw-text-center">
@@ -347,11 +349,10 @@ import * as _l from 'lodash';
 import moment from 'moment';
 import EcAvatar from './EcAvatar.vue';
 import EcEmoji from 'components/common/EcEmoji.vue';
-import ChatRatingForm from 'components/common/ChatRatingForm.vue';
 
 export default defineComponent({
     name: 'Message',
-    components: { ChatRatingForm, EcEmoji, EcAvatar },
+    components: { EcEmoji, EcAvatar },
     props: {
         conv_id: {
             type: String,
@@ -455,7 +456,18 @@ export default defineComponent({
                 }
             });
 
-            return _l.sortBy(Object.values(tempMessages), [(msg: any) => moment(msg.created_at).format('x')]);
+            let messages: any = _l.sortBy(Object.values(tempMessages), [
+                (msg: any) => moment(msg.created_at).format('x'),
+            ]);
+
+            if (this.chatPanelType === 'client') {
+                const firstMessage = messages[0];
+
+                if (!firstMessage?.msg && !firstMessage?.attachments && !messages[0]?.session.user) {
+                    messages = _l.drop(messages);
+                }
+            }
+            return messages;
         },
 
         typingState(): any {
@@ -528,25 +540,18 @@ export default defineComponent({
                 avater: '',
             };
 
-            if (this.conversationInfo) {
+            if (this.conversationInfo.id && this.chatPanelType === 'client') {
                 const sessions = this.conversationInfo.sessions;
 
-                if (sessions) {
-                    const useForType = this.chatPanelType === 'user' ? 'client' : 'user';
-
-                    const sessionInfo = sessions.find((session: any) => session.socket_session.use_for === useForType);
+                if (sessions.length) {
+                    const sessionInfo = sessions.find((session: any) => session.socket_session.user);
 
                     if (sessionInfo) {
-                        if (this.chatPanelType === 'user') {
-                            speakingWithInfo.name = sessionInfo.socket_session.init_name;
-                            speakingWithInfo.email = sessionInfo.socket_session.init_email;
-                        } else {
-                            const user = sessionInfo.socket_session.user;
+                        const user = sessionInfo.socket_session.user;
 
-                            speakingWithInfo.name = user.user_meta.display_name;
-                            speakingWithInfo.email = user.email;
-                            speakingWithInfo.avater = user.user_meta.src;
-                        }
+                        speakingWithInfo.name = user.user_meta.display_name;
+                        speakingWithInfo.email = user.email;
+                        speakingWithInfo.avater = user.user_meta.src;
                     }
                 }
             }
@@ -635,9 +640,21 @@ export default defineComponent({
         },
 
         getConvStateStatusMessage(message: any) {
-            return `${message.session.user ? message.session.user.user_meta.display_name : message.session.init_name} ${
-                message.state
-            } ${this.$helpers.fromNowTime(message.created_at)}`;
+            let name = message.session.user ? message.session.user.user_meta.display_name : message.session.init_name;
+
+            if (this.chatPanelType === 'user' && message.session.user && message.session.user.id === this.profile.id) {
+                name = 'You';
+            }
+
+            if (this.chatPanelType === 'client' && !message.session.user) {
+                name = 'You';
+            }
+
+            if (this.chatPanelType === 'user' && !message.session.user) {
+                name = 'Client';
+            }
+
+            return `${name} ${message.state} ${this.$helpers.fromNowTime(message.created_at)}`;
         },
 
         inputFocusHandle() {

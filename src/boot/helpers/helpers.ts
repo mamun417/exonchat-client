@@ -6,8 +6,8 @@ const helpers = {
         return new Date().getTime();
     },
 
-    fromNowTime(timestamp: string) {
-        return moment(timestamp).fromNow();
+    fromNowTime(timestamp: string, withoutSuffix = false) {
+        return moment(timestamp).fromNow(withoutSuffix);
     },
 
     diffAsMinute(timestamp: any) {
