@@ -191,7 +191,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             })
             .map((conv: any) => {
                 const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
-
+                // unseen_info add
                 return { conversation_session: conv.sessions[0], ...conv, client_info }; // conv.sessions[0] cz we are already filtering length 1
             });
     },

@@ -640,7 +640,7 @@ export default defineComponent({
         },
 
         getConvStateStatusMessage(message: any) {
-            let name = message.session.user ? message.session.user.user_meta.display_name : message.session.init_name;
+            let name = message.session.user ? message.session.user.user_meta?.display_name : message.session.init_name;
 
             if (this.chatPanelType === 'user' && message.session.user && message.session.user.id === this.profile.id) {
                 name = 'You';

@@ -77,7 +77,7 @@ const mutation: MutationTree<ChatStateInterface> = {
         if (convId) {
             const conv = state.conversations[convId];
 
-            if (!state.conversations.hasOwnProperty(convId)) {
+            if (!state.conversations[convId]?.id) {
                 state.conversations[convId] = { ...convData.conversation, messages: {}, sessions: [], loading: false };
             }
 
