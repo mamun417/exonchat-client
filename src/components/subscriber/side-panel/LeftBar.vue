@@ -325,12 +325,12 @@ export default defineComponent({
 
         selectAbleOnlineStatus(): any {
             return this.onlineStatus.filter(
-                (onlineStatus: any) => onlineStatus.status !== this.getMyOnlineStatus.status
+                (onlineStatus: any) => onlineStatus?.status !== this.getMyOnlineStatus?.status
             );
         },
 
         getMyOnlineStatus(): any {
-            return this.onlineStatus.find((onlineStatus: any) => onlineStatus.status === this.profile.online_status);
+            return this.onlineStatus.find((onlineStatus: any) => onlineStatus?.status === this.profile.online_status);
         },
     },
 
