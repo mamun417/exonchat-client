@@ -115,9 +115,9 @@
         <!--                <q-route-tab>Others</q-route-tab>-->
         <!--            </q-tabs>-->
         <!--        </q-card>-->
-        <!--        <div class="tw-mt-6">-->
-        <!--            <router-view></router-view>-->
-        <!--        </div>-->
+        <div class="tw-mt-6">
+            <router-view></router-view>
+        </div>
 
         <!--        <q-dialog :model-value="updateAvatarModal" @hide="updateAvatarModal = false">-->
         <!--            <q-card style="min-width: 350px">-->

@@ -400,13 +400,17 @@ export default defineComponent({
 
             const conv = this.teamConversations.find((conv: any) => conv.id === convId);
 
+            if (!conv) {
+                return returnObj;
+            }
+
             // get my last msg seen time
             const self_info = _l.find(
-                conv.sessions,
+                conv?.sessions,
                 (convSes: any) => convSes.socket_session_id === helpers.getMySocketSessionId()
             );
 
-            const myLastMsgSeenTime = self_info.last_msg_seen_time;
+            const myLastMsgSeenTime = self_info?.last_msg_seen_time;
 
             const convMessages = Object.values(conv.messages).filter((message: any) => {
                 return message.socket_session_id !== helpers.getMySocketSessionId();

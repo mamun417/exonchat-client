@@ -57,7 +57,7 @@
                         :is_icon="msgSenderInfo(message, index).type === 'ai'"
                         class="tw-mx-2"
                     >
-                        <q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>
+                        <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
                     </ec-avatar>
                 </template>
 
