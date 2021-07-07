@@ -264,6 +264,8 @@ export default defineComponent({
                 { status: 'invisible', label: 'Invisible' },
             ],
             chatUsersAvatarLoading: false,
+
+            chatRequestSoundLoop: false,
         };
     },
 
@@ -393,7 +395,7 @@ export default defineComponent({
             const userSocketSessId = user.socket_sessions[0].id;
 
             // firing before emit. cz if emit return res before this fn call.
-            // though its not possible for js event manager. but safe then sorry
+            // though it's not possible for JS event manager. but safe then sorry
             this.handleCreatedConversation(userSocketSessId);
 
             // create user to user conversation
@@ -516,6 +518,22 @@ export default defineComponent({
             },
             deep: true,
             immediate: true,
+        },
+
+        incomingChatRequestsForMe: {
+            handler: function () {
+                if (this.incomingChatRequestsForMe.length) {
+                    if (!this.chatRequestSoundLoop) {
+                        this.chatRequestSoundLoop = setInterval(() => {
+                            new Audio('assets/sound/notification/notification-request-001.mp3').play();
+                        }, 10000);
+                    }
+                } else {
+                    if (this.chatRequestSoundLoop) {
+                        clearInterval(this.chatRequestSoundLoop);
+                    }
+                }
+            },
         },
     },
 });

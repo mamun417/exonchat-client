@@ -566,11 +566,11 @@ export default defineComponent({
             this.$refs.messageInput.focus();
         },
 
+        // this func will get initial messages if not
+        // keep in mind there will be a scenario when we know the conv_id but nothing in conversationInfo
+        // at that time this function is very imp
         getNewMessages() {
-            if (
-                !this.gettingNewMessages && // and also check loading state of this conv
-                this.conversationInfo
-            ) {
+            if (!this.gettingNewMessages) {
                 this.gettingNewMessages = true;
 
                 this.$store
@@ -827,24 +827,24 @@ export default defineComponent({
                 last_position: verticalPercentage,
             });
 
-            if (topScrolling && verticalPercentage < 0.025 && this.messages?.length > 0) {
-                this.gettingNewMessages = true;
-
-                setTimeout(() => {
-                    this.$store
-                        .dispatch('chat/updateConvMessagesCurrentPage', {
-                            conv_id: this.conv_id,
-                            pagination_meta: {
-                                current_page: parseInt(this.conversationInfo.pagination_meta.current_page) + 1,
-                            },
-                        })
-                        .then(() => {
-                            this.gettingNewMessages = false;
-                            this.getNewMessages();
-                            this.scrollToPosition(0.3);
-                        });
-                }, 1000);
-            }
+            // if (topScrolling && verticalPercentage < 0.025 && this.messages?.length > 0) {
+            //     this.gettingNewMessages = true;
+            //
+            //     setTimeout(() => {
+            //         this.$store
+            //             .dispatch('chat/updateConvMessagesCurrentPage', {
+            //                 conv_id: this.conv_id,
+            //                 pagination_meta: {
+            //                     current_page: parseInt(this.conversationInfo.pagination_meta.current_page) + 1,
+            //                 },
+            //             })
+            //             .then(() => {
+            //                 this.gettingNewMessages = false;
+            //                 this.getNewMessages();
+            //                 this.scrollToPosition(0.3);
+            //             });
+            //     }, 1000);
+            // }
         },
 
         scrollToPosition(position = 0) {

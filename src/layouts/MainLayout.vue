@@ -477,13 +477,13 @@ export default defineComponent({
             });
 
             this.socket.on('ec_from_api_events', (res: any) => {
-                // res = {action: [logout, others_are_comming], msg: res.msg || null, reason: res.reason || null}
-                // reason = why this type sended
+                // res = {action: [logout, others_are_coming], msg: res.msg || null, reason: res.reason || null}
+                // reason = why this type sent
                 // msg = if you want to show notification or taster
                 // type = what type of action need
 
                 // in future handle if needed. if client logs by whmcs or other supported app
-                // then sesinfo will change & receive a emit
+                // then sesInfo will change & receive an emit
                 // then convs search by clients ses then update socket session info
 
                 if (res.action === 'logout') {
@@ -544,9 +544,11 @@ export default defineComponent({
             });
 
             this.socket.on('ec_chat_transfer_from_user', (data: any) => {
+                new Audio('assets/sound/notification/notification-request-001.mp3').play();
+
                 this.$q.notify({
                     group: `${data.conv_id}_notify`,
-                    message: `Chat transfer request from agent ${data.agent_info.user_meta.display_name}`,
+                    message: `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
                     caption: 'Click send button to open this conversation',
                     progress: true,
                     multiLine: true,
@@ -555,7 +557,7 @@ export default defineComponent({
                     textColor: 'white',
                     position: 'top-right',
                     classes: 'tw-w-80 tw-p-2',
-                    timeout: 15000,
+                    timeout: 1800000,
                     badgeClass: 'hidden',
                     actions: [
                         {
@@ -568,7 +570,6 @@ export default defineComponent({
                         },
                     ],
                 });
-                new Audio('assets/sound/notification/notification-001.wav').play();
 
                 console.log('from ec_chat_transfer_from_user', data);
             });
@@ -648,22 +649,6 @@ export default defineComponent({
                     console.log(err);
                 });
         },
-
-        handleChatRequestSoundLoop(conversations: any) {
-            const notifiableConvs = Object.values(conversations).filter((conv: any) => conv.notify_status);
-
-            if (notifiableConvs.length) {
-                if (!this.chatRequestSoundLoop) {
-                    this.chatRequestSoundLoop = setInterval(() => {
-                        new Audio('assets/sound/notification/notification-request-001.mp3').play();
-                    }, 10000);
-                }
-            } else {
-                if (this.chatRequestSoundLoop) {
-                    clearInterval(this.chatRequestSoundLoop);
-                }
-            }
-        },
     },
 
     watch: {
@@ -671,9 +656,6 @@ export default defineComponent({
         conversations: {
             handler: async function () {
                 console.log('conversations watcher started');
-
-                // if conversations change check for chat requests & handle sound
-                this.handleChatRequestSoundLoop(this.conversations);
 
                 if (this.usersAvatarLoading) return;
 
