@@ -845,9 +845,14 @@ export default defineComponent({
                         });
                 }, 1000);
             }
+
+            // handle last seen message date-time
+            if (verticalPercentage === 1 && this.chatPanelType === 'user') {
+                await this.updateLastMsgSeenTime();
+            }
         },
 
-        scrollToPosition(position = 0) {
+        scrollToPosition(position = 1) {
             const msgScrollArea = this.$refs.msgScrollArea;
 
             if (msgScrollArea) {
@@ -966,6 +971,31 @@ export default defineComponent({
                 }
             }
         },
+
+        async updateLastMsgSeenTime() {
+            const lastMsgSeenTime = moment().format();
+            const mySocketSesId = this.$helpers.getMySocketSessionId();
+
+            // check for undefined issue
+            if (this.conversationConnectedUsers.length) {
+                this.$store.commit('chat/updateConversation', {
+                    conv_id: this.conv_id,
+                    last_msg_seen_time: lastMsgSeenTime,
+                    socket_session_id: mySocketSesId,
+                });
+
+                const selfSession = this.conversationConnectedUsers.find(
+                    (convConnectedUser: any) => convConnectedUser.socket_session_id === mySocketSesId
+                );
+
+                await window.api.post(
+                    `conversations/update-last-message-seen-time/conversation-session/${selfSession.id}`,
+                    {
+                        last_msg_seen_time: lastMsgSeenTime,
+                    }
+                );
+            }
+        },
     },
 
     watch: {
@@ -990,9 +1020,11 @@ export default defineComponent({
             handler: function () {
                 this.handleAttachmentLoading();
 
-                if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
+                setTimeout(() => {
+                    // if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
                     this.scrollToPosition(); // scrollToBottom
-                }
+                    // }
+                }, 200);
             },
             deep: true,
             immediate: true,

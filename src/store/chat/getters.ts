@@ -3,6 +3,7 @@ import * as _l from 'lodash';
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
+import helpers from 'boot/helpers/helpers';
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
@@ -191,8 +192,36 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             })
             .map((conv: any) => {
                 const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
-                // unseen_info add
-                return { conversation_session: conv.sessions[0], ...conv, client_info }; // conv.sessions[0] cz we are already filtering length 1
+
+                // get my last msg seen time
+                const self_info = _l.find(
+                    conv.sessions,
+                    (convSes: any) => convSes.socket_session_id === helpers.getMySocketSessionId()
+                );
+
+                const myLastMsgSeenTime = self_info.last_msg_seen_time;
+
+                let countUnSeenMsg = 0;
+
+                const convMessages = Object.values(conv.messages).filter((message: any) => {
+                    return message.socket_session_id !== helpers.getMySocketSessionId();
+                });
+
+                if (!myLastMsgSeenTime) {
+                    countUnSeenMsg = convMessages.length;
+                } else {
+                    for (const message of convMessages) {
+                        if (countUnSeenMsg > 9) break;
+
+                        const msg: any = message;
+
+                        moment(msg.created_at).isAfter(myLastMsgSeenTime) && countUnSeenMsg++;
+                    }
+                }
+
+                const count_unseen_msg = countUnSeenMsg;
+
+                return { conversation_session: conv.sessions[0], ...conv, client_info, count_unseen_msg }; // conv.sessions[0] cz we are already filtering length 1
             });
     },
 

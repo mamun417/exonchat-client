@@ -18,8 +18,8 @@ const helpers = {
         return moment(timestamp).format(format);
     },
 
-    getMySocketSessionId() {
-        return sessionStorage.getItem('ec_user_socket_ses_id');
+    getMySocketSessionId(type = 'user') {
+        return sessionStorage.getItem(type === 'user' ? 'ec_user_socket_ses_id' : 'ec_client_socket_ses_id');
     },
 
     showErrorNotification(vm: any, message: any, color = 'negative', textColor = 'white') {
