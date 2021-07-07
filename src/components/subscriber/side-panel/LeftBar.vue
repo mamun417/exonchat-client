@@ -142,6 +142,12 @@
                                             {{ senderInfo(ongoingChat).display_name }}
                                         </q-item-label>
                                     </q-item-section>
+
+                                    <q-item-section v-if="ongoingChat.count_unseen_msg" side>
+                                        <q-badge color="orange">
+                                            {{ ongoingChat.count_unseen_msg > 9 ? '9+' : ongoingChat.count_unseen_msg }}
+                                        </q-badge>
+                                    </q-item-section>
                                 </q-item>
                             </q-list>
 
@@ -224,10 +230,28 @@
                                             {{ user.user_meta.display_name }}
                                         </q-item-label>
 
-                                        <q-item-label lines="2" caption>
-                                            <!-- {{ teamConversations }} -->
-                                            {{ teammateMsg(user.conversation_id, user.socket_sessions[0].id) }}
-                                        </q-item-label>
+                                        <!--<q-item-label lines="2" caption>
+                                            &lt;!&ndash; {{ teamConversations }} &ndash;&gt;
+                                            {{ agentMsgInfo(user.conversation_id, user.socket_sessions[0].id) }}
+                                        </q-item-label>-->
+                                    </q-item-section>
+
+                                    <q-item-section
+                                        v-if="
+                                            agentMsgInfo(user.conversation_id, user.socket_sessions[0].id)
+                                                .count_unseen_msg
+                                        "
+                                        side
+                                    >
+                                        <q-badge color="orange">
+                                            {{
+                                                agentMsgInfo(user.conversation_id, user.socket_sessions[0].id)
+                                                    .count_unseen_msg > 9
+                                                    ? '9+'
+                                                    : agentMsgInfo(user.conversation_id, user.socket_sessions[0].id)
+                                                          .count_unseen_msg
+                                            }}
+                                        </q-badge>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -246,6 +270,7 @@ import { mapGetters, mapMutations } from 'vuex';
 
 import * as _l from 'lodash';
 import moment from 'moment';
+import helpers from 'boot/helpers/helpers';
 
 export default defineComponent({
     name: 'LeftBar',
@@ -288,9 +313,10 @@ export default defineComponent({
             globalBgColor: 'setting_ui/globalBgColor',
             globalColor: 'setting_ui/globalColor',
             profile: 'auth/profile',
+            teamConversations: 'chat/teamConversation',
         }),
 
-        teamConversations(): any {
+        /*teamConversations(): any {
             const teamConversations = this.$_.cloneDeep(this.$store.getters['chat/teamConversation']);
 
             if (teamConversations.length) {
@@ -323,7 +349,7 @@ export default defineComponent({
             }
 
             return [];
-        },
+        },*/
 
         selectAbleOnlineStatus(): any {
             return this.onlineStatus.filter(
@@ -357,24 +383,48 @@ export default defineComponent({
             this.$router.push({ name: 'chats', params: { conv_id: convId } });
         },
 
-        teammateMsg(convId: any, sesId: any) {
+        agentMsgInfo(convId: any, sesId: any) {
             if (!convId) return '';
+
+            const returnObj: any = {
+                typing: false,
+                count_unseen_msg: 0,
+            };
 
             const typingStates = this.$store.getters['chat/typingState'](convId);
             const sesTypingState = _l.find(typingStates, ['socket_session_id', sesId]);
 
             if (sesTypingState && sesTypingState.status === 'typing') {
-                return 'Typing...';
+                returnObj.typing = true;
             }
 
-            const conv: any = _l.cloneDeep(this.teamConversations).filter((conv: any) => conv.id === convId);
-            // console.log(conv.length, convId, conv[0]);
+            const conv = this.teamConversations.find((conv: any) => conv.id === convId);
 
-            if (conv.length && conv[0].message) {
-                return conv[0].message.msg;
+            // get my last msg seen time
+            const self_info = _l.find(
+                conv.sessions,
+                (convSes: any) => convSes.socket_session_id === helpers.getMySocketSessionId()
+            );
+
+            const myLastMsgSeenTime = self_info.last_msg_seen_time;
+
+            const convMessages = Object.values(conv.messages).filter((message: any) => {
+                return message.socket_session_id !== helpers.getMySocketSessionId();
+            });
+
+            if (!myLastMsgSeenTime) {
+                returnObj.count_unseen_msg = convMessages.length;
+            } else {
+                for (const message of convMessages) {
+                    if (returnObj.count_unseen_msg > 9) break;
+
+                    const msg: any = message;
+
+                    moment(msg.created_at).isAfter(myLastMsgSeenTime) && returnObj.count_unseen_msg++;
+                }
             }
 
-            return '';
+            return returnObj;
         },
 
         openUserToUserConversation(user: any) {

@@ -132,7 +132,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .get(`conversations/${payload.convId}/messages`, {
                     params: {
                         p: current_page,
-                        pp: 5,
+                        pp: 50,
                     },
                 })
                 .then((res: any) => {
@@ -279,7 +279,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             chat_department: request.chat_department,
                             // now for sure that at least 1 msg will be available. cz ai will reply after a msg
                             // if later we implement other way then review this
-                            message: request.messages[0],
+                            messages: request.messages,
                             ai_is_replying: request.ai_is_replying,
                             closed_by: request.closed_by,
                             closed_at: request.closed_at,

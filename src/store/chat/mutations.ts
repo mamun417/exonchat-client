@@ -173,6 +173,14 @@ const mutation: MutationTree<ChatStateInterface> = {
             if (convData.hasOwnProperty('scroll_info')) {
                 state.conversations[convId].scroll_info = convData.scroll_info;
             }
+
+            if (convData.hasOwnProperty('last_msg_seen_time')) {
+                const convSession = conv.sessions.find(
+                    (session: any) => session.socket_session_id === convData.socket_session_id
+                );
+
+                convSession.last_msg_seen_time = convData.last_msg_seen_time;
+            }
         }
     },
 
