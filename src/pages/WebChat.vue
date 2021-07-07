@@ -195,6 +195,20 @@ export default defineComponent({
     },
     data(): any {
         return {
+            activityInterval: {
+                agentActivityForThreeMin: {
+                    interval: '',
+                    time: 10000,
+                },
+                clientActivityForTenMin: {
+                    interval: '',
+                    time: 20000,
+                },
+                clientActivityForThirteenMin: {
+                    interval: '',
+                    time: 40000,
+                },
+            },
             closeChatModal: false,
             allCheck: false,
             api_key: null,
@@ -264,6 +278,8 @@ export default defineComponent({
         this.handleChatPanelVisibility();
 
         // await this.initializeSocket();
+
+        this.startActivityCheckAllInterVal();
     },
 
     computed: {
@@ -438,6 +454,8 @@ export default defineComponent({
                 res.socket_event = 'ec_msg_from_user';
                 res.caller_page = 'web-chat';
 
+                this.agentActivityThreeMinInterval();
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 // console.log('from ec_msg_from_user', res);
@@ -456,6 +474,9 @@ export default defineComponent({
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', (res: any) => {
+                this.clientActivityTenMinInterval();
+                this.clientActivityThirteenMinInterval();
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 // console.log('from ec_msg_to_client', res);
@@ -470,6 +491,8 @@ export default defineComponent({
                 const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
 
                 if (res.status === 'success') {
+                    this.startActivityCheckAllInterVal();
+
                     if (!clientInitiateConvInfo) {
                         await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
                     } else {
@@ -632,6 +655,50 @@ export default defineComponent({
             this.$store.commit('chat/showRatingForm');
 
             this.closeChatModal = false;
+        },
+
+        agentActivityThreeMinInterval() {
+            clearInterval(this.activityInterval.agentActivityForThreeMin.interval);
+
+            console.log('agentActivityCheckForThreeMin start');
+
+            this.activityInterval.agentActivityForThreeMin.interval = setInterval(() => {
+                console.log('transfer chat to other agent');
+                // transfer chat and clear this interval
+                clearInterval(this.activityInterval.agentActivityForThreeMin.interval);
+            }, this.activityInterval.agentActivityForThreeMin.time);
+        },
+
+        clientActivityTenMinInterval() {
+            clearInterval(this.activityInterval.clientActivityForTenMin.interval);
+
+            console.log('clientActivityTenMinInterval start');
+
+            this.activityInterval.clientActivityForTenMin.interval = setInterval(() => {
+                console.log('inactive this chat');
+                // inactive this chat and clear this interval
+                clearInterval(this.activityInterval.clientActivityForTenMin.interval);
+            }, this.activityInterval.clientActivityForTenMin.time);
+        },
+
+        clientActivityThirteenMinInterval() {
+            clearInterval(this.activityInterval.clientActivityForThirteenMin.interval);
+
+            console.log('clientActivityThirteenMinInterval start');
+
+            this.activityInterval.clientActivityForThirteenMin.interval = setInterval(() => {
+                console.log('close this chat');
+                // inactive this chat and clear this interval
+                clearInterval(this.activityInterval.clientActivityForThirteenMin.interval);
+            }, this.activityInterval.clientActivityForThirteenMin.time);
+        },
+
+        startActivityCheckAllInterVal() {
+            if (this.conversationInfo.closed_at) return;
+
+            this.agentActivityThreeMinInterval();
+            this.clientActivityTenMinInterval();
+            this.clientActivityThirteenMinInterval();
         },
     },
 
