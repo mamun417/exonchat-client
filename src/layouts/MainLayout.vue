@@ -543,7 +543,7 @@ export default defineComponent({
                 console.log('from ec_conversation_rated_from_client', res);
             });
 
-            this.socket.on('ec_chat_transfer_from_user', (data: any) => {
+            this.socket.on('ec_chat_transfer', (data: any) => {
                 new Audio('assets/sound/notification/notification-request-001.mp3').play();
 
                 this.$q.notify({

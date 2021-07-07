@@ -179,7 +179,9 @@ const mutation: MutationTree<ChatStateInterface> = {
                     (session: any) => session.socket_session_id === convData.socket_session_id
                 );
 
-                convSession.last_msg_seen_time = convData.last_msg_seen_time;
+                if (convSession) {
+                    convSession.last_msg_seen_time = convData.last_msg_seen_time;
+                }
             }
         }
     },
