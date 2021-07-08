@@ -308,7 +308,7 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: 'ec_maximize_panel',
-                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; height: 560px; width: 320px',
+                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; height: 560px; width: 350px',
                 },
                 '*'
             );

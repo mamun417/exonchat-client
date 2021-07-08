@@ -77,6 +77,7 @@
                                         <q-expansion-item
                                             v-if="['joined', 'left'].includes(conversationStatusForMe)"
                                             expand-separator
+                                            expand-icon-class="tw-hidden"
                                             dense
                                         >
                                             <template v-slot:header>
@@ -164,7 +165,7 @@
                                         </q-item>
                                     </template>
 
-                                    <template v-if="rightBarState.mode === 'conversation'">
+                                    <template v-if="mini_mode && rightBarState.mode === 'conversation'">
                                         <q-item clickable v-close-popup>
                                             <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                                 <q-icon name="close_fullscreen" />

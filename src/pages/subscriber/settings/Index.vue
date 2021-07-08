@@ -171,7 +171,7 @@ import { mapGetters } from 'vuex';
 import * as _l from 'lodash';
 
 export default defineComponent({
-    components: { EcAvatar },
+    // components: { EcAvatar },
     name: '',
     props: {},
 

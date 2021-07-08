@@ -1,5 +1,7 @@
 <template>
-    <div class="tw-h-full tw-flex tw-flex-col">
+    <div class="tw-h-full tw-flex tw-flex-col tw-relative">
+        <slot name="extra"></slot>
+
         <template v-if="rightBarState.mode === 'conversation'">
             <messages-top-section :conv_id="rightBarState.conv_id" :mini_mode="true" />
             <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true"></message>

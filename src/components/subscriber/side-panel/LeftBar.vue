@@ -204,6 +204,7 @@
                                     :active="user.conversation_id && user.conversation_id === $route.params?.conv_id"
                                     :key="index"
                                     clickable
+                                    dense
                                 >
                                     <q-item-section class="tw-min-w-0" avatar>
                                         <ec-avatar

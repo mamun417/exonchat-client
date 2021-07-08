@@ -73,7 +73,7 @@
                 class="tw-shadow-lgl"
                 side="right"
                 breakpoint="xs"
-                :width="this.rightBarState.mode === 'conversation' ? 300 : 260"
+                :width="this.rightBarState.mode === 'conversation' ? 340 : 260"
                 persistent
             >
                 <right-bar></right-bar>
@@ -261,6 +261,14 @@ export default defineComponent({
             if (this.rightBarState.visible && this.rightBarState.mode) {
                 if (this.$route.name !== 'chats' && this.rightBarState.mode === 'client_info') {
                     return false;
+                }
+
+                if (this.$route.name === 'chats' && this.rightBarState.mode === 'client_info') {
+                    const conv: any = this.conversations[this.$route.params.conv_id];
+
+                    if (!conv) return false;
+
+                    return !conv.users_only;
                 }
 
                 return true;

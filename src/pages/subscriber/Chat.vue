@@ -70,10 +70,6 @@ export default defineComponent({
 
     mounted() {
         console.log('chat page initiated');
-
-        // if (!this.rightBarState.mode || this.rightBarState.mode === 'client_info') {
-        //     this.updateRightDrawerState({ mode: 'client_info', visible: true });
-        // }
     },
 
     computed: {
@@ -90,22 +86,11 @@ export default defineComponent({
     beforeRouteEnter(to, from, next) {
         next((vm: any) => {
             // vm.messageInputAutoFocus = from.name === 'clients-conversations';
-            console.log('mmmmmmm');
             if (!vm.rightBarState.mode || vm.rightBarState.mode === 'client_info') {
-                vm.updateRightDrawerState({ mode: 'client_info' });
+                vm.updateRightDrawerState({ mode: 'client_info', visible: true });
             }
         });
     },
-
-    // beforeRouteUpdate(to, from, next) {
-    // this.messageInputAutoFocus = false;
-
-    // if (!this.rightBarState.mode || this.rightBarState.mode === 'client_info') {
-    //     this.updateRightDrawerState({ mode: 'client_info', visible: true });
-    // }
-
-    // next();
-    // },
 
     methods: {
         ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
@@ -114,26 +99,9 @@ export default defineComponent({
     beforeUnmount() {
         console.log('chat unmount called');
 
-        // if (this.rightBarState.mode && this.rightBarState.mode === 'client_info') {
+        // if (t/his.rightBarState.mode && this.rightBarState.mode === 'client_info') {
         //     this.updateRightDrawerState({ mode: null, visible: false });
         // }
-    },
-
-    watch: {
-        conversationInfo: {
-            handler: function (newVal, oldVal) {
-                if (newVal && newVal.id && newVal.id !== oldVal?.id) {
-                    console.log(this.rightBarState, this.conversationInfo, 'kkkkkkkkkk');
-                    if (this.conversationInfo.users_only && this.rightBarState.mode === 'client_info') {
-                        this.updateRightDrawerState({ mode: '', visible: false });
-                    } else {
-                        this.updateRightDrawerState({ visible: true, mode: 'client_info' });
-                    }
-                }
-            },
-            immediate: true,
-            deep: true,
-        },
     },
 });
 </script>

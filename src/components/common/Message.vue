@@ -174,7 +174,11 @@
         <slot name="scroll-area-last-section"> </slot>
     </q-scroll-area>
 
-    <div v-if="showSendMessageInput" class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded">
+    <div
+        v-if="showSendMessageInput"
+        class="tw-w-full tw-py-2 tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
+        :class="[mini_mode ? 'tw-border-t-2' : '']"
+    >
         <q-file
             v-model="attachments"
             name="attachment-uploader"
