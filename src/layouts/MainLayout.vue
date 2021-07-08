@@ -557,7 +557,7 @@ export default defineComponent({
                     textColor: 'white',
                     position: 'top-right',
                     classes: 'tw-w-80 tw-p-2',
-                    timeout: 1800000,
+                    timeout: 1000 * 60, // 1 min
                     badgeClass: 'hidden',
                     actions: [
                         {
@@ -566,6 +566,15 @@ export default defineComponent({
                             size: 'xs',
                             handler: () => {
                                 window.router.push(`/chats/${data.conv_id}`);
+                            },
+                        },
+                        // only for client
+                        {
+                            icon: 'send',
+                            color: 'white',
+                            size: 'xs',
+                            handler: () => {
+                                //
                             },
                         },
                     ],

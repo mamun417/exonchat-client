@@ -48,6 +48,8 @@
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
+                        <button @click="startActivityAllInterVal">Ok</button>
+                        <pre>{{ activityInterval }}</pre>
                         <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id">
                             <template v-slot:scroll-area-top-section>
                                 <div
@@ -178,6 +180,7 @@ import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
 import ChatRatingForm from 'components/common/ChatRatingForm.vue';
+import moment from 'moment';
 
 declare global {
     interface Window {
@@ -195,18 +198,19 @@ export default defineComponent({
     },
     data(): any {
         return {
+            test: {},
             activityInterval: {
-                agentActivityForThreeMin: {
+                threeMinAgent: {
                     interval: '',
-                    time: 10000,
+                    time: 50000,
                 },
-                clientActivityForTenMin: {
+                tenMinClient: {
                     interval: '',
-                    time: 20000,
+                    time: 60000,
                 },
-                clientActivityForThirteenMin: {
+                thirteenMinClient: {
                     interval: '',
-                    time: 40000,
+                    time: 70000,
                 },
             },
             closeChatModal: false,
@@ -278,8 +282,6 @@ export default defineComponent({
         this.handleChatPanelVisibility();
 
         // await this.initializeSocket();
-
-        this.startActivityCheckAllInterVal();
     },
 
     computed: {
@@ -293,8 +295,8 @@ export default defineComponent({
             return this.$store.getters['chat/conversationInfo'](this.clientInitiateConvInfo.conv_id);
         },
 
-        me() {
-            return localStorage.getItem('me');
+        conversationMessages(): any {
+            return this.$store.getters['chat/conversationMessages'](this.clientInitiateConvInfo.conv_id);
         },
     },
 
@@ -454,7 +456,7 @@ export default defineComponent({
                 res.socket_event = 'ec_msg_from_user';
                 res.caller_page = 'web-chat';
 
-                this.agentActivityThreeMinInterval();
+                this.threeMinAgentInterval();
 
                 this.$store.dispatch('chat/storeMessage', res);
 
@@ -474,8 +476,8 @@ export default defineComponent({
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', (res: any) => {
-                this.clientActivityTenMinInterval();
-                this.clientActivityThirteenMinInterval();
+                this.tenMinClientInterval();
+                this.thirteenMinClientInterval();
 
                 this.$store.dispatch('chat/storeMessage', res);
 
@@ -491,7 +493,7 @@ export default defineComponent({
                 const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
 
                 if (res.status === 'success') {
-                    this.startActivityCheckAllInterVal();
+                    this.startActivityAllInterVal();
 
                     if (!clientInitiateConvInfo) {
                         await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
@@ -657,48 +659,109 @@ export default defineComponent({
             this.closeChatModal = false;
         },
 
-        agentActivityThreeMinInterval() {
-            clearInterval(this.activityInterval.agentActivityForThreeMin.interval);
+        threeMinAgentInterval() {
+            clearInterval(this.activityInterval.threeMinAgent.interval);
 
             console.log('agentActivityCheckForThreeMin start');
 
-            this.activityInterval.agentActivityForThreeMin.interval = setInterval(() => {
+            this.activityInterval.threeMinAgent.interval = setInterval(() => {
                 console.log('transfer chat to other agent');
-                // transfer chat and clear this interval
-                clearInterval(this.activityInterval.agentActivityForThreeMin.interval);
-            }, this.activityInterval.agentActivityForThreeMin.time);
+
+                // notify_except: if_from_client[ses_ids], client_info: client_socket_ses_obj, reason: transfer_reason
+
+                // this.socket.emit('ec_chat_transfer', {
+                //     conv_id: this.conv_id,
+                //     notify_except: agent.socket_sessions[0].id,
+                //     client_info: agent,
+                //     reason: 'interval transfer testing',
+                // });
+
+                clearInterval(this.activityInterval.threeMinAgent.interval);
+            }, this.activityInterval.threeMinAgent.time);
         },
 
-        clientActivityTenMinInterval() {
-            clearInterval(this.activityInterval.clientActivityForTenMin.interval);
+        tenMinClientInterval() {
+            clearInterval(this.activityInterval.tenMinClient.interval);
 
-            console.log('clientActivityTenMinInterval start');
+            console.log('tenMinClientInterval start');
 
-            this.activityInterval.clientActivityForTenMin.interval = setInterval(() => {
+            this.activityInterval.tenMinClient.interval = setInterval(() => {
                 console.log('inactive this chat');
                 // inactive this chat and clear this interval
-                clearInterval(this.activityInterval.clientActivityForTenMin.interval);
-            }, this.activityInterval.clientActivityForTenMin.time);
+                clearInterval(this.activityInterval.tenMinClient.interval);
+            }, this.activityInterval.tenMinClient.time);
         },
 
-        clientActivityThirteenMinInterval() {
-            clearInterval(this.activityInterval.clientActivityForThirteenMin.interval);
+        thirteenMinClientInterval() {
+            clearInterval(this.activityInterval.thirteenMinClient.interval);
 
-            console.log('clientActivityThirteenMinInterval start');
+            console.log('thirteenMinClientInterval start');
 
-            this.activityInterval.clientActivityForThirteenMin.interval = setInterval(() => {
+            this.activityInterval.thirteenMinClient.interval = setInterval(() => {
                 console.log('close this chat');
                 // inactive this chat and clear this interval
-                clearInterval(this.activityInterval.clientActivityForThirteenMin.interval);
-            }, this.activityInterval.clientActivityForThirteenMin.time);
+                clearInterval(this.activityInterval.thirteenMinClient.interval);
+            }, this.activityInterval.thirteenMinClient.time);
         },
 
-        startActivityCheckAllInterVal() {
-            if (this.conversationInfo.closed_at) return;
+        calculateIntervalRestOfDuration() {
+            const clientConv = this.conversations[this.clientInitiateConvInfo.conv_id];
 
-            this.agentActivityThreeMinInterval();
-            this.clientActivityTenMinInterval();
-            this.clientActivityThirteenMinInterval();
+            if (clientConv?.id) {
+                const joinedConvSes = clientConv.sessions.filter(
+                    (convSession: any) => !convSession.left_at && convSession.socket_session.user_id
+                );
+
+                if (joinedConvSes.length) {
+                    const intervals: any = {
+                        agent: ['threeMinAgent'],
+                        client: ['tenMinClient', 'thirteenMinClient'],
+                    };
+
+                    Object.keys(intervals).forEach((type: any) => {
+                        intervals[type].forEach((interval: any) => {
+                            if (!this.activityInterval[interval].interval) {
+                                this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
+                                    type,
+                                    clientConv,
+                                    this.activityInterval[interval].time,
+                                    joinedConvSes
+                                );
+
+                                this[`${interval}Interval`]();
+                            }
+                        });
+                    });
+                }
+            }
+        },
+
+        getRestOfDurationOfInterval(type: any, clientConv: any, activityTime: any, joinedConvSes: any) {
+            const mySocketSesId = this.$helpers.getMySocketSessionId('client');
+
+            const messages: any = Object.values(this.conversationMessages).filter((message: any) => {
+                if (type === 'agent') {
+                    return message.socket_session_id !== mySocketSesId;
+                } else {
+                    return message.socket_session_id === mySocketSesId;
+                }
+            });
+
+            let lastActivity: any = '';
+
+            if (!messages) {
+                lastActivity = this.$_.sortBy(joinedConvSes, [
+                    (convSes: any) => moment(convSes.joined_at).format('x'),
+                ]).reverse()[0].joined_at;
+            } else {
+                lastActivity = this.$_.sortBy(messages, [
+                    (message: any) => moment(message.created_at).format('x'),
+                ]).reverse()[0].created_at;
+            }
+
+            const timerLeftDuration = moment().diff(lastActivity, 'milliseconds');
+
+            return activityTime - timerLeftDuration;
         },
     },
 
@@ -716,6 +779,9 @@ export default defineComponent({
         conversations: {
             handler: async function () {
                 // console.log('conversations watcher started');
+
+                this.calculateIntervalRestOfDuration();
+
                 if (this.usersAvatarLoading) return;
 
                 this.usersAvatarLoading = true;

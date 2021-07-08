@@ -19,7 +19,11 @@ const helpers = {
     },
 
     getMySocketSessionId(type = 'user') {
-        return sessionStorage.getItem(type === 'user' ? 'ec_user_socket_ses_id' : 'ec_client_socket_ses_id');
+        if (type === 'user') {
+            return sessionStorage.getItem('ec_user_socket_ses_id');
+        }
+
+        return localStorage.getItem('ec_client_socket_ses_id');
     },
 
     showErrorNotification(vm: any, message: any, color = 'negative', textColor = 'white') {
