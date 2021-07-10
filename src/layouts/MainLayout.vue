@@ -59,7 +59,7 @@
                             </q-btn>
 
                             <!-- <q-btn class="tw-mr-2" :icon="rightDrawer ? 'menu_open' : 'menu'" @click="toggleRightDrawer" flat /> -->
-                            <q-btn icon="settings" :to="{ name: 'settings_ui' }" flat>
+                            <q-btn icon="settings" :to="{ name: 'settings' }" flat>
                                 <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
                             </q-btn>
 

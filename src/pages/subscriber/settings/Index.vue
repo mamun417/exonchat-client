@@ -3,7 +3,7 @@
         <q-card class="tw-mt-4 tw-mb-10 tw-p-6 tw-shadow-lg">
             <div class="tw-font-bold tw-text-lg">ORGANIZATIONS & ACCOUNT</div>
             <div class="tw-my-4 text-grey-7">
-                <q-btn flat stack no-caps>
+                <q-btn @click="$router.push({ name: 'users' })" flat stack no-caps>
                     <q-icon name="people_outline" size="80px"></q-icon>
                     <div>Users</div>
                 </q-btn>
@@ -25,11 +25,11 @@
                     <q-icon name="widgets" size="80px"></q-icon>
                     <div>Widget</div>
                 </q-btn>
-                <q-btn flat stack no-caps>
+                <q-btn @click="$router.push({ name: 'departments' })" flat stack no-caps>
                     <q-icon name="schema" size="80px"></q-icon>
                     <div>Chat Department</div>
                 </q-btn>
-                <q-btn flat stack no-caps>
+                <q-btn @click="$router.push({ name: 'chat-templates' })" flat stack no-caps>
                     <q-icon name="settings_input_component" size="80px"></q-icon>
                     <div>Predefined Chat Replies</div>
                 </q-btn>
