@@ -31,11 +31,12 @@
                 <q-item-section class="tw-w-full">
                     <q-item-label class="text-weight-bold" :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg']">
                         <div v-for="{ socket_session } in conversationWithUsersInfo" :key="socket_session.id">
-                            {{
+                            <span class="text-capitalize tw-mr-1">{{
                                 socket_session.user
                                     ? socket_session.user.user_meta.display_name
                                     : socket_session.init_name
-                            }}
+                            }}</span>
+                            <span class="text-caption">({{ socket_session.user ? 'agent' : 'client' }})</span>
                         </div>
                     </q-item-label>
                     <q-item-label caption>

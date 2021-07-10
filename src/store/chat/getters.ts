@@ -50,9 +50,9 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     conversationWithUsersInfo: (state) => (convId: any, mySesId: any) => {
         let userSessions = [];
 
-        if (state.conversations[convId]) {
-            const conv = state.conversations[convId];
+        const conv = state.conversations[convId];
 
+        if (conv?.id) {
             userSessions = conv.sessions.filter((session: any) => {
                 return (
                     (!conv.users_only && !session.socket_session.user) ||

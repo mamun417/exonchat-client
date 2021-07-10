@@ -856,6 +856,8 @@ export default defineComponent({
             if (!this.scrollbarCanHandleScrollEvent) return;
             // after that we can handle scroll event
 
+            console.log('scroll fired', info);
+
             const verticalPercentage = info.verticalPercentage;
 
             this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
@@ -888,6 +890,7 @@ export default defineComponent({
             const msgScrollArea = this.$refs.msgScrollArea;
 
             if (msgScrollArea) {
+                console.log('scroll to ', position);
                 msgScrollArea.setScrollPercentage('vertical', position, 200);
                 this.scrollbarCanHandleScrollEvent = true; // by this we can ignore first time auto scroll update
             }
@@ -1052,12 +1055,28 @@ export default defineComponent({
         conversationMessages: {
             handler: function () {
                 setTimeout(() => {
-                    if (
-                        this.conversationMessages &&
-                        (!this.conversationInfo.hasOwnProperty('scroll_info') ||
-                            this.conversationInfo.scroll_info?.auto_scroll_to_bottom)
-                    ) {
-                        this.scrollToPosition(1); // scrollToBottom
+                    if (this.conversationMessages) {
+                        // this if is only for first time scroll to bottom
+                        if (
+                            !this.conversationInfo.hasOwnProperty('scroll_info') ||
+                            this.conversationInfo.scroll_info?.auto_scroll_to_bottom
+                        ) {
+                            this.scrollToPosition(1); // scrollToBottom
+
+                            this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                                conv_id: this.conv_id,
+                                auto_scroll_to_bottom: true,
+                                last_position: 1,
+                            });
+                        }
+
+                        if (
+                            this.conversationInfo.hasOwnProperty('scroll_info') &&
+                            this.conversationInfo.scroll_info.hasOwnProperty('last_position') &&
+                            !this.conversationInfo.scroll_info?.auto_scroll_to_bottom
+                        ) {
+                            this.scrollToPosition(this.conversationInfo.scroll_info.last_position);
+                        }
                     }
                 }, 500);
 
