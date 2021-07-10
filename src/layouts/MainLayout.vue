@@ -555,12 +555,37 @@ export default defineComponent({
                 console.log('from ec_conversation_rated_from_client', res);
             });
 
-            this.socket.on('ec_chat_transfer_from_user', (data: any) => {
+            this.socket.on('ec_chat_transfer', (data: any) => {
                 new Audio('assets/sound/notification/notification-request-001.mp3').play();
+
+                let actions = [
+                    {
+                        icon: 'send',
+                        color: 'white',
+                        size: 'xs',
+                        handler: () => {
+                            window.router.push(`/chats/${data.conv_id}`);
+                        },
+                    },
+                ];
+
+                if (data.from === 'client') {
+                    actions.push({
+                        icon: 'clear',
+                        color: 'white',
+                        size: 'xs',
+                        handler: () => {
+                            //
+                        },
+                    });
+                }
 
                 this.$q.notify({
                     group: `${data.conv_id}_notify`,
-                    message: `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
+                    message:
+                        data.from === 'client'
+                            ? data.reason
+                            : `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
                     caption: 'Click send button to open this conversation',
                     progress: true,
                     multiLine: true,
@@ -569,18 +594,9 @@ export default defineComponent({
                     textColor: 'white',
                     position: 'top-right',
                     classes: 'tw-w-80 tw-p-2',
-                    timeout: 1800000,
+                    timeout: 1000 * 60, // 1 min
                     badgeClass: 'hidden',
-                    actions: [
-                        {
-                            icon: 'send',
-                            color: 'white',
-                            size: 'xs',
-                            handler: () => {
-                                window.router.push(`/chats/${data.conv_id}`);
-                            },
-                        },
-                    ],
+                    actions,
                 });
 
                 console.log('from ec_chat_transfer_from_user', data);

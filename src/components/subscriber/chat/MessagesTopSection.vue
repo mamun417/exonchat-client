@@ -335,7 +335,7 @@ export default defineComponent({
 
             console.log('transferchat => ', agent);
 
-            this.$socket.emit('ec_chat_transfer_from_user', {
+            this.$socket.emit('ec_chat_transfer', {
                 conv_id: this.conv_id,
                 notify_to: agent.socket_sessions[0].id,
                 agent_info: agent,
