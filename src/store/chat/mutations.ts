@@ -78,7 +78,12 @@ const mutation: MutationTree<ChatStateInterface> = {
             const conv = state.conversations[convId];
 
             if (!state.conversations[convId]?.id) {
-                state.conversations[convId] = { ...convData.conversation, messages: {}, sessions: [], loading: false };
+                state.conversations[convId] = {
+                    ...convData.conversation,
+                    messages: {},
+                    sessions: [],
+                    loading: false,
+                };
             }
 
             if (convData.closed_by) {

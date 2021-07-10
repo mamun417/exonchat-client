@@ -24,8 +24,8 @@
             }"
         >
             <!-- at first conversationWithUsersInfo can be empty. show loader -->
-            <q-list v-if="conversationWithUsersInfo.length" class="tw-px-1 tw-my-3">
-                <q-item class="">
+            <q-list v-if="conversationWithUsersInfo.length" class="tw-px-1">
+                <q-item class="tw-shadow-lg tw-py-3 tw-mb-2">
                     <q-item-section avatar>
                         <ec-avatar
                             :size="mini_mode ? 'md' : 'xl'"
@@ -139,7 +139,7 @@
                                 </q-item>
                             </q-list>
 
-                            <div v-else class="text-center">No previous chats</div>
+                            <div v-else class="text-center tw-py-2">No previous chats</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -185,7 +185,7 @@
                                 </q-item>
                             </q-list>
 
-                            <div v-else class="text-center">No tickets found</div>
+                            <div v-else class="text-center tw-py-2">No tickets found</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>

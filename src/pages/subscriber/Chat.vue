@@ -30,7 +30,7 @@
                     ></q-btn>
                 </q-card-section>
             </q-card> -->
-            <messages-top-section :conv_id="$route.params['conv_id']" />
+            <messages-top-section :conv_id="$route.params['conv_id']" class="tw-mb-3" />
 
             <message :conv_id="$route.params['conv_id']" :ses_id="profile?.socket_session?.id"></message>
 
@@ -69,7 +69,7 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log('chat page initiated');
+        // console.log('chat page initiated');
     },
 
     computed: {

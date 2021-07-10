@@ -17,7 +17,11 @@
                         :class="[`${globalBgColor}-8`]"
                     >
                         <div class="tw-flex tw-flex-col tw-items-center">
-                            <q-btn icon="mediation" class="tw-mb-2" flat size="lg" />
+                            <q-icon
+                                name="fas fa-headset"
+                                class="tw-mb-2 tw-shadow-lg tw-rounded-full tw-p-1"
+                                size="lg"
+                            />
 
                             <ec-avatar
                                 :image_src="profile?.user_meta?.attachment?.src"
@@ -279,7 +283,7 @@ export default defineComponent({
     },
 
     async mounted() {
-        console.log('main layout mounted');
+        // console.log('main layout mounted');
 
         if (this.profile.id) {
             this.openChatPanelBoxForTest();
@@ -312,7 +316,7 @@ export default defineComponent({
         getUsers(ses_id = null) {
             // if ses_id => check for exist. if not then new user registered
             if (!ses_id || !this.chatUsers?.hasOwnProperty(ses_id)) {
-                console.log('reloading users list');
+                // console.log('reloading users list');
 
                 this.$store.dispatch('chat/getUsers').then(() => {
                     // get new list first then get online
@@ -663,7 +667,7 @@ export default defineComponent({
         // if you need to load avatars everywhere then watch conversation n use same way in the layout template
         conversations: {
             handler: async function () {
-                console.log('conversations watcher started');
+                // console.log('conversations watcher started');
 
                 if (this.usersAvatarLoading) return;
 

@@ -8,7 +8,7 @@ const mutation: MutationTree<SettingUiStateInterface> = {
     },
 
     updateRightDrawerState(state, payload) {
-        console.log(payload);
+        // console.log(payload);
 
         const info: any = {
             visible: payload.hasOwnProperty('visible') ? payload.visible : state.rightDrawerState.visible,

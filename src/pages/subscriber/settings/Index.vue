@@ -165,7 +165,7 @@
 </template>
 
 <script lang="ts">
-import EcAvatar from 'src/components/common/EcAvatar.vue';
+// import EcAvatar from 'src/components/common/EcAvatar.vue';
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
 import * as _l from 'lodash';

@@ -120,7 +120,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve, reject) => {
             const callerApi = payload.client_page ? window.socketSessionApi : window.api;
 
-            let current_page = 1;
+            let current_page = 0;
 
             const conversationInfo = context.getters['conversationInfo'](payload.convId);
 
@@ -131,13 +131,17 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             callerApi
                 .get(`conversations/${payload.convId}/messages`, {
                     params: {
-                        p: current_page,
-                        pp: 50,
+                        p: current_page + 1,
+                        pp: 5,
                     },
                 })
                 .then((res: any) => {
-                    const conv = res.data.conversations.data;
-                    const pagination = res.data.conversations.pagination;
+                    const conv = res.data.conversation.data;
+                    const pagination = res.data.conversation.pagination;
+
+                    if (!conv.messages.length) {
+                        pagination.current_page = current_page; // reset to the previous pagination so that +1 turns valid
+                    }
 
                     // conv.current_page = payload.page || 1; // now only for temp & test
 
@@ -181,7 +185,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .get('conversations/requests/list')
                 .then((res: any) => {
                     const chatRequests = res.data;
-                    console.log('chat requests', chatRequests);
+                    // console.log('chat requests', chatRequests);
 
                     chatRequests.forEach((request: any) => {
                         context.commit('updateConversation', {
@@ -221,7 +225,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .then((res: any) => {
                     const convs = res.data || [];
 
-                    console.log('other joined chats', convs);
+                    // console.log('other joined chats', convs);
 
                     convs.forEach((conv: any) => {
                         context.commit('updateConversation', {
@@ -261,7 +265,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .get('conversations/joined/me')
                 .then((res: any) => {
                     const convs = res.data || [];
-                    console.log('my joined chats', convs);
+                    // console.log('my joined chats', convs);
 
                     convs.forEach((request: any) => {
                         context.commit('updateConversation', {

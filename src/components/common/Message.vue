@@ -2,7 +2,7 @@
     <q-scroll-area
         @scroll="handleScroll"
         ref="msgScrollArea"
-        class="tw-p-3 tw-flex-grow tw-text-xs"
+        class="tw-px-3 tw-flex-grow tw-text-xs"
         style="height: 1px"
         :bar-style="{
             background: '#60A5FA',
@@ -18,160 +18,180 @@
         }"
         :content-style="{}"
     >
-        <slot name="scroll-area-top-section"></slot>
+        <!--        debounce is for load spam-->
+        <q-infinite-scroll
+            ref="myInfiniteScrollArea"
+            :scroll-target="$refs.msgScrollArea"
+            @load="handleInfiniteScrollLoad"
+            :offset="250"
+            :debounce="2000"
+            reverse
+        >
+            <template v-slot:default>
+                <slot name="scroll-area-top-section"></slot>
 
-        <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
+                <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
 
-        <div v-if="speakingWithInfo.name" class="tw-text-center">
-            <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name">
-                <q-tooltip class="">
-                    {{ speakingWithInfo.email }}
-                </q-tooltip>
-            </ec-avatar>
-            <div class="tw-mt-2">You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}</div>
-        </div>
-
-        <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
-            <q-chat-message
-                v-if="message.msg || (message.attachments && message.attachments.length)"
-                :name="msgSenderInfo(message, index).display_name"
-                :sent="msgForRightSide(message)"
-                :text-color="msgForRightSide(message) ? 'black' : 'white'"
-                :bg-color="msgForRightSide(message) ? 'gray-9' : 'blue-9'"
-                :class="{ 'mini-mode-message-text-container': mini_mode }"
-            >
-                <template v-slot:stamp>
-                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
-                        {{ $helpers.fromNowTime(message.created_at) }}
-                    </div>
-                </template>
-
-                <template v-slot:avatar>
-                    <ec-avatar
-                        :image_src="
-                            msgSenderInfo(message, index).type === 'ai'
-                                ? 'fas fa-robot'
-                                : msgSenderInfo(message, index).src
-                        "
-                        :name="msgSenderInfo(message, index).img_alt_name"
-                        :is_icon="msgSenderInfo(message, index).type === 'ai'"
-                        class="tw-mx-2"
-                    >
-                        <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
+                <div v-if="speakingWithInfo.name" class="tw-text-center">
+                    <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name">
+                        <q-tooltip class="">
+                            {{ speakingWithInfo.email }}
+                        </q-tooltip>
                     </ec-avatar>
-                </template>
+                    <div class="tw-mt-2">You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}</div>
+                </div>
 
-                <div>
-                    <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
-                    <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
-                        <div
-                            v-for="(attachment, key) in message.attachments"
-                            :key="attachment.id"
-                            style="width: 100px; max-height: 100px"
-                            class="shadow-3 tw-rounded tw-cursor-pointer tw-overflow-hidden"
-                            :class="{
-                                'tw-mr-2': !msgForRightSide(message) && key !== message.attachments.length - 1,
-                                'tw-ml-2': msgForRightSide(message) && key !== message.attachments.length - 1,
-                            }"
-                        >
-                            <q-img
-                                fit="cover"
-                                spinner-color="green"
-                                @click="
-                                    attachmentPreview = attachment;
-                                    attachmentPreviewModal = true;
+                <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
+                    <q-chat-message
+                        v-if="message.msg || (message.attachments && message.attachments.length)"
+                        :name="msgSenderInfo(message, index).display_name"
+                        :sent="msgForRightSide(message)"
+                        :text-color="msgForRightSide(message) ? 'black' : 'white'"
+                        :bg-color="msgForRightSide(message) ? 'gray-9' : 'blue-9'"
+                        :class="{ 'mini-mode-message-text-container': mini_mode }"
+                    >
+                        <template v-slot:stamp>
+                            <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                                {{ $helpers.fromNowTime(message.created_at) }}
+                            </div>
+                        </template>
+
+                        <template v-slot:avatar>
+                            <ec-avatar
+                                :image_src="
+                                    msgSenderInfo(message, index).type === 'ai'
+                                        ? 'fas fa-robot'
+                                        : msgSenderInfo(message, index).src
                                 "
-                                :src="attachment.src"
+                                :name="msgSenderInfo(message, index).img_alt_name"
+                                :is_icon="msgSenderInfo(message, index).type === 'ai'"
+                                class="tw-mx-2"
                             >
-                                <q-tooltip class="bg-green" anchor="bottom middle" :offset="[10, 10]"
-                                    >{{ attachment.original_name }}
-                                </q-tooltip>
-                            </q-img>
+                                <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
+                            </ec-avatar>
+                        </template>
+
+                        <div>
+                            <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
+                            <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
+                                <div
+                                    v-for="(attachment, key) in message.attachments"
+                                    :key="attachment.id"
+                                    style="width: 100px; max-height: 100px"
+                                    class="shadow-3 tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                    :class="{
+                                        'tw-mr-2': !msgForRightSide(message) && key !== message.attachments.length - 1,
+                                        'tw-ml-2': msgForRightSide(message) && key !== message.attachments.length - 1,
+                                    }"
+                                >
+                                    <q-img
+                                        fit="cover"
+                                        spinner-color="green"
+                                        @click="
+                                            attachmentPreview = attachment;
+                                            attachmentPreviewModal = true;
+                                        "
+                                        :src="attachment.src"
+                                    >
+                                        <q-tooltip class="bg-green" anchor="bottom middle" :offset="[10, 10]"
+                                            >{{ attachment.original_name }}
+                                        </q-tooltip>
+                                    </q-img>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </q-chat-message>
+                    </q-chat-message>
 
-            <q-chat-message
-                v-else-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
-                class="tw-mb-0"
-            >
-                <template v-slot:label>
-                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
-                        {{ getConvStateStatusMessage(message) }}
-                    </div>
-                </template>
-            </q-chat-message>
-        </template>
-
-        <!-- {{ typingState }} -->
-
-        <template v-for="(typing, index) in typingState" :key="index">
-            <q-chat-message
-                :text-color="checkOwnMessage(typing) ? 'black' : 'white'"
-                :bg-color="checkOwnMessage(typing) ? 'gray-9' : 'blue-9'"
-                class="exonchat-is-typing"
-            >
-                <template v-slot:avatar>
-                    <ec-avatar
-                        :image_src="
-                            msgSenderInfo(typing, 0).type === 'ai' ? 'fas fa-robot' : msgSenderInfo(typing, 0).src
-                        "
-                        :name="msgSenderInfo(typing, 0).img_alt_name"
-                        :is_icon="msgSenderInfo(typing, 0).type === 'ai'"
-                        class="tw-mx-2"
+                    <q-chat-message
+                        v-else-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
+                        class="tw-mb-0"
                     >
-                        <q-tooltip class="">{{ msgSenderInfo(typing, 0).email }}</q-tooltip>
-                    </ec-avatar>
+                        <template v-slot:label>
+                            <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                                {{ getConvStateStatusMessage(message) }}
+                            </div>
+                        </template>
+                    </q-chat-message>
                 </template>
 
-                <template v-slot:stamp>
-                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">typing...</div>
+                <!-- {{ typingState }} -->
+
+                <template v-for="(typing, index) in typingState" :key="index">
+                    <q-chat-message
+                        :text-color="checkOwnMessage(typing) ? 'black' : 'white'"
+                        :bg-color="checkOwnMessage(typing) ? 'gray-9' : 'blue-9'"
+                        class="exonchat-is-typing"
+                    >
+                        <template v-slot:avatar>
+                            <ec-avatar
+                                :image_src="
+                                    msgSenderInfo(typing, 0).type === 'ai'
+                                        ? 'fas fa-robot'
+                                        : msgSenderInfo(typing, 0).src
+                                "
+                                :name="msgSenderInfo(typing, 0).img_alt_name"
+                                :is_icon="msgSenderInfo(typing, 0).type === 'ai'"
+                                class="tw-mx-2"
+                            >
+                                <q-tooltip class="">{{ msgSenderInfo(typing, 0).email }}</q-tooltip>
+                            </ec-avatar>
+                        </template>
+
+                        <template v-slot:stamp>
+                            <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">typing...</div>
+                        </template>
+
+                        <div>
+                            <div :class="{ 'text-right': msgForRightSide(typing) }">{{ typing.msg }}</div>
+                        </div>
+                    </q-chat-message>
                 </template>
 
-                <div>
-                    <div :class="{ 'text-right': msgForRightSide(typing) }">{{ typing.msg }}</div>
-                </div>
-            </q-chat-message>
-        </template>
-
-        <div v-if="conversationInfo.rating" class="text-center tw-pb-2">
-            <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
-                <div>
-                    Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
-                    {{ $helpers.fromNowTime(conversationInfo.rating.created_at) }}
-                </div>
-                <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
-                <div class="tw-mt-2">
-                    <div>Chat rating</div>
-                    <div>
-                        <q-btn
-                            size="sm"
-                            :color="conversationInfo.rating.rating === 5 ? 'green' : 'red'"
-                            :icon="conversationInfo.rating.rating === 5 ? 'thumb_up' : 'thumb_down'"
-                            :label="conversationInfo.rating.rating === 5 ? 'Good' : 'Bad'"
-                            outline
-                            class="tw-mt-1"
-                        />
+                <div v-if="conversationInfo.rating" class="text-center tw-pb-2">
+                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                        <div>
+                            Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
+                            {{ $helpers.fromNowTime(conversationInfo.rating.created_at) }}
+                        </div>
+                        <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
+                        <div class="tw-mt-2">
+                            <div>Chat rating</div>
+                            <div>
+                                <q-btn
+                                    size="sm"
+                                    :color="conversationInfo.rating.rating === 5 ? 'green' : 'red'"
+                                    :icon="conversationInfo.rating.rating === 5 ? 'thumb_up' : 'thumb_down'"
+                                    :label="conversationInfo.rating.rating === 5 ? 'Good' : 'Bad'"
+                                    outline
+                                    class="tw-mt-1"
+                                />
+                            </div>
+                        </div>
+                        <!--<pre>{{ conversationInfo.rating }}</pre>-->
+                        <!--<pre>{{ conversationWithUsersInfo[0].socket_session }}</pre>-->
                     </div>
                 </div>
-                <!--<pre>{{ conversationInfo.rating }}</pre>-->
-                <!--<pre>{{ conversationWithUsersInfo[0].socket_session }}</pre>-->
-            </div>
-        </div>
 
-        <!-- <q-btn
-            v-if="gotoBottomBtnShow"
-            @click="scrollToBottom"
-            style="position: fixed; left: 50%; bottom: 60px"
-            class="tw-bottom-2 tw-opacity-75 tw-right-2"
-            color="black"
-            icon="keyboard_arrow_down"
-            size="sm"
-            round
-        /> -->
+                <!-- <q-btn
+                    v-if="gotoBottomBtnShow"
+                    @click="scrollToBottom"
+                    style="position: fixed; left: 50%; bottom: 60px"
+                    class="tw-bottom-2 tw-opacity-75 tw-right-2"
+                    color="black"
+                    icon="keyboard_arrow_down"
+                    size="sm"
+                    round
+                /> -->
 
-        <slot name="scroll-area-last-section"> </slot>
+                <slot name="scroll-area-last-section"> </slot>
+            </template>
+
+            <template v-slot:loading>
+                <div class="row justify-center q-my-md">
+                    <q-spinner-dots color="green" size="40px" />
+                </div>
+            </template>
+        </q-infinite-scroll>
     </q-scroll-area>
 
     <div
@@ -416,6 +436,10 @@ export default defineComponent({
             getChatTemplateTimer: '',
 
             usersAvatarLoading: false,
+
+            scrollbarCanHandleScrollEvent: false,
+            canLoadNewMessage: true,
+
             lastTopVerticalPosition: 0,
         };
     },
@@ -565,6 +589,15 @@ export default defineComponent({
     },
 
     methods: {
+        handleInfiniteScrollLoad(index: any, done: any) {
+            // it's calling only first time by load event
+            // immediately we call done so that spam turns off.
+            // keep in mind after done(true) scroll won't trigger without resume call
+            // we have to do like these cz it's default behaviour is not working
+            done(true);
+            this.getNewMessages();
+        },
+
         handleClickEmoji($event: any) {
             this.msg += $event;
             this.$refs.messageInput.focus();
@@ -581,15 +614,21 @@ export default defineComponent({
                     .dispatch('chat/getConvMessages', {
                         convId: this.conv_id,
                     })
+                    .then((res: any) => {
+                        if (!res.data.conversation.data.messages?.length) {
+                            // if no data turn off new msg load
+                            this.canLoadNewMessage = false;
+                        }
+                    })
                     .finally(() => {
                         this.gettingNewMessages = false;
                     });
             }
         },
+
         checkOwnMessage(message: any) {
             return message.socket_session_id === this.ses_id;
         },
-
         msgForRightSide(message: any) {
             if (this.checkOwnMessage(message)) {
                 return true;
@@ -610,7 +649,6 @@ export default defineComponent({
 
             return false;
         },
-
         msgSenderInfo(msg: any, index: any) {
             const prevMsg = this.messages[index - 1];
 
@@ -720,7 +758,6 @@ export default defineComponent({
                 this.$refs[`ec_template_dom_${this.uid}`].$forceUpdate(); // it will try to match dynamic height
             });
         },
-
         chatTemplateShowHandle() {
             this.getChatTemplates();
             document.body.addEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
@@ -804,8 +841,6 @@ export default defineComponent({
 
             const dynamicSocket = this.socket || this.$socket;
 
-            console.log(this.chatPanelType);
-
             dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
                 ...dynamicBody,
                 msg: this.msg,
@@ -818,7 +853,11 @@ export default defineComponent({
         },
 
         async handleScroll(info: any) {
-            let verticalPercentage = info.verticalPercentage;
+            if (!this.scrollbarCanHandleScrollEvent) return;
+            // after that we can handle scroll event
+
+            const verticalPercentage = info.verticalPercentage;
+
             this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
 
             // get next page messages (pagination)
@@ -831,23 +870,12 @@ export default defineComponent({
                 last_position: verticalPercentage,
             });
 
-            if (topScrolling && verticalPercentage < 0.025 && this.messages?.length > 0) {
-                this.gettingNewMessages = true;
-
-                setTimeout(() => {
-                    this.$store
-                        .dispatch('chat/updateConvMessagesCurrentPage', {
-                            conv_id: this.conv_id,
-                            pagination_meta: {
-                                current_page: parseInt(this.conversationInfo.pagination_meta.current_page) + 1,
-                            },
-                        })
-                        .then(() => {
-                            this.gettingNewMessages = false;
-                            this.getNewMessages();
-                            this.scrollToPosition(0.3);
-                        });
-                }, 1000);
+            if (topScrolling && verticalPercentage < 0.025) {
+                if (this.canLoadNewMessage) {
+                    // if we can then resume and trigger which will fire the load event
+                    this.$refs.myInfiniteScrollArea.resume();
+                    this.$refs.myInfiniteScrollArea.trigger();
+                }
             }
 
             // handle last seen message date-time
@@ -860,7 +888,8 @@ export default defineComponent({
             const msgScrollArea = this.$refs.msgScrollArea;
 
             if (msgScrollArea) {
-                msgScrollArea.setScrollPercentage('vertical', position, 500);
+                msgScrollArea.setScrollPercentage('vertical', position, 200);
+                this.scrollbarCanHandleScrollEvent = true; // by this we can ignore first time auto scroll update
             }
         },
 
@@ -1005,7 +1034,7 @@ export default defineComponent({
     watch: {
         conversationInfo: {
             handler: function () {
-                console.log('conversationInfo watcher started');
+                // console.log('conversationInfo watcher started');
             },
             deep: true,
             immediate: true,
@@ -1013,8 +1042,8 @@ export default defineComponent({
 
         conv_id: {
             handler: function () {
-                if (!this.conversationInfo.hasOwnProperty('pagination_meta')) {
-                    this.getNewMessages();
+                if (this.conv_id && !this.conversationInfo.hasOwnProperty('pagination_meta')) {
+                    // this.getNewMessages();
                 }
             },
             immediate: true,
@@ -1022,13 +1051,17 @@ export default defineComponent({
 
         conversationMessages: {
             handler: function () {
-                this.handleAttachmentLoading();
-
                 setTimeout(() => {
-                    // if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
-                    this.scrollToPosition(); // scrollToBottom
-                    // }
-                }, 200);
+                    if (
+                        this.conversationMessages &&
+                        (!this.conversationInfo.hasOwnProperty('scroll_info') ||
+                            this.conversationInfo.scroll_info?.auto_scroll_to_bottom)
+                    ) {
+                        this.scrollToPosition(1); // scrollToBottom
+                    }
+                }, 500);
+
+                this.handleAttachmentLoading();
             },
             deep: true,
             immediate: true,
@@ -1036,7 +1069,7 @@ export default defineComponent({
 
         typingState: {
             handler: function (newVal, oldVal) {
-                console.log(oldVal, newVal);
+                // console.log(oldVal, newVal);
 
                 if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
                     if (newVal.length > oldVal.length) {

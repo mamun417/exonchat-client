@@ -32,7 +32,7 @@ const mutation: MutationTree<AuthStateInterface> = {
     },
 
     updateToken(state, token) {
-        console.log(token);
+        // console.log(token);
 
         localStorage.setItem('token', token);
         state.token = token;

@@ -6,7 +6,7 @@
         >
             <template v-if="hasApiKey">
                 <div
-                    class="tw-bg-green-600 text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
+                    class="bg-blue-grey text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
                 >
                     <div>Chat With Us</div>
                     <q-space></q-space>
@@ -95,22 +95,23 @@
                                     v-model="convInitFields.name"
                                     dense
                                     label="Your Name"
-                                    color="green"
+                                    color="blue-grey"
                                     class="tw-mb-3"
                                 >
                                     <template v-slot:prepend>
-                                        <q-icon name="person" size="xs" color="green" />
+                                        <q-icon name="person" size="xs" color="blue-grey" />
                                     </template>
                                 </q-input>
                                 <q-input
                                     v-model="convInitFields.email"
                                     dense
+                                    color="blue-grey"
                                     class="tw-mb-3"
                                     label="Your Email"
                                     type="email"
                                 >
                                     <template v-slot:prepend>
-                                        <q-icon name="email" size="xs" color="green" />
+                                        <q-icon name="email" size="xs" color="blue-grey" />
                                     </template>
                                 </q-input>
 
@@ -123,18 +124,23 @@
                                     option-value="id"
                                     option-label="tag"
                                     label="Chat Department"
-                                    color="green"
                                     class="tw-mb-3"
+                                    color="blue-grey"
                                     emit-value
                                     map-options
                                     dense
                                 >
                                     <template v-slot:prepend>
-                                        <q-icon name="person" size="xs" color="green" />
+                                        <q-icon name="person" size="xs" color="blue-grey" />
                                     </template>
                                 </q-select>
 
-                                <q-btn dense color="green" class="full-width tw-mt-6" @click="chatInitialize" no-caps
+                                <q-btn
+                                    dense
+                                    color="blue-grey"
+                                    class="full-width tw-mt-6"
+                                    @click="chatInitialize"
+                                    no-caps
                                     >Start Chat as Guest
                                 </q-btn>
                             </div>
@@ -148,7 +154,7 @@
                     <div class="text-orange tw-font-medium tw-text-lg">API Key Invalid</div>
                     <div class="text-caption">Please contact support or Notify site owner</div>
                     <q-btn
-                        color="green"
+                        color="blue-grey"
                         class="tw-mt-4"
                         label="Hide Panel"
                         @click="toggleChatPanel(false)"
@@ -163,7 +169,7 @@
             <q-btn
                 icon="forum"
                 size="md"
-                color="green"
+                color="blue-grey"
                 @click="toggleChatPanel(true)"
                 class="tw-fixed tw-right-1 tw-bottom-1"
                 round
