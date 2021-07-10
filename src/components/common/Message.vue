@@ -171,7 +171,11 @@
             round
         /> -->
 
-        <slot name="scroll-area-last-section"> </slot>
+        <slot name="scroll-area-last-section">
+            <div v-if="!conversationInfo.users_only && !chatActiveStatus">
+                Chat is idle due to 10 minutes of inactivity
+            </div>
+        </slot>
     </q-scroll-area>
 
     <div v-if="showSendMessageInput" class="tw-w-full tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded">
@@ -382,6 +386,7 @@ export default defineComponent({
 
     data(): any {
         return {
+            chatActiveStatus: true,
             uid: new Date().getTime().toString(), // user convid insted. not from url
 
             gettingNewMessages: false, // we could also use conv's loading state but it's will be a disaster here
@@ -420,6 +425,9 @@ export default defineComponent({
         setInterval(() => {
             this.$forceUpdate();
         }, 30000);
+
+        this.fireSocketListeners();
+        this.emitSocketEvents();
     },
 
     computed: {
@@ -561,6 +569,28 @@ export default defineComponent({
     },
 
     methods: {
+        emitSocketEvents() {
+            if (this.chatPanelType === 'agent') {
+                this.$socket.emit('ec_get_client_ses_id_status', {
+                    client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
+                });
+
+                setInterval(() => {
+                    this.$socket.emit('ec_get_client_ses_id_status', {
+                        client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
+                    });
+                }, 10000);
+            }
+        },
+
+        fireSocketListeners() {
+            this.$socket.on('ec_get_client_ses_id_status_res', (res: any) => {
+                this.chatActiveStatus = res.status === 'active';
+
+                console.log('from ec_get_client_ses_id_status_res', res);
+            });
+        },
+
         handleClickEmoji($event: any) {
             this.msg += $event;
             this.$refs.messageInput.focus();
@@ -642,19 +672,28 @@ export default defineComponent({
         getConvStateStatusMessage(message: any) {
             let name = message.session.user ? message.session.user.user_meta?.display_name : message.session.init_name;
 
-            if (this.chatPanelType === 'user' && message.session.user && message.session.user.id === this.profile.id) {
-                name = 'You';
-            }
+            // if (this.chatPanelType === 'user' && message.session.user && message.session.user.id === this.profile.id) {
+            //     name = 'You';
+            // }
+            //
+            // if (this.chatPanelType === 'client' && !message.session.user) {
+            //     name = 'You';
+            // }
+            //
+            // if (this.chatPanelType === 'user' && !message.session.user) {
+            //     name = 'Client';
+            // }
 
-            if (this.chatPanelType === 'client' && !message.session.user) {
-                name = 'You';
-            }
+            const convSes = this.conversationInfo.sessions.find(
+                (convSes: any) => convSes.socket_session_id === message.session.id
+            );
 
-            if (this.chatPanelType === 'user' && !message.session.user) {
-                name = 'Client';
-            }
+            const endMaker =
+                message.state === 'closed'
+                    ? ` | ${message.session.user ? 'Agent' : 'Client'} Ended chat ${convSes.closed_reason || ''}`
+                    : '';
 
-            return `${name} ${message.state} ${this.$helpers.fromNowTime(message.created_at)}`;
+            return `${name} ${message.state} ${this.$helpers.fromNowTime(message.created_at)}${endMaker}`;
         },
 
         inputFocusHandle() {

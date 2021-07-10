@@ -572,7 +572,7 @@ export default defineComponent({
                     group: `${data.conv_id}_notify`,
                     message:
                         data.from === 'client'
-                            ? 'Chat transfer from client'
+                            ? data.reason
                             : `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
                     caption: 'Click send button to open this conversation',
                     progress: true,
@@ -584,16 +584,7 @@ export default defineComponent({
                     classes: 'tw-w-80 tw-p-2',
                     timeout: 1000 * 60, // 1 min
                     badgeClass: 'hidden',
-                    actions: [
-                        {
-                            icon: 'send',
-                            color: 'white',
-                            size: 'xs',
-                            handler: () => {
-                                window.router.push(`/chats/${data.conv_id}`);
-                            },
-                        },
-                    ],
+                    actions,
                 });
 
                 console.log('from ec_chat_transfer_from_user', data);

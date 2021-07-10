@@ -48,7 +48,6 @@
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
-                        <pre>{{ activityInterval }}</pre>
                         <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id">
                             <template v-slot:scroll-area-top-section>
                                 <div
@@ -64,6 +63,7 @@
                             </template>
 
                             <template v-slot:scroll-area-last-section>
+                                <div v-if="!chatActiveStatus">Chat is idle due to 10 minutes of inactivity</div>
                                 <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-p-5">
                                     <chat-rating-form />
                                 </div>
@@ -197,18 +197,19 @@ export default defineComponent({
     },
     data(): any {
         return {
+            chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
                     interval: '',
-                    time: 40000,
+                    time: 1000 * 60 * 3,
                 },
                 tenMinClient: {
                     interval: '',
-                    time: 60000,
+                    time: 1000 * 60 * 10,
                 },
                 thirteenMinClient: {
                     interval: '',
-                    time: 100000,
+                    time: 1000 * 60 * 30,
                 },
             },
             closeChatModal: false,
@@ -669,9 +670,9 @@ export default defineComponent({
 
                 this.socket.emit('ec_chat_transfer', {
                     conv_id: this.clientInitiateConvInfo.conv_id,
-                    // notify_except: sesIds,
+                    notify_except: sesIds,
                     client_info: clientSocketSes,
-                    reason: 'interval transfer testing',
+                    reason: 'Chat transferred due to agent inactivity',
                 });
 
                 // for preventing infinity chat transfer
@@ -688,7 +689,14 @@ export default defineComponent({
 
             this.activityInterval.tenMinClient.interval = setInterval(() => {
                 console.log('inactive this chat');
-                // inactive this chat and clear this interval
+
+                this.socket.emit('ec_updated_socket_room_info', {
+                    chat_status: 'inactive',
+                    status_for: 'client',
+                });
+
+                this.chatActiveStatus = false;
+
                 clearInterval(this.activityInterval.tenMinClient.interval);
             }, this.activityInterval.tenMinClient.time);
         },
@@ -700,7 +708,12 @@ export default defineComponent({
 
             this.activityInterval.thirteenMinClient.interval = setInterval(() => {
                 console.log('close this chat');
-                // inactive this chat and clear this interval
+
+                this.socket.emit('ec_close_conversation', {
+                    conv_id: this.clientInitiateConvInfo.conv_id,
+                    closed_reason: 'due to inactivity',
+                });
+
                 clearInterval(this.activityInterval.threeMinAgent.interval);
                 clearInterval(this.activityInterval.tenMinClient.interval);
                 clearInterval(this.activityInterval.thirteenMinClient.interval);
