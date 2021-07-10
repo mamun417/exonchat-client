@@ -546,9 +546,34 @@ export default defineComponent({
             this.socket.on('ec_chat_transfer', (data: any) => {
                 new Audio('assets/sound/notification/notification-request-001.mp3').play();
 
+                let actions = [
+                    {
+                        icon: 'send',
+                        color: 'white',
+                        size: 'xs',
+                        handler: () => {
+                            window.router.push(`/chats/${data.conv_id}`);
+                        },
+                    },
+                ];
+
+                if (data.from === 'client') {
+                    actions.push({
+                        icon: 'clear',
+                        color: 'white',
+                        size: 'xs',
+                        handler: () => {
+                            //
+                        },
+                    });
+                }
+
                 this.$q.notify({
                     group: `${data.conv_id}_notify`,
-                    message: `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
+                    message:
+                        data.from === 'client'
+                            ? 'Chat transfer from client'
+                            : `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
                     caption: 'Click send button to open this conversation',
                     progress: true,
                     multiLine: true,
@@ -566,15 +591,6 @@ export default defineComponent({
                             size: 'xs',
                             handler: () => {
                                 window.router.push(`/chats/${data.conv_id}`);
-                            },
-                        },
-                        // only for client
-                        {
-                            icon: 'send',
-                            color: 'white',
-                            size: 'xs',
-                            handler: () => {
-                                //
                             },
                         },
                     ],
@@ -664,7 +680,7 @@ export default defineComponent({
         // if you need to load avatars everywhere then watch conversation n use same way in the layout template
         conversations: {
             handler: async function () {
-                console.log('conversations watcher started');
+                // console.log('conversations watcher started');
 
                 if (this.usersAvatarLoading) return;
 

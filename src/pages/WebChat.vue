@@ -48,7 +48,6 @@
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
-                        <button @click="startActivityAllInterVal">Ok</button>
                         <pre>{{ activityInterval }}</pre>
                         <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id">
                             <template v-slot:scroll-area-top-section>
@@ -198,11 +197,10 @@ export default defineComponent({
     },
     data(): any {
         return {
-            test: {},
             activityInterval: {
                 threeMinAgent: {
                     interval: '',
-                    time: 50000,
+                    time: 40000,
                 },
                 tenMinClient: {
                     interval: '',
@@ -210,7 +208,7 @@ export default defineComponent({
                 },
                 thirteenMinClient: {
                     interval: '',
-                    time: 70000,
+                    time: 100000,
                 },
             },
             closeChatModal: false,
@@ -493,8 +491,6 @@ export default defineComponent({
                 const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
 
                 if (res.status === 'success') {
-                    this.startActivityAllInterVal();
-
                     if (!clientInitiateConvInfo) {
                         await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
                     } else {
@@ -662,19 +658,24 @@ export default defineComponent({
         threeMinAgentInterval() {
             clearInterval(this.activityInterval.threeMinAgent.interval);
 
-            console.log('agentActivityCheckForThreeMin start');
-
             this.activityInterval.threeMinAgent.interval = setInterval(() => {
                 console.log('transfer chat to other agent');
 
-                // notify_except: if_from_client[ses_ids], client_info: client_socket_ses_obj, reason: transfer_reason
+                const sesIds = this.conversationInfo.sessions.map((convSes: any) => convSes.id);
 
-                // this.socket.emit('ec_chat_transfer', {
-                //     conv_id: this.conv_id,
-                //     notify_except: agent.socket_sessions[0].id,
-                //     client_info: agent,
-                //     reason: 'interval transfer testing',
-                // });
+                const clientSocketSes = this.conversationInfo.sessions.find(
+                    (convSes: any) => convSes.socket_session.use_for === 'client'
+                ).socket_session;
+
+                this.socket.emit('ec_chat_transfer', {
+                    conv_id: this.clientInitiateConvInfo.conv_id,
+                    // notify_except: sesIds,
+                    client_info: clientSocketSes,
+                    reason: 'interval transfer testing',
+                });
+
+                // for preventing infinity chat transfer
+                localStorage.setItem('ec_intvl_ct', 'true');
 
                 clearInterval(this.activityInterval.threeMinAgent.interval);
             }, this.activityInterval.threeMinAgent.time);
@@ -700,14 +701,17 @@ export default defineComponent({
             this.activityInterval.thirteenMinClient.interval = setInterval(() => {
                 console.log('close this chat');
                 // inactive this chat and clear this interval
+                clearInterval(this.activityInterval.threeMinAgent.interval);
+                clearInterval(this.activityInterval.tenMinClient.interval);
                 clearInterval(this.activityInterval.thirteenMinClient.interval);
             }, this.activityInterval.thirteenMinClient.time);
         },
 
+        // its work when page reload
         calculateIntervalRestOfDuration() {
             const clientConv = this.conversations[this.clientInitiateConvInfo.conv_id];
 
-            if (clientConv?.id) {
+            if (clientConv?.id && !clientConv.closed_at) {
                 const joinedConvSes = clientConv.sessions.filter(
                     (convSession: any) => !convSession.left_at && convSession.socket_session.user_id
                 );
@@ -721,12 +725,16 @@ export default defineComponent({
                     Object.keys(intervals).forEach((type: any) => {
                         intervals[type].forEach((interval: any) => {
                             if (!this.activityInterval[interval].interval) {
-                                this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
-                                    type,
-                                    clientConv,
-                                    this.activityInterval[interval].time,
-                                    joinedConvSes
-                                );
+                                if (
+                                    interval !== 'threeMinAgent' ||
+                                    (interval === 'threeMinAgent' && localStorage.getItem('ec_intvl_ct') !== 'true')
+                                )
+                                    this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
+                                        type,
+                                        clientConv,
+                                        this.activityInterval[interval].time,
+                                        joinedConvSes
+                                    );
 
                                 this[`${interval}Interval`]();
                             }
