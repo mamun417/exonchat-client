@@ -102,7 +102,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             // not destructuring convInfo. decision for later
             closed_at: convInfo.closed_at,
             closed_by_id: convInfo.closed_by_id,
-            // sessions: convInfo.conversation_sessions, // not sending now
+            sessions: convInfo.conversation_sessions, // not sending now
             caller: 'updateConvStateToClosed',
         });
     },
