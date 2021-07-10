@@ -63,6 +63,7 @@
                             </template>
 
                             <template v-slot:scroll-area-last-section>
+                                <div v-if="!chatActiveStatus">Chat is idle due to 10 minutes of inactivity</div>
                                 <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-p-5">
                                     <chat-rating-form />
                                 </div>
@@ -184,6 +185,7 @@ import io from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
 import ChatRatingForm from 'components/common/ChatRatingForm.vue';
+import moment from 'moment';
 
 declare global {
     interface Window {
@@ -201,6 +203,21 @@ export default defineComponent({
     },
     data(): any {
         return {
+            chatActiveStatus: true,
+            activityInterval: {
+                threeMinAgent: {
+                    interval: '',
+                    time: 1000 * 60 * 3,
+                },
+                tenMinClient: {
+                    interval: '',
+                    time: 1000 * 60 * 10,
+                },
+                thirteenMinClient: {
+                    interval: '',
+                    time: 1000 * 60 * 30,
+                },
+            },
             closeChatModal: false,
             allCheck: false,
             api_key: null,
@@ -283,8 +300,8 @@ export default defineComponent({
             return this.$store.getters['chat/conversationInfo'](this.clientInitiateConvInfo.conv_id);
         },
 
-        me() {
-            return localStorage.getItem('me');
+        conversationMessages(): any {
+            return this.$store.getters['chat/conversationMessages'](this.clientInitiateConvInfo.conv_id);
         },
     },
 
@@ -444,6 +461,8 @@ export default defineComponent({
                 res.socket_event = 'ec_msg_from_user';
                 res.caller_page = 'web-chat';
 
+                this.threeMinAgentInterval();
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 // console.log('from ec_msg_from_user', res);
@@ -462,6 +481,9 @@ export default defineComponent({
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', (res: any) => {
+                this.tenMinClientInterval();
+                this.thirteenMinClientInterval();
+
                 this.$store.dispatch('chat/storeMessage', res);
 
                 // console.log('from ec_msg_to_client', res);
@@ -639,6 +661,135 @@ export default defineComponent({
 
             this.closeChatModal = false;
         },
+
+        threeMinAgentInterval() {
+            clearInterval(this.activityInterval.threeMinAgent.interval);
+
+            this.activityInterval.threeMinAgent.interval = setInterval(() => {
+                console.log('transfer chat to other agent');
+
+                const sesIds = this.conversationInfo.sessions.map((convSes: any) => convSes.id);
+
+                const clientSocketSes = this.conversationInfo.sessions.find(
+                    (convSes: any) => convSes.socket_session.use_for === 'client'
+                ).socket_session;
+
+                this.socket.emit('ec_chat_transfer', {
+                    conv_id: this.clientInitiateConvInfo.conv_id,
+                    notify_except: sesIds,
+                    client_info: clientSocketSes,
+                    reason: 'Chat transferred due to agent inactivity',
+                });
+
+                // for preventing infinity chat transfer
+                localStorage.setItem('ec_intvl_ct', 'true');
+
+                clearInterval(this.activityInterval.threeMinAgent.interval);
+            }, this.activityInterval.threeMinAgent.time);
+        },
+
+        tenMinClientInterval() {
+            clearInterval(this.activityInterval.tenMinClient.interval);
+
+            console.log('tenMinClientInterval start');
+
+            this.activityInterval.tenMinClient.interval = setInterval(() => {
+                console.log('inactive this chat');
+
+                this.socket.emit('ec_updated_socket_room_info', {
+                    chat_status: 'inactive',
+                    status_for: 'client',
+                });
+
+                this.chatActiveStatus = false;
+
+                clearInterval(this.activityInterval.tenMinClient.interval);
+            }, this.activityInterval.tenMinClient.time);
+        },
+
+        thirteenMinClientInterval() {
+            clearInterval(this.activityInterval.thirteenMinClient.interval);
+
+            console.log('thirteenMinClientInterval start');
+
+            this.activityInterval.thirteenMinClient.interval = setInterval(() => {
+                console.log('close this chat');
+
+                this.socket.emit('ec_close_conversation', {
+                    conv_id: this.clientInitiateConvInfo.conv_id,
+                    closed_reason: 'due to inactivity',
+                });
+
+                clearInterval(this.activityInterval.threeMinAgent.interval);
+                clearInterval(this.activityInterval.tenMinClient.interval);
+                clearInterval(this.activityInterval.thirteenMinClient.interval);
+            }, this.activityInterval.thirteenMinClient.time);
+        },
+
+        // its work when page reload
+        calculateIntervalRestOfDuration() {
+            const clientConv = this.conversations[this.clientInitiateConvInfo.conv_id];
+
+            if (clientConv?.id && !clientConv.closed_at) {
+                const joinedConvSes = clientConv.sessions.filter(
+                    (convSession: any) => !convSession.left_at && convSession.socket_session.user_id
+                );
+
+                if (joinedConvSes.length) {
+                    const intervals: any = {
+                        agent: ['threeMinAgent'],
+                        client: ['tenMinClient', 'thirteenMinClient'],
+                    };
+
+                    Object.keys(intervals).forEach((type: any) => {
+                        intervals[type].forEach((interval: any) => {
+                            if (!this.activityInterval[interval].interval) {
+                                if (
+                                    interval !== 'threeMinAgent' ||
+                                    (interval === 'threeMinAgent' && localStorage.getItem('ec_intvl_ct') !== 'true')
+                                )
+                                    this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
+                                        type,
+                                        clientConv,
+                                        this.activityInterval[interval].time,
+                                        joinedConvSes
+                                    );
+
+                                this[`${interval}Interval`]();
+                            }
+                        });
+                    });
+                }
+            }
+        },
+
+        getRestOfDurationOfInterval(type: any, clientConv: any, activityTime: any, joinedConvSes: any) {
+            const mySocketSesId = this.$helpers.getMySocketSessionId('client');
+
+            const messages: any = Object.values(this.conversationMessages).filter((message: any) => {
+                if (type === 'agent') {
+                    return message.socket_session_id !== mySocketSesId;
+                } else {
+                    return message.socket_session_id === mySocketSesId;
+                }
+            });
+
+            let lastActivity: any = '';
+
+            if (!messages) {
+                lastActivity = this.$_.sortBy(joinedConvSes, [
+                    (convSes: any) => moment(convSes.joined_at).format('x'),
+                ]).reverse()[0].joined_at;
+            } else {
+                lastActivity = this.$_.sortBy(messages, [
+                    (message: any) => moment(message.created_at).format('x'),
+                ]).reverse()[0].created_at;
+            }
+
+            const timerLeftDuration = moment().diff(lastActivity, 'milliseconds');
+
+            return activityTime - timerLeftDuration;
+        },
     },
 
     unmounted() {
@@ -655,6 +806,9 @@ export default defineComponent({
         conversations: {
             handler: async function () {
                 // console.log('conversations watcher started');
+
+                this.calculateIntervalRestOfDuration();
+
                 if (this.usersAvatarLoading) return;
 
                 this.usersAvatarLoading = true;
