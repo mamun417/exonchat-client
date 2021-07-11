@@ -738,7 +738,7 @@ export default defineComponent({
 
     unmounted() {
         //its safe then sorry
-        console.log('calling unmounted from main layout');
+        // console.log('calling unmounted from main layout');
 
         const dom = document.getElementById('exhonchat-container');
 

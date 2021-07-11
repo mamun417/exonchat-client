@@ -1,6 +1,6 @@
 <template>
     <q-scroll-area
-        @scroll="handleScroll"
+        @scroll="scrollInfo = $event"
         ref="msgScrollArea"
         class="tw-px-3 tw-flex-grow tw-text-xs"
         style="height: 1px"
@@ -183,11 +183,11 @@
                     round
                 /> -->
 
-        <slot name="scroll-area-last-section">
-            <div v-if="!conversationInfo.users_only && !chatActiveStatus">
-                Chat is idle due to 10 minutes of inactivity
-            </div>
-        </slot>
+                <slot name="scroll-area-last-section">
+                    <div v-if="!conversationInfo.users_only && !chatActiveStatus">
+                        Chat is idle due to 10 minutes of inactivity
+                    </div>
+                </slot>
             </template>
 
             <template v-slot:loading>
@@ -413,7 +413,10 @@ export default defineComponent({
             chatActiveStatus: true,
             uid: new Date().getTime().toString(), // user convid insted. not from url
 
+            firstTimeMessageLoaded: false,
             gettingNewMessages: false, // we could also use conv's loading state but it's will be a disaster here
+            newMessagesMayBeLoaded: false,
+            canCallMessageApi: true,
 
             convId: '',
             confirm: false,
@@ -442,8 +445,10 @@ export default defineComponent({
 
             usersAvatarLoading: false,
 
+            scrollInfo: {},
+            scrollCheckInterval: null,
+
             scrollbarCanHandleScrollEvent: false,
-            canLoadNewMessage: true,
 
             lastTopVerticalPosition: 0,
         };
@@ -523,7 +528,7 @@ export default defineComponent({
         },
 
         showSendMessageInput(): any {
-            console.log(this.conversationStatusForMe);
+            // console.log(this.conversationStatusForMe);
 
             return this.conversationStatusForMe === 'joined' || this.isAgentToAgentConversation;
         },
@@ -620,6 +625,7 @@ export default defineComponent({
         },
 
         handleInfiniteScrollLoad(index: any, done: any) {
+            console.log('handleInfiniteScrollLoad');
             // it's calling only first time by load event
             // immediately we call done so that spam turns off.
             // keep in mind after done(true) scroll won't trigger without resume call
@@ -645,12 +651,14 @@ export default defineComponent({
                         convId: this.conv_id,
                     })
                     .then((res: any) => {
+                        // console.log({ res });
                         if (!res.data.conversation.data.messages?.length) {
                             // if no data turn off new msg load
-                            this.canLoadNewMessage = false;
+                            this.canCallMessageApi = false;
                         }
                     })
                     .finally(() => {
+                        this.firstTimeMessageLoaded = true;
                         this.gettingNewMessages = false;
                     });
             }
@@ -844,7 +852,7 @@ export default defineComponent({
         chatTemplateSearchHandle(e: any) {
             if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) return;
 
-            console.log(e.target.value);
+            // console.log(e.target.value);
 
             clearTimeout(this.getChatTemplateTimer);
             this.getChatTemplateTimer = setTimeout(() => {
@@ -871,7 +879,7 @@ export default defineComponent({
                 return false;
             }
 
-            console.log('sending the msg');
+            // console.log('sending the msg');
 
             const dynamicBody =
                 this.chatPanelType === 'user'
@@ -891,38 +899,89 @@ export default defineComponent({
             this.finalAttachments = [];
         },
 
-        async handleScroll(info: any) {
-            if (!this.scrollbarCanHandleScrollEvent) return;
-            // after that we can handle scroll event
+        handleScroll() {
+            if (this.conversationInfo.scroll_info?.last_position === this.scrollInfo.verticalPercentage) {
+                if (this.scrollInfo.verticalSize === this.scrollInfo.verticalContainerSize) {
+                    if (this.canCallMessageApi && this.$refs.myInfiniteScrollArea) {
+                        this.$refs.myInfiniteScrollArea.resume();
+                        this.$refs.myInfiniteScrollArea.trigger();
 
-            console.log('scroll fired', info);
+                        this.scrollToPosition(1); // scrollToBottom
 
-            const verticalPercentage = info.verticalPercentage;
+                        this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                            conv_id: this.conv_id,
+                            auto_scroll_to_bottom: true,
+                            last_position: 1,
+                        });
+                    }
 
-            this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
+                    if (this.newMessagesMayBeLoaded) {
+                        this.updateLastMsgSeenTime();
 
-            // get next page messages (pagination)
-            const topScrolling = this.lastTopVerticalPosition > info.verticalPosition;
-            this.lastTopVerticalPosition = info.verticalPosition;
-
-            await this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
-                conv_id: this.conv_id,
-                auto_scroll_to_bottom: verticalPercentage === 1,
-                last_position: verticalPercentage,
-            });
-
-            if (topScrolling && verticalPercentage < 0.025) {
-                if (this.canLoadNewMessage) {
-                    // if we can then resume and trigger which will fire the load event
-                    this.$refs.myInfiniteScrollArea.resume();
-                    this.$refs.myInfiniteScrollArea.trigger();
+                        this.newMessagesMayBeLoaded = false;
+                    }
                 }
+                return;
             }
 
-            // handle last seen message date-time
-            if (verticalPercentage === 1 && this.chatPanelType === 'user') {
-                await this.updateLastMsgSeenTime();
+            // console.log(this.scrollInfo);
+            const verticalPercentage = this.scrollInfo.verticalPercentage;
+
+            if (this.conversationInfo.hasOwnProperty('scroll_info') && !this.newMessagesMayBeLoaded) {
+                this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
+
+                const topScrolling = this.lastTopVerticalPosition > this.scrollInfo.verticalPosition;
+                this.lastTopVerticalPosition = this.scrollInfo.verticalPosition;
+
+                if (topScrolling && verticalPercentage < 0.025) {
+                    if (this.canCallMessageApi) {
+                        // if we can then resume and trigger which will fire the load event
+                        this.$refs.myInfiniteScrollArea.resume();
+                        this.$refs.myInfiniteScrollArea.trigger();
+                    }
+                }
+
+                this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                    conv_id: this.conv_id,
+                    auto_scroll_to_bottom: verticalPercentage === 1,
+                    last_position: verticalPercentage,
+                });
             }
+
+            if (
+                !this.conversationInfo.hasOwnProperty('scroll_info') ||
+                (this.conversationInfo.scroll_info?.last_position === 1 &&
+                    this.conversationInfo.scroll_info?.auto_scroll_to_bottom)
+            ) {
+                this.scrollToPosition(1); // scrollToBottom
+
+                this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                    conv_id: this.conv_id,
+                    auto_scroll_to_bottom: true,
+                    last_position: 1,
+                });
+
+                if (
+                    this.chatPanelType === 'user'
+                    // && this.newMessagesMayBeLoaded
+                ) {
+                    this.updateLastMsgSeenTime();
+                    this.newMessagesMayBeLoaded = false;
+                }
+                return;
+            }
+
+            if (
+                this.scrollInfo.verticalPercentage === 1 &&
+                this.chatPanelType === 'user'
+                // &&
+                // this.newMessagesMayBeLoaded
+            ) {
+                this.updateLastMsgSeenTime();
+                // this.newMessagesMayBeLoaded = false;
+            }
+
+            this.newMessagesMayBeLoaded = false;
         },
 
         scrollToPosition(position = 1) {
@@ -952,7 +1011,7 @@ export default defineComponent({
                     this.$socketSessionApi
                         .post('attachments', formData)
                         .then((res: any) => {
-                            console.log(res.data);
+                            // console.log(res.data);
                             const attachment = res.data.data[0];
 
                             const afterPushedFinalAttachmentIndex = _l.findIndex(this.finalAttachments, {
@@ -1016,7 +1075,7 @@ export default defineComponent({
         },
 
         async handleAttachmentLoading() {
-            console.log('called handle attch loader');
+            // console.log('called handle attch loader');
 
             if (!Object.keys(this.conversationMessages).length) return;
 
@@ -1085,7 +1144,9 @@ export default defineComponent({
         conv_id: {
             handler: function () {
                 if (this.conv_id && !this.conversationInfo.hasOwnProperty('pagination_meta')) {
-                    // this.getNewMessages();
+                    // if (this.$refs.myInfiniteScrollArea) {
+                    //     this.$refs.myInfiniteScrollArea.load();
+                    // }
                 }
             },
             immediate: true,
@@ -1093,31 +1154,39 @@ export default defineComponent({
 
         conversationMessages: {
             handler: function () {
-                setTimeout(() => {
-                    if (this.conversationMessages) {
-                        // this if is only for first time scroll to bottom
-                        if (
-                            !this.conversationInfo.hasOwnProperty('scroll_info') ||
-                            this.conversationInfo.scroll_info?.auto_scroll_to_bottom
-                        ) {
-                            this.scrollToPosition(1); // scrollToBottom
+                // in the future, we can fine tune this by checking old & new val
+                this.newMessagesMayBeLoaded = true;
 
-                            this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
-                                conv_id: this.conv_id,
-                                auto_scroll_to_bottom: true,
-                                last_position: 1,
-                            });
-                        }
+                if (!this.scrollCheckInterval) {
+                    // this.handleScroll();
+                    this.scrollCheckInterval = setInterval(() => this.handleScroll(), 500);
+                }
 
-                        if (
-                            this.conversationInfo.hasOwnProperty('scroll_info') &&
-                            this.conversationInfo.scroll_info.hasOwnProperty('last_position') &&
-                            !this.conversationInfo.scroll_info?.auto_scroll_to_bottom
-                        ) {
-                            this.scrollToPosition(this.conversationInfo.scroll_info.last_position);
-                        }
-                    }
-                }, 500);
+                // setTimeout(() => {
+                //     if (this.conversationMessages) {
+                //         // this if is only for first time scroll to bottom
+                //         if (
+                //             !this.conversationInfo.hasOwnProperty('scroll_info') ||
+                //             this.conversationInfo.scroll_info?.auto_scroll_to_bottom
+                //         ) {
+                //             this.scrollToPosition(1); // scrollToBottom
+                //
+                //             this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                //                 conv_id: this.conv_id,
+                //                 auto_scroll_to_bottom: true,
+                //                 last_position: 1,
+                //             });
+                //         }
+                //
+                //         if (
+                //             this.conversationInfo.hasOwnProperty('scroll_info') &&
+                //             this.conversationInfo.scroll_info.hasOwnProperty('last_position') &&
+                //             !this.conversationInfo.scroll_info?.auto_scroll_to_bottom
+                //         ) {
+                //             this.scrollToPosition(this.conversationInfo.scroll_info.last_position);
+                //         }
+                //     }
+                // }, 500);
 
                 this.handleAttachmentLoading();
             },
@@ -1137,6 +1206,16 @@ export default defineComponent({
             },
             deep: true,
         },
+    },
+
+    unmounted() {
+        this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+            conv_id: this.conv_id,
+            auto_scroll_to_bottom: true,
+            last_position: 1,
+        });
+
+        clearInterval(this.scrollCheckInterval);
     },
 });
 </script>
