@@ -183,11 +183,14 @@
                     round
                 /> -->
 
-        <slot name="scroll-area-last-section">
-            <div v-if="!conversationInfo.users_only && !chatActiveStatus">
-                Chat is idle due to 10 minutes of inactivity
-            </div>
-        </slot>
+                <slot name="scroll-area-last-section">
+                    <div
+                        class="text-center"
+                        v-if="!conversationInfo.closed_at && !conversationInfo.users_only && !chatActiveStatus"
+                    >
+                        Chat is idle due to 10 minutes of inactivity
+                    </div>
+                </slot>
             </template>
 
             <template v-slot:loading>
@@ -410,6 +413,7 @@ export default defineComponent({
 
     data(): any {
         return {
+            ecGetClientSesIdStatusInterval: '',
             chatActiveStatus: true,
             uid: new Date().getTime().toString(), // user convid insted. not from url
 
@@ -456,6 +460,11 @@ export default defineComponent({
 
         this.fireSocketListeners();
         this.emitSocketEvents();
+    },
+
+    beforeUnmount() {
+        clearInterval(this.ecGetClientSesIdStatusInterval);
+        this.$socket.removeEventListener('ec_get_client_ses_id_status_res');
     },
 
     computed: {
@@ -594,21 +603,15 @@ export default defineComponent({
 
             return speakingWithInfo;
         },
+
+        ecGetClientSesIdStatusWatch(): any {
+            return [this.conv_id, this.conversationWithUsersInfo];
+        },
     },
 
     methods: {
         emitSocketEvents() {
-            if (this.chatPanelType === 'agent') {
-                this.$socket.emit('ec_get_client_ses_id_status', {
-                    client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
-                });
-
-                setInterval(() => {
-                    this.$socket.emit('ec_get_client_ses_id_status', {
-                        client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
-                    });
-                }, 10000);
-            }
+            //
         },
 
         fireSocketListeners() {
@@ -617,6 +620,21 @@ export default defineComponent({
 
                 console.log('from ec_get_client_ses_id_status_res', res);
             });
+        },
+
+        ecGetClientSesIdStatusEvent() {
+            if (this.chatPanelType === 'user') {
+                this.$socket.emit('ec_get_client_ses_id_status', {
+                    client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
+                });
+
+                this.ecGetClientSesIdStatusInterval = setInterval(() => {
+                    console.log(this.ecGetClientSesIdStatusInterval);
+                    this.$socket.emit('ec_get_client_ses_id_status', {
+                        client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
+                    });
+                }, 5000);
+            }
         },
 
         handleInfiniteScrollLoad(index: any, done: any) {
@@ -1077,6 +1095,9 @@ export default defineComponent({
         conversationInfo: {
             handler: function () {
                 // console.log('conversationInfo watcher started');
+                if (this.conversationInfo.id && this.conversationInfo.closed_at) {
+                    clearInterval(this.ecGetClientSesIdStatusInterval);
+                }
             },
             deep: true,
             immediate: true,
@@ -1136,6 +1157,21 @@ export default defineComponent({
                 }
             },
             deep: true,
+        },
+
+        ecGetClientSesIdStatusWatch: {
+            handler: function () {
+                if (
+                    this.conversationInfo?.id &&
+                    !this.conversationInfo.closed_at &&
+                    this.conversationWithUsersInfo.length &&
+                    !this.ecGetClientSesIdStatusInterval
+                ) {
+                    this.ecGetClientSesIdStatusEvent();
+                }
+            },
+            deep: true,
+            immediate: true,
         },
     },
 });

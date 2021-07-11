@@ -63,7 +63,9 @@
                             </template>
 
                             <template v-slot:scroll-area-last-section>
-                                <div v-if="!chatActiveStatus">Chat is idle due to 10 minutes of inactivity</div>
+                                <div class="text-center" v-if="!conversationInfo.closed_at && !chatActiveStatus">
+                                    Chat is idle due to 10 minutes of inactivity
+                                </div>
                                 <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-p-5">
                                     <chat-rating-form />
                                 </div>
@@ -354,6 +356,7 @@ export default defineComponent({
             localStorage.removeItem('ec_client_socket_token');
             localStorage.removeItem('ec_client_socket_ses_id');
             localStorage.removeItem('showRatingForm');
+            localStorage.removeItem('ec_intvl_ct');
 
             this.clientInitiateConvInfo = {};
 
@@ -668,7 +671,7 @@ export default defineComponent({
             this.activityInterval.threeMinAgent.interval = setInterval(() => {
                 console.log('transfer chat to other agent');
 
-                const sesIds = this.conversationInfo.sessions.map((convSes: any) => convSes.id);
+                const sesIds = this.conversationInfo.sessions.map((convSes: any) => convSes.socket_session.id);
 
                 const clientSocketSes = this.conversationInfo.sessions.find(
                     (convSes: any) => convSes.socket_session.use_for === 'client'
@@ -776,7 +779,7 @@ export default defineComponent({
 
             let lastActivity: any = '';
 
-            if (!messages) {
+            if (!messages.length) {
                 lastActivity = this.$_.sortBy(joinedConvSes, [
                     (convSes: any) => moment(convSes.joined_at).format('x'),
                 ]).reverse()[0].joined_at;

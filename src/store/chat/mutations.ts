@@ -135,6 +135,10 @@ const mutation: MutationTree<ChatStateInterface> = {
                                 foundSes.left_at = session.left_at;
                             }
 
+                            if (session.closed_reason) {
+                                foundSes.closed_reason = session.closed_reason;
+                            }
+
                             // add other check & add for socket_session name update etc
                         } else {
                             state.conversations[convId].sessions.push(session);
