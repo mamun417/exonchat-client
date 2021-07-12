@@ -136,6 +136,18 @@ export const socketSessionApi = function (router: any) {
             return res;
         },
         (err) => {
+            if (_.isArray(err.response.data.message)) {
+                const msgObj: any = {};
+
+                err.response.data.message.forEach((singleMsg: string) => {
+                    const msgKey = singleMsg.split(' ')[0];
+
+                    msgObj[msgKey] = singleMsg;
+                });
+
+                err.response.data.message = msgObj;
+            }
+
             return Promise.reject(err);
         }
     );

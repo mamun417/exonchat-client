@@ -31,9 +31,9 @@
                     :flat="ratingForm.ratingTempValue"
                 />
 
-                <q-input v-model="ratingForm.comment" dense label="Your Comment" color="green" class="tw-py-3">
+                <q-input v-model="ratingForm.comment" dense label="Your Comment" color="blue-grey" class="tw-py-3">
                     <template v-slot:prepend>
-                        <q-icon name="insert_comment" size="xs" color="green" />
+                        <q-icon name="insert_comment" size="xs" color="blue-grey" />
                     </template>
                 </q-input>
 
@@ -41,7 +41,7 @@
                     @click="submitRating"
                     :disable="ratingForm.ratingTempValue === ''"
                     dense
-                    color="green"
+                    color="blue-grey"
                     class="full-width tw-my-2"
                     no-caps
                     unelevated

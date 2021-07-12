@@ -1,5 +1,16 @@
 <template>
     <q-page v-if="allCheck" class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
+        <div v-show="!panelVisibleStatus">
+            <q-btn
+                icon="forum"
+                size="18px"
+                color="blue-grey"
+                @click="toggleChatPanel(true)"
+                class="tw-fixed tw-right-1 tw-bottom-1"
+                round
+            />
+        </div>
+
         <div
             v-show="panelVisibleStatus"
             class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
@@ -8,7 +19,10 @@
                 <div
                     class="bg-blue-grey text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
                 >
-                    <div>Chat With Us</div>
+                    <div>
+                        Chat With Us
+                        <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />
+                    </div>
                     <q-space></q-space>
 
                     <q-btn
@@ -35,8 +49,13 @@
                                 <div class="tw-text-md tw-text-center">Are you sure you want to close chat?</div>
                             </q-card-section>
                             <q-card-actions align="center">
-                                <q-btn @click="closeChat" color="green" label="Yes" style="width: 70px" />
-                                <q-btn @click="closeChatModal = false" color="green" label="No" style="width: 70px" />
+                                <q-btn @click="closeChat" color="blue-grey" label="Yes" style="width: 70px" />
+                                <q-btn
+                                    @click="closeChatModal = false"
+                                    color="blue-grey"
+                                    label="No"
+                                    style="width: 70px"
+                                />
                             </q-card-actions>
                         </q-card>
                     </div>
@@ -76,7 +95,7 @@
                             v-if="conversationInfo.closed_at"
                             @click="clearSession"
                             dense
-                            color="green"
+                            color="blue-grey"
                             class="tw-mb-4 tw-mx-5"
                             no-caps
                         >
@@ -93,59 +112,140 @@
 
                     <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
                         <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
-                            <div class="tw-px-4 tw-py-16">
-                                <q-input
-                                    v-model="convInitFields.name"
-                                    dense
-                                    label="Your Name"
-                                    color="blue-grey"
-                                    class="tw-mb-3"
-                                >
-                                    <template v-slot:prepend>
-                                        <q-icon name="person" size="xs" color="blue-grey" />
-                                    </template>
-                                </q-input>
-                                <q-input
-                                    v-model="convInitFields.email"
-                                    dense
-                                    color="blue-grey"
-                                    class="tw-mb-3"
-                                    label="Your Email"
-                                    type="email"
-                                >
-                                    <template v-slot:prepend>
-                                        <q-icon name="email" size="xs" color="blue-grey" />
-                                    </template>
-                                </q-input>
+                            <div class="tw-px-4 tw-py-10">
+                                <div v-if="successSubmitOfflineChatReq">
+                                    Ticket has been successfully submitted. Our agents will reply you when they are
+                                    online.
+                                    <q-btn
+                                        dense
+                                        color="blue-grey"
+                                        class="full-width tw-mt-6"
+                                        @click="clearSession"
+                                        no-caps
+                                    >
+                                        Start New Chat
+                                    </q-btn>
+                                </div>
 
-                                <q-select
-                                    v-model="convInitFields.department"
-                                    :options="chatDepartments"
-                                    @update:model-value="
-                                        convInitFields.department_tag = $_.find(chatDepartments, ['id', $event]).tag
-                                    "
-                                    option-value="id"
-                                    option-label="tag"
-                                    label="Chat Department"
-                                    class="tw-mb-3"
-                                    color="blue-grey"
-                                    emit-value
-                                    map-options
-                                    dense
-                                >
-                                    <template v-slot:prepend>
-                                        <q-icon name="person" size="xs" color="blue-grey" />
-                                    </template>
-                                </q-select>
+                                <div v-else>
+                                    <q-input
+                                        v-model="convInitFields.name"
+                                        :error-message="convInitFieldsErrors.name"
+                                        :error="!!convInitFieldsErrors.name"
+                                        @update:model-value="convInitFieldsErrors.name = ''"
+                                        hide-bottom-space
+                                        dense
+                                        label="Your Name"
+                                        color="blue-grey"
+                                        class="tw-mb-3"
+                                    >
+                                        <template v-slot:prepend>
+                                            <q-icon name="person" size="xs" color="blue-grey" />
+                                        </template>
+                                    </q-input>
 
-                                <q-btn
-                                    dense
-                                    color="blue-grey"
-                                    class="full-width tw-mt-6"
-                                    @click="chatInitialize"
-                                    no-caps
-                                    >Start Chat as Guest
-                                </q-btn>
+                                    <q-input
+                                        v-model="convInitFields.email"
+                                        :error-message="convInitFieldsErrors.email"
+                                        :error="!!convInitFieldsErrors.email"
+                                        @update:model-value="convInitFieldsErrors.email = ''"
+                                        hide-bottom-space
+                                        dense
+                                        color="blue-grey"
+                                        class="tw-mb-3"
+                                        label="Your Email"
+                                        type="email"
+                                    >
+                                        <template v-slot:prepend>
+                                            <q-icon name="email" size="xs" color="blue-grey" />
+                                        </template>
+                                    </q-input>
+
+                                    <q-select
+                                        v-model="convInitFields.department"
+                                        :options="chatDepartments"
+                                        @update:model-value="
+                                            convInitFields.department_tag = $_.find(chatDepartments, [
+                                                'id',
+                                                $event,
+                                            ]).tag;
+                                            convInitFieldsErrors.chat_department_id = '';
+                                            departmentAgentsOffline = false;
+                                        "
+                                        :error-message="convInitFieldsErrors.chat_department_id"
+                                        :error="!!convInitFieldsErrors.chat_department_id"
+                                        hide-bottom-space
+                                        option-value="id"
+                                        option-label="tag"
+                                        label="Chat Department"
+                                        class="tw-mb-3"
+                                        color="blue-grey"
+                                        emit-value
+                                        map-options
+                                        dense
+                                    >
+                                        <template v-slot:prepend>
+                                            <q-icon name="person" size="xs" color="blue-grey" />
+                                        </template>
+                                    </q-select>
+
+                                    <div v-if="departmentAgentsOffline">
+                                        <q-input
+                                            v-model="convInitFields.subject"
+                                            :error-message="convInitFieldsErrors.subject"
+                                            :error="!!convInitFieldsErrors.subject"
+                                            @update:model-value="convInitFieldsErrors.subject = ''"
+                                            hide-bottom-space
+                                            dense
+                                            label="Your Subject"
+                                            color="blue-grey"
+                                            class="tw-mb-3"
+                                        >
+                                            <template v-slot:prepend>
+                                                <q-icon name="subject" size="xs" color="blue-grey" />
+                                            </template>
+                                        </q-input>
+
+                                        <q-input
+                                            v-model="convInitFields.message"
+                                            :error-message="convInitFieldsErrors.message"
+                                            :error="!!convInitFieldsErrors.message"
+                                            @update:model-value="convInitFieldsErrors.message = ''"
+                                            hide-bottom-space
+                                            dense
+                                            label="Your Message"
+                                            color="blue-grey"
+                                            class="tw-mb-3"
+                                            autogrow
+                                        >
+                                            <template v-slot:prepend>
+                                                <q-icon name="textsms" size="xs" color="blue-grey" />
+                                            </template>
+                                        </q-input>
+
+                                        <q-btn
+                                            dense
+                                            color="blue-grey"
+                                            class="full-width tw-mt-6"
+                                            @click="submitOfflineChatReq"
+                                            no-caps
+                                            >Submit Ticket
+                                        </q-btn>
+                                        <div class="tw-text-xxs tw-mt-1">
+                                            <div>Note: Our agents will resolve your issue when they are online.</div>
+                                        </div>
+                                    </div>
+
+                                    <q-btn
+                                        v-else
+                                        dense
+                                        color="blue-grey"
+                                        class="full-width tw-mt-6"
+                                        @click="chatInitialize"
+                                        no-caps
+                                        >Start Chat as Guest
+                                    </q-btn>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,16 +267,6 @@
                 </div>
                 <div class="text-center">powered by <b>Exonhost</b></div>
             </div>
-        </div>
-        <div v-show="!panelVisibleStatus">
-            <q-btn
-                icon="forum"
-                size="md"
-                color="blue-grey"
-                @click="toggleChatPanel(true)"
-                class="tw-fixed tw-right-1 tw-bottom-1"
-                round
-            />
         </div>
     </q-page>
 </template>
@@ -205,6 +295,7 @@ export default defineComponent({
     },
     data(): any {
         return {
+            develop: false,
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
@@ -224,35 +315,32 @@ export default defineComponent({
             allCheck: false,
             api_key: null,
             hasApiKey: false,
-
             panelVisibleStatus: !!window.localStorage.getItem('chat_panel_visible'),
-
             socket: null,
             socketId: null,
-
             sesId: null,
-
             showChatForm: false,
             userLogged: false,
-
             chatDepartments: [],
             convInitFields: {
                 name: '',
                 email: '',
                 department: '',
                 department_tag: '',
+                subject: '',
+                message: '',
             },
-
+            convInitFieldsErrors: {},
             msg: '',
-
             pageInFocus: false,
             pageNotInFocusEmitted: false,
-
             typingHandler: {
                 typing: false,
             },
             pageVisitingHandler: null,
             gotoBottomBtnShow: false,
+            departmentAgentsOffline: false,
+            successSubmitOfflineChatReq: localStorage.getItem('success_submit_offline_chat_req') || false,
         };
     },
 
@@ -342,7 +430,7 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: 'ec_minimize_panel',
-                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: 50px; height: 50px',
+                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: 60px; height: 60px',
                 },
                 '*'
             );
@@ -357,8 +445,9 @@ export default defineComponent({
             localStorage.removeItem('ec_client_socket_ses_id');
             localStorage.removeItem('showRatingForm');
             localStorage.removeItem('ec_intvl_ct');
+            localStorage.removeItem('success_submit_offline_chat_req');
 
-            this.clientInitiateConvInfo = {};
+            this.resetConvInitForm();
 
             location.reload();
         },
@@ -548,6 +637,8 @@ export default defineComponent({
                         progress: true,
                         message: res.reason.message ? res.reason.message : res.reason,
                     });
+
+                    this.departmentAgentsOffline = true;
                 }
                 // console.log('from ec_error', res);
             });
@@ -665,6 +756,37 @@ export default defineComponent({
             this.closeChatModal = false;
         },
 
+        submitOfflineChatReq() {
+            this.convInitFields.chat_department_id = this.convInitFields.department;
+
+            window.socketSessionApi
+                .post('offline-chat-request', this.convInitFields)
+                .then((res: any) => {
+                    console.log(res.data);
+                    this.successSubmitOfflineChatReq = true;
+                    localStorage.setItem('success_submit_offline_chat_req', 'true');
+                    this.resetConvInitForm();
+                })
+                .catch((err: any) => {
+                    this.submitOfflineChatReqErrorHandle(err);
+                });
+        },
+
+        submitOfflineChatReqErrorHandle(err: any) {
+            console.log(err.response.data.message);
+
+            if (this.$_.isObject(err.response.data.message)) {
+                this.convInitFieldsErrors = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
+        },
+
+        resetConvInitForm() {
+            this.convInitFields = {};
+            this.convInitFieldsErrors = {};
+        },
+
         threeMinAgentInterval() {
             clearInterval(this.activityInterval.threeMinAgent.interval);
 
@@ -689,6 +811,10 @@ export default defineComponent({
 
                 clearInterval(this.activityInterval.threeMinAgent.interval);
             }, this.activityInterval.threeMinAgent.time);
+        },
+
+        reload() {
+            location.reload();
         },
 
         tenMinClientInterval() {
