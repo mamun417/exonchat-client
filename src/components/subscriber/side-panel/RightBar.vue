@@ -3,7 +3,7 @@
         <slot name="extra"></slot>
 
         <template v-if="rightBarState.mode === 'conversation'">
-            <messages-top-section :conv_id="rightBarState.conv_id" :mini_mode="true" />
+            <messages-top-section :conv_id="rightBarState.conv_id" :mini_mode="true" class="tw-mb-3" />
             <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true"></message>
         </template>
 

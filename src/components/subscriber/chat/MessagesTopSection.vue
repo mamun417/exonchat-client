@@ -1,6 +1,6 @@
 <template>
     <q-card class="tw-shadow-lg">
-        <q-card-section class="row no-wrap items-center" :class="{ 'tw-p-0': mini_mode }">
+        <q-card-section class="row no-wrap items-center tw-p-2" :class="{ 'tw-p-0': mini_mode }">
             <!--            <q-btn-->
             <!--                v-if="!mini_mode"-->
             <!--                icon="arrow_back"-->

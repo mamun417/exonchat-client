@@ -72,7 +72,9 @@
                         </template>
 
                         <div>
-                            <div :class="{ 'text-right': msgForRightSide(message) }">{{ message.msg }}</div>
+                            <div class="tw-text-sm" :class="{ 'text-right': msgForRightSide(message) }">
+                                {{ message.msg }}
+                            </div>
                             <div v-if="message.attachments && message.attachments.length" class="tw-my-3 tw-flex">
                                 <div
                                     v-for="(attachment, key) in message.attachments"
@@ -107,8 +109,13 @@
                         class="tw-mb-0"
                     >
                         <template v-slot:label>
-                            <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
-                                {{ getConvStateStatusMessage(message) }}
+                            <div
+                                class="tw-flex tw-justify-between tw-items-center"
+                                :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']"
+                            >
+                                <div class="tw-border-b-2 tw-flex-grow"></div>
+                                <div class="tw-px-2">{{ getConvStateStatusMessage(message) }}</div>
+                                <div class="tw-border-b-2 tw-flex-grow"></div>
                             </div>
                         </template>
                     </q-chat-message>
@@ -1133,7 +1140,6 @@ export default defineComponent({
 
         async updateLastMsgSeenTime() {
             console.log('update seen');
-            return;
             const lastMsgSeenTime = moment().format();
             const mySocketSesId = this.$helpers.getMySocketSessionId();
 
