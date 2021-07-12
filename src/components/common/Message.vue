@@ -196,6 +196,7 @@
                 </div>
             </template>
         </q-infinite-scroll>
+        <q-scroll-observer @scroll="sh" />
     </q-scroll-area>
 
     <div
@@ -455,6 +456,7 @@ export default defineComponent({
     },
 
     mounted() {
+        console.log('message mounted...');
         setInterval(() => {
             this.$forceUpdate();
         }, 30000);
@@ -602,6 +604,23 @@ export default defineComponent({
     },
 
     methods: {
+        sh(info: any) {
+            // console.log(info);
+            //
+            // if (info.direction === 'up' && info.position.top < 50) {
+            //     if (this.canCallMessageApi && !this.gettingNewMessages) {
+            //         console.log('call for new data');
+            //         // if we can then resume and trigger which will fire the load event
+            //         this.$refs.myInfiniteScrollArea.resume();
+            //         this.$refs.myInfiniteScrollArea.trigger();
+            //     }
+            // }
+            //         if (this.canCallMessageApi) {
+            //             // if we can then resume and trigger which will fire the load event
+            //             this.$refs.myInfiniteScrollArea.resume();
+            //             this.$refs.myInfiniteScrollArea.trigger();
+            //         }
+        },
         emitSocketEvents() {
             if (this.chatPanelType === 'agent') {
                 this.$socket.emit('ec_get_client_ses_id_status', {
@@ -615,7 +634,6 @@ export default defineComponent({
                 }, 10000);
             }
         },
-
         fireSocketListeners() {
             this.$socket.on('ec_get_client_ses_id_status_res', (res: any) => {
                 this.chatActiveStatus = res.status === 'active';
@@ -900,22 +918,15 @@ export default defineComponent({
         },
 
         handleScroll() {
+            // if both same don't do anything except unseen check
+            // verticalPercentage is 0 if small amount of msg, so it's false
             if (this.conversationInfo.scroll_info?.last_position === this.scrollInfo.verticalPercentage) {
-                if (this.scrollInfo.verticalSize === this.scrollInfo.verticalContainerSize) {
-                    if (this.canCallMessageApi && this.$refs.myInfiniteScrollArea) {
-                        this.$refs.myInfiniteScrollArea.resume();
-                        this.$refs.myInfiniteScrollArea.trigger();
+                //     // call msg unseen check then update
+                //     // cz if I load then go to other page & come back it won't call seen
+                if (this.scrollInfo.verticalPercentage === 1) {
+                    if (this.newMessagesMayBeLoaded && this.chatPanelType === 'user') {
+                        this.scrollToPosition(1);
 
-                        this.scrollToPosition(1); // scrollToBottom
-
-                        this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
-                            conv_id: this.conv_id,
-                            auto_scroll_to_bottom: true,
-                            last_position: 1,
-                        });
-                    }
-
-                    if (this.newMessagesMayBeLoaded) {
                         this.updateLastMsgSeenTime();
 
                         this.newMessagesMayBeLoaded = false;
@@ -923,18 +934,42 @@ export default defineComponent({
                 }
                 return;
             }
+            // if a cov has no msg then it will fire
+            // that time we are loading until scrollbar appears or no more msg
+            // verticalPercentage is 0 if small amount of msg
+            if (
+                this.scrollInfo.verticalSize === this.scrollInfo.verticalContainerSize &&
+                this.scrollInfo.verticalPercentage === 0
+            ) {
+                // get new messages until scrollbar appear or no msg
+                if (this.canCallMessageApi && this.$refs.myInfiniteScrollArea) {
+                    this.$refs.myInfiniteScrollArea.resume();
+                    this.$refs.myInfiniteScrollArea.trigger();
+                }
+
+                // only call seen if new msg appears
+                if (this.newMessagesMayBeLoaded && this.chatPanelType === 'user') {
+                    this.scrollToPosition(1); // y here? cz if msg comes & scrollbar appear then auto go bottom
+
+                    this.updateLastMsgSeenTime();
+
+                    this.newMessagesMayBeLoaded = false;
+                }
+                return;
+            }
 
             // console.log(this.scrollInfo);
             const verticalPercentage = this.scrollInfo.verticalPercentage;
-
+            // if not new msg but scroll position moved
             if (this.conversationInfo.hasOwnProperty('scroll_info') && !this.newMessagesMayBeLoaded) {
                 this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
 
                 const topScrolling = this.lastTopVerticalPosition > this.scrollInfo.verticalPosition;
                 this.lastTopVerticalPosition = this.scrollInfo.verticalPosition;
 
-                if (topScrolling && verticalPercentage < 0.025) {
-                    if (this.canCallMessageApi) {
+                if (topScrolling && verticalPercentage < 0.25) {
+                    if (this.canCallMessageApi && !this.gettingNewMessages) {
+                        console.log(this.scrollInfo);
                         // if we can then resume and trigger which will fire the load event
                         this.$refs.myInfiniteScrollArea.resume();
                         this.$refs.myInfiniteScrollArea.trigger();
@@ -948,37 +983,22 @@ export default defineComponent({
                 });
             }
 
+            // for first time or auto to bottom
             if (
                 !this.conversationInfo.hasOwnProperty('scroll_info') ||
                 (this.conversationInfo.scroll_info?.last_position === 1 &&
                     this.conversationInfo.scroll_info?.auto_scroll_to_bottom)
             ) {
                 this.scrollToPosition(1); // scrollToBottom
-
-                this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
-                    conv_id: this.conv_id,
-                    auto_scroll_to_bottom: true,
-                    last_position: 1,
-                });
-
-                if (
-                    this.chatPanelType === 'user'
-                    // && this.newMessagesMayBeLoaded
-                ) {
-                    this.updateLastMsgSeenTime();
-                    this.newMessagesMayBeLoaded = false;
-                }
-                return;
             }
 
+            // if we scrolled to bottom call seen
             if (
                 this.scrollInfo.verticalPercentage === 1 &&
-                this.chatPanelType === 'user'
-                // &&
-                // this.newMessagesMayBeLoaded
+                this.chatPanelType === 'user' &&
+                this.newMessagesMayBeLoaded
             ) {
                 this.updateLastMsgSeenTime();
-                // this.newMessagesMayBeLoaded = false;
             }
 
             this.newMessagesMayBeLoaded = false;
@@ -990,8 +1010,13 @@ export default defineComponent({
             if (msgScrollArea) {
                 console.log('scroll to ', position);
                 msgScrollArea.setScrollPercentage('vertical', position, 200);
-                this.scrollbarCanHandleScrollEvent = true; // by this we can ignore first time auto scroll update
             }
+
+            this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+                conv_id: this.conv_id,
+                auto_scroll_to_bottom: position === 1,
+                last_position: 1,
+            });
         },
 
         attachmentUploaderHandle(val: any) {
@@ -1107,6 +1132,8 @@ export default defineComponent({
         },
 
         async updateLastMsgSeenTime() {
+            console.log('update seen');
+            return;
             const lastMsgSeenTime = moment().format();
             const mySocketSesId = this.$helpers.getMySocketSessionId();
 
@@ -1159,34 +1186,8 @@ export default defineComponent({
 
                 if (!this.scrollCheckInterval) {
                     // this.handleScroll();
-                    this.scrollCheckInterval = setInterval(() => this.handleScroll(), 500);
+                    this.scrollCheckInterval = setInterval(() => this.handleScroll(), 700);
                 }
-
-                // setTimeout(() => {
-                //     if (this.conversationMessages) {
-                //         // this if is only for first time scroll to bottom
-                //         if (
-                //             !this.conversationInfo.hasOwnProperty('scroll_info') ||
-                //             this.conversationInfo.scroll_info?.auto_scroll_to_bottom
-                //         ) {
-                //             this.scrollToPosition(1); // scrollToBottom
-                //
-                //             this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
-                //                 conv_id: this.conv_id,
-                //                 auto_scroll_to_bottom: true,
-                //                 last_position: 1,
-                //             });
-                //         }
-                //
-                //         if (
-                //             this.conversationInfo.hasOwnProperty('scroll_info') &&
-                //             this.conversationInfo.scroll_info.hasOwnProperty('last_position') &&
-                //             !this.conversationInfo.scroll_info?.auto_scroll_to_bottom
-                //         ) {
-                //             this.scrollToPosition(this.conversationInfo.scroll_info.last_position);
-                //         }
-                //     }
-                // }, 500);
 
                 this.handleAttachmentLoading();
             },
@@ -1199,8 +1200,10 @@ export default defineComponent({
                 // console.log(oldVal, newVal);
 
                 if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
+                    // I think this if not need anymore
                     if (newVal.length > oldVal.length) {
-                        this.scrollToPosition();
+                        // this.scrollToPosition();
+                        this.newMessagesMayBeLoaded = true;
                     }
                 }
             },
