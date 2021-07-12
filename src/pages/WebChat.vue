@@ -601,11 +601,11 @@ export default defineComponent({
             this.pageInFocus = document.visibilityState === 'visible';
         },
 
-        sendPageVisitingInfo(url: any) {
+        sendPageVisitingInfo(data: any) {
             if (this.socketId) {
                 if (this.pageInFocus) {
                     this.socket.emit('ec_page_visit_info_from_client', {
-                        url: url,
+                        page_data: data,
                         sent_at: Date.now(),
                         visiting: true,
                     });
@@ -614,7 +614,7 @@ export default defineComponent({
                 } else {
                     if (!this.pageNotInFocusEmitted) {
                         this.socket.emit('ec_page_visit_info_from_client', {
-                            url: url,
+                            page_data: data,
                             sent_at: Date.now(),
                             visiting: false,
                         });
