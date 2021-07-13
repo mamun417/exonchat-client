@@ -28,6 +28,7 @@
                                 :name="profile?.user_meta?.display_name"
                                 icon_color="text-white"
                                 class="cursor-pointer tw-my-3"
+                                @click="$router.push({ name: 'settings_profile' })"
                             >
                                 <q-tooltip :offset="[10, 10]">Profile</q-tooltip>
                             </ec-avatar>
@@ -738,7 +739,7 @@ export default defineComponent({
 
     unmounted() {
         //its safe then sorry
-        console.log('calling unmounted from main layout');
+        // console.log('calling unmounted from main layout');
 
         const dom = document.getElementById('exhonchat-container');
 

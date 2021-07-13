@@ -31,7 +31,7 @@
                     <!-- <template v-slot:header-cell-colname="slotProps" >your div {{slotProps.col.name}}</template> -->
                     <!-- slotProps will contain col so for the name slotProps.col.name -->
                     <slot :name="`header-cell-${col.name}`" :col="col">
-                        <div class="text-italic text-green tw-font-bold tw-text-xxs">{{ col.label }}</div>
+                        <div class="tw-font-bold tw-text-xs" :class="[`text-${globalColor}`]">{{ col.label }}</div>
                     </slot>
                 </q-th>
             </q-tr>
@@ -138,6 +138,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
+            globalColor: 'setting_ui/globalColor',
             rightBarState: 'setting_ui/rightBarState',
         }),
     },

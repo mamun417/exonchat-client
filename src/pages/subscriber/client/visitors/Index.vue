@@ -6,39 +6,35 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <!-- {{ visitors }} -->
+                <!--                {{ visitors }}-->
                 <ec-table :rows="visitors" :columns="columns">
-                    <template v-slot:cell-client_ip="slotProps">
-                        <div class="text-italic">
+                    <template v-slot:cell-client="slotProps">
+                        <div class="">
                             <!-- <pre>{{ slotProps.row }}</pre> -->
-                            {{ slotProps.row.client_ip }}
+                            {{
+                                sessionInfo(slotProps.row.session_id)?.init_name ||
+                                `Visitor#${slotProps.row.session_id.slice(0, 6)}`
+                            }}
                         </div>
                     </template>
 
-                    <template v-slot:cell-status="slotProps">
-                        <q-badge :color="$_.last(slotProps.row.visits).visiting ? 'green' : 'orange'">
-                            {{ $_.last(slotProps.row.visits).visiting ? 'Visiting' : 'Not Visiting' }}
-                        </q-badge>
-                    </template>
+                    <template v-slot:cell-location="slotProps"> {{ slotProps.row.location || 'Unknown' }} </template>
+
+                    <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }} </template>
+
+                    <template v-slot:cell-chats> 0 </template>
 
                     <template v-slot:cell-url="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             <!-- <pre>{{ slotProps.row }}</pre> -->
                             {{ $_.last(slotProps.row.visits).url }}
                         </div>
                     </template>
 
                     <template v-slot:cell-stay_time="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             <!-- <pre>{{ slotProps.row }}</pre> -->
                             {{ $helpers.diffAsMinute($_.last(slotProps.row.visits).first_visit_time) }}
-                        </div>
-                    </template>
-
-                    <template v-slot:cell-last_seen_at="slotProps">
-                        <div class="text-italic">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
-                            {{ $helpers.fromNowTime($_.last(slotProps.row.visits).last_stay_time) }}
                         </div>
                     </template>
                 </ec-table>
@@ -54,37 +50,34 @@ import EcTable from 'components/common/table/EcTable.vue';
 
 const columns = [
     {
-        name: 'ip',
+        name: 'client',
         align: 'left',
-        label: 'IP',
+        label: 'Client',
     },
     {
-        name: 'name',
+        name: 'location',
         align: 'left',
-        label: 'Name',
+        label: 'Location',
     },
-    {
-        name: 'email',
-        align: 'left',
-        label: 'Email',
-    },
+
     {
         name: 'url',
         align: 'center',
-        label: 'url',
+        label: 'Currently On',
     },
     {
-        name: 'status',
+        name: 'referrer',
         align: 'center',
-        label: 'On Page Status',
+        label: 'Referrer',
+    },
+    {
+        name: 'chats',
+        align: 'center',
+        label: 'Chats',
     },
     {
         name: 'stay_time',
-        label: 'Visit Duration',
-    },
-    {
-        name: 'last_seen_at', // only view, close if needed, join if um not joined, leave if um joined
-        label: 'Last Seen',
+        label: 'Time On Site',
     },
 ];
 
@@ -105,7 +98,23 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             visitors: 'visitor/visitors',
+            clientsConversation: 'chat/clientsConversation',
         }),
+    },
+
+    methods: {
+        sessionInfo(sesId: any) {
+            let ses = null;
+            this.clientsConversation.find((conv: any) =>
+                conv.sessions.find((convSes: any) => {
+                    if (convSes.socket_session_id === sesId) {
+                        ses = convSes.socket_session;
+                    }
+                })
+            );
+
+            return ses;
+        },
     },
 
     mounted() {
@@ -113,7 +122,5 @@ export default defineComponent({
             this.$forceUpdate();
         }, 10000);
     },
-
-    methods: {},
 });
 </script>

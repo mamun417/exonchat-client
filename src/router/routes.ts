@@ -80,11 +80,6 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/settings/Index.vue'),
                 children: [
                     {
-                        path: 'profile',
-                        name: 'settings_profile',
-                        component: () => import('pages/subscriber/settings/profile/Index.vue'),
-                    },
-                    {
                         path: 'change-password',
                         name: 'settings_change_password',
                         component: () => import('pages/subscriber/settings/change-password/Index.vue'),
@@ -110,6 +105,11 @@ const routes: RouteRecordRaw[] = [
                         component: () => import('pages/subscriber/settings/testing/Index.vue'),
                     },
                 ],
+            },
+            {
+                path: 'settings/profile',
+                name: 'settings_profile',
+                component: () => import('pages/subscriber/settings/profile/Index.vue'),
             },
 
             {

@@ -56,7 +56,10 @@ function ec_minimize_panel(style = 'position: fixed; bottom: 20px; right: 0px; z
 function ec_page_visit_info() {
     // console.log('sending page info');
 
-    ecChatIFrame.contentWindow.postMessage({ res: 'page_visit_info', value: window.document.URL }, '*');
+    ecChatIFrame.contentWindow.postMessage(
+        { res: 'page_visit_info', value: { url: window.document.URL, referrer: window.document.referrer } },
+        '*'
+    );
 }
 
 window.parent.document.URL;

@@ -6,11 +6,19 @@ import * as _l from 'lodash';
 const mutation: MutationTree<VisitorsStateInterface> = {
     updateVisitor(state: VisitorsStateInterface, visitorInfo: any) {
         if (!state.visitors[visitorInfo.ses_id]) {
+            const resReferrer = visitorInfo.page_data.referrer;
+            let referrer = 'Direct';
+
+            if (resReferrer && new URL(resReferrer).hostname !== new URL(visitorInfo.page_data.url).hostname) {
+                referrer = new URL(resReferrer).hostname;
+            }
+
             state.visitors[visitorInfo.ses_id] = {
                 session_id: visitorInfo.ses_id,
+                referrer: referrer,
                 visits: [
                     {
-                        url: visitorInfo.url,
+                        url: visitorInfo.page_data.url,
                         first_visit_time: visitorInfo.sent_at,
                         last_stay_time: visitorInfo.sent_at,
                         visiting: true, // if new we assume visiting
@@ -25,14 +33,14 @@ const mutation: MutationTree<VisitorsStateInterface> = {
             const lastVisit: any = _l.last(visitor.visits);
 
             if (lastVisit) {
-                if (lastVisit.url === visitorInfo.url) {
+                if (lastVisit.url === visitorInfo.page_data.url) {
                     lastVisit.last_stay_time = visitorInfo.sent_at;
                     lastVisit.visiting = visitorInfo.visiting; // why um not using visitorInfo.visiting for other assign dont know
                 } else {
                     lastVisit.visiting = false;
 
                     visitor.visits.push({
-                        url: visitorInfo.url,
+                        url: visitorInfo.page_data.url,
                         first_visit_time: visitorInfo.sent_at,
                         last_stay_time: visitorInfo.sent_at,
                         visiting: visitorInfo.visiting, // why um not using visitorInfo.visiting for other assign dont know
@@ -40,7 +48,7 @@ const mutation: MutationTree<VisitorsStateInterface> = {
                 }
             } else {
                 visitor.visits.push({
-                    url: visitorInfo.url,
+                    url: visitorInfo.page_data.url,
                     first_visit_time: visitorInfo.sent_at,
                     last_stay_time: visitorInfo.sent_at,
                     visiting: true, // new so we assume visiting. if not check visitorInfo.visiting
