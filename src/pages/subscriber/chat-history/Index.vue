@@ -107,7 +107,7 @@
                     <pagination
                         :current_page="chatHistoryPaginationMeta.current_page"
                         :last_page="chatHistoryPaginationMeta.total_page"
-                        @handlePagination="clientConvPaginationHandle"
+                        @handlePagination="chatHistoryPaginationHandle"
                     />
                 </div>
             </div>
@@ -179,7 +179,7 @@ const columns = [
 
     {
         name: 'last_sent',
-        align: 'center',
+        align: 'left',
         label: 'Date', // last msg sent time {1 mnt ago}
         field: 'last_sent',
     },
@@ -315,7 +315,7 @@ export default defineComponent({
             });
         },
 
-        clientConvPaginationHandle(page: any) {
+        chatHistoryPaginationHandle(page: any) {
             this.$store.dispatch('chat_history/updateCurrentPage', page).then(() => {
                 this.getChatHistories();
             });

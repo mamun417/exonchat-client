@@ -48,6 +48,10 @@
                             <q-btn icon="history" :to="{ name: 'chat-history' }" flat size="18px">
                                 <q-tooltip :offset="[10, 10]">Chat History</q-tooltip>
                             </q-btn>
+
+                            <q-btn icon="3p" :to="{ name: 'offline-chat-req' }" flat size="18px">
+                                <q-tooltip :offset="[10, 10]">Offline Chat Requests</q-tooltip>
+                            </q-btn>
                         </div>
 
                         <div class="tw-flex tw-gap-1 tw-flex-col tw-items-center">

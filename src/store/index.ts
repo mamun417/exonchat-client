@@ -42,6 +42,9 @@ import { ClientConversationStateInterface } from './client-conversation/state';
 import chat_history from './chat-history';
 import { ChatHistoryStateInterface } from './chat-history/state';
 
+import offline_chat_req from './offline-chat-req';
+import { OfflineChatReqStateInterface } from './offline-chat-req/state';
+
 import user_invitation from './user-invitation';
 import { UserInvitationStateInterface } from './user-invitation/state';
 
@@ -77,6 +80,7 @@ export interface StateInterface {
     chat_template: ChatTemplateStateInterface;
     client_conversation: ClientConversationStateInterface;
     chat_history: ChatHistoryStateInterface;
+    offline_chat_req: OfflineChatReqStateInterface;
     visitor: VisitorsStateInterface;
     user_invitation: UserInvitationStateInterface;
     user: UserStateInterface;
@@ -104,6 +108,7 @@ export default store(function (/* { ssrContext } */) {
 
             client_conversation,
             chat_history,
+            offline_chat_req,
 
             user_invitation,
             user,
