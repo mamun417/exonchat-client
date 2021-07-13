@@ -28,6 +28,7 @@
                                 :name="profile?.user_meta?.display_name"
                                 icon_color="text-white"
                                 class="cursor-pointer tw-my-3"
+                                @click="$router.push({ name: 'settings_profile' })"
                             >
                                 <q-tooltip :offset="[10, 10]">Profile</q-tooltip>
                             </ec-avatar>

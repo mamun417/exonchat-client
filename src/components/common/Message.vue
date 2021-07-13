@@ -203,7 +203,7 @@
                 </div>
             </template>
         </q-infinite-scroll>
-        <q-scroll-observer @scroll="sh" />
+        <!--        <q-scroll-observer @scroll="scrollObserverHandle" />-->
     </q-scroll-area>
 
     <div
@@ -611,23 +611,6 @@ export default defineComponent({
     },
 
     methods: {
-        sh(info: any) {
-            // console.log(info);
-            //
-            // if (info.direction === 'up' && info.position.top < 50) {
-            //     if (this.canCallMessageApi && !this.gettingNewMessages) {
-            //         console.log('call for new data');
-            //         // if we can then resume and trigger which will fire the load event
-            //         this.$refs.myInfiniteScrollArea.resume();
-            //         this.$refs.myInfiniteScrollArea.trigger();
-            //     }
-            // }
-            //         if (this.canCallMessageApi) {
-            //             // if we can then resume and trigger which will fire the load event
-            //             this.$refs.myInfiniteScrollArea.resume();
-            //             this.$refs.myInfiniteScrollArea.trigger();
-            //         }
-        },
         emitSocketEvents() {
             if (this.chatPanelType === 'agent') {
                 this.$socket.emit('ec_get_client_ses_id_status', {
