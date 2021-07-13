@@ -760,7 +760,7 @@ export default defineComponent({
             this.convInitFields.chat_department_id = this.convInitFields.department;
 
             window.socketSessionApi
-                .post('offline-chat-request', this.convInitFields)
+                .post('offline-chat-requests', this.convInitFields)
                 .then((res: any) => {
                     console.log(res.data);
                     this.successSubmitOfflineChatReq = true;
