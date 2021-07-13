@@ -11,7 +11,6 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                 .get('offline-chat-requests', {
                     params: {
                         p: context.state.paginationMeta.current_page,
-                        pp: 4,
                         name: keyword,
                         // email: query,
                         // subject: query,
