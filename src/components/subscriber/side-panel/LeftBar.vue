@@ -164,26 +164,51 @@
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="Object.keys(departmentalChatRequestsCount).length" dense>
+                            <q-list dense>
                                 <q-item
-                                    v-for="department of departmentalChatRequestsCount"
-                                    :key="department.id"
                                     class="tw-text-xs"
+                                    @click="$router.push({ name: 'chat-interaction' })"
                                     clickable
                                     dense
                                 >
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold">{{ department.name }}</q-item-label>
+                                        <q-item-label class="text-weight-bold">All</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label side class="text-weight-bold text-right tw-text-xs">
+                                            {{
+                                                Object.values(departmentalChatRequestsCount).reduce((acc, cur) => {
+                                                    return +acc + +cur.count;
+                                                }, 0)
+                                            }}
+                                            chats
+                                        </q-item-label>
+                                    </q-item-section>
+                                </q-item>
+
+                                <q-item
+                                    v-for="department of chatDepartments"
+                                    :key="department.id"
+                                    class="tw-text-xs"
+                                    @click="
+                                        $router.push({
+                                            name: 'chat-interaction',
+                                            query: { department: department.tag },
+                                        })
+                                    "
+                                    clickable
+                                    dense
+                                >
+                                    <q-item-section>
+                                        <q-item-label class="text-weight-bold">{{ department.tag }}</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label side class="text-weight-bold text-right tw-text-xs"
-                                            >{{ department.count }} chats
+                                            >{{ departmentalChatRequestsCount[department.tag]?.count || 0 }} chats
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
-
-                            <div v-else class="tw-p-4">None</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -292,6 +317,8 @@ export default defineComponent({
             chatUsersAvatarLoading: false,
 
             chatRequestSoundLoop: false,
+
+            chatDepartments: [],
         };
     },
 
@@ -300,6 +327,7 @@ export default defineComponent({
         await this.getChatRequest();
         await this.getOtherJoinedChats();
         await this.getJoinedChatsWithMe();
+        this.getChatDepartments();
     },
 
     computed: {
@@ -365,6 +393,18 @@ export default defineComponent({
 
     methods: {
         ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+
+        getChatDepartments() {
+            window.socketSessionApi
+                .get('/departments')
+                .then((res: any) => {
+                    // console.log('webchat departments', res);
+                    this.chatDepartments = res.data;
+                })
+                .catch((e: any) => {
+                    console.log(e);
+                });
+        },
 
         async getChatRequest() {
             await this.$store.dispatch('chat/getChatRequests');
