@@ -79,8 +79,12 @@
                     </template>
 
                     <template v-slot:cell-action="slotProps">
-                        <view-conversation-btn :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }" />
+                        <view-conversation-btn
+                            @click.stop=""
+                            :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }"
+                        />
                         <tracking-conversation-btn
+                            @click.stop=""
                             :disable="
                                 rightBarState.mode === 'conversation' && rightBarState.conv_id === slotProps.row.id
                             "
@@ -93,10 +97,12 @@
                             "
                         />
                         <direct-message-btn
+                            @click.stop=""
                             :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }"
                             :disable="slotProps.row.self_status !== 'joined'"
                         />
                         <close-conversation-btn
+                            @click.stop=""
                             @click="showCloseConversationConfirmModal(slotProps.row.id)"
                             :disable="slotProps.row.closed_at"
                         />

@@ -56,9 +56,23 @@
                     </q-item-label>
                 </q-item-section>
 
-                <q-item-section side>
+                <q-item-section side v-if="!conversationInfo.users_only || (conversationInfo.users_only && mini_mode)">
                     <q-item-label>
-                        <q-btn icon="more_vert" class="tw-px-1" unelevated>
+                        <q-btn
+                            v-if="mini_mode && rightBarState.mode === 'conversation'"
+                            icon="arrow_back"
+                            class="tw-px-1"
+                            unelevated
+                            @click="
+                                updateRightDrawerState({
+                                    mode: 'client_info',
+                                })
+                            "
+                        >
+                            <q-tooltip>Close tracking</q-tooltip>
+                        </q-btn>
+
+                        <q-btn v-else icon="more_vert" class="tw-px-1" unelevated>
                             <q-menu anchor="bottom right" self="top right">
                                 <q-list dense style="min-width: 100px">
                                     <template v-if="!conversationInfo.users_only">
@@ -166,7 +180,7 @@
                                         </q-item>
                                     </template>
 
-                                    <template v-if="mini_mode && rightBarState.mode === 'conversation'">
+                                    <!--<template v-if="mini_mode && rightBarState.mode === 'conversation'">
                                         <q-item clickable v-close-popup>
                                             <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                                 <q-icon name="close_fullscreen" />
@@ -180,7 +194,7 @@
                                                 >Close tracking
                                             </q-item-section>
                                         </q-item>
-                                    </template>
+                                    </template>-->
                                 </q-list>
                             </q-menu>
                         </q-btn>
