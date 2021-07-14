@@ -467,6 +467,10 @@ export default defineComponent({
     },
 
     mounted() {
+        this.$emitter.on(`new_message_from_client_${this.conv_id}`, (data: any) => {
+            this.chatActiveStatus = true;
+        });
+
         setInterval(() => {
             this.$forceUpdate();
         }, 30000);
@@ -646,7 +650,7 @@ export default defineComponent({
                     this.$socket.emit('ec_get_client_ses_id_status', {
                         client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
                     });
-                }, 5000);
+                }, 10000);
             }
         },
 

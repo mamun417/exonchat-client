@@ -300,14 +300,17 @@ export default defineComponent({
             activityInterval: {
                 threeMinAgent: {
                     interval: '',
-                    time: 1000 * 60 * 3,
+                    initTime: 1000 * 30,
+                    time: 1000 * 30,
                 },
                 tenMinClient: {
                     interval: '',
-                    time: 1000 * 60 * 10,
+                    initTime: 1000 * 20,
+                    time: 1000 * 20,
                 },
                 thirteenMinClient: {
                     interval: '',
+                    initTime: 1000 * 60 * 30,
                     time: 1000 * 60 * 30,
                 },
             },
@@ -553,6 +556,7 @@ export default defineComponent({
                 res.socket_event = 'ec_msg_from_user';
                 res.caller_page = 'web-chat';
 
+                this.activityInterval.threeMinAgent.time = this.activityInterval.threeMinAgent.initTime;
                 this.threeMinAgentInterval();
 
                 this.$store.dispatch('chat/storeMessage', res);
@@ -573,8 +577,13 @@ export default defineComponent({
 
             // successfully sent to user
             this.socket.on('ec_msg_to_client', (res: any) => {
+                this.activityInterval.tenMinClient.time = this.activityInterval.tenMinClient.initTime;
+                this.activityInterval.thirteenMinClient.time = this.activityInterval.thirteenMinClient.initTime;
+
                 this.tenMinClientInterval();
                 this.thirteenMinClientInterval();
+
+                this.chatActiveStatus = true;
 
                 this.$store.dispatch('chat/storeMessage', res);
 
