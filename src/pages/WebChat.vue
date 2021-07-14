@@ -409,12 +409,14 @@ export default defineComponent({
         toggleChatPanel(toggleTo: any) {
             if (toggleTo) {
                 window.localStorage.setItem('chat_panel_visible', 'true');
-                this.panelVisibleStatus = true;
-
+                // first apply styles then make visible
                 this.panelMaximize();
+
+                // after all code execution set it true
+                setTimeout(() => (this.panelVisibleStatus = true), 0);
             } else {
-                window.localStorage.removeItem('chat_panel_visible');
                 this.panelVisibleStatus = false;
+                window.localStorage.removeItem('chat_panel_visible');
 
                 this.panelMinimize();
             }
@@ -433,7 +435,7 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: 'ec_minimize_panel',
-                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: 60px; height: 60px',
+                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: 62px; height: 62px',
                 },
                 '*'
             );
