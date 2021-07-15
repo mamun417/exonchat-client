@@ -40,7 +40,13 @@
                         </div>
                     </q-item-label>
                     <q-item-label caption>
-                        <q-badge color="green" :class="{ 'tw-px-2 tw-py-1': !mini_mode }">Online</q-badge>
+                        <q-badge
+                            :color="clientActiveStatus ? 'green' : 'grey'"
+                            :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
+                        >
+                            {{ clientActiveStatus ? 'Online' : 'Offline' }}
+                        </q-badge>
+
                         <q-badge
                             v-if="conversationInfo.closed_at"
                             color="orange"
@@ -262,6 +268,7 @@ export default defineComponent({
 
     data(): any {
         return {
+            clientActiveStatus: false,
             confirmModal: false,
             modalForState: '',
 
@@ -275,6 +282,10 @@ export default defineComponent({
     },
 
     mounted() {
+        this.$emitter.on('ec_get_client_ses_id_status_res', (res: any) => {
+            this.clientActiveStatus = res.status === 'active';
+        });
+
         console.log('msg top section initiated');
     },
 

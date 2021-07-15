@@ -477,7 +477,10 @@ export default defineComponent({
 
     beforeUnmount() {
         clearInterval(this.ecGetClientSesIdStatusInterval);
-        this.$socket.removeEventListener('ec_get_client_ses_id_status_res');
+
+        if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
+            this.$socket.removeEventListener('ec_get_client_ses_id_status_res');
+        }
     },
 
     computed: {
@@ -647,11 +650,17 @@ export default defineComponent({
         },
 
         fireSocketListeners() {
-            this.$socket.on('ec_get_client_ses_id_status_res', (res: any) => {
-                this.chatActiveStatus = res.status === 'active';
+            if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
+                this.$socket.on('ec_get_client_ses_id_status_res', (res: any) => {
+                    this.chatActiveStatus = res.status === 'active';
 
-                // console.log('from ec_get_client_ses_id_status_res', res);
-            });
+                    // custom event fire for messageTopSection
+                    this.$emitter.emit('ec_get_client_ses_id_status_res', res);
+
+                    console.log('from ec_get_client_ses_id_status_res', res);
+                });
+            }
+
 
             this.$emitter.on(`new_message_from_client_${this.conv_id}`, (data: any) => {
                 this.chatActiveStatus = true;
@@ -680,18 +689,20 @@ export default defineComponent({
         },
 
         ecGetClientSesIdStatusEvent() {
-            if (this.chatPanelType === 'user') {
-                this.$socket.emit('ec_get_client_ses_id_status', {
-                    client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
-                });
+            if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
+                this.emitEcGetClientSesIdStatus();
 
                 this.ecGetClientSesIdStatusInterval = setInterval(() => {
-                    // console.log(this.ecGetClientSesIdStatusInterval);
-                    this.$socket.emit('ec_get_client_ses_id_status', {
-                        client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
-                    });
+                    console.log(this.ecGetClientSesIdStatusInterval);
+                    this.emitEcGetClientSesIdStatus();
                 }, 10000);
             }
+        },
+
+        emitEcGetClientSesIdStatus() {
+            this.$socket.emit('ec_get_client_ses_id_status', {
+                client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
+            });
         },
 
         handleInfiniteScrollLoad(index: any, done: any) {
