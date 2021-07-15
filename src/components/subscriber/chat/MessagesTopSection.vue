@@ -66,7 +66,7 @@
                     <q-item-label>
                         <q-btn
                             v-if="mini_mode && rightBarState.mode === 'conversation'"
-                            icon="arrow_back"
+                            icon="arrow_forward"
                             class="tw-px-1"
                             unelevated
                             @click="

@@ -481,6 +481,9 @@ export default defineComponent({
         if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
             this.$socket.removeEventListener('ec_get_client_ses_id_status_res');
         }
+
+        this.$emitter.off(`new_message_from_client_${this.conv_id}`);
+        this.$emitter.off(`new_message_from_user_${this.conv_id}`);
     },
 
     computed: {
@@ -661,9 +664,10 @@ export default defineComponent({
                 });
             }
 
-
-            this.$emitter.on(`new_message_from_client_${this.conv_id}`, (data: any) => {
-                this.chatActiveStatus = true;
+            this.$emitter.on(`new_message_from_client_${this.conv_id}`, () => {
+                if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
+                    this.emitEcGetClientSesIdStatus();
+                }
 
                 if (this.canGoToBottom) {
                     this.scrollToPosition();
@@ -676,7 +680,7 @@ export default defineComponent({
                 }
             });
 
-            this.$emitter.on(`new_message_from_user_${this.conv_id}`, (data: any) => {
+            this.$emitter.on(`new_message_from_user_${this.conv_id}`, () => {
                 if (this.canGoToBottom) {
                     this.scrollToPosition();
 
@@ -772,7 +776,7 @@ export default defineComponent({
                         message.socket_session_id,
                     ]);
 
-                    return !findSes.socket_session.user;
+                    return !!findSes.socket_session.user;
                 }
             }
 
