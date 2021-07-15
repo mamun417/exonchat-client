@@ -300,13 +300,15 @@ export default defineComponent({
             activityInterval: {
                 threeMinAgent: {
                     interval: '',
-                    initTime: 1000 * 30,
-                    time: 1000 * 30,
+                    initTime: 1000 * 60 * 3,
+                    time: 1000 * 60 * 3,
                 },
                 tenMinClient: {
                     interval: '',
-                    initTime: 1000 * 20,
-                    time: 1000 * 20,
+                    initTime: 1000 * 15,
+                    time: 1000 * 15,
+                    // initTime: 1000 * 60 * 10,
+                    // time: 1000 * 60 * 10,
                 },
                 thirteenMinClient: {
                     interval: '',
