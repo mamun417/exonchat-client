@@ -401,6 +401,8 @@ export default defineComponent({
 
                 this.$store.dispatch('chat/storeMessage', res);
 
+                this.$emitter.emit(`new_message_from_user_${res.conversation.id}`, res);
+
                 console.log('from ec_msg_from_user', res);
             });
 
