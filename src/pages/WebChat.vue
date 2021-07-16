@@ -305,10 +305,8 @@ export default defineComponent({
                 },
                 tenMinClient: {
                     interval: '',
-                    initTime: 1000 * 15,
-                    time: 1000 * 15,
-                    // initTime: 1000 * 60 * 10,
-                    // time: 1000 * 60 * 10,
+                    initTime: 1000 * 60 * 10,
+                    time: 1000 * 60 * 10,
                 },
                 thirteenMinClient: {
                     interval: '',
