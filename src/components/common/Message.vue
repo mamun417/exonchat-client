@@ -34,7 +34,7 @@
 
                 <div v-if="speakingWithInfo.name" class="tw-text-center">
                     <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name"> </ec-avatar>
-                    <div class="tw-mt-2" :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                    <div class="tw-mt-2 tw-text-sm">
                         You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}
                     </div>
                 </div>
@@ -217,7 +217,7 @@
         <div class="tw-flex tw-flex-col tw-justify-end">
             <q-btn
                 flat
-                color="green"
+                :color="globalColor"
                 icon="attachment"
                 :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
                 :dense="mini_mode"
@@ -240,7 +240,7 @@
                 v-model="msg"
                 debounce="0"
                 placeholder="Write Message..."
-                color="green-8"
+                :color="globalColor"
                 class="ec-msg-input"
                 :class="[`ec-msg-input-${uid}`, mini_mode ? 'tw-text-xxs ec-mini-mode-msg-input' : '']"
                 :autofocus="messageInputAutoFocus"
@@ -336,7 +336,7 @@
             <q-btn
                 icon="send"
                 flat
-                color="green-8"
+                :color="globalColor"
                 :dense="mini_mode"
                 :disable="getSendBtnStatus"
                 @click="sendMessage"

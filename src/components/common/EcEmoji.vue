@@ -1,5 +1,5 @@
 <template>
-    <q-btn flat color="green" icon="mood">
+    <q-btn flat :color="globalColor" icon="mood">
         <q-menu ref="emojiMenu" style="max-height: 400px; height: 400px">
             <q-card class="tw-h-full">
                 <q-card-section
@@ -75,6 +75,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import emojiJson from 'emoji.json';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: 'EcEmoji',
@@ -100,6 +101,11 @@ export default defineComponent({
     },
 
     computed: {
+        ...mapGetters({
+            globalBgColor: 'setting_ui/globalBgColor',
+            globalColor: 'setting_ui/globalColor',
+        }),
+
         filterNewEmoji(): any {
             return this.emojis
                 .filter((emoji: any) => {

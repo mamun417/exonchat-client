@@ -388,6 +388,8 @@ export default defineComponent({
     watch: {
         profile: {
             handler(profile) {
+                if (!profile?.user_meta) return;
+
                 this.formData.full_name = profile.user_meta.full_name;
                 this.formData.display_name = profile.user_meta.display_name;
                 this.formData.phone = profile.user_meta.phone;
