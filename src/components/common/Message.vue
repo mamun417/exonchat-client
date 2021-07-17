@@ -33,12 +33,10 @@
                 <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
 
                 <div v-if="speakingWithInfo.name" class="tw-text-center">
-                    <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name">
-                        <q-tooltip class="">
-                            {{ speakingWithInfo.email }}
-                        </q-tooltip>
-                    </ec-avatar>
-                    <div class="tw-mt-2">You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}</div>
+                    <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name"> </ec-avatar>
+                    <div class="tw-mt-2" :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                        You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}
+                    </div>
                 </div>
 
                 <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
