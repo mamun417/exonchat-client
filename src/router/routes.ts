@@ -86,24 +86,9 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/subscriber/settings/Index.vue'),
                 children: [
                     {
-                        path: 'change-password',
-                        name: 'settings_change_password',
-                        component: () => import('pages/subscriber/settings/change-password/Index.vue'),
-                    },
-                    {
                         path: 'ui',
                         name: 'settings_ui',
                         component: () => import('pages/subscriber/settings/ui/Index.vue'),
-                    },
-                    {
-                        path: 'chat',
-                        name: 'settings_chat',
-                        component: () => import('pages/subscriber/settings/chat/Index.vue'),
-                    },
-                    {
-                        path: 'apps',
-                        name: 'settings_apps',
-                        component: () => import('pages/subscriber/settings/apps/Index.vue'),
                     },
                     {
                         path: 'testing',
@@ -116,6 +101,16 @@ const routes: RouteRecordRaw[] = [
                 path: 'settings/profile',
                 name: 'settings_profile',
                 component: () => import('pages/subscriber/settings/profile/Index.vue'),
+            },
+            {
+                path: 'settings/chat-routing',
+                name: 'settings_chat_routing',
+                component: () => import('pages/subscriber/settings/chat-routing/Index.vue'),
+            },
+            {
+                path: 'settings/apps',
+                name: 'settings_apps',
+                component: () => import('pages/subscriber/settings/apps/Index.vue'),
             },
 
             {

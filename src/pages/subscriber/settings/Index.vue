@@ -7,7 +7,7 @@
                     <q-icon name="people_outline" size="80px"></q-icon>
                     <div>Users</div>
                 </q-btn>
-                <q-btn flat stack no-caps>
+                <q-btn @click="$router.push({ name: 'settings_apps' })" flat stack no-caps>
                     <q-icon name="integration_instructions" size="80px"></q-icon>
                     <div>App Integrations</div>
                 </q-btn>
@@ -33,7 +33,7 @@
                     <q-icon name="settings_input_component" size="80px"></q-icon>
                     <div>Predefined Chat Replies</div>
                 </q-btn>
-                <q-btn flat stack no-caps>
+                <q-btn @click="$router.push({ name: 'settings_chat_routing' })" flat stack no-caps>
                     <q-icon name="alt_route" size="80px"></q-icon>
                     <div>Chat Routing</div>
                 </q-btn>

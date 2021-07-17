@@ -1,18 +1,15 @@
 <template>
     <div>
-        <!--        <q-card class="tw-my-2">-->
-        <!--            <q-card-section>-->
-        <!--                <div class="text-center text-green"></div>-->
-        <!--            </q-card-section>-->
-        <!--        </q-card>-->
-
-        <q-card>
+        <q-card class="tw-mb-4">
             <q-card-section>
-                <div class="tw-flex tw-items-center tw-mb-4 tw-border-b-2">
-                    <div class="tw-font-medium tw-text-lg">Chat Assignment</div>
-                </div>
+                <div class="tw-font-medium tw-text-lg">Chat Assignment</div>
+            </q-card-section>
+        </q-card>
 
-                <div class="tw-font-medium tw-mb-2">Choose how chats are distributed</div>
+        <q-card class="tw-mb-4">
+            <q-card-section>
+                <div class="tw-font-medium tw-mb-2 tw-border-b-2 tw-mb-4">Choose how chats are distributed</div>
+
                 <div class="tw-flex tw-gap-8 tw-cursor-pointer">
                     <div
                         class="tw-border-2 tw-p-3 tw-rounded-lg"
@@ -41,6 +38,12 @@
                         </div>
                     </div>
                 </div>
+            </q-card-section>
+        </q-card>
+
+        <q-card class="tw-mb-4">
+            <q-card-section>
+                <div class="text-center">Upcoming auto chat distribute related features...</div>
             </q-card-section>
         </q-card>
     </div>

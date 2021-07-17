@@ -140,7 +140,6 @@
                                 :is_icon="msgSenderInfo(typing, 0).type === 'ai'"
                                 class="tw-mx-2"
                             >
-                                <q-tooltip class="">{{ msgSenderInfo(typing, 0).email }}</q-tooltip>
                             </ec-avatar>
                         </template>
 
@@ -178,17 +177,6 @@
                         <!--<pre>{{ conversationWithUsersInfo[0].socket_session }}</pre>-->
                     </div>
                 </div>
-
-                <!-- <q-btn
-                    v-if="gotoBottomBtnShow"
-                    @click="scrollToBottom"
-                    style="position: fixed; left: 50%; bottom: 60px"
-                    class="tw-bottom-2 tw-opacity-75 tw-right-2"
-                    color="black"
-                    icon="keyboard_arrow_down"
-                    size="sm"
-                    round
-                /> -->
 
                 <slot name="scroll-area-last-section">
                     <div
@@ -245,14 +233,8 @@
                 :dense="mini_mode"
                 :mini_box="mini_mode || chatPanelType === 'client'"
             />
-            <!--<q-btn
-                flat
-                color="green"
-                icon="mood"
-                :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
-                :dense="mini_mode"
-            ></q-btn>-->
         </div>
+
         <div class="tw-flex-auto tw-px-3">
             <!-- used keydown for instant catch n prevent -->
             <q-input

@@ -1,45 +1,58 @@
 <template>
     <div>
-        <q-card class="tw-my-2">
-            <q-card-section>
-                <div class="text-center tw-font-bold">Third Party Apps</div>
+        <q-card class="tw-mb-4">
+            <q-card-section class="tw-border-b-2">
+                <div class="tw-font-bold te-text-base">Apps Integration</div>
             </q-card-section>
+
+            <q-tabs
+                v-model="currentTab"
+                dense
+                class="text-grey"
+                :active-color="globalColor"
+                :indicator-color="globalColor"
+                align="left"
+                narrow-indicator
+            >
+                <q-tab name="own" label="Own" />
+                <q-tab name="third-party" label="Third Party" />
+            </q-tabs>
         </q-card>
 
         <!-- these will come from api (which apps, their inputs, input types) -->
         <q-card>
             <q-card-section>
-                <div class="tw-flex tw-items-center tw-mb-2">
+                <div class="tw-mb-4 tw-border-b-2">
                     <div class="tw-font-medium">WHMCS Api Manager</div>
                 </div>
-                <q-input
-                    v-model="formInputs.apps_whmcs_identifier_key"
-                    label="Identifier Key"
-                    :type="isPwdWhmcs.identifier ? 'password' : 'text'"
-                    color="green"
-                    class="tw-mb-2"
-                    dense
-                    ><template v-slot:append>
-                        <q-icon
-                            :name="isPwdWhmcs.identifier ? 'visibility_off' : 'visibility'"
-                            class="cursor-pointer"
-                            @click="isPwdWhmcs.identifier = !isPwdWhmcs.identifier"
-                        /> </template
-                ></q-input>
-                <q-input
-                    v-model="formInputs.apps_whmcs_secret_key"
-                    label="Secret Key"
-                    :type="isPwdWhmcs.secret ? 'password' : 'text'"
-                    color="green"
-                    class="tw-mb-2"
-                    dense
-                    ><template v-slot:append>
-                        <q-icon
-                            :name="isPwdWhmcs.secret ? 'visibility_off' : 'visibility'"
-                            class="cursor-pointer"
-                            @click="isPwdWhmcs.secret = !isPwdWhmcs.secret"
-                        /> </template
-                ></q-input>
+
+                <div class="tw-mb-6">
+                    <div>Identifier Key</div>
+                    <q-input
+                        v-model="formInputs.apps_whmcs_identifier_key"
+                        :type="isPwdWhmcs.identifier ? 'password' : 'text'"
+                        bg-color="white"
+                        class="tw-mb-2 tw-shadow-md tw-px-2"
+                        hide-bottom-space
+                        standout
+                        borderless
+                        dense
+                    />
+                </div>
+
+                <div class="tw-mb-6">
+                    <div>Secret Key</div>
+                    <q-input
+                        v-model="formInputs.apps_whmcs_secret_key"
+                        :type="isPwdWhmcs.secret ? 'password' : 'text'"
+                        bg-color="white"
+                        class="tw-mb-2 tw-shadow-md tw-px-2"
+                        hide-bottom-space
+                        standout
+                        borderless
+                        dense
+                    />
+                </div>
 
                 <div class="tw-flex tw-items-center tw-my-4">
                     <div>
@@ -88,13 +101,12 @@
                 </div>
             </q-card-section>
 
-            <q-card-actions>
+            <q-card-actions class="tw-px-4">
                 <q-btn
                     type="submit"
                     @click="updateAppSetting(false)"
                     :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
                     color="green"
-                    class="tw-mb-4"
                     size="sm"
                 >
                     Update App Setting
@@ -106,6 +118,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: '',
@@ -113,7 +126,8 @@ export default defineComponent({
 
     data(): any {
         return {
-            // if need
+            currentTab: 'third-party',
+
             appSetting: {},
             isPwdWhmcs: {
                 identifier: true,
@@ -132,6 +146,10 @@ export default defineComponent({
 
     mounted() {
         this.getAppSetting();
+    },
+
+    computed: {
+        ...mapGetters({ profile: 'auth/profile', globalColor: 'setting_ui/globalColor' }),
     },
 
     methods: {
