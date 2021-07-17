@@ -41,6 +41,21 @@
                     </q-item-label>
                     <q-item-label caption>
                         <q-badge
+                            v-if="conversationWithUsersInfo[0]?.socket_session.user"
+                            :color="
+                                agentOnlineStatus === 'online'
+                                    ? 'green'
+                                    : agentOnlineStatus === 'offline'
+                                    ? 'red'
+                                    : 'grey'
+                            "
+                            :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
+                        >
+                            {{ agentOnlineStatus }}
+                        </q-badge>
+
+                        <q-badge
+                            v-else
                             :color="clientActiveStatus ? 'green' : 'grey'"
                             :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
                         >
@@ -293,6 +308,7 @@ export default defineComponent({
         ...mapGetters({
             profile: 'auth/profile',
             rightBarState: 'setting_ui/rightBarState',
+            chatUsers: 'chat/chatUsers',
         }),
 
         onlineUsers(): any {
@@ -319,6 +335,18 @@ export default defineComponent({
         conversationConnectedUsers(): any {
             return this.$store.getters['chat/conversationConnectedUsers'](this.conv_id);
         },
+
+        // get teammate online status
+        agentOnlineStatus(): any {
+            if (this.chatUsers.length && this.conversationWithUsersInfo) {
+                return this.chatUsers.find(
+                    (chatUser: any) => chatUser.id === this.conversationWithUsersInfo[0].socket_session.user.id
+                ).online_status;
+            }
+
+            return 'offline';
+        },
+
     },
 
     methods: {
