@@ -132,7 +132,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .get(`conversations/${payload.convId}/messages`, {
                     params: {
                         p: current_page + 1,
-                        pp: 5,
+                        pp: 25,
                     },
                 })
                 .then((res: any) => {
