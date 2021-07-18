@@ -80,7 +80,10 @@
                 <q-item-section side v-if="!conversationInfo.users_only || (conversationInfo.users_only && mini_mode)">
                     <q-item-label>
                         <q-btn
-                            v-if="mini_mode && rightBarState.mode === 'conversation'"
+                            v-if="
+                                conversationInfo.users_only ||
+                                (conversationInfo.closed_at && mini_mode && rightBarState.mode === 'conversation')
+                            "
                             icon="arrow_forward"
                             class="tw-px-1"
                             unelevated
@@ -201,7 +204,7 @@
                                         </q-item>
                                     </template>
 
-                                    <!--<template v-if="mini_mode && rightBarState.mode === 'conversation'">
+                                    <template v-if="mini_mode && rightBarState.mode === 'conversation'">
                                         <q-item clickable v-close-popup>
                                             <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                                 <q-icon name="close_fullscreen" />
@@ -215,7 +218,7 @@
                                                 >Close tracking
                                             </q-item-section>
                                         </q-item>
-                                    </template>-->
+                                    </template>
                                 </q-list>
                             </q-menu>
                         </q-btn>
@@ -346,7 +349,6 @@ export default defineComponent({
 
             return 'offline';
         },
-
     },
 
     methods: {

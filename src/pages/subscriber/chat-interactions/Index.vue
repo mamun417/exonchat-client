@@ -15,7 +15,22 @@
 
         <div class="tw-mb-5">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :columns="typeOneColumns" :rows="chatsInQueue" @rowClick="rowClickHandle" hide-search>
+                <ec-table :columns="typeOneColumns" :rows="filteredChats('chatsInQueue')" @rowClick="rowClickHandle">
+                    <template v-slot:filter>
+                        <q-select
+                            v-model="departmentFilters.chatsInQueue"
+                            label="Choose Department"
+                            :options="departments"
+                            style="width: 200px"
+                            :color="globalColor"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="groups" :color="globalColor" />
+                            </template>
+                        </q-select>
+                    </template>
+
                     <template v-slot:cell-client="slotProps">
                         <div class="text-italic">
                             {{ slotProps.row.client_info.socket_session.init_name }}
@@ -56,7 +71,22 @@
 
         <div class="tw-mb-5">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :columns="typeTwoColumns" :rows="myRunningChats" @rowClick="rowClickHandle" hide-search>
+                <ec-table :columns="typeTwoColumns" :rows="filteredChats('myRunningChats')" @rowClick="rowClickHandle">
+                    <template v-slot:filter>
+                        <q-select
+                            v-model="departmentFilters.myRunningChats"
+                            label="Choose Department"
+                            :options="departments"
+                            style="width: 200px"
+                            :color="globalColor"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="groups" :color="globalColor" />
+                            </template>
+                        </q-select>
+                    </template>
+
                     <template v-slot:cell-client="slotProps">
                         <div class="text-italic">
                             {{ slotProps.row.client_info.socket_session.init_name }}
@@ -97,7 +127,27 @@
 
         <div class="">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :columns="typeOneColumns" :rows="ongoingAllChats" @rowClick="rowClickHandle" hide-search>
+                <ec-table
+                    :columns="typeOneColumns"
+                    :rows="filteredChats('ongoingAllChats')"
+                    @rowClick="rowClickHandle"
+                    hide-search
+                >
+                    <template v-slot:filter>
+                        <q-select
+                            v-model="departmentFilters.ongoingAllChats"
+                            label="Choose Department"
+                            :options="departments"
+                            style="width: 200px"
+                            :color="globalColor"
+                            dense
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="groups" :color="globalColor" />
+                            </template>
+                        </q-select>
+                    </template>
+
                     <template v-slot:cell-client="slotProps">
                         <div class="text-italic">
                             {{ slotProps.row.client_info.socket_session.init_name }}
@@ -184,6 +234,12 @@ export default defineComponent({
             currentPage: 1,
             conversationId: '',
             confirm: false,
+            departmentFilters: {
+                chatsInQueue: '',
+                myRunningChats: '',
+                ongoingAllChats: '',
+            },
+            departments: [],
         };
     },
 
@@ -218,7 +274,24 @@ export default defineComponent({
             myRunningChats: 'chat/myOngoingChats',
             ongoingAllChats: 'chat/ongoingAllChats',
             visitors: 'visitor/visitors',
+            globalColor: 'setting_ui/globalColor',
         }),
+
+        filteredChats: (app) => (chatType: any) => {
+            if (app[chatType].length) {
+                return app[chatType].filter(
+                    (chat: any) =>
+                        app.departmentFilters[chatType].label === 'All' ||
+                        chat.chat_department.tag === app.departmentFilters[chatType].label
+                );
+            }
+
+            return [];
+        },
+    },
+
+    mounted() {
+        this.loadDepartment();
     },
 
     methods: {
@@ -229,6 +302,35 @@ export default defineComponent({
                 mode: 'conversation',
                 visible: true,
                 conv_id: row.id,
+            });
+        },
+
+        loadDepartment() {
+            this.$store.dispatch('department/getDepartments').then((res: any) => {
+                this.departments = [];
+
+                const defaultDep = {
+                    label: 'All',
+                    value: 'all',
+                };
+
+                this.departments.push(defaultDep);
+
+                for (const department of res.data) {
+                    this.departments.push({
+                        label: department.tag,
+                        value: department.id,
+                    });
+                }
+
+                // query department keep selected in dropdown
+                // Note: later manage with store
+                const queryDep = this.$route.query.department;
+
+                Object.keys(this.departmentFilters).forEach((departmentFilter: any) => {
+                    this.departmentFilters[departmentFilter] =
+                        this.departments.find((department: any) => department.label === queryDep) || defaultDep;
+                });
             });
         },
     },
