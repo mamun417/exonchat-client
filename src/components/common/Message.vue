@@ -1206,11 +1206,13 @@ export default defineComponent({
         },
 
         conv_id: {
-            handler: function () {
-                if (this.conv_id && !this.conversationInfo.hasOwnProperty('pagination_meta')) {
-                    // if (this.$refs.myInfiniteScrollArea) {
-                    //     this.$refs.myInfiniteScrollArea.load();
-                    // }
+            handler: function (newVal, oldVal) {
+                if (this.conv_id && this.mini_mode && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
+                    this.$refs.myInfiniteScrollArea.poll();
+
+                    this.scrollToPosition();
+
+                    if (this.chatPanelType === 'user') this.updateLastMsgSeenTime();
                 }
             },
             immediate: true,
