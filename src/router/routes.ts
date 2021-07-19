@@ -8,7 +8,7 @@ const routes: RouteRecordRaw[] = [
         children: [
             { path: '', component: () => import('pages/Index.vue') },
             {
-                path: 'chats/:conv_id?',
+                path: 'chats/:conv_id',
                 name: 'chats',
                 component: () => import('pages/subscriber/Chat.vue'),
             },
@@ -175,6 +175,7 @@ const routes: RouteRecordRaw[] = [
 
     {
         path: '/auth',
+        meta: { requiresAuth: false, redirectAfterLoginPage: true },
         component: () => import('layouts/AuthLayout.vue'),
         children: [
             {

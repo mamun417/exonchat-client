@@ -52,9 +52,14 @@ export default route<StateInterface>(function ({ store }) {
             }
 
             return next({ name: 'login' });
-        } else if (to.matched.some((record) => !record.meta.requiresAuth) && login) {
-            // if authenticated and logged-in
-            return next({ name: 'chats' });
+        } else if (
+            // this block work for auth route
+            to.matched.some((record) => !record.meta.requiresAuth && record.meta.redirectAfterLoginPage) &&
+            login
+        ) {
+            // if not require authenticate, redirectAfterLoginPage = true and logged-in (solve 404 page)
+
+            return next({ name: 'chat-interaction' });
         }
 
         next(); // make sure to always call next()!

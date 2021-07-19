@@ -193,6 +193,10 @@
             </template>
         </q-infinite-scroll>
         <q-scroll-observer :debounce="200" @scroll="scrollObserverHandle" />
+
+        <!--<q-inner-loading :showing="!firstTimeMessageLoaded">
+            <q-spinner-dots size="50px" :color="globalColor" />
+        </q-inner-loading>-->
     </q-scroll-area>
 
     <div
@@ -728,6 +732,9 @@ export default defineComponent({
 
                             if (this.chatPanelType === 'user') this.updateLastMsgSeenTime();
                         }
+                    })
+                    .catch(() => {
+                        this.$router.push({ name: 'chat-interaction' });
                     })
                     .finally(() => {
                         // delay api call for prevent spamming
