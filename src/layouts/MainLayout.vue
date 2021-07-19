@@ -96,7 +96,7 @@
         </template>
 
         <q-inner-loading :showing="!domReady">
-            <q-spinner-facebook size="50px" color="primary" />
+            <q-spinner-facebook size="50px" :color="globalBgColor" />
         </q-inner-loading>
 
         <!--        don't remove these blocks-->

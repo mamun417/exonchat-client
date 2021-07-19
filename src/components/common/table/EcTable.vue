@@ -7,7 +7,7 @@
                 dense
                 debounce="300"
                 placeholder="Search"
-                color="green"
+                :color="globalColor"
                 clearable
             >
                 <template v-slot:append>

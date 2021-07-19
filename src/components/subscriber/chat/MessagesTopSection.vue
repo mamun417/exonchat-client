@@ -79,22 +79,39 @@
 
                 <q-item-section side v-if="!conversationInfo.users_only || (conversationInfo.users_only && mini_mode)">
                     <q-item-label>
-                        <q-btn
+                        <template
                             v-if="
                                 conversationInfo.users_only ||
                                 (conversationInfo.closed_at && mini_mode && rightBarState.mode === 'conversation')
                             "
-                            icon="arrow_forward"
-                            class="tw-px-1"
-                            unelevated
-                            @click="
-                                updateRightDrawerState({
-                                    mode: 'client_info',
-                                })
-                            "
                         >
-                            <q-tooltip>Close tracking</q-tooltip>
-                        </q-btn>
+                            <q-btn
+                                icon="fullscreen"
+                                class="tw-px-1"
+                                unelevated
+                                @click="
+                                    updateRightDrawerState({
+                                        mode: 'client_info',
+                                    });
+                                    $router.push({ name: 'chats', params: { conv_id: conversationInfo.id } });
+                                "
+                            >
+                                <q-tooltip>Maximize Conversation</q-tooltip>
+                            </q-btn>
+
+                            <q-btn
+                                icon="arrow_forward"
+                                class="tw-px-1"
+                                unelevated
+                                @click="
+                                    updateRightDrawerState({
+                                        mode: 'client_info',
+                                    })
+                                "
+                            >
+                                <q-tooltip>Close tracking</q-tooltip>
+                            </q-btn>
+                        </template>
 
                         <q-btn v-else icon="more_vert" class="tw-px-1" unelevated>
                             <q-menu anchor="bottom right" self="top right">
@@ -183,6 +200,25 @@
                                                 >Leave Chat
                                             </q-item-section>
                                         </q-item>
+
+                                        <q-item clickable v-close-popup>
+                                            <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                                <q-icon name="fullscreen" />
+                                            </q-item-section>
+                                            <q-item-section
+                                                @click="
+                                                    updateRightDrawerState({
+                                                        mode: 'client_info',
+                                                    });
+                                                    $router.push({
+                                                        name: 'chats',
+                                                        params: { conv_id: conversationInfo.id },
+                                                    });
+                                                "
+                                                >Maximize Conversation
+                                            </q-item-section>
+                                        </q-item>
+
                                         <q-item
                                             v-if="
                                                 ['joined', 'left'].includes(conversationStatusForMe) &&

@@ -1,11 +1,11 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div class="tw-shadow-lg tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+        <!--<div class="tw-shadow-lg tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
                 <q-icon name="chat_bubble" class="tw-mr-2" />
                 <div>Chat</div>
             </div>
-        </div>
+        </div>-->
 
         <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
@@ -15,7 +15,12 @@
 
         <div class="tw-mb-5">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :columns="typeOneColumns" :rows="filteredChats('chatsInQueue')" @rowClick="rowClickHandle">
+                <ec-table
+                    :columns="typeOneColumns"
+                    :rows="filteredChats('chatsInQueue')"
+                    @rowClick="rowClickHandle"
+                    hide-search
+                >
                     <template v-slot:filter>
                         <q-select
                             v-model="departmentFilters.chatsInQueue"
@@ -71,7 +76,12 @@
 
         <div class="tw-mb-5">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
-                <ec-table :columns="typeTwoColumns" :rows="filteredChats('myRunningChats')" @rowClick="rowClickHandle">
+                <ec-table
+                    :columns="typeTwoColumns"
+                    :rows="filteredChats('myRunningChats')"
+                    @rowClick="rowClickHandle"
+                    hide-search
+                >
                     <template v-slot:filter>
                         <q-select
                             v-model="departmentFilters.myRunningChats"
