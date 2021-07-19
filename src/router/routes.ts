@@ -175,6 +175,7 @@ const routes: RouteRecordRaw[] = [
 
     {
         path: '/auth',
+        meta: { requiresAuth: false, redirectAfterLoginPage: true },
         component: () => import('layouts/AuthLayout.vue'),
         children: [
             {

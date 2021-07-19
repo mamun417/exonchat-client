@@ -194,9 +194,9 @@
         </q-infinite-scroll>
         <q-scroll-observer :debounce="200" @scroll="scrollObserverHandle" />
 
-        <q-inner-loading :showing="!firstTimeMessageLoaded">
+        <!--<q-inner-loading :showing="!firstTimeMessageLoaded">
             <q-spinner-dots size="50px" :color="globalColor" />
-        </q-inner-loading>
+        </q-inner-loading>-->
     </q-scroll-area>
 
     <div
