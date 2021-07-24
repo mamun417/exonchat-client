@@ -76,8 +76,13 @@
                                     "
                                     class="tw-p-5"
                                 >
-                                    <div class="text-center tw-mb-1">Your chat is currently in queue</div>
-                                    <div class="text-center tw-font-bold">Someone will be with you shortly</div>
+                                    <div class="text-center tw-mb-1">
+                                        One of our representatives will be with you shortly. Thank you for your
+                                        patience.
+                                    </div>
+                                    <div class="text-center tw-mb-1">You are number 10 in the queue.</div>
+                                    <!--<div class="text-center tw-mb-1">Your chat is currently in queue</div>-->
+                                    <!--<div class="text-center tw-font-bold">Someone will be with you shortly</div>-->
                                 </div>
                             </template>
 
@@ -295,7 +300,7 @@ export default defineComponent({
     },
     data(): any {
         return {
-            develop: false,
+            develop: true,
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {

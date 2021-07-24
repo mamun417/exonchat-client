@@ -36,7 +36,7 @@
                                     ? socket_session.user.user_meta.display_name
                                     : socket_session.init_name
                             }}</span>
-                            <span class="text-caption">({{ socket_session.user ? 'agent' : 'client' }})</span>
+                            <!--<span class="text-caption">({{ socket_session.user ? 'agent' : 'client' }})</span>-->
                         </div>
                     </q-item-label>
                     <q-item-label caption>
@@ -54,13 +54,13 @@
                             {{ agentOnlineStatus }}
                         </q-badge>
 
-                        <q-badge
+                        <!--<q-badge
                             v-else
                             :color="clientActiveStatus ? 'green' : 'grey'"
                             :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
                         >
                             {{ clientActiveStatus ? 'Online' : 'Offline' }}
-                        </q-badge>
+                        </q-badge>-->
 
                         <q-badge
                             v-if="conversationInfo.closed_at"

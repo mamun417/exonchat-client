@@ -13,13 +13,13 @@
                     :columns="columns"
                 >
                     <template v-slot:cell-client_name="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             {{ slotProps.row.client_info.socket_session.init_name }}
                         </div>
                     </template>
 
                     <template v-slot:cell-client_email="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             {{ slotProps.row.client_info.socket_session.init_email }}
                         </div>
                     </template>
@@ -31,7 +31,7 @@
                     </template>
 
                     <template v-slot:cell-chat_department="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             {{ slotProps.row.chat_department.tag }}
                         </div>
                     </template>

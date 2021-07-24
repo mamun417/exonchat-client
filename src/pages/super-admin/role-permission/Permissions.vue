@@ -1,11 +1,7 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div
-            class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
-        >
-            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
-                Permissions List
-            </div>
+        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Permissions List</div>
         </div>
 
         <div class="tw-flex-grow">
@@ -19,13 +15,7 @@
                     flat
                 >
                     <template v-slot:top-right>
-                        <q-input
-                            borderless
-                            dense
-                            debounce="300"
-                            placeholder="Search"
-                            color="green"
-                        >
+                        <q-input borderless dense debounce="300" placeholder="Search" color="green">
                             <template v-slot:append>
                                 <q-icon name="search" />
                             </template>
@@ -38,7 +28,7 @@
                                 v-for="col in props.cols"
                                 :key="col.name"
                                 :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
+                                class="text-green tw-font-bold tw-text-lg"
                             >
                                 {{ col.label }}
                             </q-th>
@@ -47,11 +37,7 @@
 
                     <template v-slot:body="props">
                         <q-tr :props="props">
-                            <q-td
-                                v-for="col in props.cols"
-                                :key="col.name"
-                                :props="props"
-                            >
+                            <q-td v-for="col in props.cols" :key="col.name" :props="props">
                                 <template v-if="col.name === 'action'">
                                     <q-btn
                                         icon="toggle_on"
@@ -74,19 +60,14 @@
                             <q-td colspan="100%">
                                 <div class="tw-flex tw-justify-center">
                                     <div
-                                        v-for="perm in props.row.resource
-                                            .permissions"
+                                        v-for="perm in props.row.resource.permissions"
                                         :key="perm.name"
                                         class="tw-mx-3"
                                     >
-                                        <q-btn
-                                            icon="toggle_on"
-                                            size="sm"
-                                            color="green"
-                                            flat
-                                        /><span class="tw-font-medium">{{
-                                            perm.name
-                                        }}</span>
+                                        <q-btn icon="toggle_on" size="sm" color="green" flat /><span
+                                            class="tw-font-medium"
+                                            >{{ perm.name }}</span
+                                        >
                                     </div>
                                 </div>
                             </q-td>
@@ -116,9 +97,7 @@
                     </template>
 
                     <template v-slot:no-data="{ message }">
-                        <div
-                            class="full-width row flex-center text-red q-gutter-sm tw-mt-2"
-                        >
+                        <div class="full-width row flex-center text-red q-gutter-sm tw-mt-2">
                             <q-icon size="2em" name="sentiment_dissatisfied" />
                             <span> Well this is sad... {{ message }} </span>
                         </div>

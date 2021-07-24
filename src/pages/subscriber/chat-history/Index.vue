@@ -14,11 +14,11 @@
                     @rowClick="rowClickHandle"
                 >
                     <template v-slot:cell-msg="slotProps">
-                        <div v-if="!slotProps.row.connected_agents.length" class="tw-text-xxs">
+                        <div v-if="!slotProps.row.connected_agents.length" class="">
                             <q-badge color="primary">MISSED CHAT</q-badge>
                             {{ slotProps.row.message?.msg }}
                         </div>
-                        <div v-else class="tw-text-xxs">
+                        <div v-else class="">
                             {{ slotProps.row.message?.msg }}
                         </div>
                     </template>
@@ -34,13 +34,13 @@
                     </template>
 
                     <template v-slot:cell-client_name="slotProps">
-                        <div class="text-italic">
+                        <div>
                             {{ slotProps.row.client_info.socket_session.init_name }}
                         </div>
                     </template>
 
                     <!--<template v-slot:cell-client_email="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             {{ slotProps.row.client_info.socket_session.init_email }}
                         </div>
                     </template>-->
@@ -50,7 +50,7 @@
                     </template>
 
                     <template v-slot:cell-chat_department="slotProps">
-                        <div class="text-italic">
+                        <div>
                             {{ slotProps.row.chat_department.tag }}
                         </div>
                     </template>

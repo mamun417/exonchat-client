@@ -1,11 +1,7 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div
-            class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
-        >
-            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
-                Package List
-            </div>
+        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Package List</div>
         </div>
 
         <div class="tw-flex-grow">
@@ -19,13 +15,7 @@
                     flat
                 >
                     <template v-slot:top-right>
-                        <q-input
-                            borderless
-                            dense
-                            debounce="300"
-                            placeholder="Search"
-                            color="green"
-                        >
+                        <q-input borderless dense debounce="300" placeholder="Search" color="green">
                             <template v-slot:append>
                                 <q-icon name="search" />
                             </template>
@@ -38,7 +28,7 @@
                                 v-for="col in props.cols"
                                 :key="col.name"
                                 :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
+                                class="text-green tw-font-bold tw-text-lg"
                             >
                                 {{ col.label }}
                             </q-th>
@@ -59,7 +49,7 @@
                                 v-for="period in props.row.valid_periods"
                                 :key="period"
                                 color="green"
-                                class="text-italic tw-mx-1"
+                                class="tw-mx-1"
                                 >{{ period }}</q-badge
                             >
                         </q-td>
@@ -68,17 +58,12 @@
                     <template v-slot:body-cell-prices="props">
                         <q-td :props="props">
                             <q-badge
-                                v-for="(period, index) in props.row
-                                    .valid_periods"
+                                v-for="(period, index) in props.row.valid_periods"
                                 :key="period"
                                 color="green"
-                                class="text-italic tw-mx-1"
+                                class="tw-mx-1"
                                 >{{ 100 * (index + 1) }}
-                                <q-tooltip
-                                    class=""
-                                    anchor="center right"
-                                    :offset="[50, 14]"
-                                >
+                                <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ period }}
                                 </q-tooltip></q-badge
                             >
@@ -93,27 +78,13 @@
 
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
-                            <q-btn
-                                icon="visibility"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn
-                                icon="edit"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
+                            <q-btn icon="visibility" text-color="green" size="sm" dense flat></q-btn>
+                            <q-btn icon="edit" text-color="green" size="sm" dense flat></q-btn>
                         </q-td>
                     </template>
 
                     <template v-slot:no-data="{ message }">
-                        <div
-                            class="full-width row flex-center text-red q-gutter-sm"
-                        >
+                        <div class="full-width row flex-center text-red q-gutter-sm">
                             <q-icon size="2em" name="sentiment_dissatisfied" />
                             <span> Well this is sad... {{ message }} </span>
                         </div>
@@ -122,25 +93,12 @@
             </div>
         </div>
 
-        <q-dialog
-            v-model="newModal"
-            @update:modelValue="(value) => (newModal = value)"
-            persistent
-        >
+        <q-dialog v-model="newModal" @update:modelValue="(value) => (newModal = value)" persistent>
             <q-card style="max-width: 500px">
-                <q-card-section
-                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
-                >
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">Package - lite</div>
                     <q-space></q-space>
-                    <q-btn
-                        icon="close"
-                        color="orange"
-                        flat
-                        round
-                        dense
-                        v-close-popup
-                    ></q-btn>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6"></q-card-section>
@@ -151,26 +109,12 @@
             </q-card>
         </q-dialog>
 
-        <q-dialog
-            v-model="editModal"
-            @update:modelValue="(value) => (editModal = value)"
-        >
-            <q-card
-                style="max-width: 500px; min-width: 300px; max-height: 500px"
-            >
-                <q-card-section
-                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
-                >
+        <q-dialog v-model="editModal" @update:modelValue="(value) => (editModal = value)">
+            <q-card style="max-width: 500px; min-width: 300px; max-height: 500px">
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">Edit Package - Lite</div>
                     <q-space></q-space>
-                    <q-btn
-                        icon="close"
-                        color="orange"
-                        flat
-                        round
-                        dense
-                        v-close-popup
-                    ></q-btn>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
                 <q-card-section></q-card-section>

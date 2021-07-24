@@ -19,7 +19,7 @@
                     <!--for all col select dynamix v-slot:[header-cell-itemName from loop] -->
                     <!--                    <template v-slot:header-cell-intent_tag="slotProps">{{ slotProps.col.name }}</template>-->
                     <template v-slot:cell-tag="slotProps">
-                        <q-badge color="green" class="text-italic">
+                        <q-badge color="green" class="">
                             @{{ slotProps.row.tag }}
                             <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                 {{ slotProps.row.description }}

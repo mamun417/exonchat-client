@@ -1,17 +1,8 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div
-            class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
-        >
-            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
-                Speech List
-            </div>
-            <q-btn
-                color="green"
-                icon="add"
-                label="Add New"
-                @click="newSpeechModal = true"
-            ></q-btn>
+        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Speech List</div>
+            <q-btn color="green" icon="add" label="Add New" @click="newSpeechModal = true"></q-btn>
         </div>
 
         <div class="tw-flex-grow">
@@ -25,13 +16,7 @@
                     flat
                 >
                     <template v-slot:top-right>
-                        <q-input
-                            borderless
-                            dense
-                            debounce="300"
-                            placeholder="Search"
-                            color="green"
-                        >
+                        <q-input borderless dense debounce="300" placeholder="Search" color="green">
                             <template v-slot:append>
                                 <q-icon name="search" />
                             </template>
@@ -44,7 +29,7 @@
                                 v-for="col in props.cols"
                                 :key="col.name"
                                 :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
+                                class="text-green tw-font-bold tw-text-lg"
                             >
                                 {{ col.label }}
                             </q-th>
@@ -61,13 +46,9 @@
 
                     <template v-slot:body-cell-intent="props">
                         <q-td :props="props">
-                            <q-badge color="green" class="text-italic"
+                            <q-badge color="green" class=""
                                 >{{ props.row.intent.name
-                                }}<q-tooltip
-                                    class=""
-                                    anchor="center right"
-                                    :offset="[50, 14]"
-                                >
+                                }}<q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ props.row.intent.desc }}
                                 </q-tooltip></q-badge
                             >
@@ -86,11 +67,7 @@
                         <q-td :props="props">
                             <div
                                 class="tw-font-medium"
-                                :class="[
-                                    props.row.speech_in_ai === 'True'
-                                        ? 'text-green'
-                                        : 'text-orange',
-                                ]"
+                                :class="[props.row.speech_in_ai === 'True' ? 'text-green' : 'text-orange']"
                             >
                                 {{ props.row.speech_in_ai }}
                             </div>
@@ -113,27 +90,13 @@
                                 dense
                                 flat
                             ></q-btn>
-                            <q-btn
-                                icon="settings"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn
-                                icon="delete"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
+                            <q-btn icon="settings" text-color="green" size="sm" dense flat></q-btn>
+                            <q-btn icon="delete" text-color="red" size="sm" dense flat></q-btn>
                         </q-td>
                     </template>
 
                     <template v-slot:no-data="{ message }">
-                        <div
-                            class="full-width row flex-center text-red q-gutter-sm"
-                        >
+                        <div class="full-width row flex-center text-red q-gutter-sm">
                             <q-icon size="2em" name="sentiment_dissatisfied" />
                             <span> Well this is sad... {{ message }} </span>
                         </div>
@@ -142,36 +105,17 @@
             </div>
         </div>
 
-        <q-dialog
-            v-model="newSpeechModal"
-            @update:modelValue="(value) => (newSpeechModal = value)"
-            persistent
-        >
+        <q-dialog v-model="newSpeechModal" @update:modelValue="(value) => (newSpeechModal = value)" persistent>
             <q-card style="max-width: 500px">
-                <q-card-section
-                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
-                >
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">Add New Speech</div>
                     <q-space></q-space>
-                    <q-btn
-                        icon="close"
-                        color="orange"
-                        flat
-                        round
-                        dense
-                        v-close-popup
-                    ></q-btn>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        label="New Speech"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="label" color="green" /> </template
+                    <q-input label="New Speech" color="green" prefix="@" class="tw-my-2" dense
+                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
                     ></q-input>
 
                     <q-select
@@ -193,30 +137,18 @@
                         color="green"
                         hint="leave intent select if wanted by ai automate"
                         dense
-                        ><template v-slot:prepend>
-                            <q-icon name="ballot" color="green" /> </template
+                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
                         ><template v-slot:option="scope">
-                            <q-item
-                                v-bind="scope.itemProps"
-                                v-on="scope.itemEvents"
-                                dense
-                            >
+                            <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" dense>
                                 <q-item-section class="tw-py-1">
                                     <q-item-label v-html="scope.opt.label" />
-                                    <q-item-label class="tw-text-xxs" caption>{{
-                                        scope.opt.description
-                                    }}</q-item-label>
+                                    <q-item-label class="tw-text-xxs" caption>{{ scope.opt.description }}</q-item-label>
                                 </q-item-section>
                             </q-item>
                         </template></q-select
                     >
 
-                    <q-checkbox
-                        class="tw-mt-2"
-                        label="Activate This As soon it resolved"
-                        color="green"
-                        dense
-                    />
+                    <q-checkbox class="tw-mt-2" label="Activate This As soon it resolved" color="green" dense />
 
                     <div v-if="newSpeechIntent">
                         <q-checkbox
@@ -226,13 +158,8 @@
                             dense
                         />
 
-                        <div
-                            class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold"
-                        >
-                            <div>
-                                IF you checked that all other ai generated
-                                message intents will be affected
-                            </div>
+                        <div class="tw-text-xs tw-mt-2 text-white bg-orange tw-p-2 tw-font-bold">
+                            <div>IF you checked that all other ai generated message intents will be affected</div>
                         </div>
                     </div>
                 </q-card-section>
@@ -243,39 +170,19 @@
             </q-card>
         </q-dialog>
 
-        <q-dialog
-            v-model="editSpeech"
-            @update:modelValue="(value) => (editSpeech = value)"
-            persistent
-        >
+        <q-dialog v-model="editSpeech" @update:modelValue="(value) => (editSpeech = value)" persistent>
             <!-- load parent intents all content -->
             <!--  -->
             <q-card style="max-width: 500px">
-                <q-card-section
-                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
-                >
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">Edit Speech lalala</div>
                     <q-space></q-space>
-                    <q-btn
-                        icon="close"
-                        color="orange"
-                        flat
-                        round
-                        dense
-                        v-close-popup
-                    ></q-btn>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        label="Speech"
-                        color="green"
-                        prefix="@"
-                        class="tw-my-2"
-                        readonly
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="label" color="green" /> </template
+                    <q-input label="Speech" color="green" prefix="@" class="tw-my-2" readonly dense
+                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
                     ></q-input>
 
                     <q-select
@@ -297,30 +204,18 @@
                         color="green"
                         hint="leave intent select if wanted by ai automate"
                         dense
-                        ><template v-slot:prepend>
-                            <q-icon name="ballot" color="green" /> </template
+                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
                         ><template v-slot:option="scope">
-                            <q-item
-                                v-bind="scope.itemProps"
-                                v-on="scope.itemEvents"
-                                dense
-                            >
+                            <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" dense>
                                 <q-item-section class="tw-py-1">
                                     <q-item-label v-html="scope.opt.label" />
-                                    <q-item-label class="tw-text-xxs" caption>{{
-                                        scope.opt.description
-                                    }}</q-item-label>
+                                    <q-item-label class="tw-text-xxs" caption>{{ scope.opt.description }}</q-item-label>
                                 </q-item-section>
                             </q-item>
                         </template></q-select
                     >
 
-                    <q-checkbox
-                        class="tw-mt-2"
-                        label="Activate This As soon it resolved"
-                        color="green"
-                        dense
-                    />
+                    <q-checkbox class="tw-mt-2" label="Activate This As soon it resolved" color="green" dense />
 
                     <div>
                         <q-checkbox
@@ -330,31 +225,19 @@
                             dense
                         />
 
-                        <div
-                            class="tw-text-xs tw-mt-1 text-white bg-orange tw-p-2 tw-font-bold"
-                        >
-                            <div>
-                                You have changed your intent. Deselect this if
-                                not want to subbmit to AI
-                            </div>
+                        <div class="tw-text-xs tw-mt-1 text-white bg-orange tw-p-2 tw-font-bold">
+                            <div>You have changed your intent. Deselect this if not want to subbmit to AI</div>
                         </div>
                     </div>
 
-                    <div
-                        class="tw-text-xs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold"
-                    >
+                    <div class="tw-text-xs tw-mt-5 text-white bg-orange tw-p-2 tw-font-bold">
                         <div>
-                            It looks like this speech holds by ai. By updating
-                            this will remove from ai speech association
+                            It looks like this speech holds by ai. By updating this will remove from ai speech
+                            association
                         </div>
                     </div>
-                    <div
-                        class="tw-text-xs tw-mt-1 text-white bg-orange tw-p-2 tw-font-bold"
-                    >
-                        <div>
-                            It will also affect all other speech intent which
-                            are generated by ai
-                        </div>
+                    <div class="tw-text-xs tw-mt-1 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div>It will also affect all other speech intent which are generated by ai</div>
                     </div>
                 </q-card-section>
 

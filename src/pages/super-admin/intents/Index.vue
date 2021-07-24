@@ -29,7 +29,7 @@
                                 v-for="col in props.cols"
                                 :key="col.name"
                                 :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
+                                class="text-green tw-font-bold tw-text-lg"
                             >
                                 {{ col.label }}
                             </q-th>
@@ -38,7 +38,7 @@
 
                     <template v-slot:body-cell-intent="props">
                         <q-td :props="props">
-                            <q-badge color="green" class="text-italic"
+                            <q-badge color="green" class=""
                                 >{{ props.row.intent.name
                                 }}<q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ props.row.intent.desc }}
@@ -49,7 +49,7 @@
 
                     <template v-slot:body-cell-map_to="props">
                         <q-td :props="props">
-                            <div class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700">
+                            <div class="tw-text-xxs tw-font-medium tw-text-gray-700">
                                 {{ props.row.map_to }}
                             </div>
                         </q-td>
@@ -63,7 +63,7 @@
                     </template>
                     <template v-slot:body-cell-parent_intent="props">
                         <q-td :props="props">
-                            <div class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700">
+                            <div class="tw-text-xxs tw-font-medium tw-text-gray-700">
                                 {{ props.row.parent_intent }}
                             </div>
                         </q-td>

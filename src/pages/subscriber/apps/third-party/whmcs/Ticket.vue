@@ -10,7 +10,7 @@
                     <template v-slot:filter><q-btn label="Reload" icon="refresh" size="sm" no-caps /></template>
 
                     <template v-slot:cell-email="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             <!-- <pre>{{ slotProps.row }}</pre> -->
                             {{ slotProps.row.email }}
                         </div>
@@ -45,7 +45,7 @@
 
         <!--        <q-dialog v-model="detailModal" @update:modelValue="(value) => (detailModal = value)" full-width>-->
         <!--            <q-card>-->
-        <!--                <q-card-section class="tw-border-b-2 tw-py-2 text-italic tw-font-medium"-->
+        <!--                <q-card-section class="tw-border-b-2 tw-py-2  tw-font-medium"-->
         <!--                    >Ticket #{{ ticketDetail.tid }} {{ ticketDetail.subject }}</q-card-section-->
         <!--                >-->
 
@@ -59,7 +59,7 @@
         <!--                            :side="key % 2 === 0 ? 'left' : 'right'"-->
         <!--                        >-->
         <!--                            <template v-slot:title>-->
-        <!--                                <div class="text-italic tw-font-medium tw-text-sm">{{ reply.email }}</div>-->
+        <!--                                <div class=" tw-font-medium tw-text-sm">{{ reply.email }}</div>-->
         <!--                            </template>-->
         <!--                            <div class="tw-text-xs tw-whitespace-pre-wrap">-->
         <!--                                {{ reply.message }}-->

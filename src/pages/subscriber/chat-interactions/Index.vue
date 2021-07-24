@@ -37,7 +37,7 @@
                     </template>
 
                     <template v-slot:cell-client="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             {{ slotProps.row.client_info.socket_session.init_name }}
                         </div>
                     </template>
@@ -98,7 +98,7 @@
                     </template>
 
                     <template v-slot:cell-client="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             {{ slotProps.row.client_info.socket_session.init_name }}
                         </div>
                     </template>
@@ -159,7 +159,7 @@
                     </template>
 
                     <template v-slot:cell-client="slotProps">
-                        <div class="text-italic">
+                        <div class="">
                             {{ slotProps.row.client_info.socket_session.init_name }}
                         </div>
                     </template>

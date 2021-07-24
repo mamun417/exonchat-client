@@ -1,5 +1,5 @@
 <template>
-    <div class="tw-text-xxs text-italic tw-font-medium tw-text-gray-700">
+    <div class="tw-text-xxs tw-font-medium tw-text-gray-700">
         {{ content }}
     </div>
 </template>

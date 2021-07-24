@@ -15,7 +15,7 @@
                     @handleDelete="showConfirmDeleteModal($event)"
                 >
                     <template v-slot:cell-tag="slotProps">
-                        <q-badge color="green" class="text-italic">
+                        <q-badge color="green" class="">
                             /{{ slotProps.row.tag }}
                             <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                 {{ slotProps.row.description }}
