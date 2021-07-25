@@ -56,7 +56,7 @@
                     ></q-btn>
                 </div>
 
-                <div v-if="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+                <div v-show="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5">
                         <q-card>
                             <q-card-section>
@@ -75,7 +75,7 @@
                     </div>
                 </div>
 
-                <div v-else class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+                <div v-show="!closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div
                         v-if="clientInitiateConvInfo.conv_id"
                         id="webchat-container"
@@ -85,6 +85,7 @@
                             <template v-slot:scroll-area-top-section>
                                 <div
                                     v-if="
+                                        !conversationInfo.closed_at &&
                                         conversationInfo.sessions?.length === 1 &&
                                         !conversationInfo.sessions[0].socket_session.user
                                     "
@@ -112,6 +113,7 @@
                             color="blue-grey"
                             class="tw-mb-4 tw-mx-5"
                             no-caps
+                            unelevated
                         >
                             Start New Chat
                         </q-btn>
