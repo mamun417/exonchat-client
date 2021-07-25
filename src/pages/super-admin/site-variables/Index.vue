@@ -1,17 +1,8 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div
-            class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7"
-        >
-            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">
-                Site Variables
-            </div>
-            <q-btn
-                color="green"
-                icon="add"
-                label="Assign"
-                @click="assignVariablesModal = true"
-            ></q-btn>
+        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+            <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Site Variables</div>
+            <q-btn color="green" icon="add" label="Assign" @click="assignVariablesModal = true"></q-btn>
         </div>
 
         <div class="tw-flex-grow">
@@ -30,7 +21,7 @@
                                 v-for="col in props.cols"
                                 :key="col.name"
                                 :props="props"
-                                class="text-italic text-green tw-font-bold tw-text-lg"
+                                class="text-green tw-font-bold tw-text-lg"
                             >
                                 {{ col.label }}
                             </q-th>
@@ -39,9 +30,8 @@
 
                     <template v-slot:body-cell-name="props">
                         <q-td :props="props">
-                            <q-badge color="green" class="text-italic">
-                                <span>$${</span>{{ props.row.name
-                                }}<span>}</span>
+                            <q-badge color="green" class="">
+                                <span>$${</span>{{ props.row.name }}<span>}</span>
                             </q-badge>
                         </q-td>
                     </template>
@@ -54,27 +44,13 @@
 
                     <template v-slot:body-cell-action="props">
                         <q-td :props="props">
-                            <q-btn
-                                icon="settings"
-                                text-color="green"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
-                            <q-btn
-                                icon="delete"
-                                text-color="red"
-                                size="sm"
-                                dense
-                                flat
-                            ></q-btn>
+                            <q-btn icon="settings" text-color="green" size="sm" dense flat></q-btn>
+                            <q-btn icon="delete" text-color="red" size="sm" dense flat></q-btn>
                         </q-td>
                     </template>
 
                     <template v-slot:no-data="{ message }">
-                        <div
-                            class="full-width row flex-center text-red q-gutter-sm"
-                        >
+                        <div class="full-width row flex-center text-red q-gutter-sm">
                             <q-icon size="2em" name="sentiment_dissatisfied" />
                             <span> Well this is sad... {{ message }} </span>
                         </div>
@@ -89,43 +65,19 @@
             persistent
         >
             <q-card style="max-width: 500px">
-                <q-card-section
-                    class="row items-center tw-border-b tw-border-green-500 tw-px-10"
-                >
+                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
                     <div class="tw-text-lg text-green">Add New Variable</div>
                     <q-space></q-space>
-                    <q-btn
-                        icon="close"
-                        color="orange"
-                        flat
-                        round
-                        dense
-                        v-close-popup
-                    ></q-btn>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        label="Variable Name"
-                        color="green"
-                        prefix="$${"
-                        suffix="}"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon name="label" color="green" /> </template
+                    <q-input label="Variable Name" color="green" prefix="$${" suffix="}" class="tw-my-2" dense
+                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
                     ></q-input>
 
-                    <q-input
-                        label="Description"
-                        color="green"
-                        class="tw-my-2"
-                        dense
-                        ><template v-slot:prepend>
-                            <q-icon
-                                name="description"
-                                color="green"
-                            /> </template
+                    <q-input label="Description" color="green" class="tw-my-2" dense
+                        ><template v-slot:prepend> <q-icon name="description" color="green" /> </template
                     ></q-input>
                 </q-card-section>
 

@@ -32,12 +32,12 @@
 
                 <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
 
-                <div v-if="speakingWithInfo.name" class="tw-text-center">
-                    <ec-avatar :image_src="speakingWithInfo.avater" :name="speakingWithInfo.name"> </ec-avatar>
+                <!--<div v-if="speakingWithUser.name" class="tw-text-center">
+                    <ec-avatar :image_src="speakingWithUser.avater" :name="speakingWithUser.name"> </ec-avatar>
                     <div class="tw-mt-2 tw-text-sm">
-                        You are currently speaking to {{ $_.upperFirst(speakingWithInfo.name) }}
+                        You are currently speaking to {{ $_.upperFirst(speakingWithUser.name) }}
                     </div>
-                </div>
+                </div>-->
 
                 <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
                     <q-chat-message
@@ -50,7 +50,7 @@
                     >
                         <template v-slot:stamp>
                             <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
-                                {{ $helpers.fromNowTime(message.created_at) }}
+                                {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
                             </div>
                         </template>
 
@@ -109,11 +109,31 @@
                         <template v-slot:label>
                             <div
                                 class="tw-flex tw-justify-between tw-items-center"
-                                :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']"
+                                :class="[mini_mode ? 'tw-text-xs' : 'tw-text-xs']"
                             >
                                 <div class="tw-border-b-2 tw-flex-grow"></div>
                                 <div class="tw-px-2">{{ getConvStateStatusMessage(message) }}</div>
                                 <div class="tw-border-b-2 tw-flex-grow"></div>
+                            </div>
+
+                            <div
+                                v-if="
+                                    this.chatPanelType === 'client' &&
+                                    message.session.user &&
+                                    message.state === 'joined' &&
+                                    speakingWithUser.id === message.session?.user?.id
+                                "
+                                class="tw-text-center tw-mt-4"
+                            >
+                                <ec-avatar
+                                    :image_src="speakingWithUser.user_meta.src"
+                                    :name="speakingWithUser.user_meta.display_name"
+                                >
+                                </ec-avatar>
+                                <div class="tw-mt-4 tw-text-sm">
+                                    You are currently speaking to
+                                    {{ $_.upperFirst(speakingWithUser.user_meta.display_name) }}
+                                </div>
                             </div>
                         </template>
                     </q-chat-message>
@@ -155,7 +175,7 @@
                     <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
-                            {{ $helpers.fromNowTime(conversationInfo.rating.created_at) }}
+                            {{ $helpers.myDate(conversationInfo.rating.created_at, 'MMMM Do YYYY, h:mm a') }}
                         </div>
                         <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
                         <div class="tw-mt-2">
@@ -447,6 +467,8 @@ export default defineComponent({
             scrollbarCanHandleScrollEvent: false,
 
             lastTopVerticalPosition: 0,
+
+            timeToShowSpeakingInfo: false,
         };
     },
 
@@ -581,30 +603,25 @@ export default defineComponent({
             return this.$store.getters['chat/conversationConnectedUsers'](this.conv_id);
         },
 
-        speakingWithInfo(): any {
-            let speakingWithInfo: any = {
-                name: '',
-                email: '',
-                avater: '',
-            };
-
-            if (this.conversationInfo.id && this.chatPanelType === 'client') {
+        // return user who first join the conversation
+        speakingWithUser(): any {
+            if (this.conversationInfo.id) {
                 const sessions = this.conversationInfo.sessions;
 
                 if (sessions.length) {
-                    const sessionInfo = sessions.find((session: any) => session.socket_session.user);
+                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+                    const sessionInfo = this.$_.sortBy(
+                        sessions.filter((ses: any) => ses.socket_session.user),
+                        [(convSes: any) => moment(convSes.created_at).format('x')]
+                    )[0];
 
                     if (sessionInfo) {
-                        const user = sessionInfo.socket_session.user;
-
-                        speakingWithInfo.name = user.user_meta.display_name;
-                        speakingWithInfo.email = user.email;
-                        speakingWithInfo.avater = user.user_meta.src;
+                        return sessionInfo.socket_session.user;
                     }
                 }
             }
 
-            return speakingWithInfo;
+            return {};
         },
 
         ecGetClientSesIdStatusWatch(): any {
@@ -804,9 +821,9 @@ export default defineComponent({
         getConvStateStatusMessage(message: any) {
             let name = message.session.user ? message.session.user.user_meta?.display_name : message.session.init_name;
 
-            // if (this.chatPanelType === 'user' && message.session.user && message.session.user.id === this.profile.id) {
-            //     name = 'You';
-            // }
+            if (this.chatPanelType === 'user' && message.session.user && message.session.user.id === this.profile.id) {
+                name = 'You';
+            }
             //
             // if (this.chatPanelType === 'client' && !message.session.user) {
             //     name = 'You';
@@ -825,7 +842,10 @@ export default defineComponent({
                     ? ` | ${message.session.user ? 'Agent' : 'Client'} Ended chat ${convSes.closed_reason || ''}`
                     : '';
 
-            return `${name} ${message.state} ${this.$helpers.fromNowTime(message.created_at)}${endMaker}`;
+            const time = `at ${this.$helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a')}`;
+
+            return `${name} ${message.state} the chat ${message.state !== 'joined' ? time : ''} ${endMaker}`;
+            // return `${name} ${message.state} ${this.$helpers.fromNowTime(message.created_at)}${endMaker}`;
         },
 
         inputFocusHandle() {

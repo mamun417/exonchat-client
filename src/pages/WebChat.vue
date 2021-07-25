@@ -91,8 +91,15 @@
                                     "
                                     class="tw-p-5"
                                 >
-                                    <div class="text-center tw-mb-1">Your chat is currently in queue</div>
-                                    <div class="text-center tw-font-bold">Someone will be with you shortly</div>
+                                    <div class="text-center tw-mb-1">
+                                        One of our representatives will be with you shortly. Thank you for your
+                                        patience.
+                                    </div>
+                                    <div class="text-center tw-mb-1 tw-mt-2">
+                                        You are number {{ queuePosition }} in the queue.
+                                    </div>
+                                    <!--<div class="text-center tw-mb-1">Your chat is currently in queue</div>-->
+                                    <!--<div class="text-center tw-font-bold">Someone will be with you shortly</div>-->
                                 </div>
                             </template>
 
@@ -314,7 +321,7 @@ export default defineComponent({
     },
     data(): any {
         return {
-            develop: false,
+            develop: true,
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
@@ -368,6 +375,8 @@ export default defineComponent({
             successSubmitOfflineChatReq: localStorage.getItem('success_submit_offline_chat_req') || false,
 
             chatWidgetMiniWidth: 155,
+            queuePosition: 1,
+            queuePositionInterval: '',
         };
     },
 
@@ -455,8 +464,6 @@ export default defineComponent({
             } else {
                 this.panelMinimize();
             }
-
-            this.panelReady = true;
         },
         toggleChatPanel(toggleTo: any) {
             this.panelReady = false;
@@ -592,6 +599,8 @@ export default defineComponent({
             this.setTypingFalse();
             // localStorage.debug = '*';
             // console.log(this.socket);
+
+            this.getQueueCountNumber();
         },
 
         fireSocketListeners() {
@@ -669,6 +678,7 @@ export default defineComponent({
 
                 this.$store.dispatch('chat/updateConvState', convInfo);
 
+                clearInterval(this.queuePositionInterval);
                 // console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
@@ -690,7 +700,14 @@ export default defineComponent({
                 // // force reload dom
                 // location.reload();
 
+                clearInterval(this.queuePositionInterval);
+
                 // console.log('from ec_is_closed_from_conversation', res);
+            });
+
+            this.socket.on('ec_conv_queue_position_res', (res: any) => {
+                this.queuePosition = res.queue_position;
+                console.log('from ec_conv_queue_position_res', res);
             });
 
             this.socket.on('ec_error', (res: any) => {
@@ -712,6 +729,32 @@ export default defineComponent({
             // console.log(this.convInitFields);
 
             this.socket.emit('ec_init_conv_from_client', { ...this.convInitFields });
+
+            this.getQueueCountNumber();
+        },
+
+        getQueueCountNumber() {
+            this.socket.emit('ec_conv_queue_position', { conv_id: this.clientInitiateConvInfo.conv_id });
+
+            this.queuePositionInterval = setInterval(() => {
+                console.log('pppppp............................');
+
+                if (
+                    this.conversationInfo.sessions?.length === 1 &&
+                    !this.conversationInfo.sessions[0].socket_session.user &&
+                    !this.clientInitiateConvInfo.closed_at
+                ) {
+                    this.socket.emit('ec_conv_queue_position', { conv_id: this.clientInitiateConvInfo.conv_id });
+                }
+
+                // check agent joined and session is > 1
+                if (
+                    this.conversationInfo.conv_id &&
+                    (this.clientInitiateConvInfo.closed_at || this.conversationInfo.sessions?.length > 1)
+                ) {
+                    clearInterval(this.queuePositionInterval);
+                }
+            }, 3000);
         },
 
         firePageVisitListner() {
