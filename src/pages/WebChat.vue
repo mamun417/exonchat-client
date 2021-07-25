@@ -321,7 +321,7 @@ export default defineComponent({
     },
     data(): any {
         return {
-            develop: true,
+            develop: false,
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
