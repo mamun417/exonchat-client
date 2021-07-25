@@ -20,15 +20,17 @@
                         :error="!!departmentFormDataErrors.tag"
                         @update:model-value="departmentFormDataErrors.tag = ''"
                         :readonly="updateModal"
-                        label="Department Tag"
+                        :disable="updateModal"
+                        label="Department Name"
                         color="green"
                         class="tw-my-2"
                         dense
+                        hide-bottom-space
                     >
                         <template v-slot:prepend> <q-icon name="tag" color="green" /> </template>
                     </q-input>
 
-                    <q-input
+                    <!--<q-input
                         v-model="addEditDepartmentFormData.description"
                         :error-message="departmentFormDataErrors.description"
                         :error="!!departmentFormDataErrors.description"
@@ -39,7 +41,8 @@
                         dense
                     >
                         <template v-slot:prepend> <q-icon name="description" color="green" /> </template>
-                    </q-input>
+                    </q-input>-->
+
                     <q-select
                         label="Select Agents"
                         :options="filterAgentList"
@@ -54,6 +57,7 @@
                         multiple
                         use-input
                         dense
+                        hide-bottom-space
                     >
                         <template v-slot:prepend> <q-icon name="group_add" color="green" /> </template>
                         <template v-slot:option="scope">
@@ -68,17 +72,17 @@
                         </template>
                     </q-select>
 
-                    <q-checkbox
+                    <!--<q-checkbox
                         v-model="addEditDepartmentFormData.active"
                         class="tw-mt-2"
                         label="Activate This Department"
                         color="green"
                         dense
-                    />
+                    />-->
 
-                    <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
+                    <!--<div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
                         <div>Note: If you don't select agents then all agents will be assigned to this department</div>
-                    </div>
+                    </div>-->
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-6 tw-my-4">
@@ -116,10 +120,8 @@ export default defineComponent({
             filterAgentList: [],
             addEditDepartmentFormData: {
                 tag: '',
-                description: '',
                 user_ids: [],
                 assign_users: [],
-                active: true,
             },
             departmentFormDataErrors: {},
         };

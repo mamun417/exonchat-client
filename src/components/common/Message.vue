@@ -175,7 +175,7 @@
                     <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
-                            {{ $helpers.fromNowTime(conversationInfo.rating.created_at) }}
+                            {{ $helpers.myDate(conversationInfo.rating.created_at, 'MMMM Do YYYY, h:mm a') }}
                         </div>
                         <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
                         <div class="tw-mt-2">
@@ -609,6 +609,7 @@ export default defineComponent({
                 const sessions = this.conversationInfo.sessions;
 
                 if (sessions.length) {
+                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     const sessionInfo = this.$_.sortBy(
                         sessions.filter((ses: any) => ses.socket_session.user),
                         [(convSes: any) => moment(convSes.created_at).format('x')]
@@ -841,7 +842,9 @@ export default defineComponent({
                     ? ` | ${message.session.user ? 'Agent' : 'Client'} Ended chat ${convSes.closed_reason || ''}`
                     : '';
 
-            return `${name} ${message.state} the chat ${endMaker}`;
+            const time = `at ${this.$helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a')}`;
+
+            return `${name} ${message.state} the chat ${message.state !== 'joined' ? time : ''} ${endMaker}`;
             // return `${name} ${message.state} ${this.$helpers.fromNowTime(message.created_at)}${endMaker}`;
         },
 

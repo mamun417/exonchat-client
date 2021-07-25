@@ -15,7 +15,8 @@
                     @handleDelete="showConfirmDeleteModal($event)"
                 >
                     <template v-slot:cell-assigned_agents="slotProps">
-                        <div v-if="slotProps.row.assigned_agents.length">
+                        {{ slotProps.row.assigned_agents.length }}
+                        <!--<div v-if="slotProps.row.assigned_agents.length">
                             <q-avatar
                                 v-for="(agent, key) in slotProps.row.assigned_agents"
                                 :key="agent.email"
@@ -28,10 +29,10 @@
                                 </q-tooltip>
                             </q-avatar>
                         </div>
-                        <div v-else></div>
+                        <div v-else></div>-->
                     </template>
 
-                    <template v-slot:action-at-middle="slotProps">
+                    <!--<template v-slot:action-at-middle="slotProps">
                         <q-btn icon="settings" text-color="green" size="sm" dense flat>
                             <q-menu>
                                 <div class="row no-wrap q-pa-md">
@@ -46,7 +47,7 @@
                                 </div>
                             </q-menu>
                         </q-btn>
-                    </template>
+                    </template>-->
                 </ec-table>
 
                 <div class="tw-text-xxs tw-mt-5 text-grey-8 tw-p-2 tw-font-medium">
@@ -83,27 +84,27 @@ export default defineComponent({
                 {
                     name: 'tag',
                     align: 'left',
-                    label: 'Department Tag',
+                    label: 'Name',
                     field: 'tag',
                 },
-                {
-                    name: 'description',
-                    align: 'left',
-                    label: 'Description',
-                    field: 'description',
-                },
+                // {
+                //     name: 'description',
+                //     align: 'left',
+                //     label: 'Description',
+                //     field: 'description',
+                // },
                 {
                     name: 'assigned_agents',
                     align: 'center',
                     label: 'Assigned Agents',
                     field: 'users',
                 },
-                {
-                    name: 'status',
-                    label: 'Status',
-                    field: 'status',
-                    align: 'center',
-                },
+                // {
+                //     name: 'status',
+                //     label: 'Status',
+                //     field: 'status',
+                //     align: 'center',
+                // },
                 {
                     name: 'action',
                     label: 'Actions',
