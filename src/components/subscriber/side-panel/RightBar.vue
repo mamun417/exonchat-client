@@ -25,7 +25,7 @@
         >
             <!-- at first conversationWithUsersInfo can be empty. show loader -->
             <q-list v-if="conversationWithUsersInfo.length" class="tw-px-1">
-                <q-item class="tw-shadow-lg tw-py-3 tw-mb-2">
+                <q-item class="tw-shadow-md tw-py-3 tw-mb-4">
                     <q-item-section avatar>
                         <ec-avatar
                             :size="mini_mode ? 'md' : 'xl'"
@@ -43,6 +43,7 @@
                         </q-item-label>
                     </q-item-section>
                 </q-item>
+
                 <q-item class="tw-text-xs tw-w-full" dense>
                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                         <q-icon name="language" size="xs"></q-icon>
@@ -86,6 +87,8 @@
                     </q-item-section>
                 </q-item>
 
+                <div class="tw-mb-3"></div>
+
                 <q-expansion-item
                     icon="web"
                     label="User Visiting"
@@ -96,7 +99,7 @@
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
+                            <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all tw-mb-3">
                                 <q-item v-for="(visit, key) of visits" :key="key" dense class="tw-text-xs">
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                                         <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"></q-icon>
@@ -113,7 +116,7 @@
                                     </q-item-section>
                                 </q-item>
                             </q-list>
-                            <div v-else class="text-center tw-text-xs tw-py-2">No visit info</div>
+                            <div v-else class="text-center tw-py-2">No visit info</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -127,7 +130,7 @@
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="clientPreviousChats.length" class="tw-break-all">
+                            <q-list v-if="clientPreviousChats.length" class="tw-break-all tw-mb-3">
                                 <q-item v-for="(conv, key) of clientPreviousChats" :key="key" dense class="tw-text-xs">
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                                         <q-icon name="chat_bubble_outline" size="xs"></q-icon>
@@ -190,6 +193,7 @@
                     </q-card>
                 </q-expansion-item>
 
+                <!--its a modal-->
                 <ticket-detail
                     :ticket="ticketSelected"
                     :modal_show="ticketDetailModal"

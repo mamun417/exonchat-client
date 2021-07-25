@@ -1,15 +1,6 @@
 <template>
     <div>
-        <!--<pre>{{ conversationInfo }}</pre>-->
-        <!--<div class="text-center tw-mb-5" v-if="conversationInfo.closed_by">
-            {{
-                $_.upperFirst(
-                    conversationInfo.closed_by.user ? conversationInfo.closed_by.user.user_meta.display_name : 'You'
-                )
-            }}
-            closed {{ $helpers.fromNowTime(conversationInfo.closed_at) }}
-        </div>-->
-        <q-card class="shadow-0">
+        <q-card class="tw-shadow-sm">
             <q-card-section class="tw-pb-2">
                 <div class="tw-text-base tw-text-center tw-font-medium">Rate This Chat</div>
             </q-card-section>
@@ -31,7 +22,13 @@
                     :flat="ratingForm.ratingTempValue"
                 />
 
-                <q-input v-model="ratingForm.comment" dense label="Your Comment" color="blue-grey" class="tw-py-3">
+                <q-input
+                    v-model="ratingForm.comment"
+                    dense
+                    label="Your Comment"
+                    color="blue-grey"
+                    class="tw-py-3 full-width"
+                >
                     <template v-slot:prepend>
                         <q-icon name="insert_comment" size="xs" color="blue-grey" />
                     </template>
@@ -42,7 +39,7 @@
                     :disable="ratingForm.ratingTempValue === ''"
                     dense
                     color="blue-grey"
-                    class="full-width tw-my-2"
+                    class="full-width tw-mt-2"
                     no-caps
                     unelevated
                 >

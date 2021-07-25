@@ -17,11 +17,7 @@
                         :class="[`${globalBgColor}-8`]"
                     >
                         <div class="tw-flex tw-flex-col tw-items-center">
-                            <q-icon
-                                name="fas fa-headset"
-                                class="tw-mb-2 tw-shadow-lg tw-rounded-full tw-p-1"
-                                size="lg"
-                            />
+                            <q-icon name="fas fa-headset" class="tw-mb-2 tw-rounded-full tw-p-1" size="lg" />
 
                             <ec-avatar
                                 :image_src="profile?.user_meta?.attachment?.src"
@@ -90,7 +86,7 @@
 
             <q-page-container>
                 <q-page class="tw-flex">
-                    <router-view class="tw-w-full tw-p-3 bg-green-1" :key="$route.fullPath"></router-view>
+                    <router-view :class="`tw-w-full tw-p-3 ${globalBgColor}-1`" :key="$route.fullPath"></router-view>
                 </q-page>
             </q-page-container>
         </template>

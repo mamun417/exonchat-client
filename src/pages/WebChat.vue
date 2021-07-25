@@ -100,23 +100,26 @@
                                 <div class="text-center" v-if="!conversationInfo.closed_at && !chatActiveStatus">
                                     Chat is idle due to 10 minutes of inactivity
                                 </div>
-                                <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-p-5">
+
+                                <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-mb-4">
                                     <chat-rating-form />
                                 </div>
                             </template>
                         </message>
 
-                        <q-btn
-                            v-if="conversationInfo.closed_at"
-                            @click="clearSession"
-                            dense
-                            color="blue-grey"
-                            class="tw-mb-4 tw-mx-5"
-                            no-caps
-                            unelevated
-                        >
-                            Start New Chat
-                        </q-btn>
+                        <div class="tw-px-3 full-width">
+                            <q-btn
+                                v-if="conversationInfo.closed_at"
+                                @click="clearSession"
+                                dense
+                                color="blue-grey"
+                                class="full-width"
+                                no-caps
+                                unelevated
+                            >
+                                Start New Chat
+                            </q-btn>
+                        </div>
                     </div>
 
                     <!--<div
