@@ -51,6 +51,8 @@ function ec_minimize_panel(style = 'position: fixed; bottom: 20px; right: 0px; z
     console.log('minimize chat panel');
 
     ecChatContainer.style = style;
+
+    ecChatIFrame.contentWindow.postMessage({ res: 'ec_minimized_panel', value: { status: true } }, '*');
 }
 
 function ec_page_visit_info() {

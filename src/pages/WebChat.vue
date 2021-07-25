@@ -1,18 +1,32 @@
 <template>
     <q-page v-if="allCheck" class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
-        <div v-show="!panelVisibleStatus">
-            <q-btn
-                icon="forum"
-                size="18px"
-                color="blue-grey"
-                @click="toggleChatPanel(true)"
-                class="tw-fixed tw-right-1 tw-bottom-1"
-                round
-            />
+        <div v-show="panelReady && !panelVisibleStatus" class="tw-flex tw-flex-col">
+            <div class="tw-break-all tw-max-w-lg tw-mb-3">
+                <q-card class="tw-shadow-lg">
+                    <q-card-section class="tw-p-2">
+                        <div class="tw-font-medium">Need Help?</div>
+                        <div>Start chatting with us!</div>
+                    </q-card-section>
+                </q-card>
+            </div>
+
+            <div class="tw-flex tw-justify-end">
+                <q-btn
+                    icon="forum"
+                    size="18px"
+                    color="blue-grey"
+                    class="tw-shadow-xl"
+                    @click="toggleChatPanel(true)"
+                    round
+                    unelevated
+                />
+            </div>
+
+            <q-resize-observer :debounce="300" @resize="onResizeMiniMode" />
         </div>
 
         <div
-            v-show="panelVisibleStatus"
+            v-show="panelReady && panelVisibleStatus"
             class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
         >
             <template v-if="hasApiKey">
@@ -318,7 +332,10 @@ export default defineComponent({
             allCheck: false,
             api_key: null,
             hasApiKey: false,
+
+            panelReady: false, // at toggle fully hide both dom
             panelVisibleStatus: !!window.localStorage.getItem('chat_panel_visible'),
+
             socket: null,
             socketId: null,
             sesId: null,
@@ -344,6 +361,8 @@ export default defineComponent({
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem('success_submit_offline_chat_req') || false,
+
+            chatWidgetMiniWidth: 155,
         };
     },
 
@@ -364,6 +383,11 @@ export default defineComponent({
 
                 if (event.data.res === 'page_visit_info') {
                     this.sendPageVisitingInfo(event.data.value);
+                }
+
+                if (event.data.res === 'ec_minimized_panel') {
+                    this.panelVisibleStatus = false;
+                    this.panelReady = true;
                 }
 
                 // handle other res
@@ -399,23 +423,47 @@ export default defineComponent({
     },
 
     methods: {
+        onResizeMiniMode(size: any) {
+            // call this function one time for get height & width
+            if (this.panelVisibleStatus) return;
+
+            // size.width is unstable
+
+            // window.parent.postMessage(
+            //     {
+            //         action: 'ec_minimize_panel',
+            //         param: `position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: ${+this
+            //             .chatWidgetMiniWidth}px; height: ${+size.height + 10}px`,
+            //     },
+            //     '*'
+            // );
+        },
+
+        getChatWidgetDesign() {
+            // get design.
+            // update chatWidgetMiniWidth variable. call onResizeMiniMode or trigger that
+        },
+
         handleChatPanelVisibility() {
             if (this.panelVisibleStatus) {
                 this.panelMaximize();
             } else {
                 this.panelMinimize();
             }
+
+            this.panelReady = true;
         },
         toggleChatPanel(toggleTo: any) {
+            this.panelReady = false;
+
             if (toggleTo) {
                 window.localStorage.setItem('chat_panel_visible', 'true');
                 // first apply styles then make visible
                 this.panelMaximize();
 
-                // after all code execution set it true
-                setTimeout(() => (this.panelVisibleStatus = true), 0);
+                this.panelVisibleStatus = true;
+                this.panelReady = true;
             } else {
-                this.panelVisibleStatus = false;
                 window.localStorage.removeItem('chat_panel_visible');
 
                 this.panelMinimize();
@@ -435,7 +483,7 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: 'ec_minimize_panel',
-                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: 62px; height: 62px',
+                    param: `position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: ${this.chatWidgetMiniWidth}px; height: 135px`,
                 },
                 '*'
             );
