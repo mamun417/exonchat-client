@@ -175,7 +175,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 return { ...conv, client_info };
             });
 
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x')).reverse();
+        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x'));
     },
 
     // my running chats => for left bar & interaction page

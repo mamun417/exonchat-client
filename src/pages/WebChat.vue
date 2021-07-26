@@ -89,14 +89,17 @@
                                         conversationInfo.sessions?.length === 1 &&
                                         !conversationInfo.sessions[0].socket_session.user
                                     "
-                                    class="tw-p-5"
+                                    class="tw-py-4 tw-text-sm"
                                 >
                                     <div class="text-center tw-mb-1">
                                         One of our representatives will be with you shortly. Thank you for your
                                         patience.
                                     </div>
+
+                                    <q-separator class="tw-my-2" />
+
                                     <div class="text-center tw-mb-1 tw-mt-2">
-                                        You are number {{ queuePosition }} in the queue.
+                                        You are number <b>{{ queuePosition }}</b> in the queue.
                                     </div>
                                     <!--<div class="text-center tw-mb-1">Your chat is currently in queue</div>-->
                                     <!--<div class="text-center tw-font-bold">Someone will be with you shortly</div>-->
@@ -464,6 +467,8 @@ export default defineComponent({
             } else {
                 this.panelMinimize();
             }
+
+            this.panelReady = true;
         },
         toggleChatPanel(toggleTo: any) {
             this.panelReady = false;
@@ -737,8 +742,6 @@ export default defineComponent({
             this.socket.emit('ec_conv_queue_position', { conv_id: this.clientInitiateConvInfo.conv_id });
 
             this.queuePositionInterval = setInterval(() => {
-                console.log('pppppp............................');
-
                 if (
                     this.conversationInfo.sessions?.length === 1 &&
                     !this.conversationInfo.sessions[0].socket_session.user &&

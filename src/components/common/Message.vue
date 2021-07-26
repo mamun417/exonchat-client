@@ -130,7 +130,7 @@
                                     :name="speakingWithUser.user_meta.display_name"
                                 >
                                 </ec-avatar>
-                                <div class="tw-mt-4 tw-text-sm">
+                                <div class="tw-mt-2 tw-text-sm">
                                     You are currently speaking to
                                     {{ $_.upperFirst(speakingWithUser.user_meta.display_name) }}
                                 </div>
