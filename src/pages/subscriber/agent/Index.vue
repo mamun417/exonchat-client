@@ -2,7 +2,15 @@
     <div class="tw-flex tw-flex-col">
         <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">My Agents</div>
-            <q-btn color="green" icon="add" label="Invite" @click="assignAgentModal = true"></q-btn>
+            <q-btn
+                :color="globalColor"
+                icon="add"
+                label="Invite"
+                @click="
+                    assignAgentModal = true;
+                    getChatDepartments();
+                "
+            ></q-btn>
         </div>
 
         <div>
@@ -130,7 +138,7 @@
         >
             <q-card style="max-width: 500px">
                 <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                    <div class="tw-text-lg text-green">Add New Agent</div>
+                    <div :class="`tw-text-lg text-${globalColor}`">Add New Agent</div>
                     <q-space></q-space>
                     <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
                 </q-card-section>
@@ -142,17 +150,40 @@
                         @update:model-value="sendInvitationFormDataErrors.email = ''"
                         v-model="sendInvitationFormData.email"
                         label="Email"
-                        color="green"
+                        :color="globalColor"
                     >
                         <template v-slot:prepend>
-                            <q-icon name="mail" color="green" />
+                            <q-icon name="mail" :color="globalColor" />
                         </template>
                     </q-input>
+
+                    <q-select
+                        v-model="sendInvitationFormData.chat_department_ids"
+                        :options="chatDepartments"
+                        :error-message="sendInvitationFormDataErrors.chat_department_ids"
+                        :error="!!sendInvitationFormDataErrors.chat_department_ids"
+                        @update:model-value="sendInvitationFormDataErrors.chat_department_ids = ''"
+                        hide-bottom-space
+                        option-value="id"
+                        option-label="tag"
+                        label="Chat Department"
+                        class="tw-mb-3"
+                        :color="globalColor"
+                        use-chips
+                        multiple
+                        emit-value
+                        map-options
+                        dense
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="person" size="xs" color="blue-grey" />
+                        </template>
+                    </q-select>
 
                     <q-checkbox
                         v-model="sendInvitationFormData.active"
                         label="Active when verified"
-                        color="green"
+                        :color="globalColor"
                         class="tw-mt-3"
                         dense
                     />
@@ -170,7 +201,7 @@
 
                 <q-card-actions class="tw-mx-6 tw-mb-4">
                     <q-btn
-                        color="green"
+                        :color="globalColor"
                         :loading="sendingInvitation"
                         label="submit"
                         class="full-width"
@@ -235,7 +266,7 @@ const invitationColumns = [
         name: 'sent_at',
         label: 'Sent At',
         field: 'created_at',
-        align: 'left',
+        align: 'center',
     },
     {
         name: 'status',
@@ -279,12 +310,16 @@ export default defineComponent({
             sendInvitationFormData: {
                 email: '',
                 type: 'agent',
+                chat_department_ids: [],
                 active: true,
             },
             sendInvitationFormDataErrors: {},
             deleteInvitationId: '',
             showDeleteModal: false,
             statusSuccessValues: ['success'],
+
+            loadingChatDepartments: false,
+            chatDepartments: [],
         };
     },
 
@@ -297,6 +332,8 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
+            globalBgColor: 'setting_ui/globalBgColor',
+            globalColor: 'setting_ui/globalColor',
             profile: 'auth/profile',
         }),
 
@@ -338,6 +375,23 @@ export default defineComponent({
                 })
                 .catch((err: any) => {
                     console.log(err);
+                });
+        },
+
+        getChatDepartments() {
+            this.loadingChatDepartments = true;
+
+            window.socketSessionApi
+                .get('/departments')
+                .then((res: any) => {
+                    // console.log('webchat departments', res);
+                    this.chatDepartments = res.data;
+                })
+                .catch((e: any) => {
+                    console.log(e);
+                })
+                .finally(() => {
+                    this.loadingChatDepartments = false;
                 });
         },
 

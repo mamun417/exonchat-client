@@ -712,7 +712,8 @@ export default defineComponent({
 
             this.socket.on('ec_conv_queue_position_res', (res: any) => {
                 this.queuePosition = res.queue_position;
-                console.log('from ec_conv_queue_position_res', res);
+
+                // console.log('from ec_conv_queue_position_res', res);
             });
 
             this.socket.on('ec_error', (res: any) => {
