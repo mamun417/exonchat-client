@@ -1,13 +1,21 @@
 <template>
-    <q-page v-if="allCheck" class="tw-flex tw-flex-col tw-rounded-md" style="min-height: unset">
-        <div v-show="panelReady && !panelVisibleStatus" class="tw-flex tw-flex-col">
-            <div class="tw-break-all tw-max-w-lg tw-mb-3">
-                <q-card class="tw-shadow-lg">
-                    <q-card-section class="tw-p-2">
-                        <div class="tw-font-medium">Need Help?</div>
-                        <div>Start chatting with us!</div>
-                    </q-card-section>
-                </q-card>
+    <q-page
+        v-if="allCheck"
+        class="tw-flex tw-flex-col tw-h-full tw-justify-end tw-rounded-md"
+        style="min-height: unset"
+    >
+        <div v-show="panelReady && !panelVisibleStatus">
+            <div class="tw-mb-3">
+                <div class="tw-flex tw-justify-end tw-mb-1">
+                    <q-btn icon="close" size="xs" class="tw-shadow" round flat />
+                </div>
+                <!--                <div>-->
+                <div class="tw-p-2 bg-white tw-shadow-lg">
+                    <div class="tw-font-medium">Need Help?</div>
+                    <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
+                    <div class="tw-whitespace-nowrap">Start chatting with us!</div>
+                </div>
+                <!--                </div>-->
             </div>
 
             <div class="tw-flex tw-justify-end">
@@ -22,7 +30,7 @@
                 />
             </div>
 
-            <q-resize-observer :debounce="300" @resize="onResizeMiniMode" />
+            <q-resize-observer ref="resizeObserver" :debounce="100" @resize="onResizeMiniMode" />
         </div>
 
         <div
@@ -377,7 +385,7 @@ export default defineComponent({
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem('success_submit_offline_chat_req') || false,
 
-            chatWidgetMiniWidth: 155,
+            chatWidgetMiniWidth: 200,
             queuePosition: 1,
             queuePositionInterval: '',
         };
@@ -404,6 +412,13 @@ export default defineComponent({
 
                 if (event.data.res === 'ec_minimized_panel') {
                     this.panelVisibleStatus = false;
+
+                    this.panelReady = true;
+                }
+
+                if (event.data.res === 'ec_maximized_panel') {
+                    this.panelVisibleStatus = true;
+
                     this.panelReady = true;
                 }
 
@@ -446,14 +461,17 @@ export default defineComponent({
 
             // size.width is unstable
 
-            // window.parent.postMessage(
-            //     {
-            //         action: 'ec_minimize_panel',
-            //         param: `position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: ${+this
-            //             .chatWidgetMiniWidth}px; height: ${+size.height + 10}px`,
-            //     },
-            //     '*'
-            // );
+            // if (size.width < 160) {
+            //     size.width = 160;
+            // }
+
+            window.parent.postMessage(
+                {
+                    action: 'ec_minimize_panel',
+                    param: { height: `${+size.height}px`, width: `${+size.height}px`, display: 'block' },
+                },
+                '*'
+            );
         },
 
         getChatWidgetDesign() {
@@ -467,8 +485,6 @@ export default defineComponent({
             } else {
                 this.panelMinimize();
             }
-
-            this.panelReady = true;
         },
         toggleChatPanel(toggleTo: any) {
             this.panelReady = false;
@@ -477,9 +493,6 @@ export default defineComponent({
                 window.localStorage.setItem('chat_panel_visible', 'true');
                 // first apply styles then make visible
                 this.panelMaximize();
-
-                this.panelVisibleStatus = true;
-                this.panelReady = true;
             } else {
                 window.localStorage.removeItem('chat_panel_visible');
 
@@ -491,7 +504,7 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: 'ec_maximize_panel',
-                    param: 'position: fixed; bottom: 15px; right: 15px; z-index: 9999999; height: 560px; width: 350px',
+                    param: { height: '560px', width: '350px', display: 'block' },
                 },
                 '*'
             );
@@ -500,7 +513,7 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: 'ec_minimize_panel',
-                    param: `position: fixed; bottom: 15px; right: 15px; z-index: 9999999; width: ${this.chatWidgetMiniWidth}px; height: 135px`,
+                    param: { height: '300px', width: `${this.chatWidgetMiniWidth}px`, display: 'block' },
                 },
                 '*'
             );

@@ -27,7 +27,8 @@ const whmcs_client_id = ecChatScriptTag.getAttribute('data-whmcs-client-id');
 addDom(document, 'div', 'exhonchat-chat-box-container');
 
 let ecChatContainer = document.getElementById('exhonchat-chat-box-container');
-ecChatContainer.style = 'display: none';
+ecChatContainer.style =
+    'display: none; transition: all 150ms ease 0s; position: fixed; bottom: 15px; right: 15px; z-index: 9999999;';
 
 let ecChatIFrame = document.createElement('iframe');
 ecChatIFrame.id = 'exhonchat-iframe-container';
@@ -41,16 +42,22 @@ function ec_mounted() {
     ecChatIFrame.contentWindow.postMessage({ res: 'widget_id', value: widget_id }, '*');
 }
 
-function ec_maximize_panel(style = 'position: fixed; bottom: 20px; right: 0px; z-index: 9999999') {
+function ec_maximize_panel(styleObj = {}) {
     console.log('maximize chat panel');
 
-    ecChatContainer.style = style;
+    Object.keys(styleObj).forEach((styleKey) => {
+        ecChatContainer.style[styleKey] = styleObj[styleKey];
+    });
+
+    ecChatIFrame.contentWindow.postMessage({ res: 'ec_maximized_panel', value: { status: true } }, '*');
 }
 
-function ec_minimize_panel(style = 'position: fixed; bottom: 20px; right: 0px; z-index: 9999999') {
+function ec_minimize_panel(styleObj = {}) {
     console.log('minimize chat panel');
 
-    ecChatContainer.style = style;
+    Object.keys(styleObj).forEach((styleKey) => {
+        ecChatContainer.style[styleKey] = styleObj[styleKey];
+    });
 
     ecChatIFrame.contentWindow.postMessage({ res: 'ec_minimized_panel', value: { status: true } }, '*');
 }

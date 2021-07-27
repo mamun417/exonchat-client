@@ -1,6 +1,6 @@
 <template>
-    <q-layout view="lHh Lpr lFf" style="min-height: unset">
-        <q-page-container>
+    <q-layout view="lHh Lpr lFf" style="min-height: unset; height: 100%">
+        <q-page-container class="tw-h-full">
             <router-view />
         </q-page-container>
     </q-layout>
