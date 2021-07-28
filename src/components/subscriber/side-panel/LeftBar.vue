@@ -138,7 +138,7 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs" style="word-break: break-all">
+                                        <q-item-label class="text-weight-bold tw-text-sm" style="word-break: break-all">
                                             {{ senderInfo(ongoingChat).display_name }}
                                         </q-item-label>
                                     </q-item-section>
@@ -172,10 +172,10 @@
                                     dense
                                 >
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold">All</q-item-label>
+                                        <q-item-label class="text-weight-bold tw-text-sm">All</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
-                                        <q-item-label side class="text-weight-bold text-right tw-text-xs">
+                                        <q-item-label side class="text-weight-bold text-right tw-text-sm">
                                             {{
                                                 Object.values(departmentalChatRequestsCount).reduce((acc, cur) => {
                                                     return +acc + +cur.count;
@@ -189,7 +189,7 @@
                                 <q-item
                                     v-for="department of chatDepartments"
                                     :key="department.id"
-                                    class="tw-text-xs"
+                                    class="tw-text-sm"
                                     @click="
                                         $router.push({
                                             name: 'chat-interaction',
@@ -200,10 +200,12 @@
                                     dense
                                 >
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold">{{ department.tag }}</q-item-label>
+                                        <q-item-label class="text-weight-bold tw-text-sm">{{
+                                            department.tag
+                                        }}</q-item-label>
                                     </q-item-section>
                                     <q-item-section>
-                                        <q-item-label side class="text-weight-bold text-right tw-text-xs"
+                                        <q-item-label side class="text-weight-bold text-right tw-text-sm"
                                             >{{ departmentalChatRequestsCount[department.tag]?.count || 0 }} chats
                                         </q-item-label>
                                     </q-item-section>
@@ -252,7 +254,7 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-bold tw-text-xs">
+                                        <q-item-label class="text-weight-bold tw-text-sm">
                                             {{ user.user_meta.display_name }}
                                         </q-item-label>
 
