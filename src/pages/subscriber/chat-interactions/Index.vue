@@ -131,21 +131,21 @@
 
         <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
-                <div>ACTIVE CHATS: {{ ongoingAllChats.length }}</div>
+                <div>ACTIVE OTHER CHATS: {{ ongoingOtherChats.length }}</div>
             </div>
         </div>
 
         <div class="">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <ec-table
-                    :columns="typeOneColumns"
-                    :rows="filteredChats('ongoingAllChats')"
+                    :columns="typeThreeColumns"
+                    :rows="filteredChats('ongoingOtherChats')"
                     @rowClick="rowClickHandle"
                     hide-search
                 >
                     <template v-slot:filter>
                         <q-select
-                            v-model="departmentFilters.ongoingAllChats"
+                            v-model="departmentFilters.ongoingOtherChats"
                             label="Choose Department"
                             :options="departments"
                             style="width: 200px"
@@ -160,15 +160,19 @@
 
                     <template v-slot:cell-client="slotProps">
                         <div class="">
-                            {{ slotProps.row.client_info.socket_session.init_name }}
+                            {{ slotProps.row.connected_client.socket_session.init_name }}
                         </div>
+                    </template>
+
+                    <template v-slot:cell-connected_agents="slotProps">
+                        <connected-users-faces :users_conv_ses="slotProps.row.connected_agents" />
                     </template>
 
                     <template v-slot:cell-currently_on="slotProps">
                         <div class="text-xss">
                             {{
                                 $_.last(
-                                    $_.find(visitors, ['session_id', slotProps.row.client_info.socket_session_id])
+                                    $_.find(visitors, ['session_id', slotProps.row.connected_client.socket_session_id])
                                         ?.visits
                                 )?.url
                             }}
@@ -196,12 +200,12 @@
 import { defineComponent } from 'vue';
 import { mapMutations, mapGetters } from 'vuex';
 import EcTable from 'components/common/table/EcTable.vue';
+import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
 // import TrackingConversationBtn from 'components/common/table/utilities/TrackingConversationBtn.vue';
 // import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn.vue';
 // import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
 // import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
 // import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
-// import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
 //
 // import * as _l from 'lodash';
 // import moment from 'moment';
@@ -237,7 +241,7 @@ export default defineComponent({
         // DirectMessageBtn,
         // TrackingConversationBtn,
         EcTable,
-        // ConnectedUsersFaces,
+        ConnectedUsersFaces,
     },
     data(): any {
         return {
@@ -247,7 +251,7 @@ export default defineComponent({
             departmentFilters: {
                 chatsInQueue: '',
                 myRunningChats: '',
-                ongoingAllChats: '',
+                ongoingOtherChats: '',
             },
             departments: [],
         };
@@ -255,6 +259,7 @@ export default defineComponent({
 
     setup() {
         return {
+            // type columns are not serial maintained
             typeOneColumns: [
                 ...columns,
 
@@ -275,6 +280,40 @@ export default defineComponent({
                     field: 'chat_time',
                 },
             ],
+            typeThreeColumns: [
+                {
+                    name: 'client',
+                    align: 'left',
+                    label: 'Client',
+                    field: 'client',
+                },
+
+                {
+                    name: 'connected_agents',
+                    align: 'center',
+                    label: 'Agents',
+                    field: 'connected_agents',
+                },
+                {
+                    name: 'currently_on',
+                    align: 'center',
+                    label: 'Currently On',
+                    field: 'currently_on',
+                },
+                {
+                    name: 'department',
+                    align: 'left',
+                    label: 'Department',
+                    field: 'department',
+                },
+
+                {
+                    name: 'elapsed_time',
+                    align: 'center',
+                    label: 'Elapsed Time',
+                    field: 'elapsed_time',
+                },
+            ],
         };
     },
 
@@ -282,7 +321,7 @@ export default defineComponent({
         ...mapGetters({
             chatsInQueue: 'chat/incomingChatRequestsForMe',
             myRunningChats: 'chat/myOngoingChats',
-            ongoingAllChats: 'chat/ongoingAllChats',
+            ongoingOtherChats: 'chat/ongoingOtherChats',
             visitors: 'visitor/visitors',
             globalColor: 'setting_ui/globalColor',
         }),

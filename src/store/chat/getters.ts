@@ -159,6 +159,28 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x')).reverse();
     },
 
+    // ongoing other chats => for interaction page
+    ongoingOtherChats(state, getters, rootState, rootGetters) {
+        const chats = Object.values(state.conversations)
+            .filter((conv: any) => {
+                const sesInfo = _l.find(conv.sessions, [
+                    'socket_session_id',
+                    rootGetters['auth/profile']?.socket_session?.id,
+                ]);
+
+                return !conv.users_only && !conv.closed_at && !sesInfo;
+            })
+            .map((conv: any) => {
+                return {
+                    connected_client: _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user),
+                    connected_agents: conv.sessions.filter((convSes: any) => convSes.socket_session.user),
+                    ...conv,
+                };
+            });
+
+        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x')).reverse();
+    },
+
     // chat requests for me => for left bar & interaction page
     incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
         const chats = Object.values(state.conversations)
@@ -221,7 +243,12 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
                 const count_unseen_msg = countUnSeenMsg;
 
-                return { conversation_session: conv.sessions[0], ...conv, client_info, count_unseen_msg }; // conv.sessions[0] cz we are already filtering length 1
+                return {
+                    conversation_session: _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user),
+                    ...conv,
+                    client_info,
+                    count_unseen_msg,
+                }; // conv.sessions[0] cz we are already filtering length 1
             });
     },
 
