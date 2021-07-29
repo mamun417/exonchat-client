@@ -213,6 +213,7 @@ import StoreDebug from 'src/components/debug/StoreDebug.vue';
 
 declare global {
     interface Window {
+        exonchat_whmcs_info: any;
         exonChat: any;
     }
 }
@@ -640,9 +641,14 @@ export default defineComponent({
                 // eslint-disable-next-line @typescript-eslint/no-this-alias
                 const self = this;
 
-                window.exonChat = function () {
-                    return {};
-                };
+                // setTimeout for testing
+                setTimeout(() => {
+                    console.log('init client logged in id');
+
+                    window.exonChat.whmcs_info = { clientId: '7', clientEmail: 'abdullah.ssc13@gmail.com' };
+                }, 20000);
+
+                window.exonChat = {};
                 (function (d, s, id) {
                     let js: any,
                         fjs: any = d.getElementsByTagName(s)[0];

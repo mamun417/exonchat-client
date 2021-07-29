@@ -332,7 +332,7 @@ export default defineComponent({
     },
     data(): any {
         return {
-            develop: false,
+            develop: true,
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
@@ -372,6 +372,7 @@ export default defineComponent({
                 department_tag: '',
                 subject: '',
                 message: '',
+                user_info: {},
             },
             convInitFieldsErrors: {},
             msg: '',
@@ -426,6 +427,11 @@ export default defineComponent({
 
                 // if res is like whmcs_client_id then assign it
                 // after that watch for it do what is needed
+
+                if (event.data.res === 'whmcs_info') {
+                    console.log('get client whmcs info');
+                    this.getClientWhmcsInfo(event.data.value);
+                }
             },
             false
         );
@@ -1042,6 +1048,31 @@ export default defineComponent({
             const timerLeftDuration = moment().diff(lastActivity, 'milliseconds');
 
             return activityTime - timerLeftDuration;
+        },
+
+        getClientWhmcsInfo(whmcsInfo: any) {
+            window.api
+                .post('apps/whmcs/client-details', {
+                    clientid: whmcsInfo.clientId,
+                    email: whmcsInfo.clientEmail,
+                })
+                .then((res: any) => {
+                    console.log(res.data);
+                    this.convInitFields.name = res.data.fullname;
+                    this.convInitFields.email = res.data.email;
+
+                    this.convInitFields.user_info = {
+                        whmcs_info: {
+                            ...res.data,
+                            whmcs_info: true,
+                        },
+                    };
+
+                    window.parent.postMessage({ action: 'clear_whmcs_info_interval' }, '*');
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
         },
     },
 

@@ -23,6 +23,7 @@ const ecChatScriptTag = document.getElementById('exhonchat-chat-script');
 
 const widget_id = ecChatScriptTag.getAttribute('data-widget-id');
 const whmcs_client_id = ecChatScriptTag.getAttribute('data-whmcs-client-id');
+const test = ecChatScriptTag.getAttribute('data-widget-test');
 
 addDom(document, 'div', 'exhonchat-chat-box-container');
 
@@ -36,6 +37,21 @@ ecChatIFrame.style = 'border: 0; height: 100%; width: 100%; overflow: hidden; di
 ecChatIFrame.src = `${new URL(ecChatScriptTag.src).origin}/web-chat`;
 
 ecChatContainer.appendChild(ecChatIFrame);
+
+let getWhmcsInfoInterval = '';
+
+// check whmcs client is logged in
+getWhmcsInfoInterval = setInterval(() => {
+    if (exonChat.whmcs_info?.clientId && exonChat.whmcs_info?.clientEmail) {
+        console.log('call web chat function');
+
+        ecChatIFrame.contentWindow.postMessage({ res: 'whmcs_info', value: exonChat.whmcs_info }, '*');
+    }
+}, 5000);
+
+function clear_whmcs_info_interval() {
+    clearInterval(getWhmcsInfoInterval);
+}
 
 function ec_mounted() {
     // send others with are needed
