@@ -4,7 +4,7 @@
             <q-item class="tw-w-full">
                 <q-item-section v-if="conversationWithUsersInfo.length === 1" avatar>
                     <ec-avatar
-                        :size="mini_mode ? 'md' : 'xl'"
+                        :size="mini_mode ? 'lg' : 'xl'"
                         :image_src="
                             conversationWithUsersInfo[0].socket_session.user
                                 ? conversationWithUsersInfo[0].socket_session.user.user_meta.src || null

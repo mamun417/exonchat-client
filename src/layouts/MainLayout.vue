@@ -75,7 +75,10 @@
 
             <q-drawer
                 :model-value="rightDrawerVisible"
-                class="tw-shadow-lgl"
+                :class="{
+                    'tw-shadow-lgl': this.rightBarState.mode === 'conversation',
+                    'bg-blue-grey-1': this.rightBarState.mode === 'client_info',
+                }"
                 side="right"
                 breakpoint="xs"
                 :width="this.rightBarState.mode === 'conversation' ? 400 : 350"

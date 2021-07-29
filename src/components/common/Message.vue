@@ -983,14 +983,16 @@ export default defineComponent({
 
             const time = `at ${this.$helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a')}`;
 
-            // return `${name} ${message.state} the chat ${message.state !== 'joined' ? time : ''} ${endMaker}`;
+            if (this.chatPanelType === 'user') {
+                return {
+                    name: name,
+                    state: message.state,
+                    state_message: `${message.state} the chat`,
+                    end_message: endMaker,
+                };
+            }
 
-            return {
-                name: name,
-                state: message.state,
-                state_message: `${message.state} the chat`,
-                end_message: endMaker,
-            };
+            return `${name} ${message.state} the chat ${message.state !== 'joined' ? time : ''} ${endMaker}`;
         },
 
         inputFocusHandle() {

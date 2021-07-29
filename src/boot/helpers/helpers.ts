@@ -1,5 +1,6 @@
 import moment from 'moment';
 import * as _l from 'lodash';
+import 'moment-precise-range-plugin';
 
 const helpers = {
     getTempId() {
@@ -12,6 +13,10 @@ const helpers = {
 
     diffAsMinute(timestamp: any) {
         return moment.duration(moment(Date.now()).diff(timestamp)).humanize();
+    },
+
+    preciseDiff(toTime: any, fromTime: any = null) {
+        return moment.preciseDiff(fromTime || moment(Date.now()), toTime);
     },
 
     myDate(timestamp: string, format = 'MMMM Do YYYY') {
