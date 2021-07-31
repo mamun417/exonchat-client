@@ -2,7 +2,7 @@
     <q-scroll-area
         @scroll="scrollInfo = $event"
         ref="msgScrollArea"
-        class="tw-px-3 tw-flex-grow tw-text-xs"
+        class="tw-px-1 tw-flex-grow tw-text-xs"
         style="height: 1px"
         :bar-style="{
             background: '#60A5FA',
@@ -47,27 +47,51 @@
                                     v-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
                                     class="tw-flex tw-items-center tw-py-4"
                                 >
-                                    <div class="tw-w-20 tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center">
+                                    <div
+                                        class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                        :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
+                                    >
                                         <q-badge
                                             style="padding: 2px 4px; min-height: 8px"
                                             rounded
                                             :color="globalColor"
                                         />
                                     </div>
-                                    <div class="tw-flex tw-justify-between tw-text-base tw-w-full tw-pr-4">
-                                        <div class="tw-flex tw-gap-3">
-                                            <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
-                                                {{ getConvStateStatusMessage(message).name }}
+                                    <div
+                                        class="tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4"
+                                    >
+                                        <div class="tw-flex tw-items-center tw-gap-3 tw-text-sm">
+                                            <div
+                                                :class="`tw-flex tw-flex-wrap tw-gap-1 tw-font-medium tw-capitalize text-${globalColor}`"
+                                            >
+                                                <div>{{ getConvStateStatusMessage(message).name }}</div>
+                                                <div>
+                                                    <q-badge
+                                                        class="tw-pb-1 tw-uppercase"
+                                                        :color="
+                                                            getConvStateStatusMessage(message).user_type === 'client'
+                                                                ? 'grey-7'
+                                                                : globalColor
+                                                        "
+                                                        :label="getConvStateStatusMessage(message).user_type"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div class="text-grey-10">
-                                                {{ getConvStateStatusMessage(message).state_message }}
-                                            </div>
-                                            <div class="text-grey-10">
-                                                {{ getConvStateStatusMessage(message).end_message }}
+                                            <div class="tw-flex">
+                                                <div class="text-grey-10">
+                                                    {{
+                                                        `${getConvStateStatusMessage(message).state_message} ${
+                                                            getConvStateStatusMessage(message).end_message
+                                                        }`
+                                                    }}
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="text-grey-9 tw-text-sm">
+                                        <div
+                                            class="text-grey-9"
+                                            :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
+                                        >
                                             {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
                                         </div>
                                     </div>
@@ -78,12 +102,13 @@
                                     class="tw-pb-0 tw-mb-6 tw-shadow-md"
                                     :class="checkOwnMessage(message) ? '' : ' bg-grey-2'"
                                 >
-                                    <q-card-section class="tw-px-0 tw-flex"
+                                    <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }"
                                         ><div
-                                            class="tw-w-20 tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                            class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                            :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                         >
                                             <ec-avatar
-                                                size="50"
+                                                :size="mini_mode ? 'lg' : 'xl'"
                                                 :image_src="
                                                     msgSenderInfo(message, index).type === 'ai'
                                                         ? 'fas fa-robot'
@@ -97,8 +122,11 @@
                                             </ec-avatar>
                                         </div>
                                         <div class="tw-pr-4 tw-text-base tw-w-full">
-                                            <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
-                                                <div class="tw-flex tw-gap-3 tw-mr-4">
+                                            <div
+                                                class="tw-flex tw-justify-between tw-items-center"
+                                                :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
+                                            >
+                                                <div class="tw-flex tw-gap-2 tw-mr-4">
                                                     <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
                                                         {{ msgSenderInfo(message, index).display_name }}
                                                     </div>
@@ -115,13 +143,16 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="text-grey-9 tw-text-sm">
+                                                <div
+                                                    class="text-grey-9"
+                                                    :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
+                                                >
                                                     {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
                                                 </div>
                                             </div>
 
                                             <div class="text-grey-10">
-                                                <div>
+                                                <div class="tw-text-sm">
                                                     {{ message.msg }}
                                                 </div>
 
@@ -145,7 +176,7 @@
                                                             :src="attachment.src"
                                                         >
                                                             <q-tooltip
-                                                                class="bg-green"
+                                                                :class="globalBgColor"
                                                                 anchor="bottom middle"
                                                                 :offset="[10, 10]"
                                                                 >{{ attachment.original_name }}
@@ -160,7 +191,67 @@
                             </div>
                         </template>
 
-                        <div class="tw-absolute tw-top-0 tw-h-full tw--z-1 tw-left-10">
+                        <q-card
+                            v-for="(typing, index) in typingState"
+                            :key="index"
+                            class="tw-pb-0 tw-mb-6 tw-shadow-md"
+                            :class="checkOwnMessage(typing) ? '' : ' bg-grey-2'"
+                        >
+                            <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }"
+                                ><div
+                                    class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                    :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
+                                >
+                                    <ec-avatar
+                                        :size="mini_mode ? 'lg' : 'xl'"
+                                        :image_src="
+                                            msgSenderInfo(typing, index).type === 'ai'
+                                                ? 'fas fa-robot'
+                                                : msgSenderInfo(typing, index).src
+                                        "
+                                        :name="msgSenderInfo(typing, index).img_alt_name"
+                                        :is_icon="msgSenderInfo(typing, index).type === 'ai'"
+                                        class=""
+                                    >
+                                        <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
+                                    </ec-avatar>
+                                </div>
+                                <div class="tw-pr-4 tw-text-base tw-w-full">
+                                    <div
+                                        class="tw-flex tw-justify-between tw-items-center"
+                                        :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
+                                    >
+                                        <div class="tw-flex tw-gap-2 tw-mr-4">
+                                            <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
+                                                {{ msgSenderInfo(typing, index).display_name }}
+                                            </div>
+                                            <div>
+                                                <q-badge
+                                                    class="tw-pb-1 tw-uppercase"
+                                                    :color="
+                                                        msgSenderInfo(typing, index).type === 'client'
+                                                            ? 'grey-7'
+                                                            : globalColor
+                                                    "
+                                                    :label="msgSenderInfo(typing, index).type"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-grey-10">
+                                        <div class="tw-text-sm">
+                                            {{ typing.msg }}
+                                        </div>
+                                    </div>
+                                </div></q-card-section
+                            >
+                        </q-card>
+
+                        <div
+                            class="tw-absolute tw-top-0 tw-h-full tw--z-1"
+                            :class="{ 'tw-left-10': !mini_mode, 'tw-left-8': mini_mode }"
+                        >
                             <div class="tw-flex tw-h-full">
                                 <div class="tw-border-l-2 tw-border-gray-500 tw-h-full" style="margin-left: -1px"></div>
                                 <!--                                <div class="tw-border-l-2 tw-h-full"></div>-->
@@ -305,8 +396,8 @@
                     </template>
                 </template>
 
-                <div v-if="conversationInfo.rating" class="text-center tw-pb-2">
-                    <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
+                <div v-if="conversationInfo.rating" class="text-center tw-py-2">
+                    <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
                             {{ $helpers.myDate(conversationInfo.rating.created_at, 'MMMM Do YYYY, h:mm a') }}
@@ -978,7 +1069,7 @@ export default defineComponent({
 
             const endMaker =
                 message.state === 'closed'
-                    ? ` | ${message.session.user ? 'Agent' : 'Client'} Ended chat ${convSes.closed_reason || ''}`
+                    ? `| ${message.session.user ? 'Agent' : 'Client'} Ended chat ${convSes.closed_reason || ''}`
                     : '';
 
             const time = `at ${this.$helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a')}`;
@@ -989,6 +1080,7 @@ export default defineComponent({
                     state: message.state,
                     state_message: `${message.state} the chat`,
                     end_message: endMaker,
+                    user_type: message.session.user ? 'agent' : 'client',
                 };
             }
 

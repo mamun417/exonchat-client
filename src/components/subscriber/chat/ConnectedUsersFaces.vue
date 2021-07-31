@@ -11,6 +11,7 @@
             "
             :key="key"
             :style="key !== 0 ? 'margin-left: -7px' : ''"
+            :size="size"
         >
             <q-tooltip class="">
                 {{
@@ -33,6 +34,10 @@ export default defineComponent({
     props: {
         users_conv_ses: {
             type: Array,
+        },
+        size: {
+            type: String,
+            default: 'lg',
         },
     },
 

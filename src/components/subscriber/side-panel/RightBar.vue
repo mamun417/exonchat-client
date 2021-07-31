@@ -3,73 +3,171 @@
         <slot name="extra"></slot>
 
         <template v-if="rightBarState.mode === 'conversation'">
-            <messages-top-section
-                :conv_id="rightBarState.conv_id"
-                :mini_mode="true"
-                :class="{ 'tw-mb-3': conversationInfo.users_only }"
-            />
+            <div class="tw-mb-3">
+                <messages-top-section
+                    :conv_id="rightBarState.conv_id"
+                    :mini_mode="true"
+                    :class="{ 'tw-mb-3': conversationInfo.users_only }"
+                />
 
-            <q-card
-                v-if="!conversationInfo.users_only && conversationWithUsersInfo.length"
-                class="tw-shadow-md tw-mb-3"
-            >
-                <q-separator />
-                <q-card-section class="tw-px-0 tw-py-2">
-                    <q-list>
-                        <q-item dense>
-                            <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                <q-icon name="flag" size="xs"></q-icon>
-                            </q-item-section>
-                            <q-item-section>
-                                <q-item-label>Country</q-item-label>
-                            </q-item-section>
-                            <q-item-section side>
-                                <q-item-label class="text-grey-10 tw-font-medium">Not Available</q-item-label>
-                            </q-item-section>
-                        </q-item>
-                        <q-item dense>
-                            <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                <q-icon name="language" size="xs"></q-icon>
-                            </q-item-section>
-                            <q-item-section>
-                                <q-item-label>Browser</q-item-label>
-                            </q-item-section>
-                            <q-item-section side>
-                                <q-item-label class="text-grey-10 tw-font-medium"
-                                    >{{ parsedUaString.browser.name }}
-                                    {{ parsedUaString.browser.version }}</q-item-label
-                                >
-                            </q-item-section>
-                        </q-item>
-                        <q-item dense
-                            ><q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                <q-icon name="devices" size="xs"></q-icon>
-                            </q-item-section>
-                            <q-item-section>
-                                <q-item-label>OS</q-item-label>
-                            </q-item-section>
-                            <q-item-section side>
-                                <q-item-label class="text-grey-10 tw-font-medium"
-                                    >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}</q-item-label
-                                >
-                            </q-item-section>
-                        </q-item>
-                        <q-item dense>
-                            <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                <q-icon name="dns" size="xs"></q-icon>
-                            </q-item-section>
-                            <q-item-section>
-                                <q-item-label>IP</q-item-label>
-                            </q-item-section>
-                            <q-item-section side>
-                                <q-item-label class="text-grey-10 tw-font-medium">{{
-                                    conversationWithUsersInfo[0].socket_session.init_ip
-                                }}</q-item-label>
-                            </q-item-section>
-                        </q-item>
-                    </q-list>
-                </q-card-section>
-            </q-card>
+                <template v-if="!conversationInfo.users_only && conversationWithUsersInfo.length">
+                    <q-card class="tw-shadow-md">
+                        <q-separator />
+                        <q-card-section class="tw-px-0 tw-py-2">
+                            <q-list>
+                                <q-item dense>
+                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
+                                        <q-icon name="flag" size="xs"></q-icon>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>Country</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label class="text-grey-10 tw-font-medium">Not Available</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-item dense>
+                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
+                                        <q-icon name="language" size="xs"></q-icon>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>Browser</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label class="text-grey-10 tw-font-medium"
+                                            >{{ parsedUaString.browser.name }}
+                                            {{ parsedUaString.browser.version }}</q-item-label
+                                        >
+                                    </q-item-section>
+                                </q-item>
+                                <q-item dense
+                                    ><q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
+                                        <q-icon name="devices" size="xs"></q-icon>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>OS</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label class="text-grey-10 tw-font-medium"
+                                            >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}</q-item-label
+                                        >
+                                    </q-item-section>
+                                </q-item>
+                                <q-item dense>
+                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
+                                        <q-icon name="dns" size="xs"></q-icon>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>IP</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label class="text-grey-10 tw-font-medium">{{
+                                            conversationWithUsersInfo[0].socket_session.init_ip
+                                        }}</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+
+                            <div v-if="!conversationShowDetail" class="tw-px-2">
+                                <q-btn
+                                    @click="conversationShowDetail = !conversationShowDetail"
+                                    :color="globalColor"
+                                    :label="`${conversationShowDetail ? 'Hide' : 'Show'} Detail`"
+                                    class="tw-w-full"
+                                    size="sm"
+                                    no-caps
+                                    flat
+                                />
+                            </div>
+                        </q-card-section>
+                    </q-card>
+
+                    <q-separator v-show="conversationShowDetail" />
+
+                    <q-card v-show="conversationShowDetail" class="tw-shadow-md tw-mb-3">
+                        <q-card-section class="tw-px-0 tw-py-2">
+                            <q-list>
+                                <q-item dense>
+                                    <q-item-section>
+                                        <q-item-label>Agents</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <connected-users-faces :users_conv_ses="conversationConnectedUsers" size="md" />
+                                    </q-item-section>
+                                </q-item>
+                                <q-item dense>
+                                    <q-item-section>
+                                        <q-item-label>Department</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label class="text-grey-10 tw-font-medium text-capitalize">{{
+                                            conversationInfo.chat_department.tag
+                                        }}</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-item dense>
+                                    <q-item-section>
+                                        <q-item-label>Chat Start</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label class="text-grey-10 tw-font-medium">{{
+                                            $helpers.myDate(conversationInfo.created_at, 'MMMM Do YYYY, h:mm a')
+                                        }}</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-item dense>
+                                    <q-item-section>
+                                        <q-item-label>Chat Duration</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label ref="chat_duration" class="text-grey-10 tw-font-medium">
+                                            <template v-if="!conversationInfo.closed_at">{{
+                                                $helpers.preciseDiff(conversationInfo.created_at)
+                                            }}</template>
+                                            <template v-else>
+                                                {{
+                                                    $helpers.preciseDiff(
+                                                        conversationInfo.created_at,
+                                                        conversationInfo.closed_at
+                                                    )
+                                                }}
+                                            </template>
+                                        </q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-item dense>
+                                    <q-item-section>
+                                        <q-item-label>Chat Rating</q-item-label>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <q-item-label class="text-grey-10 tw-font-medium">
+                                            <template v-if="conversationInfo.rating">
+                                                <span
+                                                    :class="conversationInfo.rating.rating === 5 ? 'green' : 'orange'"
+                                                    >{{ conversationInfo.rating.rating === 5 ? 'Good' : 'Bad' }}</span
+                                                >
+                                            </template>
+                                            <template v-else>Not Rated</template>
+                                        </q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+
+                            <div v-if="conversationShowDetail" class="tw-px-2">
+                                <q-btn
+                                    @click="conversationShowDetail = !conversationShowDetail"
+                                    :color="globalColor"
+                                    :label="`${conversationShowDetail ? 'Hide' : 'Show'} Detail`"
+                                    class="tw-w-full"
+                                    size="sm"
+                                    no-caps
+                                    flat
+                                />
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                </template>
+            </div>
 
             <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true"></message>
         </template>
@@ -428,10 +526,11 @@ import EcAvatar from 'src/components/common/EcAvatar.vue';
 
 import UAParser from 'ua-parser-js';
 import TicketDetail from 'components/apps/whmcs/TicketDetail.vue';
+import ConnectedUsersFaces from 'components/subscriber/chat/ConnectedUsersFaces.vue';
 
 export default defineComponent({
     name: 'RightBar',
-    components: { TicketDetail, MessagesTopSection, Message, EcAvatar },
+    components: { ConnectedUsersFaces, TicketDetail, MessagesTopSection, Message, EcAvatar },
     setup() {
         return {};
     },
@@ -447,6 +546,8 @@ export default defineComponent({
             ticketDetailModal: false,
 
             chatDuration: '',
+
+            conversationShowDetail: false,
         };
     },
 

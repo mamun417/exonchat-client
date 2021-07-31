@@ -1,6 +1,6 @@
 <template>
     <q-card class="tw-shadow-lg">
-        <q-card-section class="row no-wrap items-center tw-p-2" :class="{ 'tw-p-0': mini_mode }">
+        <q-card-section class="row no-wrap items-center tw-p-2" :class="{ 'tw-px-0': mini_mode }">
             <q-item class="tw-w-full">
                 <q-item-section v-if="conversationWithUsersInfo.length === 1" avatar>
                     <ec-avatar
