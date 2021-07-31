@@ -1050,11 +1050,29 @@ export default defineComponent({
             return activityTime - timerLeftDuration;
         },
 
-        getClientWhmcsInfo(whmcsInfo: any) {
+        getClientWhmcsInfo(whmcsCredential: any) {
+            // check chat already initiated
+            if (this.clientInitiateConvInfo.conv_id) {
+                window.parent.postMessage({ action: 'clear_whmcs_info_interval' }, '*');
+                return;
+            }
+
+            let whmcsInfo: any = sessionStorage.getItem(`ec_whmcs_info_${this.api_key}`);
+
+            if (whmcsInfo) {
+                whmcsInfo = JSON.parse(whmcsInfo);
+
+                this.convInitFields.name = whmcsInfo?.fullname;
+                this.convInitFields.email = whmcsInfo?.email;
+
+                window.parent.postMessage({ action: 'clear_whmcs_info_interval' }, '*');
+                return;
+            }
+
             window.api
                 .post('apps/whmcs/client-details', {
-                    clientid: whmcsInfo.clientId,
-                    email: whmcsInfo.clientEmail,
+                    clientid: whmcsCredential?.clientId,
+                    email: whmcsCredential?.clientEmail,
                 })
                 .then((res: any) => {
                     console.log(res.data);
@@ -1068,6 +1086,7 @@ export default defineComponent({
                         },
                     };
 
+                    sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
                     window.parent.postMessage({ action: 'clear_whmcs_info_interval' }, '*');
                 })
                 .catch((err: any) => {

@@ -646,7 +646,7 @@ export default defineComponent({
                     console.log('init client logged in id');
 
                     window.exonChat.whmcs_info = { clientId: '7', clientEmail: 'abdullah.ssc13@gmail.com' };
-                }, 20000);
+                }, 1000);
 
                 window.exonChat = {};
                 (function (d, s, id) {

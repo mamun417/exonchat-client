@@ -23,7 +23,6 @@ const ecChatScriptTag = document.getElementById('exhonchat-chat-script');
 
 const widget_id = ecChatScriptTag.getAttribute('data-widget-id');
 const whmcs_client_id = ecChatScriptTag.getAttribute('data-whmcs-client-id');
-const test = ecChatScriptTag.getAttribute('data-widget-test');
 
 addDom(document, 'div', 'exhonchat-chat-box-container');
 
@@ -41,13 +40,17 @@ ecChatContainer.appendChild(ecChatIFrame);
 let getWhmcsInfoInterval = '';
 
 // check whmcs client is logged in
-getWhmcsInfoInterval = setInterval(() => {
+function getWhmcsInfo() {
     if (exonChat.whmcs_info?.clientId && exonChat.whmcs_info?.clientEmail) {
-        console.log('call web chat function');
-
         ecChatIFrame.contentWindow.postMessage({ res: 'whmcs_info', value: exonChat.whmcs_info }, '*');
     }
-}, 5000);
+
+    getWhmcsInfoInterval = setInterval(() => {
+        if (exonChat.whmcs_info?.clientId && exonChat.whmcs_info?.clientEmail) {
+            ecChatIFrame.contentWindow.postMessage({ res: 'whmcs_info', value: exonChat.whmcs_info }, '*');
+        }
+    }, 5000);
+}
 
 function clear_whmcs_info_interval() {
     clearInterval(getWhmcsInfoInterval);
@@ -56,6 +59,7 @@ function clear_whmcs_info_interval() {
 function ec_mounted() {
     // send others with are needed
     ecChatIFrame.contentWindow.postMessage({ res: 'widget_id', value: widget_id }, '*');
+    getWhmcsInfo();
 }
 
 function ec_maximize_panel(styleObj = {}) {
