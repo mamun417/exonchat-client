@@ -37,9 +37,29 @@ ecChatIFrame.src = `${new URL(ecChatScriptTag.src).origin}/web-chat`;
 
 ecChatContainer.appendChild(ecChatIFrame);
 
+let getWhmcsInfoInterval = '';
+
+// check whmcs client is logged in
+function getWhmcsInfo() {
+    if (exonChat.whmcs_info?.clientId && exonChat.whmcs_info?.clientEmail) {
+        ecChatIFrame.contentWindow.postMessage({ res: 'whmcs_info', value: exonChat.whmcs_info }, '*');
+    }
+
+    getWhmcsInfoInterval = setInterval(() => {
+        if (exonChat.whmcs_info?.clientId && exonChat.whmcs_info?.clientEmail) {
+            ecChatIFrame.contentWindow.postMessage({ res: 'whmcs_info', value: exonChat.whmcs_info }, '*');
+        }
+    }, 5000);
+}
+
+function clear_whmcs_info_interval() {
+    clearInterval(getWhmcsInfoInterval);
+}
+
 function ec_mounted() {
     // send others with are needed
     ecChatIFrame.contentWindow.postMessage({ res: 'widget_id', value: widget_id }, '*');
+    getWhmcsInfo();
 }
 
 function ec_maximize_panel(styleObj = {}) {
