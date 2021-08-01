@@ -306,7 +306,6 @@ export default defineComponent({
 
         // its now only for check logout from other tab
         window.addEventListener('storage', (event) => {
-            console.log(event);
             // !event.key means clear all key fire
             if (!event.key || (event.key === 'exonchat_token' && !event.newValue)) {
                 this.mutateAuthToLogout(); // it's also for update state
@@ -659,7 +658,7 @@ export default defineComponent({
                     console.log('init client logged in id');
 
                     window.exonChat.whmcs_info = { clientId: '7', clientEmail: 'abdullah.ssc13@gmail.com' };
-                }, 1000);
+                }, 20000);
 
                 window.exonChat = {};
                 (function (d, s, id) {

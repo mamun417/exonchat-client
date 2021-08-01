@@ -39,27 +39,13 @@ ecChatContainer.appendChild(ecChatIFrame);
 
 let getWhmcsInfoInterval = '';
 
-// check whmcs client is logged in
-function getWhmcsInfo() {
-    if (exonChat.whmcs_info?.clientId && exonChat.whmcs_info?.clientEmail) {
-        ecChatIFrame.contentWindow.postMessage({ res: 'whmcs_info', value: exonChat.whmcs_info }, '*');
-    }
-
-    getWhmcsInfoInterval = setInterval(() => {
-        if (exonChat.whmcs_info?.clientId && exonChat.whmcs_info?.clientEmail) {
-            ecChatIFrame.contentWindow.postMessage({ res: 'whmcs_info', value: exonChat.whmcs_info }, '*');
-        }
-    }, 5000);
-}
-
-function clear_whmcs_info_interval() {
-    clearInterval(getWhmcsInfoInterval);
+function getExonchatObj() {
+    ecChatIFrame.contentWindow.postMessage({ res: 'exonchat_obj', value: exonChat }, '*');
 }
 
 function ec_mounted() {
     // send others with are needed
     ecChatIFrame.contentWindow.postMessage({ res: 'widget_id', value: widget_id }, '*');
-    getWhmcsInfo();
 }
 
 function ec_maximize_panel(styleObj = {}) {
@@ -83,15 +69,11 @@ function ec_minimize_panel(styleObj = {}) {
 }
 
 function ec_page_visit_info() {
-    // console.log('sending page info');
-
     ecChatIFrame.contentWindow.postMessage(
         { res: 'page_visit_info', value: { url: window.document.URL, referrer: window.document.referrer } },
         '*'
     );
 }
-
-window.parent.document.URL;
 
 window.addEventListener(
     'message',

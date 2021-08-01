@@ -311,7 +311,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import io from 'socket.io-client';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 import Message from 'components/common/Message.vue';
 import ChatRatingForm from 'components/common/ChatRatingForm.vue';
 import moment from 'moment';
@@ -389,6 +389,9 @@ export default defineComponent({
             chatWidgetMiniWidth: 200,
             queuePosition: 1,
             queuePositionInterval: '',
+
+            whmcsInfoError: false,
+            whmcsInfoAssigned: false,
         };
     },
 
@@ -423,15 +426,17 @@ export default defineComponent({
                     this.panelReady = true;
                 }
 
-                // handle other res
-
-                // if res is like whmcs_client_id then assign it
-                // after that watch for it do what is needed
-
-                if (event.data.res === 'whmcs_info') {
-                    console.log('get client whmcs info');
-                    this.getClientWhmcsInfo(event.data.value);
+                if (event.data.res === 'exonchat_obj' && event.data.value) {
+                    if (
+                        event.data.value.hasOwnProperty('whmcs_info') &&
+                        event.data.value.whmcs_info.clientId &&
+                        event.data.value.whmcs_info.clientEmail
+                    ) {
+                        this.getClientWhmcsInfo(event.data.value.whmcs_info);
+                    }
                 }
+
+                // handle other res
             },
             false
         );
@@ -625,6 +630,8 @@ export default defineComponent({
             // console.log(this.socket);
 
             this.getQueueCountNumber();
+
+            this.fireOtherEvents();
         },
 
         fireSocketListeners() {
@@ -682,18 +689,9 @@ export default defineComponent({
             // });
 
             this.socket.on('ec_conv_initiated_to_client', async (res: any) => {
-                // console.log('from ec_conv_initiated_to_client', res);
-
-                const clientInitiateConvInfo = localStorage.getItem('clientInitiateConvInfo');
-
                 if (res.status === 'success') {
-                    if (!clientInitiateConvInfo) {
-                        await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
-                    } else {
-                        // if (this.conv_id === res.data.conversation_id) {
-                        //     no idea for now what to do if conv_id donst match
-                        // }
-                    }
+                    // we don't care now if it's re updating storage
+                    await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
                 }
             });
 
@@ -819,6 +817,23 @@ export default defineComponent({
                     }, 3000);
                 }
             }
+        },
+
+        fireOtherEvents() {
+            setInterval(() => {
+                window.parent.postMessage({ action: 'getExonchatObj' }, '*');
+            }, 3000);
+
+            window.addEventListener('storage', (event) => {
+                if (event.oldValue !== event.newValue) {
+                    if (event.key === `ec_update_storage_ec_whmcs_info_${this.api_key}` && event.newValue) {
+                        // later handle whmcs logout
+                        localStorage.removeItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`);
+
+                        sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, event.newValue);
+                    }
+                }
+            });
         },
 
         handlePageVisibilityChange() {
@@ -1052,26 +1067,35 @@ export default defineComponent({
 
         getClientWhmcsInfo(whmcsCredential: any) {
             // check chat already initiated
-            if (this.clientInitiateConvInfo.conv_id) {
-                window.parent.postMessage({ action: 'clear_whmcs_info_interval' }, '*');
-                return;
-            }
+            if (this.clientInitiateConvInfo.conv_id) return;
 
             let whmcsInfo: any = sessionStorage.getItem(`ec_whmcs_info_${this.api_key}`);
 
-            if (whmcsInfo) {
+            // this.whmcsInfoAssigned will check for first assigned otherwise every 3sec will update form
+            // if client type, in the middle of typing will reset to these info
+            if (whmcsInfo && !this.whmcsInfoAssigned) {
                 whmcsInfo = JSON.parse(whmcsInfo);
 
                 this.convInitFields.name = whmcsInfo?.fullname;
                 this.convInitFields.email = whmcsInfo?.email;
 
-                window.parent.postMessage({ action: 'clear_whmcs_info_interval' }, '*');
+                this.whmcsInfoAssigned = true;
+
                 return;
             }
 
+            // without these don't call api
+            if (
+                !whmcsCredential?.clientId ||
+                !whmcsCredential?.clientEmail ||
+                this.whmcsInfoError ||
+                this.whmcsInfoAssigned
+            )
+                return;
+
             window.api
                 .post('apps/whmcs/client-details', {
-                    clientid: whmcsCredential?.clientId,
+                    clientid: whmcsCredential?.clientId, // change key to client_id
                     email: whmcsCredential?.clientEmail,
                 })
                 .then((res: any) => {
@@ -1087,10 +1111,14 @@ export default defineComponent({
                     };
 
                     sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
-                    window.parent.postMessage({ action: 'clear_whmcs_info_interval' }, '*');
+
+                    localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
+
+                    this.whmcsInfoAssigned = true;
                 })
                 .catch((err: any) => {
                     console.log(err.response);
+                    this.whmcsInfoError = true;
                 });
         },
     },

@@ -21,7 +21,9 @@ export default defineComponent({
                 // but later check exonchat_token for update token
                 if (event.key === 'ec_update_storage_auth' && !event.oldValue && event.newValue) {
                     localStorage.removeItem('ec_update_storage_auth');
+
                     this.mutateAuth(JSON.parse(event.newValue)); // this mutate only for refresh state
+
                     this.$router.push({ name: 'chat-interaction' });
                 }
             }
