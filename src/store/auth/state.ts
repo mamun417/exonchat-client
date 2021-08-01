@@ -7,7 +7,7 @@ function state(): AuthStateInterface {
     const checkUser = localStorage.getItem('user') || '{}';
 
     return {
-        token: localStorage.getItem('token') || '',
+        token: localStorage.getItem('exonchat_token') || '',
         user: JSON.parse(checkUser),
     };
 }

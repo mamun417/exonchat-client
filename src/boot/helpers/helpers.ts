@@ -16,6 +16,7 @@ const helpers = {
     },
 
     preciseDiff(toTime: any, fromTime: any = null) {
+        // @ts-ignore
         return moment.preciseDiff(fromTime || moment(Date.now()), toTime);
     },
 

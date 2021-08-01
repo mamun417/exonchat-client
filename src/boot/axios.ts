@@ -31,7 +31,7 @@ const api = function (store: any, router: any) {
     // handle before req happen
     insAxios.interceptors.request.use(
         (req) => {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('exonchat_token');
 
             if (token) {
                 req.headers['Authorization'] = 'Bearer ' + token;

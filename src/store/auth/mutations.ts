@@ -8,11 +8,11 @@ const mutation: MutationTree<AuthStateInterface> = {
 
     authSuccess(state, userInfo) {
         if (userInfo.bearerToken) {
-            localStorage.setItem('token', userInfo.bearerToken);
+            localStorage.setItem('exonchat_token', userInfo.bearerToken);
             state.token = userInfo.bearerToken;
         }
 
-        if (state.user.user_meta && state.user.user_meta.attachment?.src) {
+        if (state.user?.user_meta && state.user?.user_meta.attachment?.src) {
             userInfo.data.user_meta.attachment.src = state.user.user_meta.attachment.src;
         }
 
@@ -25,6 +25,7 @@ const mutation: MutationTree<AuthStateInterface> = {
     },
 
     logOut(state) {
+        // you cant clear all. cz for now client chat also managed from same location
         localStorage.clear();
         sessionStorage.clear();
         state.token = '';
@@ -34,7 +35,7 @@ const mutation: MutationTree<AuthStateInterface> = {
     updateToken(state, token) {
         // console.log(token);
 
-        localStorage.setItem('token', token);
+        localStorage.setItem('exonchat_token', token);
         state.token = token;
     },
 

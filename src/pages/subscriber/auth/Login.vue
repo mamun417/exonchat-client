@@ -100,7 +100,10 @@ export default defineComponent({
                 .dispatch('auth/login', {
                     inputs,
                 })
-                .then(() => {
+                .then((res: any) => {
+                    const userInfo = res.data;
+                    localStorage.setItem('ec_update_storage_auth', JSON.stringify(userInfo));
+
                     this.$helpers.showSuccessNotification(this, 'Login successful');
                     this.$router.push({ name: 'chat-interaction' });
                 })

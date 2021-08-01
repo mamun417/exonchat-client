@@ -303,6 +303,16 @@ export default defineComponent({
         }
 
         this.$store.dispatch('setting_ui/getUiSetting');
+
+        // its now only for check logout from other tab
+        window.addEventListener('storage', (event) => {
+            console.log(event);
+            // !event.key means clear all key fire
+            if (!event.key || (event.key === 'exonchat_token' && !event.newValue)) {
+                this.mutateAuthToLogout(); // it's also for update state
+                this.$router.push({ name: 'login' });
+            }
+        });
     },
 
     // hit update profile
@@ -312,7 +322,7 @@ export default defineComponent({
     //}
 
     methods: {
-        ...mapMutations({ toggleRightDrawer: 'setting_ui/toggleRightDrawer' }),
+        ...mapMutations({ mutateAuthToLogout: 'auth/logOut', toggleRightDrawer: 'setting_ui/toggleRightDrawer' }),
 
         getAllUsers() {
             this.$store.dispatch('chat/getAllUsers');
@@ -685,6 +695,7 @@ export default defineComponent({
                     }
 
                     this.$socket.close();
+
                     this.$router.push({ name: 'login' });
                 })
                 .catch((err: any) => {
