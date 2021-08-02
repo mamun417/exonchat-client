@@ -38,7 +38,7 @@
         </template>
 
         <template v-slot:body="props">
-            <q-tr :props="props" @click="rowClickHandle(props.row)">
+            <q-tr :props="props" @click="rowClickHandle(props.row)" class="cursor-pointer">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <!--                    <div class="text-red-14">-->
                     <!--                        <pre>{{ col.name }}</pre>-->

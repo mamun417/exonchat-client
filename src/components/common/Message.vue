@@ -130,7 +130,7 @@
                                                     <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
                                                         {{ msgSenderInfo(message, index).display_name }}
                                                     </div>
-                                                    <div>
+                                                    <div v-if="!isAgentToAgentConversation">
                                                         <q-badge
                                                             class="tw-pb-1 tw-uppercase"
                                                             :color="
