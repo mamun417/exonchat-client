@@ -176,7 +176,11 @@
                                         </q-list>
                                     </q-expansion-item>
 
-                                    <q-item clickable v-close-popup>
+                                    <q-item
+                                        v-if="['technical', 'Technical'].includes(conversationInfo.chat_department.tag)"
+                                        clickable
+                                        v-close-popup
+                                    >
                                         <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                             <q-icon name="confirmation_number" />
                                         </q-item-section>

@@ -347,11 +347,13 @@ export default defineComponent({
         ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
 
         rowClickHandle(row: any) {
-            this.updateRightDrawerState({
-                mode: 'conversation',
-                visible: true,
-                conv_id: row.id,
-            });
+            this.$router.push({ name: 'chats', params: { conv_id: row.id } });
+
+            // this.updateRightDrawerState({
+            //     mode: 'conversation',
+            //     visible: true,
+            //     conv_id: row.id,
+            // });
         },
 
         loadDepartment() {
