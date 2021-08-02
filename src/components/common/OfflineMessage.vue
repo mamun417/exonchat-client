@@ -1,8 +1,4 @@
 <template>
-    <!--for test purpose to know its a offline message submit form-->
-    <!--please remove this when refactor this form-->
-    <div class="tw-text-center tw-mb-2">Offline Chat Request</div>
-
     <q-input
         v-model="convInitFields.name"
         :error-message="convInitFieldsErrors.name"
@@ -90,10 +86,11 @@
         </template>
     </q-input>
 
-    <q-btn dense color="blue-grey" class="full-width tw-mt-6" @click="submitOfflineChatReq" no-caps>
+    <q-btn dense color="blue-grey" class="full-width tw-mt-6" @click="submitOfflineChatReq" no-caps unelevated>
         Submit Ticket
     </q-btn>
-    <div class="tw-text-xxs tw-mt-1">
+
+    <div class="tw-text-xxs tw-mt-2">
         <div>Note: Our agents will resolve your issue when they are online.</div>
     </div>
 </template>

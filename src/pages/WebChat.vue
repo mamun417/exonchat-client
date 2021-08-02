@@ -11,13 +11,14 @@
                 </div>
                 <!--                <div>-->
                 <div class="tw-p-2 bg-white tw-shadow-lg">
-                    <div class="tw-font-medium">Need Help?</div>
                     <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
-                    <div class="tw-whitespace-nowrap" v-show="onlineChatDepartments.length">
-                        Start chatting with us!
+                    <div class="" v-show="onlineChatDepartments.length">
+                        <div class="tw-font-medium">Need Help?</div>
+                        <div>Start chatting with us!</div>
                     </div>
-                    <div class="tw-whitespace-nowrap" v-show="!onlineChatDepartments.length">
-                        Chat is offline, Send offline message!
+                    <div class="" v-show="!onlineChatDepartments.length">
+                        <div class="tw-font-medium">Need Help?</div>
+                        <div>Click here to leave us a message</div>
                     </div>
                 </div>
                 <!--                </div>-->
@@ -32,21 +33,26 @@
                     class="tw-shadow-xl"
                     @click="toggleChatPanel(true)"
                     round
+                    no-caps
+                    no-wrap
                     unelevated
-                />
+                ></q-btn>
 
                 <q-btn
                     v-show="!onlineChatDepartments.length"
+                    icon="mail"
                     color="blue-grey"
                     class="tw-shadow-xl"
                     @click="toggleChatPanel(true)"
+                    rounded
+                    label="Leave a message"
+                    no-caps
+                    no-wrap
                     unelevated
-                >
-                    Offline Message
-                </q-btn>
+                ></q-btn>
             </div>
 
-            <q-resize-observer ref="resizeObserver" :debounce="100" @resize="onResizeMiniMode" />
+            <q-resize-observer ref="resizeObserver" :debounce="200" @resize="onResizeMiniMode" />
         </div>
 
         <div
@@ -58,8 +64,8 @@
                     class="bg-blue-grey text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
                 >
                     <div>
-                        Chat With Us
-                        <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />
+                        {{ onlineChatDepartments.length ? 'Online - Chat with us' : 'Offline - Send offline message' }}
+                        <!--                        <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />-->
                     </div>
                     <q-space></q-space>
 
@@ -164,9 +170,9 @@
                     </div>-->
 
                     <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
-                        <div class="tw-bg-white tw-shadow tw-m-5 tw-relative">
-                            <div class="tw-px-4 tw-py-10">
-                                <div v-if="successSubmitOfflineChatReq">
+                        <div class="tw-bg-white tw-shadow-lg tw-m-5 tw-relative">
+                            <div class="tw-px-4 tw-py-8">
+                                <template v-if="successSubmitOfflineChatReq">
                                     Ticket has been successfully submitted. Our agents will reply you when they are
                                     online.
                                     <q-btn
@@ -178,10 +184,10 @@
                                     >
                                         Start New Chat
                                     </q-btn>
-                                </div>
+                                </template>
 
-                                <div v-else>
-                                    <div v-if="onlineChatDepartments.length">
+                                <template v-else>
+                                    <template v-if="onlineChatDepartments.length">
                                         <q-input
                                             v-model="convInitFields.name"
                                             :error-message="convInitFieldsErrors.name"
@@ -322,17 +328,17 @@
                                             class="full-width tw-mt-6"
                                             @click="chatInitialize"
                                             no-caps
+                                            unelevated
                                             >Start Chat as Guest
                                         </q-btn>
-                                    </div>
+                                    </template>
 
-                                    <div v-else>
-                                        <offline-message
-                                            @submitOfflineMessage="successSubmitOfflineChatReq = true"
-                                            :chat-departments="chatDepartments"
-                                        />
-                                    </div>
-                                </div>
+                                    <offline-message
+                                        v-else
+                                        @submitOfflineMessage="successSubmitOfflineChatReq = true"
+                                        :chat-departments="chatDepartments"
+                                    />
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -439,7 +445,7 @@ export default defineComponent({
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem('success_submit_offline_chat_req') || false,
 
-            chatWidgetMiniWidth: 200,
+            chatWidgetMiniWidth: 100,
             queuePosition: 1,
             queuePositionInterval: '',
             getOnlineDepartmentsInterval: '',
@@ -530,10 +536,22 @@ export default defineComponent({
             //     size.width = 160;
             // }
 
+            let width = 180;
+            let height = size.height;
+
+            if (this.onlineChatDepartments.length && !this.showNeedHelpText) {
+                width = 100;
+                height = 70;
+            }
+
             window.parent.postMessage(
                 {
                     action: 'ec_minimize_panel',
-                    param: { height: `${+size.height}px`, width: `${+size.height}px`, display: 'block' },
+                    param: {
+                        height: `${height}px`,
+                        width: `${width}px`,
+                        display: 'block',
+                    },
                 },
                 '*'
             );
@@ -813,7 +831,7 @@ export default defineComponent({
 
             this.socket.on('ec_departments_online_status_res', (res: any) => {
                 this.onlineChatDepartments = res.departments;
-                // console.log('from ec_departments_online_status_res', res);
+                console.log('from ec_departments_online_status_res', res);
             });
 
             this.socket.on('ec_error', (res: any) => {
