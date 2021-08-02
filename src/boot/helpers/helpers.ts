@@ -2,6 +2,12 @@ import moment from 'moment';
 import * as _l from 'lodash';
 import 'moment-precise-range-plugin';
 
+const notifications = {
+    reqOne: new Audio('assets/sound/notification/notification-request-001.mp3'),
+    replyOne: new Audio('assets/sound/notification/notification-reply-001.mp3'),
+    replyTwo: new Audio('assets/sound/notification/notification-reply-002.mp3'),
+};
+
 const helpers = {
     getTempId() {
         return new Date().getTime();
@@ -62,6 +68,10 @@ const helpers = {
         });
 
         return storeState;
+    },
+
+    notifications() {
+        return { ...notifications };
     },
 };
 

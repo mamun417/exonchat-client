@@ -213,6 +213,7 @@ import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
 import * as _l from 'lodash';
 import EcAvatar from 'src/components/common/EcAvatar.vue';
 import StoreDebug from 'src/components/debug/StoreDebug.vue';
+import helpers from 'boot/helpers/helpers';
 
 declare global {
     interface Window {
@@ -574,7 +575,7 @@ export default defineComponent({
             });
 
             this.socket.on('ec_chat_transfer', (data: any) => {
-                new Audio('assets/sound/notification/notification-request-001.mp3').play();
+                helpers.notifications().reqOne.play();
 
                 let actions = [
                     {

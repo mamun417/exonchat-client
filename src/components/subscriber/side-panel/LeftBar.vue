@@ -623,7 +623,7 @@ export default defineComponent({
                 if (this.incomingChatRequestsForMe.length) {
                     if (!this.chatRequestSoundLoop) {
                         this.chatRequestSoundLoop = setInterval(() => {
-                            new Audio('assets/sound/notification/notification-request-001.mp3').play();
+                            helpers.notifications().reqOne.play();
                         }, 10000);
                     }
                 } else {
