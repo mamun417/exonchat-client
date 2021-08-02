@@ -5,6 +5,7 @@ import * as _l from 'lodash';
 import moment from 'moment';
 
 import { Notify } from 'quasar';
+import helpers from 'boot/helpers/helpers';
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -68,7 +69,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 ],
             });
 
-            new Audio('assets/sound/notification/notification-request-001.mp3').play();
+            helpers.notifications().reqOne.play();
         }
 
         context.commit('updateConversation', {
@@ -327,12 +328,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
             if (messageRes.hasOwnProperty('socket_event') && messageRes.socket_event === 'ec_msg_from_user') {
                 if (messageRes.hasOwnProperty('caller_page') && messageRes.caller_page === 'web-chat') {
-                    new Audio('assets/sound/notification/notification-reply-001.mp3').play();
+                    helpers.notifications().replyOne.play();
                 }
             }
 
             if (messageRes.hasOwnProperty('socket_event') && messageRes.socket_event === 'ec_msg_from_client') {
-                new Audio('assets/sound/notification/notification-reply-002.mp3').play();
+                helpers.notifications().replyTwo.play();
             }
 
             resolve(true);
