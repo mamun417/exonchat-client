@@ -87,8 +87,62 @@
             </q-drawer>
 
             <q-page-container>
+                <q-card
+                    v-if="!newConversationInfo.id"
+                    :class="`tw-fixed tw-top-0 tw-shadow-lg tw-rounded-none tw-bg-transparent`"
+                    :style="{ zIndex: 9999, width: `${qPageSize.width}-px` }"
+                >
+                    <q-card-section class="tw-flex tw-flex-grow tw-p-0">
+                        <div
+                            :class="`tw-flex tw-flex-col text-white tw-justify-center tw-items-center tw-p-4 ${globalBgColor}-9`"
+                        >
+                            <q-icon name="chat" size="md" />
+                            <div class="tw-whitespace-nowrap">New Chat</div>
+                        </div>
+                        <div :class="`tw-opacity-95 tw-p-4 tw-flex tw-flex-grow tw-justify-between ${globalBgColor}-8`">
+                            <div class="text-white">
+                                <div class="tw-flex tw-items-center tw-gap-4">
+                                    <q-badge :label="newConversationInfo.chat_department.tag" color="blue-grey-10" />
+                                    <div class="tw-font-bold tw-text-base">
+                                        {{ newConversationInfo.conversation_sessions[0].socket_session.init_name }}
+                                    </div>
+                                </div>
+                                <div class="tw-flex tw-gap-6">
+                                    <div>
+                                        <div>
+                                            Online for
+                                            {{
+                                                $helpers.fromNowTime(
+                                                    newConversationInfo.conversation_sessions[0].socket_session
+                                                        .created_at,
+                                                    true
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div>{{ newConversationInfo.prev_chat_count || 0 }} chats so far</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tw-flex tw-items-center">
+                                <q-btn
+                                    label="Take This Chat"
+                                    color="white"
+                                    text-color="black"
+                                    size="md"
+                                    no-caps
+                                    unelevated
+                                />
+                            </div>
+                        </div>
+                        <!--                        <div class='tw-flex tw-gap-2 tw-mb-2 text-white tw-text-base'><div>younus</div><div>|</div><div class='tw-px-2 bg-blue-grey-6 tw-rounded-md'>technical</div></div>-->
+                    </q-card-section>
+                </q-card>
                 <q-page class="tw-flex">
                     <router-view :class="`tw-w-full tw-p-3 ${globalBgColor}-1`" :key="$route.fullPath"></router-view>
+
+                    <q-resize-observer @resize="updateQPageSizeInfo" />
                 </q-page>
             </q-page-container>
         </template>
@@ -213,6 +267,8 @@ import * as _l from 'lodash';
 import EcAvatar from 'src/components/common/EcAvatar.vue';
 import StoreDebug from 'src/components/debug/StoreDebug.vue';
 import helpers from 'boot/helpers/helpers';
+import { Notify } from 'quasar';
+import moment from 'moment';
 
 declare global {
     interface Window {
@@ -243,6 +299,17 @@ export default defineComponent({
             usersAvatarLoading: false,
 
             chatRequestSoundLoop: false,
+
+            newChatTimeout: null,
+            newConversationInfo: {
+                chat_department: { tag: 'technical' },
+                conversation_sessions: [{ socket_session: { init_name: 'younus' } }],
+            },
+
+            qPageSize: {
+                width: 100,
+                height: 100,
+            },
         };
     },
 
@@ -321,7 +388,14 @@ export default defineComponent({
     //}
 
     methods: {
-        ...mapMutations({ mutateAuthToLogout: 'auth/logOut', updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+        ...mapMutations({
+            mutateAuthToLogout: 'auth/logOut',
+            updateRightDrawerState: 'setting_ui/updateRightDrawerState',
+        }),
+
+        updateQPageSizeInfo(size: any) {
+            this.qPageSize = size;
+        },
 
         getAllUsers() {
             this.$store.dispatch('chat/getAllUsers');
@@ -456,6 +530,15 @@ export default defineComponent({
 
             this.socket.on('ec_conv_initiated_from_client', (res: any) => {
                 console.log('from ec_conv_initiated_from_client', res);
+
+                if (res.data.notify) {
+                    this.newConversationInfo = res.data.conv_data;
+
+                    this.newChatTimeout = setTimeout(() => {
+                        clearTimeout(this.newChatTimeout);
+                        this.newConversationInfo = {};
+                    }, 10000);
+                }
 
                 this.$store.dispatch('chat/storeNewChatFromClient', res.data);
             });
@@ -764,6 +847,24 @@ export default defineComponent({
                 this.usersAvatarLoading = false;
             },
             deep: true,
+            immediate: true,
+        },
+
+        newConversationInfo: {
+            handler: function (newVal, oldVal) {
+                if (newVal?.id && (!oldVal?.id || newVal.id !== oldVal.id)) {
+                    window.api
+                        .get(
+                            `/conversations/client-previous-conversations-count?email=${this.newConversationInfo.conversation_sessions[0].socket_session.init_email}`
+                        )
+                        .then((res: any) => {
+                            this.newConversationInfo.prev_chat_count = res.data.count;
+                        })
+                        .catch((e: any) => {
+                            e;
+                        });
+                }
+            },
             immediate: true,
         },
     },
