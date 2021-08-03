@@ -5,7 +5,7 @@
                 :model-value="true"
                 class="tw-shadow-lgr"
                 side="left"
-                breakpoint="xs"
+                :breakpoint="599"
                 :width="!leftDrawer ? 65 : 300"
                 persistent
                 show-if-above
@@ -59,7 +59,6 @@
                                 </q-menu>
                             </q-btn>
 
-                            <!-- <q-btn class="tw-mr-2" :icon="rightDrawer ? 'menu_open' : 'menu'" @click="toggleRightDrawer" flat /> -->
                             <q-btn icon="settings" :to="{ name: 'settings' }" flat>
                                 <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
                             </q-btn>
@@ -80,7 +79,7 @@
                 }"
                 class="bg-blue-grey-1"
                 side="right"
-                breakpoint="xs"
+                :breakpoint="599"
                 :width="this.rightBarState.mode === 'conversation' ? 400 : 350"
                 persistent
             >
@@ -322,7 +321,7 @@ export default defineComponent({
     //}
 
     methods: {
-        ...mapMutations({ mutateAuthToLogout: 'auth/logOut', toggleRightDrawer: 'setting_ui/toggleRightDrawer' }),
+        ...mapMutations({ mutateAuthToLogout: 'auth/logOut', updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
 
         getAllUsers() {
             this.$store.dispatch('chat/getAllUsers');
@@ -702,6 +701,14 @@ export default defineComponent({
                     console.log(err);
                 });
         },
+    },
+
+    beforeRouteUpdate(to, from) {
+        console.log(to, from);
+
+        if (this.rightBarState?.mode || this.rightBarState.mode === 'conversation') {
+            this.updateRightDrawerState({ mode: 'client_info', visible: true });
+        }
     },
 
     watch: {

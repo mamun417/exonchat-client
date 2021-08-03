@@ -475,7 +475,7 @@ export default defineComponent({
         },
 
         openUserToUserConversation(user: any) {
-            if (user.conversation_id) {
+            if (user.conversation_id && user.conversation_id !== this.$route.params['conv_id']) {
                 if (this.$route.name === 'chats') {
                     this.updateRightDrawerState({
                         conv_id: user.conversation_id,
@@ -512,14 +512,16 @@ export default defineComponent({
                         conv_id: data.data.conv_id,
                     });
 
-                    if (this.$route.name === 'chats') {
-                        this.updateRightDrawerState({
-                            conv_id: data.data.conv_id,
-                            mode: 'conversation',
-                            visible: true,
-                        });
-                    } else {
-                        this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                    if(this.$route.params['conv_id'] !== data.data.conv_id) {
+                        if (this.$route.name === 'chats') {
+                            this.updateRightDrawerState({
+                                conv_id: data.data.conv_id,
+                                mode: 'conversation',
+                                visible: true,
+                            });
+                        } else {
+                            this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                        }
                     }
                 }
 

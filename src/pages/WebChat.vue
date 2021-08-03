@@ -367,7 +367,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import io from 'socket.io-client';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
 import ChatRatingForm from 'components/common/ChatRatingForm.vue';
 import moment from 'moment';

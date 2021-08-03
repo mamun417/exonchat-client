@@ -173,7 +173,7 @@
         </template>
 
         <q-scroll-area
-            v-else-if="rightBarState.mode === 'client_info'"
+            v-else-if="rightBarState.mode === 'client_info' && !conversationInfo.users_only"
             class="fit"
             :bar-style="{
                 background: '#60A5FA',
@@ -204,7 +204,7 @@
                                     <q-item-section class="tw-w-full">
                                         <div class="tw-flex tw-justify-between tw-w-full tw-my-1">
                                             <ec-avatar
-                                                :size="mini_mode ? 'md' : 'xl'"
+                                                size="md"
                                                 :image_src="null"
                                                 :name="conversationWithUsersInfo[0].socket_session.init_name"
                                             ></ec-avatar>
@@ -368,7 +368,7 @@
                                     <q-item-section class="tw-w-full">
                                         <div class="tw-flex tw-w-full tw-my-1 tw-gap-4">
                                             <ec-avatar
-                                                :size="mini_mode ? 'md' : 'xl'"
+                                                size="md"
                                                 :image_src="null"
                                                 :name="agent.socket_session.user.user_meta.display_name"
                                             ></ec-avatar>
@@ -622,8 +622,6 @@ export default defineComponent({
         ) {
         }
     },
-
-    methods: {},
 
     watch: {
         conversationWithUsersInfo: {
