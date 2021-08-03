@@ -202,7 +202,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     // my running chats => for left bar & interaction page
     myOngoingChats(state, getters, rootState, rootGetters) {
-        return Object.values(state.conversations)
+        const myOngoingChats = Object.values(state.conversations)
             .filter((conv: any) => {
                 const sesInfo = _l.find(conv.sessions, [
                     'socket_session_id',
@@ -250,6 +250,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                     count_unseen_msg,
                 }; // conv.sessions[0] cz we are already filtering length 1
             });
+
+        return _l.sortBy(myOngoingChats, (conv: any) => moment(conv.created_at).format('x')).reverse();
     },
 
     // departmental chat requests count => for left bar
@@ -262,7 +264,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 !conv.closed_at
                 // conv.sessions.length === 1 && // if wants not joined then uncomment
             ) {
-                if (!departments.hasOwnProperty(conv.chat_department?.tag)) {
+                if (!departments.hasOwnProperty(conv.chat_department?.tag) && conv.chat_department?.tag) {
                     departments[conv.chat_department.tag] = {};
 
                     departments[conv.chat_department.tag].id = conv.chat_department.id;

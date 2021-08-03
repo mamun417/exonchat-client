@@ -189,7 +189,10 @@
             }"
         >
             <!-- at first conversationWithUsersInfo can be empty. show loader -->
-            <q-list v-if="conversationWithUsersInfo.length" class="tw-pl-1 tw-pr-2 tw-py-3">
+            <q-list
+                v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
+                class="tw-pl-1 tw-pr-2 tw-py-3"
+            >
                 <q-expansion-item
                     label="CUSTOMER INFORMATION"
                     dense

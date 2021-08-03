@@ -125,20 +125,33 @@
                                         </q-item-section>
                                     </q-item>
 
-                                    <q-expansion-item
+                                    <q-item
+                                        v-if="['joined', 'left'].includes(conversationStatusForMe)"
+                                        clickable
+                                        v-close-popup
+                                    >
+                                        <q-item-section class="tw-w-8 tw-min-w-0" avatar>
+                                            <q-icon name="shortcut" />
+                                        </q-item-section>
+                                        <q-item-section @click="showChatTransferModal = true">
+                                            Transfer Chat
+                                        </q-item-section>
+                                    </q-item>
+
+                                    <!--<q-expansion-item
                                         v-if="['joined', 'left'].includes(conversationStatusForMe)"
                                         expand-separator
                                         expand-icon-class="tw-hidden"
                                         dense
                                     >
-                                        <template v-slot:header>
+                                        <template v-slot:header @click="showChatTransferModal = true">
                                             <q-item-section class="tw-w-8 tw-min-w-0" avatar>
                                                 <q-icon name="shortcut" />
                                             </q-item-section>
                                             <q-item-section>Transfer Chat </q-item-section>
                                         </template>
 
-                                        <q-list dense style="min-width: 100px" separator>
+                                        &lt;!&ndash;<q-list dense style="min-width: 100px" separator>
                                             <q-item
                                                 v-for="user of onlineUsers"
                                                 :key="user.id"
@@ -173,8 +186,8 @@
                                                     Not Online
                                                 </q-tooltip>
                                             </q-item>
-                                        </q-list>
-                                    </q-expansion-item>
+                                        </q-list>&ndash;&gt;
+                                    </q-expansion-item>-->
 
                                     <q-item
                                         v-if="['technical', 'Technical'].includes(conversationInfo.chat_department.tag)"
@@ -284,6 +297,8 @@
             @convStateHandle="convStateHandle($event)"
             @hide="confirmModal = false"
         />
+
+        <chat-transfer-modal v-if="showChatTransferModal" @hide="showChatTransferModal = false" />
     </q-card>
 </template>
 
@@ -295,10 +310,11 @@ import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFa
 
 import { mapGetters, mapMutations } from 'vuex';
 import EcAvatar from 'src/components/common/EcAvatar.vue';
+import ChatTransferModal from 'components/common/modal/ChatTransferModal.vue';
 
 export default defineComponent({
     name: 'MessagesTopSection',
-    components: { ConversationStateConfirmModal, ConnectedUsersFaces, EcAvatar },
+    components: { ChatTransferModal, ConversationStateConfirmModal, ConnectedUsersFaces, EcAvatar },
     props: {
         conv_id: {
             type: String,
@@ -327,6 +343,7 @@ export default defineComponent({
             ticketSubmitLoader: false,
             ticketSubject: '',
 
+            showChatTransferModal: false,
             transferChatToExpand: false,
             transferChatToFilter: '',
         };

@@ -12,11 +12,11 @@
                 <!--                <div>-->
                 <div class="tw-p-2 bg-white tw-shadow-lg">
                     <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
-                    <div class="" v-show="onlineChatDepartments.length">
+                    <div class="" v-show="conversationInfo.id || onlineChatDepartments.length">
                         <div class="tw-font-medium">Need Help?</div>
                         <div>Start chatting with us!</div>
                     </div>
-                    <div class="" v-show="!onlineChatDepartments.length">
+                    <div class="" v-show="!conversationInfo.id && !onlineChatDepartments.length">
                         <div class="tw-font-medium">Need Help?</div>
                         <div>Click here to leave us a message</div>
                     </div>
@@ -26,7 +26,7 @@
 
             <div class="tw-flex tw-justify-end">
                 <q-btn
-                    v-show="onlineChatDepartments.length"
+                    v-show="conversationInfo.id || onlineChatDepartments.length"
                     icon="forum"
                     size="18px"
                     color="blue-grey"
@@ -39,7 +39,7 @@
                 ></q-btn>
 
                 <q-btn
-                    v-show="!onlineChatDepartments.length"
+                    v-show="!conversationInfo.id && !onlineChatDepartments.length"
                     icon="mail"
                     color="blue-grey"
                     class="tw-shadow-xl"
@@ -64,7 +64,11 @@
                     class="bg-blue-grey text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
                 >
                     <div>
-                        {{ onlineChatDepartments.length ? 'Online - Chat with us' : 'Offline - Send offline message' }}
+                        {{
+                            conversationInfo.id || onlineChatDepartments.length
+                                ? 'Online - Chat with us'
+                                : 'Offline - Send offline message'
+                        }}
                         <!--                        <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />-->
                     </div>
                     <q-space></q-space>
@@ -367,7 +371,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import io from 'socket.io-client';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters } from 'vuex';
 import Message from 'components/common/Message.vue';
 import ChatRatingForm from 'components/common/ChatRatingForm.vue';
 import moment from 'moment';
