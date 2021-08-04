@@ -68,8 +68,7 @@
                                             >
                                                 <div>{{ getConvStateStatusMessage(message).name }}</div>
                                                 <div>
-                                                    <q-badge
-                                                        class="tw-pb-1 tw-uppercase"
+                                                    <q-badge class="tw-uppercase tw-text-xxs"
                                                         :color="
                                                             getConvStateStatusMessage(message).user_type === 'client'
                                                                 ? 'grey-7'
@@ -94,14 +93,14 @@
                                             class="text-grey-9"
                                             :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
                                         >
-                                            {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
+                                            {{ $helpers.myDate(message.created_at, 'DD MMM YY, h:mm a') }}
                                         </div>
                                     </div>
                                 </div>
 
                                 <q-card
                                     v-if="message.msg || (message.attachments && message.attachments.length)"
-                                    class="tw-pb-0 tw-mb-6 tw-shadow-md"
+                                    class="tw-pb-0 tw-my-4 tw-shadow-md"
                                     :class="checkOwnMessage(message) ? '' : ' bg-grey-2'"
                                 >
                                     <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }"
@@ -129,12 +128,12 @@
                                                 :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
                                             >
                                                 <div class="tw-flex tw-gap-2 tw-mr-4">
-                                                    <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
+                                                    <div :class="`tw-font-medium tw-capitalize text-${globalColor} tw-text-sm`">
                                                         {{ msgSenderInfo(message, index).display_name }}
                                                     </div>
                                                     <div v-if="!isAgentToAgentConversation">
                                                         <q-badge
-                                                            class="tw-pb-1 tw-uppercase"
+                                                            class="tw-uppercase tw-text-xxs"
                                                             :color="
                                                                 msgSenderInfo(message, index).type === 'client'
                                                                     ? 'grey-7'
@@ -149,7 +148,7 @@
                                                     class="text-grey-9"
                                                     :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
                                                 >
-                                                    {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
+                                                    {{ $helpers.myDate(message.created_at, 'DD MMM YY, h:mm a') }}
                                                 </div>
                                             </div>
 
@@ -425,7 +424,7 @@
 
                 <slot name="scroll-area-last-section">
                     <div
-                        class="text-center tw-text-base tw-my-4"
+                        class="text-center tw-text-sm tw-my-4"
                         v-if="!conversationInfo.closed_at && !conversationInfo.users_only && !chatActiveStatus"
                     >
                         Chat is idle due to 10 minutes of inactivity
@@ -786,7 +785,7 @@ export default defineComponent({
         },
 
         getSendBtnStatus(): any {
-            return this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
+            return !!this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
         },
 
         isAgentToAgentConversation(): any {
@@ -898,7 +897,7 @@ export default defineComponent({
                     // custom event fire for messageTopSection
                     this.$emitter.emit('ec_get_client_ses_id_status_res', res);
 
-                    console.log('from ec_get_client_ses_id_status_res', res);
+                    // console.log('from ec_get_client_ses_id_status_res', res);
                 });
             }
 
@@ -935,7 +934,6 @@ export default defineComponent({
                 this.emitEcGetClientSesIdStatus();
 
                 this.ecGetClientSesIdStatusInterval = setInterval(() => {
-                    console.log(this.ecGetClientSesIdStatusInterval);
                     this.emitEcGetClientSesIdStatus();
                 }, 10000);
             }

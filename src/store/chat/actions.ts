@@ -1,10 +1,8 @@
 import { ActionTree } from 'vuex';
 import { StateInterface } from '../index';
 import { ChatStateInterface } from './state';
-import * as _l from 'lodash';
-import moment from 'moment';
 
-import { Notify } from 'quasar';
+import * as _l from 'lodash';
 import helpers from 'boot/helpers/helpers';
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
@@ -33,44 +31,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
     storeNewChatFromClient(context, convInfo) {
         const convData = convInfo.conv_data;
-
-        if (convInfo.notify) {
-            const msgDom = `<div class='tw-flex tw-gap-2 tw-mb-2 text-white tw-text-base'><div>${convData.conversation_sessions[0].socket_session.init_name}</div><div>|</div><div class='tw-px-2 bg-blue-grey-6 tw-rounded-md'>${convData.chat_department.tag}</div></div>`;
-
-            Notify.create({
-                group: convData.id,
-                message: msgDom,
-                caption: `Online for ${moment(convData.conversation_sessions[0].socket_session.created_at).fromNow(
-                    true
-                )}`,
-                html: true,
-                progress: true,
-                multiLine: true,
-                icon: 'chat_bubble',
-                color: 'blue-grey-7',
-                textColor: 'white',
-                position: 'top',
-                classes: 'tw-w-full tw-p-2',
-                timeout: 5000,
-                badgeClass: 'hidden',
-                actions: [
-                    {
-                        label: 'Take this Chat',
-                        color: 'white',
-                        size: 'md',
-                        handler: () => {
-                            // handle join then push
-                            window.socketInstance.emit('ec_join_conversation', {
-                                conv_id: convData.id,
-                            });
-                            window.router.push(`/chats/${convData.id}`);
-                        },
-                    },
-                ],
-            });
-
-            helpers.notifications().reqOne.play();
-        }
 
         context.commit('updateConversation', {
             conv_id: convData.id,

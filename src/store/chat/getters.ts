@@ -65,7 +65,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     conversationConnectedUsers: (state) => (convId: any) => {
-        let userSessions: any = {};
+        let userSessions: any = [];
 
         if (state.conversations[convId]) {
             const conv = state.conversations[convId];
