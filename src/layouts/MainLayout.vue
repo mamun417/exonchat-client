@@ -75,12 +75,12 @@
             <q-drawer
                 :model-value="rightDrawerVisible"
                 :class="{
-                    'tw-shadow-lgl': this.rightBarState.mode === 'conversation',
+                    'tw-shadow-lgl': rightBarState.mode === 'conversation',
                 }"
                 class="bg-blue-grey-1"
                 side="right"
                 :breakpoint="599"
-                :width="this.rightBarState.mode === 'conversation' ? 400 : 350"
+                :width="rightBarState.mode === 'conversation' ? 400 : 350"
                 persistent
             >
                 <right-bar></right-bar>
@@ -90,7 +90,7 @@
                 <q-card
                     v-if="!newConversationInfo.id"
                     :class="`tw-fixed tw-top-0 tw-shadow-lg tw-rounded-none tw-bg-transparent`"
-                    :style="{ zIndex: 9999, width: `${qPageSize.width}-px` }"
+                    :style="{ width: `${qPageSize.width}px`, zIndex: 9999,  }"
                 >
                     <q-card-section class="tw-flex tw-flex-grow tw-p-0">
                         <div
@@ -98,6 +98,7 @@
                         >
                             <q-icon name="chat" size="md" />
                             <div class="tw-whitespace-nowrap">New Chat</div>
+                            {{qPageSize}}
                         </div>
                         <div :class="`tw-opacity-95 tw-p-4 tw-flex tw-flex-grow tw-justify-between ${globalBgColor}-8`">
                             <div class="text-white">
@@ -538,6 +539,8 @@ export default defineComponent({
                         clearTimeout(this.newChatTimeout);
                         this.newConversationInfo = {};
                     }, 10000);
+
+                    helpers.notifications().reqOne.play();
                 }
 
                 this.$store.dispatch('chat/storeNewChatFromClient', res.data);
