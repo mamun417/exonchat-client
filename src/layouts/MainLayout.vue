@@ -98,7 +98,6 @@
                         >
                             <q-icon name="chat" size="md" />
                             <div class="tw-whitespace-nowrap">New Chat</div>
-                            {{ qPageSize }}
                         </div>
                         <div :class="`tw-opacity-95 tw-p-4 tw-flex tw-flex-grow tw-justify-between ${globalBgColor}-8`">
                             <div class="text-white">

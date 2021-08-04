@@ -90,9 +90,16 @@ export default defineComponent({
         };
     },
 
+    props: {
+        conv_id: {
+            type: String,
+        },
+    },
+
     computed: {
         ...mapGetters({
             globalColor: 'setting_ui/globalColor',
+            profile: 'auth/profile',
         }),
 
         onlineUsers(): any {
@@ -145,13 +152,17 @@ export default defineComponent({
         },
 
         transferChat() {
-            console.log('submit chat transfer');
+            if (!(this.transferChatFormData.chat_department || this.transferChatFormData.agent)) {
+                this.$helpers.showErrorNotification(this, 'Please select chat department or agent');
+                return;
+            }
 
-            // this.$socket.emit('ec_chat_transfer', {
-            //     conv_id: this.conv_id,
-            //     notify_to: agent.socket_sessions[0].id,
-            //     agent_info: agent,
-            // });
+            this.$socket.emit('ec_chat_transfer', {
+                conv_id: this.conv_id,
+                notify_to_dep: this.transferChatFormData.chat_department.tag,
+                notify_to: this.transferChatFormData.agent ? this.transferChatFormData.agent.socket_sessions[0].id : '',
+                agent_info: this.profile,
+            });
         },
     },
 });

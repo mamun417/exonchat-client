@@ -58,9 +58,7 @@
                                         />
                                     </div>
                                     <div
-                                        class="
-                                            tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4
-                                        "
+                                        class="tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4"
                                     >
                                         <div class="tw-flex tw-items-center tw-gap-3 tw-text-sm">
                                             <div
@@ -68,7 +66,8 @@
                                             >
                                                 <div>{{ getConvStateStatusMessage(message).name }}</div>
                                                 <div>
-                                                    <q-badge class="tw-uppercase tw-text-xxs"
+                                                    <q-badge
+                                                        class="tw-uppercase tw-text-xxs"
                                                         :color="
                                                             getConvStateStatusMessage(message).user_type === 'client'
                                                                 ? 'grey-7'
@@ -128,7 +127,9 @@
                                                 :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
                                             >
                                                 <div class="tw-flex tw-gap-2 tw-mr-4">
-                                                    <div :class="`tw-font-medium tw-capitalize text-${globalColor} tw-text-sm`">
+                                                    <div
+                                                        :class="`tw-font-medium tw-capitalize text-${globalColor} tw-text-sm`"
+                                                    >
                                                         {{ msgSenderInfo(message, index).display_name }}
                                                     </div>
                                                     <div v-if="!isAgentToAgentConversation">
@@ -267,8 +268,8 @@
                             v-if="message.msg || (message.attachments && message.attachments.length)"
                             :name="msgSenderInfo(message, index).display_name"
                             :sent="msgForRightSide(message)"
-                            :text-color="msgForRightSide(message) ? 'black' : 'white'"
-                            :bg-color="msgForRightSide(message) ? 'gray-9' : 'blue-9'"
+                            :text-color="!msgForRightSide(message) ? 'black' : 'white'"
+                            :bg-color="!msgForRightSide(message) ? 'grey-4' : 'blue-9'"
                             :class="{ 'mini-mode-message-text-container': mini_mode }"
                         >
                             <template v-slot:stamp>
@@ -570,11 +571,7 @@
                     ></div>
                     <div
                         v-show="attachmentObj.status !== 'done'"
-                        class="
-                            tw-absolute tw-flex tw-justify-items-center
-                            text-green
-                            tw-font-bold tw-text-xs tw-text-center tw-cursor-default
-                        "
+                        class="tw-absolute tw-flex tw-justify-items-center text-green tw-font-bold tw-text-xs tw-text-center tw-cursor-default"
                     >
                         {{ attachmentObj.status }}
                     </div>

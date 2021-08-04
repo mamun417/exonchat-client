@@ -261,10 +261,11 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         Object.values(state.conversations).forEach((conv: any) => {
             if (
                 !conv.users_only &&
-                !conv.closed_at
+                !conv.closed_at &&
+                conv.chat_department?.tag
                 // conv.sessions.length === 1 && // if wants not joined then uncomment
             ) {
-                if (!departments.hasOwnProperty(conv.chat_department?.tag) && conv.chat_department?.tag) {
+                if (!departments.hasOwnProperty(conv.chat_department?.tag)) {
                     departments[conv.chat_department.tag] = {};
 
                     departments[conv.chat_department.tag].id = conv.chat_department.id;

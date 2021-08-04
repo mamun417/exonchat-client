@@ -298,7 +298,7 @@
             @hide="confirmModal = false"
         />
 
-        <chat-transfer-modal v-if="showChatTransferModal" @hide="showChatTransferModal = false" />
+        <chat-transfer-modal v-if="showChatTransferModal" @hide="showChatTransferModal = false" :conv_id="conv_id" />
     </q-card>
 </template>
 
