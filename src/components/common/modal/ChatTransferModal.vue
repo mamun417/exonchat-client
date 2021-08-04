@@ -1,11 +1,13 @@
 <template>
     <q-dialog :model-value="true">
-        <q-card style="min-width: 350px">
-            <q-card-section class="tw-border-b-2 tw-py-3 tw-px-2">
-                <span class="q-ml-sm">You are going to transfer chat</span>
+        <q-card class="tw-shadow-lg" style="min-width: 350px">
+            <q-card-section class="tw-border-b-2">
+                <span :class="`q-ml-sm tw-text-base tw-font-medium text-${globalColor}`"
+                    >You are going to transfer chat</span
+                >
             </q-card-section>
 
-            <q-card-section>
+            <q-card-section class="tw-p-6">
                 <div>Select chat department</div>
                 <q-select
                     v-model="transferChatFormData.chat_department"
@@ -48,10 +50,21 @@
                         </q-item>
                     </template>
                 </q-select>
+
+                <div class="tw-text-xs tw-py-0">
+                    If you don't choose agent, chat will transfer to available agent in that selected department
+                </div>
             </q-card-section>
 
             <q-card-section class="tw-py-3 text-center">
-                <q-btn label="Transfer Chat" :color="globalColor" class="full-width" @click="transferChat" unelevated />
+                <q-btn
+                    label="Transfer Chat"
+                    :color="globalColor"
+                    class="full-width"
+                    @click="transferChat"
+                    unelevated
+                    no-caps
+                />
             </q-card-section>
 
             <q-inner-loading :showing="loadingChatDepartments" color="green" />

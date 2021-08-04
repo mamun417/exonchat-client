@@ -58,7 +58,9 @@
                                         />
                                     </div>
                                     <div
-                                        class="tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4"
+                                        class="
+                                            tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4
+                                        "
                                     >
                                         <div class="tw-flex tw-items-center tw-gap-3 tw-text-sm">
                                             <div
@@ -508,13 +510,15 @@
                     self="bottom left"
                     style="max-height: 500px"
                     :ref="`ec_template_dom_${uid}`"
-                    :class="[`ec_template_dom_${uid}`]"
+                    :class="[`ec_template_dom_${uid}`, 'tw-mr-2']"
                     v-model="chatTemplate"
                     @show="chatTemplateShowHandle"
                     @hide="chatTemplateHideHandle"
                     no-parent-event
                 >
-                    <div class="tw-font-bold tw-text-xs text-green tw-px-4 tw-py-2">Suggestions</div>
+                    <div class="tw-font-bold tw-text-xs tw-px-4 tw-py-2" :class="[`text-${globalColor}`]">
+                        Suggestions
+                    </div>
                     <q-separator />
                     <q-list separator style="min-width: 300px">
                         <q-item
@@ -528,8 +532,12 @@
                             clickable
                         >
                             <q-item-section>
-                                <q-item-label class="tw-text-xs">{{ template.tag }} </q-item-label>
-                                <q-item-label caption>{{ template.content }}</q-item-label>
+                                <q-item-label>
+                                    <div class="tw-flex tw-justify-between tw-items-center tw-gap-3">
+                                        <div class="tw-text-sm">{{ template.tag }}</div>
+                                        <div class="tw-text-xs text-grey-9">{{ template.content }}</div>
+                                    </div>
+                                </q-item-label>
                             </q-item-section>
                         </q-item>
                     </q-list>
@@ -563,7 +571,11 @@
                     ></div>
                     <div
                         v-show="attachmentObj.status !== 'done'"
-                        class="tw-absolute tw-flex tw-justify-items-center text-green tw-font-bold tw-text-xs tw-text-center tw-cursor-default"
+                        class="
+                            tw-absolute tw-flex tw-justify-items-center
+                            text-green
+                            tw-font-bold tw-text-xs tw-text-center tw-cursor-default
+                        "
                     >
                         {{ attachmentObj.status }}
                     </div>
