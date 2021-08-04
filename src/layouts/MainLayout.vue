@@ -88,22 +88,22 @@
 
             <q-page-container>
                 <q-card
-                    v-if="!newConversationInfo.id"
+                    v-show="newConversationInfo.id"
                     :class="`tw-fixed tw-top-0 tw-shadow-lg tw-rounded-none tw-bg-transparent`"
-                    :style="{ width: `${qPageSize.width}px`, zIndex: 9999,  }"
+                    :style="{ width: `${qPageSize.width}px`, zIndex: 9999 }"
                 >
-                    <q-card-section class="tw-flex tw-flex-grow tw-p-0">
+                    <q-card-section v-if="newConversationInfo.id" class="tw-flex tw-flex-grow tw-p-0">
                         <div
                             :class="`tw-flex tw-flex-col text-white tw-justify-center tw-items-center tw-p-4 ${globalBgColor}-9`"
                         >
                             <q-icon name="chat" size="md" />
                             <div class="tw-whitespace-nowrap">New Chat</div>
-                            {{qPageSize}}
+                            {{ qPageSize }}
                         </div>
                         <div :class="`tw-opacity-95 tw-p-4 tw-flex tw-flex-grow tw-justify-between ${globalBgColor}-8`">
                             <div class="text-white">
                                 <div class="tw-flex tw-items-center tw-gap-4">
-                                    <q-badge :label="newConversationInfo.chat_department.tag" color="blue-grey-10" />
+                                    <q-badge :label="newConversationInfo.chat_department?.tag" color="blue-grey-10" />
                                     <div class="tw-font-bold tw-text-base">
                                         {{ newConversationInfo.conversation_sessions[0].socket_session.init_name }}
                                     </div>
@@ -128,6 +128,7 @@
                             </div>
                             <div class="tw-flex tw-items-center">
                                 <q-btn
+                                    @click="takeThisChat(newConversationInfo)"
                                     label="Take This Chat"
                                     color="white"
                                     text-color="black"
@@ -533,10 +534,11 @@ export default defineComponent({
                 console.log('from ec_conv_initiated_from_client', res);
 
                 if (res.data.notify) {
+                    clearTimeout(this.newChatTimeout);
+
                     this.newConversationInfo = res.data.conv_data;
 
                     this.newChatTimeout = setTimeout(() => {
-                        clearTimeout(this.newChatTimeout);
                         this.newConversationInfo = {};
                     }, 10000);
 
@@ -732,6 +734,18 @@ export default defineComponent({
             });
         },
 
+        takeThisChat(convData: any) {
+            clearTimeout(this.newChatTimeout);
+
+            this.newConversationInfo = {};
+
+            window.socketInstance.emit('ec_join_conversation', {
+                conv_id: convData.id,
+            });
+
+            this.$router.push(`/chats/${convData.id}`);
+        },
+
         openChatPanelBoxForTest() {
             const ls = window.localStorage.getItem('chat_panel_box_for_test');
 
@@ -861,7 +875,7 @@ export default defineComponent({
                             `/conversations/client-previous-conversations-count?email=${this.newConversationInfo.conversation_sessions[0].socket_session.init_email}`
                         )
                         .then((res: any) => {
-                            this.newConversationInfo.prev_chat_count = res.data.count;
+                            this.newConversationInfo.prev_chat_count = +res.data.count - 1;
                         })
                         .catch((e: any) => {
                             e;
