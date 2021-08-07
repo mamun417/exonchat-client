@@ -96,7 +96,7 @@
                                 })
                             "
                         />
-                        <direct-message-btn
+                        <!--<direct-message-btn
                             @click.stop=""
                             :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }"
                             :disable="slotProps.row.self_status !== 'joined'"
@@ -105,7 +105,7 @@
                             @click.stop=""
                             @click="showCloseConversationConfirmModal(slotProps.row.id)"
                             :disable="slotProps.row.closed_at"
-                        />
+                        />-->
                     </template>
                 </ec-table>
 

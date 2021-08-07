@@ -2,7 +2,9 @@
     <div>
         <q-card class="tw-shadow-sm">
             <q-card-section class="tw-pb-2">
-                <div class="tw-text-base tw-text-center tw-font-medium">Rate This Chat</div>
+                <div class="tw-text-base tw-text-center tw-font-medium" :class="$helpers.colors().defaultText">
+                    Rate This Chat
+                </div>
             </q-card-section>
             <q-card-actions align="around">
                 <q-btn
