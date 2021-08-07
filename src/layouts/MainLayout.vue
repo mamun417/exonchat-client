@@ -268,8 +268,6 @@ import * as _l from 'lodash';
 import EcAvatar from 'src/components/common/EcAvatar.vue';
 import StoreDebug from 'src/components/debug/StoreDebug.vue';
 import helpers from 'boot/helpers/helpers';
-import { Notify } from 'quasar';
-import moment from 'moment';
 
 declare global {
     interface Window {
@@ -427,7 +425,7 @@ export default defineComponent({
             if (!this.sesId) {
                 try {
                     const res = await this.$api.post('/socket-sessions', {
-                        api_key: this.profile.subscriber.api_key,
+                        api_key: this.profile.subscriber.subscriber_secret.api_key,
                         user_id: this.profile.id,
                     });
 
@@ -766,7 +764,7 @@ export default defineComponent({
                     if (d.getElementById(id)) return;
                     js = d.createElement(s);
                     js.id = id;
-                    js.setAttribute('data-widget-id', self.profile.subscriber.api_key);
+                    js.setAttribute('data-widget-id', self.profile.subscriber.subscriber_secret.api_key);
                     js.src = `${location.origin}/assets/js/web-chat/web-chat.js`; // for other site dont use location.origin
                     fjs.parentNode.insertBefore(js, fjs);
                 })(document, 'script', 'exhonchat-chat-script');

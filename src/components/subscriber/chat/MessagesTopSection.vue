@@ -36,10 +36,10 @@
                                 agentOnlineStatus === 'online'
                                     ? 'green'
                                     : agentOnlineStatus === 'offline'
-                                    ? 'red'
+                                    ? 'red-6'
                                     : 'grey'
                             "
-                            :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
+                            :class="{ 'tw-px-2 tw-pb-1': !mini_mode }"
                         >
                             {{ agentOnlineStatus }}
                         </q-badge>
@@ -442,7 +442,7 @@ export default defineComponent({
 
             this.$socket.emit('ec_chat_transfer', {
                 conv_id: this.conv_id,
-                notify_to: agent.socket_sessions[0].id,
+                notify_to: agent.socket_session.id,
                 agent_info: agent,
             });
         },

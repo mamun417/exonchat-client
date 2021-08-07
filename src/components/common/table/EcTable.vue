@@ -48,7 +48,10 @@
                         <template v-if="col.name === statusColumnName">
                             <!-- make data/row key to status and make value & change col field to status also or ignore -->
                             <!-- you can make this component -->
-                            <q-badge :color="statusSuccessValues.includes(props.row[col.name]) ? 'green' : 'orange'">
+                            <q-badge
+                                :color="statusSuccessValues.includes(props.row[col.name]) ? 'green' : 'orange'"
+                                class="tw-pb-1"
+                            >
                                 {{ $_.upperFirst(props.row[col.name]) }}
                             </q-badge>
                         </template>

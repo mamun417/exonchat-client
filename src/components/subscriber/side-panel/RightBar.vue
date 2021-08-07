@@ -631,7 +631,11 @@ export default defineComponent({
             handler: function (newVal, oldVal) {
                 console.log(newVal, oldVal);
 
-                if (newVal?.length && (!oldVal?.length || newVal[0].conversation_id !== oldVal[0].conversation_id)) {
+                if (
+                    !this.conversationInfo.users_only &&
+                    newVal?.length &&
+                    (!oldVal?.length || newVal[0].conversation_id !== oldVal[0].conversation_id)
+                ) {
                     window.api
                         .get(
                             `/conversations/client-previous-conversations?email=${this.conversationWithUsersInfo[0].socket_session.init_email}`

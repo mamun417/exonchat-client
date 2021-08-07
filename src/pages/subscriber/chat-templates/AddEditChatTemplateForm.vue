@@ -1,8 +1,8 @@
 <template>
     <q-dialog @show="loadDepartment" @hide="resetForm" :model-value="showAddEditChatTemplateModal" persistent>
         <q-card style="max-width: 500px">
-            <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                <div class="tw-text-lg text-green">
+            <q-card-section class="row items-center tw-border-b tw-px-6 tw-py-3">
+                <div class="tw-text-lg tw-font-bold" :class="`text-${globalColor}`">
                     <div v-if="updateModal">
                         Edit Chat Template<b>/{{ addEditChatTemplateFormData.tag }}</b>
                     </div>
@@ -13,7 +13,7 @@
             </q-card-section>
 
             <form @submit.prevent="updateModal ? updateChatTemplate() : createChatTemplate()">
-                <q-card-section class="q-py-2 tw-mx-6">
+                <q-card-section class="q-py-2 tw-mx-2">
                     <q-input
                         v-model="addEditChatTemplateFormData.tag"
                         :error-message="chatTemplateFormDataErrors.tag"
@@ -21,13 +21,12 @@
                         @update:model-value="chatTemplateFormDataErrors.tag = ''"
                         :readonly="updateModal"
                         label="Tag Name"
-                        color="green"
+                        :color="globalColor"
                         prefix="/"
-                        class="tw-my-2"
                         dense
                     >
                         <template v-slot:prepend>
-                            <q-icon name="label" color="green" />
+                            <q-icon name="label" :color="globalColor" />
                         </template>
                     </q-input>
 
@@ -38,41 +37,38 @@
                         @update:model-value="chatTemplateFormDataErrors.department_id = ''"
                         label="Choose Department"
                         :options="departments"
-                        class="tw-my-2"
-                        color="green"
+                        :color="globalColor"
                         dense
                     >
                         <template v-slot:prepend>
-                            <q-icon name="groups" color="green" />
+                            <q-icon name="groups" :color="globalColor" />
                         </template>
                     </q-select>
 
                     <q-select
-                        error="false"
+                        :error="false"
                         v-model="chosenContentType"
                         label="Content Type"
                         :options="['intent', 'static']"
                         @update:modelValue="getIntents"
-                        class="tw-my-2"
-                        color="green"
+                        :color="globalColor"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="ballot" color="green" /> </template>
+                        <template v-slot:prepend> <q-icon name="ballot" :color="globalColor" /> </template>
                     </q-select>
 
                     <q-select
                         v-show="chosenContentType === 'intent'"
                         label="Choose Intent"
-                        error="false"
+                        :error="false"
                         @update:modelValue="getIntentInfo"
                         :options="intents"
                         v-model="chosenIntent"
-                        class="tw-my-2"
-                        color="green"
+                        :color="globalColor"
                         options-selected-class="text-green"
                         dense
                         ><template v-slot:prepend>
-                            <q-icon name="work" color="green" />
+                            <q-icon name="work" :color="globalColor" />
                         </template>
                         <template v-slot:option="scope">
                             <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" dense>
@@ -97,12 +93,11 @@
                                 chosenIntentInfo.intent_action?.type !== 'static'
                             "
                             label="Message"
-                            color="green"
-                            class="tw-my-2"
+                            :color="globalColor"
                             :readonly="chosenContentType === 'intent'"
                             dense
                         >
-                            <template v-slot:prepend> <q-icon name="info" color="green" /> </template>
+                            <template v-slot:prepend> <q-icon name="info" :color="globalColor" /> </template>
                         </q-input>
                     </div>
 
@@ -112,19 +107,17 @@
                         :error="!!chatTemplateFormDataErrors.description"
                         @update:model-value="chatTemplateFormDataErrors.description = ''"
                         label="Description"
-                        color="green"
-                        class="tw-my-2"
+                        :color="globalColor"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="description" color="green" /> </template>
+                        <template v-slot:prepend> <q-icon name="description" :color="globalColor" /> </template>
                     </q-input>
 
                     <div v-if="isAdmin">
                         <q-checkbox
                             v-model="addEditChatTemplateFormData.own"
-                            class="tw-mt-2"
                             label="Only For Me"
-                            color="green"
+                            :color="globalColor"
                             dense
                         />
                     </div>
@@ -132,23 +125,32 @@
                     <div>
                         <q-checkbox
                             v-model="addEditChatTemplateFormData.active"
-                            class="tw-mt-2"
                             label="Activate This Chat Template"
-                            color="green"
+                            :color="globalColor"
                             dense
                         />
                     </div>
 
                     <div class="tw-text-xxs tw-font-medium tw-mt-5 tw-text-gray-700">
                         You can use dynamic variables in content input as $${variable} from list.
-                        <span class="text-green cursor-pointer" @click="variableListModal = true">
+                        <span
+                            class="cursor-pointer tw-font-bold"
+                            :class="`text-${globalColor}`"
+                            @click="variableListModal = true"
+                        >
                             Show Variables List
                         </span>
                     </div>
                 </q-card-section>
 
-                <q-card-actions class="tw-mx-6 tw-my-4">
-                    <q-btn type="submit" color="green" :label="updateModal ? 'update' : 'submit'" class="full-width" />
+                <q-card-actions class="tw-mx-6 tw-mb-4">
+                    <q-btn
+                        type="submit"
+                        :color="globalColor"
+                        :label="updateModal ? 'update' : 'submit'"
+                        class="full-width"
+                        unelevated
+                    />
                 </q-card-actions>
             </form>
         </q-card>
@@ -156,17 +158,17 @@
 
     <q-dialog v-model="variableListModal" @update:modelValue="(value) => (variableListModal = value)">
         <q-card style="max-width: 500px; min-width: 300px; max-height: 500px">
-            <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                <div class="tw-text-lg text-green">Variable List</div>
+            <q-card-section class="row items-center tw-border-b tw-px-6 tw-py-3">
+                <div class="tw-text-lg tw-font-bold" :class="`text-${globalColor}`">Variable List</div>
                 <q-space></q-space>
                 <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
             </q-card-section>
 
-            <q-card-section
+            <q-card-section class="tw-px-3 tw-pt-1"
                 ><q-list separator dense padding>
-                    <q-item class="text-green tw-font-bold">
+                    <q-item class="tw-font-bold" :class="`text-${globalColor}`">
                         <q-item-section> Name </q-item-section>
-                        <q-item-section side class="text-green"> About </q-item-section>
+                        <q-item-section side :class="`text-${globalColor}`"> About </q-item-section>
                     </q-item>
 
                     <q-item v-for="item in dynamicVariables" class="tw-text-xs" :key="item.name" clickable v-ripple>
@@ -177,7 +179,7 @@
             >
 
             <q-card-section class="tw-pt-0"
-                ><div class="tw-text-xs text-center tw-text-gray-500">
+                ><div class="tw-text-xs text-center" :class="`text-${globalColor}`">
                     Note: Click a item to copy a variable name
                 </div></q-card-section
             >
@@ -236,6 +238,8 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             userProfile: 'auth/profile',
+            globalColor: 'setting_ui/globalColor',
+            globalBgColor: 'setting_ui/globalBgColor',
         }),
 
         isAdmin(): any {

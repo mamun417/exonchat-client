@@ -80,8 +80,6 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
                     window.api
                         .post('profile/update/avatar', { attachment_id: res.data.data[0].attachment_info.id })
                         .then((res: any) => {
-                            res.data.socket_session = res.data.socket_sessions[0];
-
                             context.commit('auth/updateUser', res.data, { root: true });
                             resolve(res);
                         })

@@ -166,7 +166,7 @@
                                                         v-for="attachment in message.attachments"
                                                         :key="attachment.id"
                                                         style="width: 200px; max-height: 200px"
-                                                        class="shadow-3 tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                                        class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
                                                     >
                                                         <q-img
                                                             fit="cover"
@@ -302,7 +302,7 @@
                                         v-for="(attachment, key) in message.attachments"
                                         :key="attachment.id"
                                         style="width: 100px; max-height: 100px"
-                                        class="shadow-3 tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                        class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
                                         :class="{
                                             'tw-mr-2':
                                                 !msgForRightSide(message) && key !== message.attachments.length - 1,
@@ -534,7 +534,7 @@
                             <q-item-section>
                                 <q-item-label>
                                     <div class="tw-flex tw-justify-between tw-items-center tw-gap-3">
-                                        <div class="tw-text-sm">{{ template.tag }}</div>
+                                        <div class="tw-text-sm">/{{ template.tag }}</div>
                                         <div class="tw-text-xs text-grey-9">{{ template.content }}</div>
                                     </div>
                                 </q-item-label>

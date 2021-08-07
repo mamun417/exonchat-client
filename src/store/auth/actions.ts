@@ -68,8 +68,6 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
             window.api
                 .get(`users/${userId}`)
                 .then((res: any) => {
-                    res.data.socket_session = res.data.socket_sessions[0];
-
                     context.commit('authSuccess', { data: res.data });
                     resolve(res);
                 })

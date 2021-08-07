@@ -2,7 +2,13 @@
     <div class="tw-flex tw-flex-col">
         <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">My Chat Templates</div>
-            <q-btn color="green" icon="add" label="Add New" @click="showCreateChatTemplateModal"></q-btn>
+            <q-btn
+                :color="globalColor"
+                icon="add"
+                label="Add New"
+                @click="showCreateChatTemplateModal"
+                unelevated
+            ></q-btn>
         </div>
 
         <div class="tw-flex-grow">
@@ -15,7 +21,7 @@
                     @handleDelete="showConfirmDeleteModal($event)"
                 >
                     <template v-slot:cell-tag="slotProps">
-                        <q-badge color="green" class="">
+                        <q-badge :color="globalColor" class="tw-pb-1 tw-px-2">
                             /{{ slotProps.row.tag }}
                             <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                 {{ slotProps.row.description }}
@@ -30,18 +36,18 @@
                     </template>
 
                     <template v-slot:cell-msg="slotProps">
-                        <div class="tw-text-xxs tw-text-gray-700">
-                            <div v-if="slotProps.row.intent">
-                                <div class="tw-text-xxs tw-text-gray-700">
+                        <div class="tw-text-xxs tw-font-medium">
+                            <template v-if="slotProps.row.intent">
+                                <div class="tw-text-xxs">
                                     {{ slotProps.row.intent.content.content }}
                                     <q-inner-loading :showing="!!slotProps.row.intent.content.loading">
                                         <q-spinner-dots size="sm" color="green" />
                                     </q-inner-loading>
                                 </div>
-                            </div>
-                            <div v-else>
+                            </template>
+                            <template v-else>
                                 {{ slotProps.row.content }}
-                            </div>
+                            </template>
                         </div>
                     </template>
 
@@ -52,7 +58,7 @@
                     </template>
 
                     <template v-slot:action-at-middle="slotProps">
-                        <q-btn icon="settings" text-color="green" size="sm" dense flat>
+                        <q-btn icon="settings" size="sm" :color="globalColor" dense flat>
                             <q-menu>
                                 <div class="row no-wrap q-pa-md">
                                     <div class="column">
@@ -89,6 +95,7 @@ import { defineComponent } from 'vue';
 import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
 import AddEditChatTemplateForm from 'pages/subscriber/chat-templates/AddEditChatTemplateForm.vue';
 import EcTable from 'components/common/table/EcTable.vue';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
     components: { EcTable, AddEditChatTemplateForm, ConfirmModal },
@@ -137,6 +144,11 @@ export default defineComponent({
     },
 
     computed: {
+        ...mapGetters({
+            globalColor: 'setting_ui/globalColor',
+            globalBgColor: 'setting_ui/globalBgColor',
+        }),
+
         mappedChatTemplates(): any {
             return this.chatTemplates.map((chatTemplate: any) => {
                 if (chatTemplate.intent) {

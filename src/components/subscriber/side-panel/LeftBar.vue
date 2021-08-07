@@ -249,6 +249,7 @@
                                                         ? 'red'
                                                         : 'grey'
                                                 "
+                                                style="padding: 2px 4px; min-height: 8px"
                                             />
                                         </ec-avatar>
                                     </q-item-section>
@@ -260,23 +261,22 @@
 
                                         <!--<q-item-label lines="2" caption>
                                             &lt;!&ndash; {{ teamConversations }} &ndash;&gt;
-                                            {{ agentMsgInfo(user.conversation_id, user.socket_sessions[0].id) }}
+                                            {{ agentMsgInfo(user.conversation_id, user.socket_session.id) }}
                                         </q-item-label>-->
                                     </q-item-section>
 
                                     <q-item-section
                                         v-if="
-                                            agentMsgInfo(user.conversation_id, user.socket_sessions[0].id)
-                                                .count_unseen_msg
+                                            agentMsgInfo(user.conversation_id, user.socket_session.id).count_unseen_msg
                                         "
                                         side
                                     >
                                         <q-badge color="orange">
                                             {{
-                                                agentMsgInfo(user.conversation_id, user.socket_sessions[0].id)
+                                                agentMsgInfo(user.conversation_id, user.socket_session.id)
                                                     .count_unseen_msg > 9
                                                     ? '9+'
-                                                    : agentMsgInfo(user.conversation_id, user.socket_sessions[0].id)
+                                                    : agentMsgInfo(user.conversation_id, user.socket_session.id)
                                                           .count_unseen_msg
                                             }}
                                         </q-badge>
@@ -397,7 +397,7 @@ export default defineComponent({
         ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
 
         getChatDepartments() {
-            window.socketSessionApi
+            window.api
                 .get('/departments')
                 .then((res: any) => {
                     // console.log('webchat departments', res);
@@ -489,7 +489,7 @@ export default defineComponent({
                 return;
             }
 
-            const userSocketSessId = user.socket_sessions[0].id;
+            const userSocketSessId = user.socket_session.id;
 
             // firing before emit. cz if emit return res before this fn call.
             // though it's not possible for JS event manager. but safe then sorry
@@ -512,7 +512,7 @@ export default defineComponent({
                         conv_id: data.data.conv_id,
                     });
 
-                    if(this.$route.params['conv_id'] !== data.data.conv_id) {
+                    if (this.$route.params['conv_id'] !== data.data.conv_id) {
                         if (this.$route.name === 'chats') {
                             this.updateRightDrawerState({
                                 conv_id: data.data.conv_id,

@@ -349,7 +349,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 // set agent conversation_id
                 const chatUsers = users.data.map((user: any) => {
                     const convSession = convSessions.find(
-                        (convSession: any) => convSession.socket_session_id == user.socket_sessions[0].id
+                        (convSession: any) => convSession.socket_session_id == user.socket_session.id
                     );
 
                     if (convSession) {
