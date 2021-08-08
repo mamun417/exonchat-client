@@ -272,8 +272,6 @@ import * as _l from 'lodash';
 import EcAvatar from 'src/components/common/EcAvatar.vue';
 import StoreDebug from 'src/components/debug/StoreDebug.vue';
 import helpers from 'boot/helpers/helpers';
-import { Notify } from 'quasar';
-import moment from 'moment';
 
 declare global {
     interface Window {

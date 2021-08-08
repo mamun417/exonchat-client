@@ -200,6 +200,7 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
                     class="tw-shadow-lg"
+                    expand-icon-class="hidden"
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
@@ -291,6 +292,7 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
                     class="tw-shadow-lg"
+                    expand-icon-class="hidden"
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
@@ -364,6 +366,7 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
                     class="tw-shadow-lg"
+                    expand-icon-class="hidden"
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
@@ -402,6 +405,7 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
                     class="tw-shadow-lg"
+                    expand-icon-class="hidden"
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
@@ -435,6 +439,7 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
                     class="tw-shadow-lg"
+                    expand-icon-class="hidden"
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
@@ -469,6 +474,7 @@
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
                     class="tw-shadow-lg"
+                    expand-icon-class="hidden"
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">

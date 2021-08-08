@@ -124,6 +124,7 @@
                                         !conversationInfo.sessions[0].socket_session.user
                                     "
                                     class="tw-py-4 tw-text-sm"
+                                    :class="$helpers.colors().defaultText"
                                 >
                                     <div class="text-center tw-mb-1">
                                         One of our representatives will be with you shortly. Thank you for your

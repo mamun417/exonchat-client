@@ -53,11 +53,12 @@
                                         class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                         :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                     >
-                                        <q-badge
-                                            style="padding: 2px 4px; min-height: 8px"
-                                            rounded
-                                            :color="globalColor"
-                                        />
+                                        <i
+                                            class="fa fa-circle"
+                                            :class="`text-${globalColor}-6`"
+                                            :style="`font-size: 5px`"
+                                            aria-hidden="true"
+                                        ></i>
                                     </div>
                                     <div
                                         class="tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4"
@@ -249,13 +250,13 @@
                                         </div>
                                     </div>
 
-                                    <div class="text-grey-10">
+                                    <div :class="$helpers.colors().defaultText">
                                         <div class="tw-text-sm">
                                             {{ typing.msg }}
                                         </div>
                                     </div>
-                                </div></q-card-section
-                            >
+                                </div>
+                            </q-card-section>
                         </q-card>
 
                         <div
@@ -263,7 +264,7 @@
                             :class="{ 'tw-left-10': !mini_mode, 'tw-left-8': mini_mode }"
                         >
                             <div class="tw-flex tw-h-full">
-                                <div class="tw-border-l-2 tw-border-gray-500 tw-h-full" style="margin-left: -1px"></div>
+                                <div class="tw-border-l-2 tw-border-gray-300 tw-h-full" style="margin-left: -1px"></div>
                                 <!--                                <div class="tw-border-l-2 tw-h-full"></div>-->
                             </div>
                         </div>
@@ -388,7 +389,7 @@
                     <template v-for="(typing, index) in typingState" :key="index">
                         <q-chat-message
                             :text-color="!checkOwnMessage(typing) ? 'black' : 'white'"
-                            :bg-color="!checkOwnMessage(typing) ? 'grey-9' : 'blue-9'"
+                            :bg-color="!checkOwnMessage(typing) ? 'grey-4' : 'blue-9'"
                             class="exonchat-is-typing"
                         >
                             <template v-slot:avatar>
