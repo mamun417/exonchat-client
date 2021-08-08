@@ -83,7 +83,7 @@
                 :width="rightBarState.mode === 'conversation' ? 400 : 350"
                 persistent
             >
-                <right-bar></right-bar>
+                <right-bar style="background-color: #f8fafb"></right-bar>
             </q-drawer>
 
             <q-page-container>
@@ -141,7 +141,11 @@
                     </q-card-section>
                 </q-card>
                 <q-page class="tw-flex">
-                    <router-view :class="`tw-w-full tw-p-3 ${globalBgColor}-1`" :key="$route.fullPath"></router-view>
+                    <router-view
+                        :class="`tw-w-full tw-p-3`"
+                        style="background-color: #f8fafb"
+                        :key="$route.fullPath"
+                    ></router-view>
 
                     <q-resize-observer @resize="updateQPageSizeInfo" />
                 </q-page>

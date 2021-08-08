@@ -73,6 +73,13 @@ const helpers = {
     notifications() {
         return { ...notifications };
     },
+
+    colors() {
+        return {
+            defaultText: 'text-grey-7',
+            dateTimeText: 'text-grey-6',
+        };
+    },
 };
 
 export default helpers;

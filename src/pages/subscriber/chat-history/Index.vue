@@ -96,7 +96,7 @@
                                 })
                             "
                         />
-                        <direct-message-btn
+                        <!--<direct-message-btn
                             @click.stop=""
                             :to="{ name: 'chats', params: { conv_id: slotProps.row.id } }"
                             :disable="slotProps.row.self_status !== 'joined'"
@@ -105,7 +105,7 @@
                             @click.stop=""
                             @click="showCloseConversationConfirmModal(slotProps.row.id)"
                             :disable="slotProps.row.closed_at"
-                        />
+                        />-->
                     </template>
                 </ec-table>
 
@@ -133,8 +133,6 @@ import { defineComponent } from 'vue';
 import { mapMutations, mapGetters } from 'vuex';
 import EcTable from 'components/common/table/EcTable.vue';
 import TrackingConversationBtn from 'components/common/table/utilities/TrackingConversationBtn.vue';
-import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn.vue';
-import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
 import ViewConversationBtn from 'components/common/table/utilities/ViewConversationBtn.vue';
 import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
 import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
@@ -208,8 +206,6 @@ export default defineComponent({
         Pagination,
         ConversationStateConfirmModal,
         ViewConversationBtn,
-        CloseConversationBtn,
-        DirectMessageBtn,
         TrackingConversationBtn,
         EcTable,
         ConnectedUsersFaces,

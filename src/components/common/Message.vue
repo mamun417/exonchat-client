@@ -30,7 +30,9 @@
             <template v-slot:default>
                 <slot name="scroll-area-top-section"></slot>
 
-                <div v-if="gettingNewMessages" class="tw-text-center">Loading History...</div>
+                <div v-if="gettingNewMessages" class="tw-text-center" :class="$helpers.colors().defaultText">
+                    Loading History...
+                </div>
 
                 <!--<div v-if="speakingWithUser.name" class="tw-text-center">
                     <ec-avatar :image_src="speakingWithUser.avater" :name="speakingWithUser.name"> </ec-avatar>
@@ -51,21 +53,22 @@
                                         class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                         :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                     >
-                                        <q-badge
-                                            style="padding: 2px 4px; min-height: 8px"
-                                            rounded
-                                            :color="globalColor"
-                                        />
+                                        <i
+                                            class="fa fa-circle"
+                                            :class="`text-${globalColor}-6`"
+                                            :style="`font-size: 5px`"
+                                            aria-hidden="true"
+                                        ></i>
                                     </div>
                                     <div
                                         class="tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4"
                                     >
-                                        <div class="tw-flex tw-items-center tw-gap-3 tw-text-sm">
+                                        <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
                                             <div
                                                 :class="`tw-flex tw-flex-wrap tw-gap-1 tw-font-medium tw-capitalize text-${globalColor}`"
                                             >
                                                 <div>{{ getConvStateStatusMessage(message).name }}</div>
-                                                <div>
+                                                <!--<div>
                                                     <q-badge
                                                         class="tw-uppercase tw-text-xxs"
                                                         :color="
@@ -75,10 +78,10 @@
                                                         "
                                                         :label="getConvStateStatusMessage(message).user_type"
                                                     />
-                                                </div>
+                                                </div>-->
                                             </div>
                                             <div class="tw-flex">
-                                                <div class="text-grey-10">
+                                                <div :class="$helpers.colors().defaultText">
                                                     {{
                                                         `${getConvStateStatusMessage(message).state_message} ${
                                                             getConvStateStatusMessage(message).end_message
@@ -89,10 +92,13 @@
                                         </div>
 
                                         <div
-                                            class="text-grey-9"
-                                            :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
+                                            :class="{
+                                                'tw-text-xs': mini_mode,
+                                                'tw-text-sm': !mini_mode,
+                                                [$helpers.colors().dateTimeText]: true,
+                                            }"
                                         >
-                                            {{ $helpers.myDate(message.created_at, "DD MMM YY, h:mm a") }}
+                                            {{ $helpers.myDate(message.created_at, 'MMM DD, Y h:mm a') }}
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +106,7 @@
                                 <q-card
                                     v-if="message.msg || (message.attachments && message.attachments.length)"
                                     class="tw-pb-0 tw-my-4 tw-shadow-md"
-                                    :class="checkOwnMessage(message) ? '' : ' bg-grey-2'"
+                                    :style="checkOwnMessage(message) ? 'background-color: #f0f5f8' : ''"
                                 >
                                     <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }"
                                         ><div
@@ -134,7 +140,7 @@
                                                     </div>
                                                     <div v-if="!isAgentToAgentConversation">
                                                         <q-badge
-                                                            class="tw-uppercase tw-text-xxs"
+                                                            class="tw-uppercase"
                                                             :color="
                                                                 msgSenderInfo(message, index).type === 'client'
                                                                     ? 'grey-7'
@@ -146,14 +152,17 @@
                                                 </div>
 
                                                 <div
-                                                    class="text-grey-9"
-                                                    :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
+                                                    :class="{
+                                                        'tw-text-xs': mini_mode,
+                                                        'tw-text-sm': !mini_mode,
+                                                        [$helpers.colors().dateTimeText]: true,
+                                                    }"
                                                 >
-                                                    {{ $helpers.myDate(message.created_at, "DD MMM YY, h:mm a") }}
+                                                    {{ $helpers.myDate(message.created_at, 'MMM DD, Y h:mm a') }}
                                                 </div>
                                             </div>
 
-                                            <div class="text-grey-10">
+                                            <div :class="$helpers.colors().defaultText">
                                                 <div class="tw-text-sm">
                                                     {{ message.msg }}
                                                 </div>
@@ -197,7 +206,7 @@
                             v-for="(typing, index) in typingState"
                             :key="index"
                             class="tw-pb-0 tw-mb-6 tw-shadow-md"
-                            :class="checkOwnMessage(typing) ? '' : ' bg-grey-2'"
+                            :class="checkOwnMessage(typing) ? 'bg-grey-2' : ''"
                         >
                             <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }"
                                 ><div
@@ -241,13 +250,13 @@
                                         </div>
                                     </div>
 
-                                    <div class="text-grey-10">
+                                    <div :class="$helpers.colors().defaultText">
                                         <div class="tw-text-sm">
                                             {{ typing.msg }}
                                         </div>
                                     </div>
-                                </div></q-card-section
-                            >
+                                </div>
+                            </q-card-section>
                         </q-card>
 
                         <div
@@ -255,7 +264,7 @@
                             :class="{ 'tw-left-10': !mini_mode, 'tw-left-8': mini_mode }"
                         >
                             <div class="tw-flex tw-h-full">
-                                <div class="tw-border-l-2 tw-border-gray-500 tw-h-full" style="margin-left: -1px"></div>
+                                <div class="tw-border-l-2 tw-border-gray-300 tw-h-full" style="margin-left: -1px"></div>
                                 <!--                                <div class="tw-border-l-2 tw-h-full"></div>-->
                             </div>
                         </div>
@@ -266,15 +275,25 @@
                     <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
                         <q-chat-message
                             v-if="message.msg || (message.attachments && message.attachments.length)"
-                            :name="msgSenderInfo(message, index).display_name"
                             :sent="msgForRightSide(message)"
                             :text-color="!msgForRightSide(message) ? 'black' : 'white'"
                             :bg-color="!msgForRightSide(message) ? 'grey-4' : 'blue-9'"
                             :class="{ 'mini-mode-message-text-container': mini_mode }"
                         >
+                            <template v-slot:name>
+                                <div :class="$helpers.colors().defaultText">
+                                    {{ msgSenderInfo(message, index).display_name }}
+                                </div>
+                            </template>
+
                             <template v-slot:stamp>
-                                <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
-                                    {{ $helpers.myDate(message.created_at, "MMMM Do YYYY, h:mm a") }}
+                                <div
+                                    :class="[
+                                        mini_mode ? 'tw-text-xxs' : 'tw-text-xs',
+                                        msgForRightSide(message) ? 'text-white' : 'text-black',
+                                    ]"
+                                >
+                                    {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
                                 </div>
                             </template>
 
@@ -335,7 +354,7 @@
                             <template v-slot:label>
                                 <div
                                     class="tw-flex tw-justify-between tw-items-center"
-                                    :class="[mini_mode ? 'tw-text-xs' : 'tw-text-xs']"
+                                    :class="[mini_mode ? 'tw-text-xs' : 'tw-text-xs', $helpers.colors().defaultText]"
                                 >
                                     <div class="tw-border-b-2 tw-flex-grow"></div>
                                     <div class="tw-px-2">{{ getConvStateStatusMessage(message) }}</div>
@@ -356,7 +375,7 @@
                                         :name="speakingWithUser.user_meta.display_name"
                                     >
                                     </ec-avatar>
-                                    <div class="tw-mt-2 tw-text-sm">
+                                    <div class="tw-mt-2 tw-text-sm" :class="$helpers.colors().defaultText">
                                         You are currently speaking to
                                         {{ $_.upperFirst(speakingWithUser.user_meta.display_name) }}
                                     </div>
@@ -369,8 +388,8 @@
 
                     <template v-for="(typing, index) in typingState" :key="index">
                         <q-chat-message
-                            :text-color="checkOwnMessage(typing) ? 'black' : 'white'"
-                            :bg-color="checkOwnMessage(typing) ? 'gray-9' : 'blue-9'"
+                            :text-color="!checkOwnMessage(typing) ? 'black' : 'white'"
+                            :bg-color="!checkOwnMessage(typing) ? 'grey-4' : 'blue-9'"
                             class="exonchat-is-typing"
                         >
                             <template v-slot:avatar>
@@ -398,7 +417,7 @@
                     </template>
                 </template>
 
-                <div v-if="conversationInfo.rating" class="text-center tw-py-2">
+                <div v-if="conversationInfo.rating" class="text-center tw-py-2 text-grey-8">
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
@@ -426,6 +445,7 @@
                 <slot name="scroll-area-last-section">
                     <div
                         class="text-center tw-text-sm tw-my-4"
+                        :class="$helpers.colors().defaultText"
                         v-if="!conversationInfo.closed_at && !conversationInfo.users_only && !chatActiveStatus"
                     >
                         Chat is idle due to 10 minutes of inactivity
@@ -614,6 +634,21 @@
 
             <q-btn class="hidden" />
         </q-dialog>
+    </div>
+
+    <div
+        v-if="chatPanelType === 'user' && !showSendMessageInput && conversationInfo.id && !mini_mode"
+        class="text-center tw-pt-3"
+    >
+        <q-btn
+            @click="
+                $router.push({
+                    name: 'chat-interaction',
+                })
+            "
+            label="CLose Chat"
+            :color="globalColor"
+        />
     </div>
 </template>
 
