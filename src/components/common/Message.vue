@@ -92,7 +92,7 @@
                                             class="text-grey-9"
                                             :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
                                         >
-                                            {{ $helpers.myDate(message.created_at, 'DD MMM YY, h:mm a') }}
+                                            {{ $helpers.myDate(message.created_at, "DD MMM YY, h:mm a") }}
                                         </div>
                                     </div>
                                 </div>
@@ -149,7 +149,7 @@
                                                     class="text-grey-9"
                                                     :class="{ 'tw-text-xs': mini_mode, 'tw-text-sm': !mini_mode }"
                                                 >
-                                                    {{ $helpers.myDate(message.created_at, 'DD MMM YY, h:mm a') }}
+                                                    {{ $helpers.myDate(message.created_at, "DD MMM YY, h:mm a") }}
                                                 </div>
                                             </div>
 
@@ -274,7 +274,7 @@
                         >
                             <template v-slot:stamp>
                                 <div :class="[mini_mode ? 'tw-text-xxs' : 'tw-text-xs']">
-                                    {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
+                                    {{ $helpers.myDate(message.created_at, "MMMM Do YYYY, h:mm a") }}
                                 </div>
                             </template>
 
@@ -402,7 +402,7 @@
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
-                            {{ $helpers.myDate(conversationInfo.rating.created_at, 'MMMM Do YYYY, h:mm a') }}
+                            {{ $helpers.myDate(conversationInfo.rating.created_at, "MMMM Do YYYY, h:mm a") }}
                         </div>
                         <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
                         <div class="tw-mt-2">
@@ -618,16 +618,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
-import * as _l from 'lodash';
-import moment from 'moment';
-import EcAvatar from './EcAvatar.vue';
-import EcEmoji from 'components/common/EcEmoji.vue';
+import * as _l from "lodash";
+import moment from "moment";
+import EcAvatar from "./EcAvatar.vue";
+import EcEmoji from "components/common/EcEmoji.vue";
 
 export default defineComponent({
-    name: 'Message',
+    name: "Message",
     components: { EcEmoji, EcAvatar },
     props: {
         conv_id: {
@@ -658,7 +658,7 @@ export default defineComponent({
 
     data(): any {
         return {
-            ecGetClientSesIdStatusInterval: '',
+            ecGetClientSesIdStatusInterval: "",
             chatActiveStatus: true,
             uid: new Date().getTime().toString(), // user convid insted. not from url
 
@@ -667,10 +667,10 @@ export default defineComponent({
             newMessagesMayBeLoaded: false,
             canCallMessageApi: true,
 
-            convId: '',
+            convId: "",
             confirm: false,
-            convState: '',
-            msg: '',
+            convState: "",
+            msg: "",
             typingInstance: null,
             msgInputFocused: false,
             gotoBottomBtnShow: false,
@@ -689,8 +689,9 @@ export default defineComponent({
             chatTemplate: false,
             chatTemplateLoading: true,
             chatTemplates: [],
-            chatTemplateInputVal: '',
-            getChatTemplateTimer: '',
+            chatTemplateInputVal: "",
+            chatTemplateBeforeKeyUpInputVal: "",
+            getChatTemplateTimer: "",
 
             usersAvatarLoading: false,
 
@@ -717,8 +718,8 @@ export default defineComponent({
     beforeUnmount() {
         clearInterval(this.ecGetClientSesIdStatusInterval);
 
-        if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
-            this.$socket.removeEventListener('ec_get_client_ses_id_status_res');
+        if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
+            this.$socket.removeEventListener("ec_get_client_ses_id_status_res");
         }
 
         this.$emitter.off(`new_message_from_client_${this.conv_id}`);
@@ -727,29 +728,29 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalBgColor: 'setting_ui/globalBgColor',
-            globalColor: 'setting_ui/globalColor',
-            profile: 'auth/profile',
+            globalBgColor: "setting_ui/globalBgColor",
+            globalColor: "setting_ui/globalColor",
+            profile: "auth/profile",
         }),
 
         chatPanelType(): any {
-            return this.$route.name === 'client-web-chat' ? 'client' : 'user';
+            return this.$route.name === "client-web-chat" ? "client" : "user";
         },
 
         conversationInfo(): any {
-            return this.$store.getters['chat/conversationInfo'](this.conv_id);
+            return this.$store.getters["chat/conversationInfo"](this.conv_id);
         },
 
         conversationStatusForMe(): any {
-            return this.$store.getters['chat/conversationStatusForMe'](this.conv_id, this.ses_id);
+            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id, this.ses_id);
         },
 
         conversationMessages(): any {
-            return this.$store.getters['chat/conversationMessages'](this.conv_id);
+            return this.$store.getters["chat/conversationMessages"](this.conv_id);
         },
 
         messages(): any {
-            const stateAsMsg = this.$store.getters['chat/getConvSesStateAsMsg'](this.conv_id);
+            const stateAsMsg = this.$store.getters["chat/getConvSesStateAsMsg"](this.conv_id);
 
             const tempMessages = _l.cloneDeep(this.conversationMessages);
 
@@ -760,10 +761,10 @@ export default defineComponent({
             });
 
             let messages: any = _l.sortBy(Object.values(tempMessages), [
-                (msg: any) => moment(msg.created_at).format('x'),
+                (msg: any) => moment(msg.created_at).format("x"),
             ]);
 
-            if (this.chatPanelType === 'client') {
+            if (this.chatPanelType === "client") {
                 const firstMessage = messages[0];
 
                 if (!firstMessage?.msg && !firstMessage?.attachments && !messages[0]?.session.user) {
@@ -774,10 +775,10 @@ export default defineComponent({
         },
 
         typingState(): any {
-            const states = this.$store.getters['chat/typingState'](this.conv_id);
+            const states = this.$store.getters["chat/typingState"](this.conv_id);
 
             return states.filter((state: any) => {
-                return state.status === 'typing';
+                return state.status === "typing";
             });
         },
 
@@ -792,22 +793,22 @@ export default defineComponent({
         showSendMessageInput(): any {
             // console.log(this.conversationStatusForMe);
 
-            return this.conversationStatusForMe === 'joined' || this.isAgentToAgentConversation;
+            return this.conversationStatusForMe === "joined" || this.isAgentToAgentConversation;
         },
 
         mappedChatTemplates(): any {
-            const mappedChatTemplates = this.chatTemplates.map((chatTemplate: any) => {
+            const mappedChatTemplates = this.chatTemplates.map((chatTemplate: any, index: any) => {
                 // set content
                 if (chatTemplate.intent) {
                     chatTemplate.content =
-                        chatTemplate.intent.intent_action.type === 'static'
+                        chatTemplate.intent.intent_action.type === "static"
                             ? chatTemplate.intent.intent_action.content
-                            : '';
+                            : "";
 
-                    chatTemplate.loading = chatTemplate.intent.intent_action.type !== 'static';
+                    chatTemplate.loading = chatTemplate.intent.intent_action.type !== "static";
                 }
 
-                chatTemplate.is_focused = false;
+                chatTemplate.is_focused = index === 0;
 
                 return chatTemplate;
             });
@@ -815,7 +816,7 @@ export default defineComponent({
             if (!mappedChatTemplates.length) {
                 return [
                     {
-                        tag: 'No Result! Append in message box',
+                        tag: "No Result! Append in message box",
                         content: `/${this.chatTemplateInputVal}`,
                         is_focused: true,
                     },
@@ -826,14 +827,14 @@ export default defineComponent({
         },
 
         conversationWithUsersInfo(): any {
-            return this.$store.getters['chat/conversationWithUsersInfo'](
+            return this.$store.getters["chat/conversationWithUsersInfo"](
                 this.conv_id,
                 this.profile?.socket_session?.id
             );
         },
 
         conversationConnectedUsers(): any {
-            return this.$store.getters['chat/conversationConnectedUsers'](this.conv_id);
+            return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
         },
 
         // return user who first join the conversation
@@ -845,7 +846,7 @@ export default defineComponent({
                     // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     const sessionInfo = this.$_.sortBy(
                         sessions.filter((ses: any) => ses.socket_session.user),
-                        [(convSes: any) => moment(convSes.created_at).format('x')]
+                        [(convSes: any) => moment(convSes.created_at).format("x")]
                     )[0];
 
                     if (sessionInfo) {
@@ -863,7 +864,7 @@ export default defineComponent({
 
         canGoToBottom(): any {
             return (
-                !this.conversationInfo.hasOwnProperty('scroll_info') ||
+                !this.conversationInfo.hasOwnProperty("scroll_info") ||
                 (this.conversationInfo.scroll_info?.last_position === 1 &&
                     this.conversationInfo.scroll_info?.auto_scroll_to_bottom)
             );
@@ -873,8 +874,8 @@ export default defineComponent({
     methods: {
         scrollObserverHandle(info: any) {
             // go up, assume that scroll happened manually so update
-            if (info.direction === 'up') {
-                this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+            if (info.direction === "up") {
+                this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                     conv_id: this.conv_id,
                     auto_scroll_to_bottom: false,
                     last_position: this.scrollInfo.verticalPercentage,
@@ -887,19 +888,19 @@ export default defineComponent({
         },
 
         fireSocketListeners() {
-            if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
-                this.$socket.on('ec_get_client_ses_id_status_res', (res: any) => {
-                    this.chatActiveStatus = res.status === 'active';
+            if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
+                this.$socket.on("ec_get_client_ses_id_status_res", (res: any) => {
+                    this.chatActiveStatus = res.status === "active";
 
                     // custom event fire for messageTopSection
-                    this.$emitter.emit('ec_get_client_ses_id_status_res', res);
+                    this.$emitter.emit("ec_get_client_ses_id_status_res", res);
 
                     // console.log('from ec_get_client_ses_id_status_res', res);
                 });
             }
 
             this.$emitter.on(`new_message_from_client_${this.conv_id}`, () => {
-                if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
+                if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
                     this.emitEcGetClientSesIdStatus();
                 }
 
@@ -907,7 +908,7 @@ export default defineComponent({
                     this.scrollToPosition();
 
                     // move these check to the function
-                    if (this.chatPanelType === 'user') {
+                    if (this.chatPanelType === "user") {
                         // check if user on page then update. for now do it
                         setTimeout(() => this.updateLastMsgSeenTime(), 1200);
                     }
@@ -918,7 +919,7 @@ export default defineComponent({
                 if (this.canGoToBottom) {
                     this.scrollToPosition();
 
-                    if (this.chatPanelType === 'user') {
+                    if (this.chatPanelType === "user") {
                         // check if user on page then update. for now do it
                         setTimeout(() => this.updateLastMsgSeenTime(), 1200);
                     }
@@ -927,7 +928,7 @@ export default defineComponent({
         },
 
         ecGetClientSesIdStatusEvent() {
-            if (this.chatPanelType === 'user' && !this.conversationInfo.users_only) {
+            if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
                 this.emitEcGetClientSesIdStatus();
 
                 this.ecGetClientSesIdStatusInterval = setInterval(() => {
@@ -937,13 +938,13 @@ export default defineComponent({
         },
 
         emitEcGetClientSesIdStatus() {
-            this.$socket.emit('ec_get_client_ses_id_status', {
+            this.$socket.emit("ec_get_client_ses_id_status", {
                 client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
             });
         },
 
         handleInfiniteScrollLoad(index: any, done: any) {
-            console.log('handleInfiniteScrollLoad');
+            console.log("handleInfiniteScrollLoad");
             // it's calling only first time by load event
             // immediately we call done so that spam turns off.
             // keep in mind after done(true) scroll won't trigger without resume call
@@ -965,7 +966,7 @@ export default defineComponent({
                 this.gettingNewMessages = true;
 
                 this.$store
-                    .dispatch('chat/getConvMessages', {
+                    .dispatch("chat/getConvMessages", {
                         convId: this.conv_id,
                     })
                     .then((res: any) => {
@@ -979,11 +980,11 @@ export default defineComponent({
                         if (!this.firstTimeMessageLoaded && this.canGoToBottom) {
                             this.scrollToPosition(1); // y here? cz if msg comes & scrollbar appear then auto go bottom
 
-                            if (this.chatPanelType === 'user') this.updateLastMsgSeenTime();
+                            if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
                         }
                     })
                     .catch(() => {
-                        this.$router.push({ name: 'chat-interaction' });
+                        this.$router.push({ name: "chat-interaction" });
                     })
                     .finally(() => {
                         // delay api call for prevent spamming
@@ -1002,13 +1003,13 @@ export default defineComponent({
             if (this.checkOwnMessage(message)) {
                 return true;
             } else {
-                if (this.$route.name !== 'client-web-chat') {
+                if (this.$route.name !== "client-web-chat") {
                     if (!message.socket_session_id) {
                         return true;
                     }
 
                     const findSes = _l.find(this.conversationInfo.sessions, [
-                        'socket_session_id',
+                        "socket_session_id",
                         message.socket_session_id,
                     ]);
 
@@ -1023,43 +1024,43 @@ export default defineComponent({
 
             if (!msg.socket_session_id) {
                 return {
-                    display_name: 'AI',
-                    img_alt_name: 'AI',
-                    type: 'ai',
+                    display_name: "AI",
+                    img_alt_name: "AI",
+                    type: "ai",
                 };
             }
 
             const display_name_condition =
-                this.chatPanelType === 'user' ||
+                this.chatPanelType === "user" ||
                 index === 0 ||
-                !prevMsg.hasOwnProperty('msg') ||
+                !prevMsg.hasOwnProperty("msg") ||
                 msg.socket_session_id !== prevMsg.socket_session_id;
 
-            const findSes = _l.find(this.conversationInfo.sessions, ['socket_session_id', msg.socket_session_id]);
+            const findSes = _l.find(this.conversationInfo.sessions, ["socket_session_id", msg.socket_session_id]);
 
             if (findSes.socket_session.user) {
                 return {
-                    display_name: display_name_condition ? findSes.socket_session.user.user_meta.display_name : '',
+                    display_name: display_name_condition ? findSes.socket_session.user.user_meta.display_name : "",
                     img_alt_name: findSes.socket_session.user.user_meta.display_name,
                     email: findSes.socket_session.user.email,
                     src: findSes.socket_session.user.user_meta.src || null,
-                    type: 'agent',
+                    type: "agent",
                 };
             }
 
             return {
-                display_name: display_name_condition ? findSes.socket_session.init_name : '',
+                display_name: display_name_condition ? findSes.socket_session.init_name : "",
                 img_alt_name: findSes.socket_session.init_name,
                 email: findSes.socket_session.init_email,
-                type: 'client',
+                type: "client",
             };
         },
 
         getConvStateStatusMessage(message: any) {
             let name = message.session.user ? message.session.user.user_meta?.display_name : message.session.init_name;
 
-            if (this.chatPanelType === 'user' && message.session.user && message.session.user.id === this.profile.id) {
-                name = 'You';
+            if (this.chatPanelType === "user" && message.session.user && message.session.user.id === this.profile.id) {
+                name = "You";
             }
             //
             // if (this.chatPanelType === 'client' && !message.session.user) {
@@ -1075,23 +1076,23 @@ export default defineComponent({
             );
 
             const endMaker =
-                message.state === 'closed'
-                    ? `| ${message.session.user ? 'Agent' : 'Client'} Ended chat ${convSes.closed_reason || ''}`
-                    : '';
+                message.state === "closed"
+                    ? `| ${message.session.user ? "Agent" : "Client"} Ended chat ${convSes.closed_reason || ""}`
+                    : "";
 
-            const time = `at ${this.$helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a')}`;
+            const time = `at ${this.$helpers.myDate(message.created_at, "MMMM Do YYYY, h:mm a")}`;
 
-            if (this.chatPanelType === 'user') {
+            if (this.chatPanelType === "user") {
                 return {
                     name: name,
                     state: message.state,
                     state_message: `${message.state} the chat`,
                     end_message: endMaker,
-                    user_type: message.session.user ? 'agent' : 'client',
+                    user_type: message.session.user ? "agent" : "client",
                 };
             }
 
-            return `${name} ${message.state} the chat ${message.state !== 'joined' ? time : ''} ${endMaker}`;
+            return `${name} ${message.state} the chat ${message.state !== "joined" ? time : ""} ${endMaker}`;
         },
 
         inputFocusHandle() {
@@ -1104,8 +1105,8 @@ export default defineComponent({
 
                     dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
                         conv_id: this.conv_id,
-                        msg: this.chatPanelType === 'user' ? '' : this.msg.trim(),
-                        status: 'typing',
+                        msg: this.chatPanelType === "user" ? "" : this.msg.trim(),
+                        status: "typing",
                     });
                 } else {
                     if (!this.notTypingEmitted) {
@@ -1113,8 +1114,8 @@ export default defineComponent({
 
                         dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
                             conv_id: this.conv_id,
-                            msg: '',
-                            status: 'not_typing',
+                            msg: "",
+                            status: "not_typing",
                         });
                     }
                 }
@@ -1124,19 +1125,19 @@ export default defineComponent({
             const dynamicSocket = this.socket || this.$socket;
             dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
                 conv_id: this.conv_id,
-                msg: '',
-                status: 'not_typing',
+                msg: "",
+                status: "not_typing",
             });
             clearInterval(this.typingHandler);
         },
         keyUpHandle(e: any) {
-            if (this.chatPanelType !== 'client' && e.key === '/') {
+            if (this.chatPanelType !== "client" && e.key === "/") {
                 this.chatTemplate = true;
                 e.preventDefault();
             }
         },
 
-        getChatTemplates(keyword = '') {
+        getChatTemplates(keyword = "") {
             this.chatTemplateLoading = true;
             let payload: any = {};
 
@@ -1144,7 +1145,7 @@ export default defineComponent({
                 payload.keyword = keyword;
             }
 
-            this.$store.dispatch('chat_template/getChatTemplates', payload).then((res: any) => {
+            this.$store.dispatch("chat_template/getChatTemplates", payload).then((res: any) => {
                 this.chatTemplates = res.data;
 
                 this.chatTemplateLoading = false;
@@ -1155,26 +1156,28 @@ export default defineComponent({
         },
         chatTemplateShowHandle() {
             this.getChatTemplates();
-            document.body.addEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
+            document.body.addEventListener("keyup", this.chatTemplateArrowKeyUpDownHandle);
 
             this.chatTemplateDomPositionUpdate();
         },
         chatTemplateHideHandle() {
-            this.chatTemplateInputVal = '';
-            document.body.removeEventListener('keyup', this.chatTemplateArrowKeyUpDownHandle);
+            this.chatTemplateInputVal = "";
+            this.chatTemplateBeforeKeyUpInputVal = "";
+
+            document.body.removeEventListener("keyup", this.chatTemplateArrowKeyUpDownHandle);
         },
         chatTemplateArrowKeyUpDownHandle(e: any) {
             if (this.mappedChatTemplates.length) {
-                const currentFocusedTemplate = _l.findIndex(this.mappedChatTemplates, ['is_focused', true]);
-                if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
-                    const upOrDown = e.key === 'ArrowDown' ? 1 : -1;
+                const currentFocusedTemplate = _l.findIndex(this.mappedChatTemplates, ["is_focused", true]);
+                if (["ArrowUp", "ArrowDown"].includes(e.key)) {
+                    const upOrDown = e.key === "ArrowDown" ? 1 : -1;
 
                     if (
                         currentFocusedTemplate === this.mappedChatTemplates.length - 1 ||
                         currentFocusedTemplate === -1
                     ) {
                         this.mappedChatTemplates[0].is_focused = true;
-                    } else if (currentFocusedTemplate === 0 && e.key === 'ArrowUp') {
+                    } else if (currentFocusedTemplate === 0 && e.key === "ArrowUp") {
                         this.mappedChatTemplates[this.mappedChatTemplates.length - 1].is_focused = true;
                     } else {
                         this.mappedChatTemplates[currentFocusedTemplate + upOrDown].is_focused = true;
@@ -1185,7 +1188,7 @@ export default defineComponent({
                     }
                 }
 
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                     this.chatTemplateSelectHandle(currentFocusedTemplate);
                 }
             }
@@ -1198,14 +1201,24 @@ export default defineComponent({
             }
         },
         chatTemplateSearchHandle(e: any) {
-            if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) return;
+            if (["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(e.key)) return;
 
             // console.log(e.target.value);
 
+            // clear before backspace check so that one api call save's
             clearTimeout(this.getChatTemplateTimer);
+
+            if (!e.target.value && !this.chatTemplateBeforeKeyUpInputVal && e.key === "Backspace") {
+                this.chatTemplate = false;
+
+                return;
+            }
+
             this.getChatTemplateTimer = setTimeout(() => {
                 this.getChatTemplates(e.target.value);
             }, 200);
+
+            this.chatTemplateBeforeKeyUpInputVal = e.target.value;
         },
         chatTemplateDomPositionUpdate() {
             // this method will fix the menu position when content changes its height
@@ -1216,7 +1229,7 @@ export default defineComponent({
 
             const templateDom: any = document.getElementsByClassName(`ec_template_dom_${this.uid}`)[0];
 
-            templateDom.style.top = 'unset';
+            templateDom.style.top = "unset";
             templateDom.style.bottom = `${bodyHeight - msgInputBottomPos + 11}px`;
         },
 
@@ -1230,7 +1243,7 @@ export default defineComponent({
             // console.log('sending the msg');
 
             const dynamicBody =
-                this.chatPanelType === 'user'
+                this.chatPanelType === "user"
                     ? { conv_id: this.conv_id, temp_id: this.$helpers.getTempId() }
                     : { temp_id: this.$helpers.getTempId() };
 
@@ -1239,10 +1252,10 @@ export default defineComponent({
             dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
                 ...dynamicBody,
                 msg: this.msg,
-                attachments: _l.map(this.finalAttachments, 'id'),
+                attachments: _l.map(this.finalAttachments, "id"),
             });
 
-            this.msg = '';
+            this.msg = "";
             this.attachments = [];
             this.finalAttachments = [];
         },
@@ -1264,7 +1277,7 @@ export default defineComponent({
                     if (this.canGoToBottom) {
                         this.scrollToPosition(1); // y here? cz if msg comes & scrollbar appear then auto go bottom
 
-                        if (this.chatPanelType === 'user') this.updateLastMsgSeenTime();
+                        if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
                     }
                 }
 
@@ -1273,7 +1286,7 @@ export default defineComponent({
 
             const verticalPercentage = this.scrollInfo.verticalPercentage;
             // if it has scroll info we know it's not first time
-            if (this.conversationInfo.hasOwnProperty('scroll_info')) {
+            if (this.conversationInfo.hasOwnProperty("scroll_info")) {
                 this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
 
                 const topScrolling = this.lastTopVerticalPosition > this.scrollInfo.verticalPosition;
@@ -1292,14 +1305,14 @@ export default defineComponent({
                 this.scrollToPosition();
 
                 // it's needed for come back
-                if (this.chatPanelType === 'user') this.updateLastMsgSeenTime();
+                if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
             }
 
             // if we scrolled to bottom but in store set to not can go then update
             if (this.scrollInfo.verticalPercentage === 1 && !this.canGoToBottom) {
                 this.scrollToPosition();
 
-                if (this.chatPanelType === 'user') this.updateLastMsgSeenTime();
+                if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
             }
         },
 
@@ -1309,12 +1322,12 @@ export default defineComponent({
             if (msgScrollArea) {
                 // waiting for dom render
                 setTimeout(() => {
-                    console.log('scroll to ', position);
-                    msgScrollArea.setScrollPercentage('vertical', position, 200);
+                    console.log("scroll to ", position);
+                    msgScrollArea.setScrollPercentage("vertical", position, 200);
                 }, 100);
             }
 
-            this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+            this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                 conv_id: this.conv_id,
                 auto_scroll_to_bottom: position === 1,
                 last_position: 1,
@@ -1332,15 +1345,15 @@ export default defineComponent({
                         temp_id: new Date().getTime(),
                         original_name: img.name,
                         size: img.size,
-                        status: 'pending',
+                        status: "pending",
                         src: URL.createObjectURL(img),
                     });
 
                     let formData = new FormData();
-                    formData.append('attachments', img, img.name);
+                    formData.append("attachments", img, img.name);
 
                     this.$socketSessionApi
-                        .post('attachments', formData)
+                        .post("attachments", formData)
                         .then((res: any) => {
                             // console.log(res.data);
                             const attachment = res.data.data[0];
@@ -1352,20 +1365,20 @@ export default defineComponent({
 
                             const finalAttachment = this.finalAttachments[afterPushedFinalAttachmentIndex];
 
-                            finalAttachment.status = 'uploading';
+                            finalAttachment.status = "uploading";
 
                             this.$socketSessionApi
                                 .get(attachment.src, {
-                                    responseType: 'arraybuffer',
+                                    responseType: "arraybuffer",
                                 })
                                 .then((res: any) => {
                                     // console.log(res);
                                     // console.log(typeof res.data);
 
                                     finalAttachment.id = attachment.attachment_info.id;
-                                    finalAttachment.status = 'done';
+                                    finalAttachment.status = "done";
                                     finalAttachment.src = URL.createObjectURL(
-                                        new Blob([res.data], { type: res.headers['content-type'] })
+                                        new Blob([res.data], { type: res.headers["content-type"] })
                                     ); // its giving a warning so after this line nothing will work
                                 })
                                 .catch((e: any) => {
@@ -1397,10 +1410,10 @@ export default defineComponent({
         },
         handleAttachmentReject(entries: any) {
             // show toast
-            console.log('before upload error', entries);
+            console.log("before upload error", entries);
 
             entries.forEach((attachment: any) => {
-                console.log(attachment.file.name, attachment.failedPropValidation, 'error');
+                console.log(attachment.file.name, attachment.failedPropValidation, "error");
                 this.$helpers.showErrorNotification(this, attachment.failedPropValidation);
             });
         },
@@ -1419,11 +1432,11 @@ export default defineComponent({
                         if (!attch.loaded && !attch.src) {
                             try {
                                 const imgRes = await this.$socketSessionApi.get(`attachments/${attch.id}`, {
-                                    responseType: 'arraybuffer',
+                                    responseType: "arraybuffer",
                                 });
 
                                 attch.src = URL.createObjectURL(
-                                    new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
                                 );
 
                                 attch.loaded = true;
@@ -1440,13 +1453,13 @@ export default defineComponent({
         async updateLastMsgSeenTime() {
             // urgent check needed
             // must check if seen need to update or not
-            console.log('update seen');
+            console.log("update seen");
             const lastMsgSeenTime = moment().format();
             const mySocketSesId = this.$helpers.getMySocketSessionId();
 
             // check for undefined issue
             if (this.conversationConnectedUsers.length) {
-                this.$store.commit('chat/updateConversation', {
+                this.$store.commit("chat/updateConversation", {
                     conv_id: this.conv_id,
                     last_msg_seen_time: lastMsgSeenTime,
                     socket_session_id: mySocketSesId,
@@ -1485,7 +1498,7 @@ export default defineComponent({
 
                     this.scrollToPosition();
 
-                    if (this.chatPanelType === 'user') this.updateLastMsgSeenTime();
+                    if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
                 }
             },
             immediate: true,
@@ -1538,7 +1551,7 @@ export default defineComponent({
     },
 
     unmounted() {
-        this.$store.dispatch('chat/updateConvMessagesAutoScrollToBottom', {
+        this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
             conv_id: this.conv_id,
             auto_scroll_to_bottom: true,
             last_position: 1,
