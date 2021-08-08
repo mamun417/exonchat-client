@@ -1,7 +1,7 @@
-import { route } from 'quasar/wrappers';
-import { createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
-import { StateInterface } from '../store';
-import routes from './routes';
+import { route } from "quasar/wrappers";
+import { createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from "vue-router";
+import { StateInterface } from "../store";
+import routes from "./routes";
 
 /*
  * If not building with SSR mode, you can
@@ -15,7 +15,7 @@ import routes from './routes';
 export default route<StateInterface>(function ({ store }) {
     const createHistory = process.env.SERVER
         ? createMemoryHistory
-        : process.env.VUE_ROUTER_MODE === 'history'
+        : process.env.VUE_ROUTER_MODE === "history"
         ? createWebHistory
         : createWebHashHistory;
 
@@ -26,32 +26,32 @@ export default route<StateInterface>(function ({ store }) {
         // Leave this as is and make changes in quasar.conf.js instead!
         // quasar.conf.js -> build -> vueRouterMode
         // quasar.conf.js -> build -> publicPath
-        history: createHistory(process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE),
+        history: createHistory(process.env.MODE === "ssr" ? void 0 : process.env.VUE_ROUTER_BASE),
     });
 
     Router.beforeEach((to, from, next) => {
-        if (to.path !== '/' && to.path.slice(-1) === '/') {
+        if (to.path !== "/" && to.path.slice(-1) === "/") {
             return next(to.path.substring(0, to.path.length - 1));
         }
 
-        const login = store.getters['auth/isLoggedIn'];
+        const login = store.getters["auth/isLoggedIn"];
 
-        if (to.path === '/web-chat') {
+        if (to.path === "/web-chat") {
             return next();
         } else if (to.matched.some((record) => record.meta.requiresRoleAdmin)) {
-            const profile = store.getters['auth/profile'];
+            const profile = store.getters["auth/profile"];
 
-            if (profile.role.slug === 'admin') {
+            if (profile.role.slug === "admin") {
                 return next();
             }
 
-            return next({ name: 'access-denied' });
+            return next({ name: "access-denied" });
         } else if (to.matched.some((record) => record.meta.requiresAuth)) {
             if (login) {
                 return next();
             }
 
-            return next({ name: 'login' });
+            return next({ name: "login" });
         } else if (
             // this block work for auth route
             to.matched.some((record) => !record.meta.requiresAuth && record.meta.redirectAfterLoginPage) &&
@@ -59,7 +59,7 @@ export default route<StateInterface>(function ({ store }) {
         ) {
             // if not require authenticate, redirectAfterLoginPage = true and logged-in (solve 404 page)
 
-            return next({ name: 'chat-interaction' });
+            return next({ name: "chat-interaction" });
         }
 
         next(); // make sure to always call next()!

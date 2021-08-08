@@ -60,7 +60,7 @@
                         <span
                             class="tw-font-medium tw-mr-2"
                             :class="[formInputs.apps_whmcs_enable ? 'text-green' : 'text-orange']"
-                            >{{ formInputs.apps_whmcs_enable ? 'Enabled' : 'Disabled' }}</span
+                            >{{ formInputs.apps_whmcs_enable ? "Enabled" : "Disabled" }}</span
                         >
                     </div>
                     <!-- handle click api -->
@@ -117,16 +117,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: '',
+    name: "",
     props: {},
 
     data(): any {
         return {
-            currentTab: 'third-party',
+            currentTab: "third-party",
 
             appSetting: {},
             isPwdWhmcs: {
@@ -134,8 +134,8 @@ export default defineComponent({
                 secret: true,
             },
             formInputs: {
-                apps_whmcs_identifier_key: '',
-                apps_whmcs_secret_key: '',
+                apps_whmcs_identifier_key: "",
+                apps_whmcs_secret_key: "",
                 apps_whmcs_enable: true,
                 apps_whmcs_ticket_notification: true,
                 apps_whmcs_ticket_manage: true,
@@ -149,13 +149,13 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapGetters({ profile: 'auth/profile', globalColor: 'setting_ui/globalColor' }),
+        ...mapGetters({ profile: "auth/profile", globalColor: "setting_ui/globalColor" }),
     },
 
     methods: {
         getAppSetting() {
             this.$store
-                .dispatch('setting_app/getAppSetting')
+                .dispatch("setting_app/getAppSetting")
                 .then((res: any) => {
                     res.data.forEach((appSetting: any) => {
                         this.formInputs[appSetting.slug] = this.getSingleInputValue(appSetting);
@@ -182,13 +182,13 @@ export default defineComponent({
             });
 
             this.$store
-                .dispatch('setting_app/updateAppSetting', {
+                .dispatch("setting_app/updateAppSetting", {
                     inputs: {
                         app_settings: data,
                     },
                 })
                 .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'App setting update successful');
+                    this.$helpers.showSuccessNotification(this, "App setting update successful");
                     this.getAppSetting();
                 })
                 .catch((err: any) => {
@@ -205,7 +205,7 @@ export default defineComponent({
                 ? appSetting.user_settings_value[0].value
                 : appSetting.default_value;
 
-            return appSetting.input_type === 'checkbox' ? value === 'true' : value;
+            return appSetting.input_type === "checkbox" ? value === "true" : value;
         },
     },
 

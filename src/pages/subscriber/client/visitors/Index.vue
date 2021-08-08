@@ -18,11 +18,11 @@
                         </div>
                     </template>
 
-                    <template v-slot:cell-location="slotProps"> {{ slotProps.row.location || 'Unknown' }} </template>
+                    <template v-slot:cell-location="slotProps"> {{ slotProps.row.location || "Unknown" }}</template>
 
-                    <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }} </template>
+                    <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }}</template>
 
-                    <template v-slot:cell-chats> 0 </template>
+                    <template v-slot:cell-chats> 0</template>
 
                     <template v-slot:cell-url="slotProps">
                         <div class="">
@@ -44,40 +44,40 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
-import EcTable from 'components/common/table/EcTable.vue';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
+import EcTable from "components/common/table/EcTable.vue";
 
 const columns = [
     {
-        name: 'client',
-        align: 'left',
-        label: 'Client',
+        name: "client",
+        align: "left",
+        label: "Client",
     },
     {
-        name: 'location',
-        align: 'left',
-        label: 'Location',
+        name: "location",
+        align: "left",
+        label: "Location",
     },
 
     {
-        name: 'url',
-        align: 'center',
-        label: 'Currently On',
+        name: "url",
+        align: "center",
+        label: "Currently On",
     },
     {
-        name: 'referrer',
-        align: 'center',
-        label: 'Referrer',
+        name: "referrer",
+        align: "center",
+        label: "Referrer",
     },
     {
-        name: 'chats',
-        align: 'center',
-        label: 'Chats',
+        name: "chats",
+        align: "center",
+        label: "Chats",
     },
     {
-        name: 'stay_time',
-        label: 'Time On Site',
+        name: "stay_time",
+        label: "Time On Site",
     },
 ];
 
@@ -97,8 +97,8 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            visitors: 'visitor/visitors',
-            clientsConversation: 'chat/clientsConversation',
+            visitors: "visitor/visitors",
+            clientsConversation: "chat/clientsConversation",
         }),
     },
 

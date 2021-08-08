@@ -16,7 +16,7 @@
             <div class="tw-text-xs">
                 Current staus is :
                 <span :class="[chatPanelBoxIsTesting ? 'text-green' : 'text-orange']">{{
-                    chatPanelBoxIsTesting ? 'enabled' : 'disabled'
+                    chatPanelBoxIsTesting ? "enabled" : "disabled"
                 }}</span>
             </div>
 
@@ -31,11 +31,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapMutations, mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapMutations, mapGetters } from "vuex";
 
 export default defineComponent({
-    name: '',
+    name: "",
     props: {},
 
     data(): any {
@@ -47,9 +47,9 @@ export default defineComponent({
 
         chatPanelBoxIsTesting() {
             // later handle through api
-            const ls = window.localStorage.getItem('chat_panel_box_for_test');
+            const ls = window.localStorage.getItem("chat_panel_box_for_test");
 
-            return ls && ls === 'true';
+            return ls && ls === "true";
         },
     },
 
@@ -58,9 +58,9 @@ export default defineComponent({
 
         updateChatPanelBoxTestingShowStaus(toogleTo: any) {
             if (toogleTo) {
-                window.localStorage.setItem('chat_panel_box_for_test', 'true');
+                window.localStorage.setItem("chat_panel_box_for_test", "true");
             } else {
-                window.localStorage.removeItem('chat_panel_box_for_test');
+                window.localStorage.removeItem("chat_panel_box_for_test");
             }
 
             location.reload();

@@ -1,6 +1,6 @@
-import { GetterTree } from 'vuex';
-import { StateInterface } from 'src/store';
-import { SettingUiStateInterface } from './state';
+import { GetterTree } from "vuex";
+import { StateInterface } from "src/store";
+import { SettingUiStateInterface } from "./state";
 
 const getters: GetterTree<SettingUiStateInterface, StateInterface> = {
     globalColor(state) {
@@ -13,7 +13,7 @@ const getters: GetterTree<SettingUiStateInterface, StateInterface> = {
         return `text-${state.globalColor}`;
     },
     globalColorToHex() {
-        return 'upcoming';
+        return "upcoming";
     },
 
     rightBarState(state) {

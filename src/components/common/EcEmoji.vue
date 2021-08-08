@@ -73,12 +73,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import emojiJson from 'emoji.json';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import emojiJson from "emoji.json";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: 'EcEmoji',
+    name: "EcEmoji",
     props: {
         mini_box: {
             type: Boolean,
@@ -87,13 +87,13 @@ export default defineComponent({
     },
     data(): any {
         return {
-            emojiKeyword: '',
+            emojiKeyword: "",
             emojis: [],
-            emojiGroup: 'Smileys & Emotion',
+            emojiGroup: "Smileys & Emotion",
             emojiGroups: [
                 {
-                    name: 'all',
-                    char: 'All',
+                    name: "all",
+                    char: "All",
                 },
             ],
             emojiUpTo: 4500,
@@ -102,8 +102,8 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalBgColor: 'setting_ui/globalBgColor',
-            globalColor: 'setting_ui/globalColor',
+            globalBgColor: "setting_ui/globalBgColor",
+            globalColor: "setting_ui/globalColor",
         }),
 
         filterNewEmoji(): any {
@@ -111,11 +111,11 @@ export default defineComponent({
                 .filter((emoji: any) => {
                     if (this.emojiKeyword) {
                         return (
-                            (this.emojiGroup === 'all' || this.emojiGroup === emoji.group) &&
+                            (this.emojiGroup === "all" || this.emojiGroup === emoji.group) &&
                             emoji.name.includes(this.emojiKeyword)
                         );
                     } else {
-                        return this.emojiGroup === 'all' || this.emojiGroup === emoji.group;
+                        return this.emojiGroup === "all" || this.emojiGroup === emoji.group;
                     }
                 })
                 .splice(0, this.emojiUpTo);
@@ -127,7 +127,7 @@ export default defineComponent({
         //     this.$refs.emojiMenu.$forceUpdate();
         // }, 3000);
 
-        this.emojis = emojiJson.filter((emoji: any) => !['smiling face'].includes(emoji.name));
+        this.emojis = emojiJson.filter((emoji: any) => !["smiling face"].includes(emoji.name));
 
         this.emojis.forEach((emoji: any) => {
             if (
@@ -146,7 +146,7 @@ export default defineComponent({
     methods: {
         handleEmojiClick(emojiObj: any) {
             this.$refs.emojiMenu.hide();
-            this.$emit('clickEmoji', emojiObj.char);
+            this.$emit("clickEmoji", emojiObj.char);
         },
     },
 });

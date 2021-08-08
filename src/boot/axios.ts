@@ -1,8 +1,8 @@
-import { boot } from 'quasar/wrappers';
-import axios, { AxiosInstance } from 'axios';
-import _ from 'lodash';
+import { boot } from "quasar/wrappers";
+import axios, { AxiosInstance } from "axios";
+import _ from "lodash";
 
-declare module '@vue/runtime-core' {
+declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         $axios: AxiosInstance;
         $api: AxiosInstance;
@@ -31,10 +31,10 @@ const api = function (store: any, router: any) {
     // handle before req happen
     insAxios.interceptors.request.use(
         (req) => {
-            const token = localStorage.getItem('exonchat_token');
+            const token = localStorage.getItem("exonchat_token");
 
             if (token) {
-                req.headers['Authorization'] = 'Bearer ' + token;
+                req.headers["Authorization"] = "Bearer " + token;
             }
 
             return req;
@@ -56,7 +56,7 @@ const api = function (store: any, router: any) {
                 if (!tokenRefreshing) {
                     tokenRefreshing = true;
 
-                    return store.dispatch('auth/refreshToken').then(() => {
+                    return store.dispatch("auth/refreshToken").then(() => {
                         tokenRefreshing = false;
                         return insAxios(err.config);
                     });
@@ -72,11 +72,11 @@ const api = function (store: any, router: any) {
                 }
             } else if (
                 err.response.status === 422 &&
-                ['Invalid bearer token', 'Refresh token not found'].includes(err.response.data.message)
+                ["Invalid bearer token", "Refresh token not found"].includes(err.response.data.message)
             ) {
-                store.dispatch('auth/logOut').then(() => {
+                store.dispatch("auth/logOut").then(() => {
                     tokenRefreshing = false;
-                    return router.push({ name: 'login' });
+                    return router.push({ name: "login" });
                 });
             } else {
                 tokenRefreshing = false;
@@ -86,7 +86,7 @@ const api = function (store: any, router: any) {
                     const msgObj: any = {};
 
                     err.response.data.message.forEach((singleMsg: string) => {
-                        const msgKey = singleMsg.split(' ')[0];
+                        const msgKey = singleMsg.split(" ")[0];
 
                         msgObj[msgKey] = singleMsg;
                     });
@@ -116,12 +116,12 @@ export const socketSessionApi = function (router: any) {
         (req) => {
             // ec_client_socket_token is from local cz now we are supporting cient can resume after restarting browser
             const token =
-                router.currentRoute._value.path === '/web-chat'
-                    ? localStorage.getItem('ec_client_socket_token')
-                    : sessionStorage.getItem('ec_user_socket_token');
+                router.currentRoute._value.path === "/web-chat"
+                    ? localStorage.getItem("ec_client_socket_token")
+                    : sessionStorage.getItem("ec_user_socket_token");
 
             if (token) {
-                req.headers['Authorization'] = 'Bearer ' + token;
+                req.headers["Authorization"] = "Bearer " + token;
             }
 
             return req;
@@ -140,7 +140,7 @@ export const socketSessionApi = function (router: any) {
                 const msgObj: any = {};
 
                 err.response.data.message.forEach((singleMsg: string) => {
-                    const msgKey = singleMsg.split(' ')[0];
+                    const msgKey = singleMsg.split(" ")[0];
 
                     msgObj[msgKey] = singleMsg;
                 });

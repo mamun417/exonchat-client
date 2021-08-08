@@ -50,16 +50,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: '',
+    name: "",
     props: {},
 
     data(): any {
         return {
             formInputs: {
-                conversation_at_initiate_notify_policy: '',
+                conversation_at_initiate_notify_policy: "",
             },
         };
     },
@@ -71,7 +71,7 @@ export default defineComponent({
     methods: {
         getChatSetting() {
             this.$store
-                .dispatch('setting_chat/getChatSetting')
+                .dispatch("setting_chat/getChatSetting")
                 .then((res: any) => {
                     res.data.forEach((chatSetting: any) => {
                         this.formInputs[chatSetting.slug] = this.getSingleInputValue(chatSetting);
@@ -96,13 +96,13 @@ export default defineComponent({
             });
 
             this.$store
-                .dispatch('setting_chat/updateChatSetting', {
+                .dispatch("setting_chat/updateChatSetting", {
                     inputs: {
                         chat_settings: data,
                     },
                 })
                 .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'Chat setting update successful');
+                    this.$helpers.showSuccessNotification(this, "Chat setting update successful");
                     this.getChatSetting();
                 })
                 .catch((err: any) => {
@@ -119,7 +119,7 @@ export default defineComponent({
                 ? appSetting.user_settings_value[0].value
                 : appSetting.default_value;
 
-            return appSetting.input_type === 'checkbox' ? value === 'true' : value;
+            return appSetting.input_type === "checkbox" ? value === "true" : value;
         },
     },
 

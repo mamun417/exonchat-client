@@ -68,13 +68,17 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Period Name" color="green" prefix="/" class="tw-my-3" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Period Name" color="green" prefix="/" class="tw-my-3" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
-                    <q-input label="Period In Days" color="green" prefix="/" class="tw-my-3" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Period In Days" color="green" prefix="/" class="tw-my-3" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-checkbox class="tw-mt-2" label="Active This After Create" color="green" dense />
                 </q-card-section>
@@ -101,32 +105,32 @@
 
 <script>
 const columns = [
-    { name: 'name', align: 'center', label: 'Name', field: 'name' },
+    { name: "name", align: "center", label: "Name", field: "name" },
     {
-        name: 'days',
-        align: 'center',
-        label: 'In Days',
-        field: 'days',
+        name: "days",
+        align: "center",
+        label: "In Days",
+        field: "days",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 
 const rows = [
     {
-        name: 'monthly',
+        name: "monthly",
         days: 30,
-        status: 'active',
+        status: "active",
     },
 ];
 

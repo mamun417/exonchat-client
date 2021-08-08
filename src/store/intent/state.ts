@@ -4,7 +4,7 @@ export interface IntentStateInterface {
 
 function state(): IntentStateInterface {
     return {
-        test: '',
+        test: "",
     };
 }
 

@@ -1,13 +1,13 @@
-import { MutationTree } from 'vuex';
-import { VisitorsStateInterface } from './state';
+import { MutationTree } from "vuex";
+import { VisitorsStateInterface } from "./state";
 
-import * as _l from 'lodash';
+import * as _l from "lodash";
 
 const mutation: MutationTree<VisitorsStateInterface> = {
     updateVisitor(state: VisitorsStateInterface, visitorInfo: any) {
         if (!state.visitors[visitorInfo.ses_id]) {
             const resReferrer = visitorInfo.page_data.referrer;
-            let referrer = 'Direct';
+            let referrer = "Direct";
 
             if (resReferrer && new URL(resReferrer).hostname !== new URL(visitorInfo.page_data.url).hostname) {
                 referrer = new URL(resReferrer).hostname;

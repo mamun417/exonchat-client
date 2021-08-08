@@ -117,11 +117,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import _ from 'lodash';
+import { defineComponent } from "vue";
+import _ from "lodash";
 
 export default defineComponent({
-    name: 'AddEditIntentForm',
+    name: "AddEditIntentForm",
     props: {
         showAddEditIntentModal: {
             type: Boolean,
@@ -139,14 +139,14 @@ export default defineComponent({
 
     data(): any {
         return {
-            contentTypeInfo: '', // base on content type
+            contentTypeInfo: "", // base on content type
             addEditIntentFormData: {
-                tag: '',
-                description: '',
-                type: 'action',
-                content: '',
-                action_name: '',
-                external_path: '',
+                tag: "",
+                description: "",
+                type: "action",
+                content: "",
+                action_name: "",
+                external_path: "",
                 connect_with_ai: true,
                 active: true,
             },
@@ -156,17 +156,17 @@ export default defineComponent({
 
     computed: {
         getContentTypeUtility(): any {
-            return this.addEditIntentFormData.type === 'action'
-                ? 'Action Name'
-                : this.addEditIntentFormData.type === 'static'
-                ? 'Static Content'
-                : 'External Path';
+            return this.addEditIntentFormData.type === "action"
+                ? "Action Name"
+                : this.addEditIntentFormData.type === "static"
+                ? "Static Content"
+                : "External Path";
         },
     },
 
     methods: {
         createIntent() {
-            ['content', 'action_name', 'external_path'].forEach((item: any) => {
+            ["content", "action_name", "external_path"].forEach((item: any) => {
                 this.addEditIntentFormData[item] = this.contentTypeInfo;
             });
 
@@ -176,34 +176,34 @@ export default defineComponent({
             // cz if a user in other page or filter its a prb
 
             this.$store
-                .dispatch('intent/createIntent', {
+                .dispatch("intent/createIntent", {
                     inputs: this.addEditIntentFormData,
                 })
                 .then(() => {
                     this.resetForm();
 
-                    this.$emit('createdIntent');
+                    this.$emit("createdIntent");
 
-                    this.$helpers.showSuccessNotification(this, 'Intent created successful');
+                    this.$helpers.showSuccessNotification(this, "Intent created successful");
                 })
                 .catch((err: any) => this.addEditIntentErrorHandle(err));
         },
 
         updateIntent() {
-            ['content', 'action_name', 'external_path'].forEach((item: any) => {
+            ["content", "action_name", "external_path"].forEach((item: any) => {
                 this.addEditIntentFormData[item] = this.contentTypeInfo;
             });
 
             this.$store
-                .dispatch('intent/updateIntent', {
+                .dispatch("intent/updateIntent", {
                     inputs: this.addEditIntentFormData,
                 })
                 .then((res: any) => {
                     this.resetForm();
 
-                    this.$emit('updatedIntent', res.data);
+                    this.$emit("updatedIntent", res.data);
 
-                    this.$helpers.showSuccessNotification(this, 'Intent updated successful');
+                    this.$helpers.showSuccessNotification(this, "Intent updated successful");
                 })
                 .catch((err: any) => this.addEditIntentErrorHandle(err));
         },
@@ -217,12 +217,12 @@ export default defineComponent({
         },
 
         resetForm() {
-            this.$emit('hideModal');
+            this.$emit("hideModal");
             this.addEditIntentFormData = {};
             this.addEditIntentFormData.active = true;
             this.addEditIntentFormData.connect_with_ai = true;
             this.intentFormDataErrors = {};
-            this.contentTypeInfo = '';
+            this.contentTypeInfo = "";
         },
     },
 
@@ -241,9 +241,9 @@ export default defineComponent({
                     const intentAction = intent.intent_action;
 
                     this.contentTypeInfo =
-                        intentActionType === 'external'
+                        intentActionType === "external"
                             ? intentAction.external_path
-                            : intentActionType === 'action'
+                            : intentActionType === "action"
                             ? intentAction.action_name
                             : intentAction.content;
 

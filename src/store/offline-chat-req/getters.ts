@@ -1,6 +1,6 @@
-import { GetterTree } from 'vuex';
-import { StateInterface } from '../index';
-import { OfflineChatReqStateInterface } from './state';
+import { GetterTree } from "vuex";
+import { StateInterface } from "../index";
+import { OfflineChatReqStateInterface } from "./state";
 
 const getters: GetterTree<OfflineChatReqStateInterface, StateInterface> = {
     paginationMeta(state) {

@@ -96,19 +96,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'OfflineMessage',
+    name: "OfflineMessage",
     data(): any {
         return {
             convInitFields: {
-                name: '',
-                email: '',
-                department: '',
-                department_tag: '',
-                subject: '',
-                message: '',
+                name: "",
+                email: "",
+                department: "",
+                department_tag: "",
+                subject: "",
+                message: "",
                 user_info: {},
             },
             convInitFieldsErrors: {},
@@ -127,13 +127,13 @@ export default defineComponent({
             this.convInitFields.chat_department_id = this.convInitFields.department;
 
             window.socketSessionApi
-                .post('offline-chat-requests', this.convInitFields)
+                .post("offline-chat-requests", this.convInitFields)
                 .then((res: any) => {
                     console.log(res.data);
-                    localStorage.setItem('success_submit_offline_chat_req', 'true');
+                    localStorage.setItem("success_submit_offline_chat_req", "true");
                     this.resetConvInitForm();
 
-                    this.$emit('submitOfflineMessage');
+                    this.$emit("submitOfflineMessage");
                 })
                 .catch((err: any) => {
                     this.submitOfflineChatReqErrorHandle(err);
@@ -154,8 +154,8 @@ export default defineComponent({
         },
 
         changeDepartment(event: any) {
-            this.convInitFields.department_tag = this.$_.find(this.chatDepartments, ['id', event]).tag;
-            this.convInitFieldsErrors.chat_department_id = '';
+            this.convInitFields.department_tag = this.$_.find(this.chatDepartments, ["id", event]).tag;
+            this.convInitFieldsErrors.chat_department_id = "";
         },
     },
 });

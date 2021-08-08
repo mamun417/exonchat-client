@@ -1,6 +1,6 @@
-import { GetterTree } from 'vuex';
-import { StateInterface } from '../index';
-import { ChatTemplateStateInterface } from './state';
+import { GetterTree } from "vuex";
+import { StateInterface } from "../index";
+import { ChatTemplateStateInterface } from "./state";
 
 const getters: GetterTree<ChatTemplateStateInterface, StateInterface> = {
     someAction(/* context */) {

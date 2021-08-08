@@ -1,5 +1,5 @@
-import { MutationTree } from 'vuex';
-import { SettingAppInterface } from './state';
+import { MutationTree } from "vuex";
+import { SettingAppInterface } from "./state";
 
 const mutation: MutationTree<SettingAppInterface> = {};
 

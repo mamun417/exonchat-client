@@ -1,6 +1,6 @@
-import { MutationTree } from 'vuex';
-import { ChatHistoryStateInterface } from './state';
-import helpers from '../../boot/helpers/helpers';
+import { MutationTree } from "vuex";
+import { ChatHistoryStateInterface } from "./state";
+import helpers from "../../boot/helpers/helpers";
 
 const mutation: MutationTree<ChatHistoryStateInterface> = {
     updatePaginationMeta(state, data: any) {

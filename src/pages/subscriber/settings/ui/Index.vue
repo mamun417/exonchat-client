@@ -42,7 +42,7 @@
                             dense
                         />
 
-                        <q-tooltip> {{ $_.upperFirst(color) }} </q-tooltip>
+                        <q-tooltip> {{ $_.upperFirst(color) }}</q-tooltip>
                     </div>
                 </div>
             </q-card-section>
@@ -55,32 +55,34 @@
                         <q-item-section>
                             <q-item-label>{{ item.name }}</q-item-label>
                             <q-item-label caption
-                                >{{ item.open ? 'Mazimized' : 'Minimized' }} height when section is first
-                                load</q-item-label
-                            >
+                                >{{ item.open ? "Mazimized" : "Minimized" }} height when section is first load
+                            </q-item-label>
                         </q-item-section>
-                        <q-item-section
-                            ><q-item-label
-                                ><q-badge :color="item.show ? 'green' : 'orange'">{{
-                                    item.show ? 'enabled' : 'disabled'
-                                }}</q-badge></q-item-label
-                            ></q-item-section
-                        >
-                        <q-item-section class="tw-flex tw-gap-2" side
-                            ><q-btn
+                        <q-item-section>
+                            <q-item-label>
+                                <q-badge :color="item.show ? 'green' : 'orange'"
+                                    >{{ item.show ? "enabled" : "disabled" }}
+                                </q-badge>
+                            </q-item-label>
+                        </q-item-section>
+                        <q-item-section class="tw-flex tw-gap-2" side>
+                            <q-btn
                                 :icon="item.show ? 'visibility_off' : 'visibility'"
                                 :color="item.show ? 'orange' : 'green'"
                                 :label="item.show ? 'Hide' : 'Show'"
                                 size="sm"
                                 no-caps
-                                dense /><q-btn
+                                dense
+                            />
+                            <q-btn
                                 :icon="item.open ? 'minimize' : 'open_in_full'"
                                 :color="item.open ? 'orange' : 'green'"
                                 :label="item.open ? 'Minimized When Load' : 'Maximized When Load'"
                                 size="sm"
                                 no-caps
                                 dense
-                        /></q-item-section>
+                            />
+                        </q-item-section>
                     </q-item>
                 </q-list>
             </q-card-section>
@@ -89,29 +91,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: '',
+    name: "",
     props: {},
 
     data(): any {
         return {
             formInputs: {
-                global_color: '',
+                global_color: "",
             },
             leftBarItems: [
-                { name: 'incoming chat requests', show: true, open: true },
-                { name: 'chat requests for me', show: true, open: false },
+                { name: "incoming chat requests", show: true, open: true },
+                { name: "chat requests for me", show: true, open: false },
 
-                { name: 'chat requests for me', show: false, open: true },
+                { name: "chat requests for me", show: false, open: true },
             ],
         };
     },
 
     computed: {
-        ...mapGetters({ globalColor: 'setting_ui/globalColor' }),
+        ...mapGetters({ globalColor: "setting_ui/globalColor" }),
     },
 
     mounted() {
@@ -123,7 +125,7 @@ export default defineComponent({
 
         getUiSetting() {
             this.$store
-                .dispatch('setting_ui/getUiSetting')
+                .dispatch("setting_ui/getUiSetting")
                 .then((res: any) => {
                     res.data.forEach((uiSetting: any) => {
                         this.formInputs[uiSetting.slug] = this.getSingleInputValue(uiSetting);
@@ -148,13 +150,13 @@ export default defineComponent({
             });
 
             this.$store
-                .dispatch('setting_ui/updateUiSetting', {
+                .dispatch("setting_ui/updateUiSetting", {
                     inputs: {
                         ui_settings: data,
                     },
                 })
                 .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'Ui setting update successful');
+                    this.$helpers.showSuccessNotification(this, "Ui setting update successful");
                     this.getUiSetting();
                 })
                 .catch((err: any) => {
@@ -171,7 +173,7 @@ export default defineComponent({
                 ? uiSetting.user_settings_value[0].value
                 : uiSetting.default_value;
 
-            return uiSetting.input_type === 'checkbox' ? value === 'true' : value;
+            return uiSetting.input_type === "checkbox" ? value === "true" : value;
         },
     },
 

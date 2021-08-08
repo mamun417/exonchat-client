@@ -25,7 +25,9 @@
                         :readonly="updateModal"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="label" color="green" /> </template>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
                     </q-input>
 
                     <q-select
@@ -65,7 +67,9 @@
                             readonly
                             dense
                         >
-                            <template v-slot:prepend> <q-icon name="info" color="green" /> </template>
+                            <template v-slot:prepend>
+                                <q-icon name="info" color="green" />
+                            </template>
                         </q-input>
                     </div>
 
@@ -117,11 +121,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import _ from 'lodash';
+import { defineComponent } from "vue";
+import _ from "lodash";
 
 export default defineComponent({
-    name: 'AddEditSpeechForm',
+    name: "AddEditSpeechForm",
     props: {
         showAddEditSpeechModal: {
             type: Boolean,
@@ -141,13 +145,13 @@ export default defineComponent({
         return {
             intents: [],
             addEditSpeechFormData: {
-                speech: '',
-                intent_id: '',
+                speech: "",
+                intent_id: "",
                 forced: false,
                 active: false,
             },
             speechFormErrors: {},
-            intentChosen: '',
+            intentChosen: "",
             chosenIntentInfo: {},
         };
     },
@@ -155,7 +159,7 @@ export default defineComponent({
     methods: {
         getIntents() {
             this.$store
-                .dispatch('intent/getIntents')
+                .dispatch("intent/getIntents")
                 .then((res: any) => {
                     this.intents = [];
 
@@ -177,7 +181,7 @@ export default defineComponent({
                 const id = intent.value;
 
                 this.$store
-                    .dispatch('intent/getIntent', {
+                    .dispatch("intent/getIntent", {
                         id,
                     })
                     .then((res: any) => {
@@ -193,15 +197,15 @@ export default defineComponent({
             this.addEditSpeechFormData.intent_id = this.intentChosen?.value;
 
             this.$store
-                .dispatch('speech/createSpeech', {
+                .dispatch("speech/createSpeech", {
                     inputs: this.addEditSpeechFormData,
                 })
                 .then(() => {
                     this.resetForm();
 
-                    this.$emit('createdSpeech');
+                    this.$emit("createdSpeech");
 
-                    this.$helpers.showSuccessNotification(this, 'Speech created successful');
+                    this.$helpers.showSuccessNotification(this, "Speech created successful");
                 })
                 .catch((err: any) => {
                     this.addEditSpeechErrorHandle(err);
@@ -212,15 +216,15 @@ export default defineComponent({
             this.addEditSpeechFormData.intent_id = this.intentChosen?.value;
 
             this.$store
-                .dispatch('speech/updateIntent', {
+                .dispatch("speech/updateIntent", {
                     inputs: this.addEditSpeechFormData,
                 })
                 .then((res: any) => {
                     this.resetForm();
 
-                    this.$emit('updatedSpeech', res.data);
+                    this.$emit("updatedSpeech", res.data);
 
-                    this.$helpers.showSuccessNotification(this, 'Speech updated successful');
+                    this.$helpers.showSuccessNotification(this, "Speech updated successful");
                 })
                 .catch((err: any) => this.addEditSpeechErrorHandle(err));
         },
@@ -234,12 +238,12 @@ export default defineComponent({
         },
 
         resetForm() {
-            this.$emit('hideModal');
+            this.$emit("hideModal");
             this.addEditSpeechFormData = {};
             this.intentFormDataErrors = {};
             this.addEditSpeechFormData.active = false;
             this.addEditSpeechFormData.forced = false;
-            this.intentChosen = '';
+            this.intentChosen = "";
         },
     },
 

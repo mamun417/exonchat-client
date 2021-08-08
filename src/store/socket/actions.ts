@@ -1,6 +1,6 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { SocketStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { SocketStateInterface } from "./state";
 
 const actions: ActionTree<SocketStateInterface, StateInterface> = {
     someAction(/* context */) {

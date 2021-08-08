@@ -48,11 +48,11 @@
                                         flat
                                     ></q-btn>
                                 </template>
-                                <template v-else-if="col.name === 'resource'"
-                                    ><div class="tw-italic">
+                                <template v-else-if="col.name === 'resource'">
+                                    <div class="tw-italic">
                                         {{ col.value.name }}
-                                    </div></template
-                                >
+                                    </div>
+                                </template>
                                 <template v-else>{{ col.value }}</template>
                             </q-td>
                         </q-tr>
@@ -64,10 +64,8 @@
                                         :key="perm.name"
                                         class="tw-mx-3"
                                     >
-                                        <q-btn icon="toggle_on" size="sm" color="green" flat /><span
-                                            class="tw-font-medium"
-                                            >{{ perm.name }}</span
-                                        >
+                                        <q-btn icon="toggle_on" size="sm" color="green" flat />
+                                        <span class="tw-font-medium">{{ perm.name }}</span>
                                     </div>
                                 </div>
                             </q-td>
@@ -110,24 +108,24 @@
 
 <script>
 const columns = [
-    { name: 'resource', align: 'left', label: 'Resource', field: 'resource' },
+    { name: "resource", align: "left", label: "Resource", field: "resource" },
     {
-        name: 'description',
-        align: 'center',
-        label: 'Description',
-        field: 'description',
+        name: "description",
+        align: "center",
+        label: "Description",
+        field: "description",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 

@@ -72,13 +72,17 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Variable Name" color="green" prefix="$${" suffix="}" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Variable Name" color="green" prefix="$${" suffix="}" class="tw-my-2" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
-                    <q-input label="Description" color="green" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="description" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Description" color="green" class="tw-my-2" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="description" color="green" />
+                        </template>
+                    </q-input>
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-6 tw-my-4">
@@ -92,46 +96,46 @@
 <script>
 const columns = [
     {
-        name: 'name',
-        align: 'center',
-        label: 'Name',
-        field: 'name',
+        name: "name",
+        align: "center",
+        label: "Name",
+        field: "name",
     },
     {
-        name: 'description',
-        align: 'center',
-        label: 'Description',
-        field: 'description',
+        name: "description",
+        align: "center",
+        label: "Description",
+        field: "description",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 
 const rows = [
     {
-        name: 'user_name',
-        description: 'show user name',
-        status: 'active',
+        name: "user_name",
+        description: "show user name",
+        status: "active",
     },
     {
-        name: 'ip',
-        description: 'show user ip',
-        status: 'inactive',
+        name: "ip",
+        description: "show user ip",
+        status: "inactive",
     },
     {
-        name: 'package',
+        name: "package",
         description: "show user' current package",
-        status: 'pending',
+        status: "pending",
     },
 ];
 export default {

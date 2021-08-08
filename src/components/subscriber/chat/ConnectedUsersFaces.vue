@@ -25,11 +25,11 @@
 </template>
 
 <script lang="ts">
-import EcAvatar from 'src/components/common/EcAvatar.vue';
-import { defineComponent } from 'vue';
+import EcAvatar from "src/components/common/EcAvatar.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'ConnectedUsersFaces',
+    name: "ConnectedUsersFaces",
     components: { EcAvatar },
     props: {
         users_conv_ses: {
@@ -37,7 +37,7 @@ export default defineComponent({
         },
         size: {
             type: String,
-            default: 'lg',
+            default: "lg",
         },
     },
 
@@ -46,7 +46,7 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log('msg top section initiated');
+        console.log("msg top section initiated");
     },
 
     computed: {},

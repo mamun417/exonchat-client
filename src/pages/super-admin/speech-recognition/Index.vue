@@ -47,11 +47,11 @@
                     <template v-slot:body-cell-intent="props">
                         <q-td :props="props">
                             <q-badge color="green" class=""
-                                >{{ props.row.intent.name
-                                }}<q-tooltip class="" anchor="center right" :offset="[50, 14]">
+                                >{{ props.row.intent.name }}
+                                <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ props.row.intent.desc }}
-                                </q-tooltip></q-badge
-                            >
+                                </q-tooltip>
+                            </q-badge>
                         </q-td>
                     </template>
 
@@ -114,9 +114,11 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="New Speech" color="green" prefix="@" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input label="New Speech" color="green" prefix="@" class="tw-my-2" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-select
                         label="Select a Intent"
@@ -137,16 +139,19 @@
                         color="green"
                         hint="leave intent select if wanted by ai automate"
                         dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                        ><template v-slot:option="scope">
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="ballot" color="green" />
+                        </template>
+                        <template v-slot:option="scope">
                             <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" dense>
                                 <q-item-section class="tw-py-1">
                                     <q-item-label v-html="scope.opt.label" />
                                     <q-item-label class="tw-text-xxs" caption>{{ scope.opt.description }}</q-item-label>
                                 </q-item-section>
                             </q-item>
-                        </template></q-select
-                    >
+                        </template>
+                    </q-select>
 
                     <q-checkbox class="tw-mt-2" label="Activate This As soon it resolved" color="green" dense />
 
@@ -181,9 +186,11 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Speech" color="green" prefix="@" class="tw-my-2" readonly dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Speech" color="green" prefix="@" class="tw-my-2" readonly dense>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-select
                         label="Select a Intent"
@@ -204,16 +211,19 @@
                         color="green"
                         hint="leave intent select if wanted by ai automate"
                         dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                        ><template v-slot:option="scope">
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="ballot" color="green" />
+                        </template>
+                        <template v-slot:option="scope">
                             <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" dense>
                                 <q-item-section class="tw-py-1">
                                     <q-item-label v-html="scope.opt.label" />
                                     <q-item-label class="tw-text-xxs" caption>{{ scope.opt.description }}</q-item-label>
                                 </q-item-section>
                             </q-item>
-                        </template></q-select
-                    >
+                        </template>
+                    </q-select>
 
                     <q-checkbox class="tw-mt-2" label="Activate This As soon it resolved" color="green" dense />
 
@@ -251,101 +261,101 @@
 
 <script>
 const columns = [
-    { name: 'speech', align: 'left', label: 'Speech', field: 'speech' },
+    { name: "speech", align: "left", label: "Speech", field: "speech" },
     {
-        name: 'intent',
-        align: 'center',
-        label: 'Maped to Intent',
-        field: 'intent',
+        name: "intent",
+        align: "center",
+        label: "Maped to Intent",
+        field: "intent",
     },
     {
-        name: 'confidence',
-        align: 'center',
-        label: 'Confidence Level',
-        field: 'confidence',
+        name: "confidence",
+        align: "center",
+        label: "Confidence Level",
+        field: "confidence",
     },
     {
-        name: 'generated_by',
-        align: 'center',
-        label: 'Generated By',
-        field: 'generated_by',
+        name: "generated_by",
+        align: "center",
+        label: "Generated By",
+        field: "generated_by",
     },
     {
-        name: 'speech_in_ai',
-        align: 'center',
-        label: 'Speech in AI',
-        field: 'speech_in_ai',
+        name: "speech_in_ai",
+        align: "center",
+        label: "Speech in AI",
+        field: "speech_in_ai",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 
 const rows = [
     {
-        speech: 'lalala',
-        intent: { name: '@aaa', desc: 'zzz' },
-        confidence: '0.999',
-        generated_by: 'Me',
-        speech_in_ai: 'True',
-        status: 'active',
+        speech: "lalala",
+        intent: { name: "@aaa", desc: "zzz" },
+        confidence: "0.999",
+        generated_by: "Me",
+        speech_in_ai: "True",
+        status: "active",
     },
     {
-        speech: 'eeee',
-        intent: { name: '@ccc', desc: 'xxx' },
-        confidence: '0.999',
-        generated_by: 'Me',
-        speech_in_ai: 'False',
-        status: 'active',
+        speech: "eeee",
+        intent: { name: "@ccc", desc: "xxx" },
+        confidence: "0.999",
+        generated_by: "Me",
+        speech_in_ai: "False",
+        status: "active",
     },
     {
-        speech: 'kkkk',
-        intent: { name: '@bbb', desc: 'yyy' },
-        confidence: '0.853',
-        generated_by: 'AI',
-        speech_in_ai: 'True',
-        status: 'active',
+        speech: "kkkk",
+        intent: { name: "@bbb", desc: "yyy" },
+        confidence: "0.853",
+        generated_by: "AI",
+        speech_in_ai: "True",
+        status: "active",
     },
     {
-        speech: 'not handled yet',
-        intent: { name: '', desc: '' },
-        confidence: '',
-        generated_by: '',
-        speech_in_ai: '',
-        status: 'waiting action',
+        speech: "not handled yet",
+        intent: { name: "", desc: "" },
+        confidence: "",
+        generated_by: "",
+        speech_in_ai: "",
+        status: "waiting action",
     },
     {
-        speech: 'action given for ai generate',
-        intent: { name: '', desc: '' },
-        confidence: '',
-        generated_by: '',
-        speech_in_ai: '',
-        status: 'pending',
+        speech: "action given for ai generate",
+        intent: { name: "", desc: "" },
+        confidence: "",
+        generated_by: "",
+        speech_in_ai: "",
+        status: "pending",
     },
 ];
 
 const dynamicVariables = [
-    { name: 'user_name', des: 'will print assigned name else guest' },
-    { name: 'user_id', des: 'will print logged users id' },
+    { name: "user_name", des: "will print assigned name else guest" },
+    { name: "user_id", des: "will print logged users id" },
 ];
 export default {
     data() {
         return {
             newSpeechModal: false,
-            newSpeechIntent: '',
+            newSpeechIntent: "",
             editSpeech: true,
-            newIntentType: 'action',
+            newIntentType: "action",
             variableListModal: false,
-            intentChoosed: '',
+            intentChoosed: "",
         };
     },
     setup() {

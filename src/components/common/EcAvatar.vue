@@ -15,31 +15,31 @@
         <img :src="local_preview_src" alt="" />
     </q-avatar>
     <q-avatar v-else :size="size" icon="person" :class="`shadow-1 ${icon_color}`">
-        <slot name="default"></slot
-    ></q-avatar>
+        <slot name="default"></slot>
+    </q-avatar>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: 'EcAvatar',
+    name: "EcAvatar",
     props: {
         image_src: {
             type: String,
-            default: '',
+            default: "",
         },
         name: {
             type: String,
-            default: '',
+            default: "",
         },
         local_preview_src: {
             default: null,
         },
         size: {
             type: String,
-            default: 'lg',
+            default: "lg",
         },
         is_icon: {
             type: Boolean,
@@ -47,7 +47,7 @@ export default defineComponent({
         },
         icon_color: {
             type: String,
-            default: 'text-grey-8',
+            default: "text-grey-8",
         },
     },
 
@@ -57,7 +57,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalBgColor: 'setting_ui/globalBgColor',
+            globalBgColor: "setting_ui/globalBgColor",
         }),
     },
 });

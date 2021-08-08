@@ -1,6 +1,6 @@
-import { GetterTree } from 'vuex';
-import { StateInterface } from '../index';
-import { VisitorsStateInterface } from './state';
+import { GetterTree } from "vuex";
+import { StateInterface } from "../index";
+import { VisitorsStateInterface } from "./state";
 
 const getters: GetterTree<VisitorsStateInterface, StateInterface> = {
     visitors(state) {

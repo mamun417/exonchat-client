@@ -1,12 +1,12 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { IntentStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { IntentStateInterface } from "./state";
 
 const actions: ActionTree<IntentStateInterface, StateInterface> = {
     getIntents() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('intents')
+                .get("intents")
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -19,7 +19,7 @@ const actions: ActionTree<IntentStateInterface, StateInterface> = {
     createIntent(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('intents', payload.inputs)
+                .post("intents", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

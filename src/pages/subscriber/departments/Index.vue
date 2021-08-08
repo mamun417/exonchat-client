@@ -71,10 +71,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import AddEditDepartmentForm from 'pages/subscriber/departments/AddEditDepartmentForm.vue';
-import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
-import EcTable from 'components/common/table/EcTable.vue';
+import { defineComponent } from "vue";
+import AddEditDepartmentForm from "pages/subscriber/departments/AddEditDepartmentForm.vue";
+import ConfirmModal from "components/common/modal/ConfirmModal.vue";
+import EcTable from "components/common/table/EcTable.vue";
 
 export default defineComponent({
     components: { EcTable, ConfirmModal, AddEditDepartmentForm },
@@ -82,10 +82,10 @@ export default defineComponent({
         return {
             columns: [
                 {
-                    name: 'tag',
-                    align: 'left',
-                    label: 'Name',
-                    field: 'tag',
+                    name: "tag",
+                    align: "left",
+                    label: "Name",
+                    field: "tag",
                 },
                 // {
                 //     name: 'description',
@@ -94,10 +94,10 @@ export default defineComponent({
                 //     field: 'description',
                 // },
                 {
-                    name: 'assigned_agents',
-                    align: 'center',
-                    label: 'Assigned Agents',
-                    field: 'users',
+                    name: "assigned_agents",
+                    align: "center",
+                    label: "Assigned Agents",
+                    field: "users",
                 },
                 // {
                 //     name: 'status',
@@ -106,17 +106,17 @@ export default defineComponent({
                 //     align: 'center',
                 // },
                 {
-                    name: 'action',
-                    label: 'Actions',
-                    field: 'action',
-                    align: 'center',
+                    name: "action",
+                    label: "Actions",
+                    field: "action",
+                    align: "center",
                 },
             ],
             departments: [],
             showAddEditDepartmentModal: false,
             updateModal: false,
             selectedForEditData: {},
-            deleteDepartmentId: '',
+            deleteDepartmentId: "",
             showDeleteModal: false,
             bodyCelTemplate: {},
         };
@@ -130,7 +130,7 @@ export default defineComponent({
         mappedDepartments(): any {
             return this.departments.map((department: any) => {
                 department.assigned_agents = department.users;
-                department.status = department.active ? 'active' : 'inactive';
+                department.status = department.active ? "active" : "inactive";
 
                 return department;
             });
@@ -140,7 +140,7 @@ export default defineComponent({
     methods: {
         getDepartments() {
             this.$store
-                .dispatch('department/getDepartments')
+                .dispatch("department/getDepartments")
                 .then((res: any) => {
                     this.departments = res.data;
                 })
@@ -170,7 +170,7 @@ export default defineComponent({
 
         changeDepartmentActiveStatus(department: any) {
             this.$store
-                .dispatch('department/changeDepartmentActiveStatus', {
+                .dispatch("department/changeDepartmentActiveStatus", {
                     id: department.id,
                     active: department.active,
                 })
@@ -179,7 +179,7 @@ export default defineComponent({
 
                     this.departments[index] = res.data;
 
-                    this.$helpers.showSuccessNotification(this, 'Department active status change successful');
+                    this.$helpers.showSuccessNotification(this, "Department active status change successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);
@@ -193,14 +193,14 @@ export default defineComponent({
 
         deleteDepartment() {
             this.$store
-                .dispatch('department/deleteDepartment', {
+                .dispatch("department/deleteDepartment", {
                     id: this.deleteDepartmentId,
                 })
                 .then(() => {
                     this.showDeleteModal = false;
                     this.getDepartments();
 
-                    this.$helpers.showSuccessNotification(this, 'Department deleted successful');
+                    this.$helpers.showSuccessNotification(this, "Department deleted successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);

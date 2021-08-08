@@ -1,12 +1,12 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from 'src/store';
-import { SettingChatInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "src/store";
+import { SettingChatInterface } from "./state";
 
 const actions: ActionTree<SettingChatInterface, StateInterface> = {
     getChatSetting() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('settings/chat')
+                .get("settings/chat")
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -19,7 +19,7 @@ const actions: ActionTree<SettingChatInterface, StateInterface> = {
     updateChatSetting(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('settings/chat', payload.inputs)
+                .post("settings/chat", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

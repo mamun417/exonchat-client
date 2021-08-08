@@ -1,5 +1,5 @@
-import { MutationTree } from 'vuex';
-import { IntentStateInterface } from './state';
+import { MutationTree } from "vuex";
+import { IntentStateInterface } from "./state";
 
 const mutation: MutationTree<IntentStateInterface> = {
     someMutation(/* state: ChatStateInterface */) {

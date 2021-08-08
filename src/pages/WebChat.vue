@@ -66,8 +66,8 @@
                     <div>
                         {{
                             conversationInfo.id || onlineChatDepartments.length
-                                ? 'Online - Chat with us'
-                                : 'Offline - Send offline message'
+                                ? "Online - Chat with us"
+                                : "Offline - Send offline message"
                         }}
                         <!--                        <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />-->
                     </div>
@@ -268,8 +268,8 @@
                                                         >
                                                             {{
                                                                 onlineChatDepartments.includes(opt.tag)
-                                                                    ? 'Online'
-                                                                    : 'Offline'
+                                                                    ? "Online"
+                                                                    : "Offline"
                                                             }}
                                                         </q-badge>
                                                     </q-item-section>
@@ -370,13 +370,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import io from 'socket.io-client';
-import { mapGetters } from 'vuex';
-import Message from 'components/common/Message.vue';
-import ChatRatingForm from 'components/common/ChatRatingForm.vue';
-import moment from 'moment';
-import OfflineMessage from 'components/common/OfflineMessage.vue';
+import { defineComponent } from "vue";
+import io from "socket.io-client";
+import { mapGetters } from "vuex";
+import Message from "components/common/Message.vue";
+import ChatRatingForm from "components/common/ChatRatingForm.vue";
+import moment from "moment";
+import OfflineMessage from "components/common/OfflineMessage.vue";
 
 declare global {
     interface Window {
@@ -387,7 +387,7 @@ declare global {
 }
 
 export default defineComponent({
-    name: 'WebChat',
+    name: "WebChat",
     components: { OfflineMessage, ChatRatingForm, Message },
     setup() {
         return {};
@@ -399,17 +399,17 @@ export default defineComponent({
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
-                    interval: '',
+                    interval: "",
                     initTime: 1000 * 60 * 3,
                     time: 1000 * 60 * 3,
                 },
                 tenMinClient: {
-                    interval: '',
+                    interval: "",
                     initTime: 1000 * 60 * 10,
                     time: 1000 * 60 * 10,
                 },
                 thirteenMinClient: {
-                    interval: '',
+                    interval: "",
                     initTime: 1000 * 60 * 30,
                     time: 1000 * 60 * 30,
                 },
@@ -420,7 +420,7 @@ export default defineComponent({
             hasApiKey: false,
 
             panelReady: false, // at toggle fully hide both dom
-            panelVisibleStatus: !!window.localStorage.getItem('chat_panel_visible'),
+            panelVisibleStatus: !!window.localStorage.getItem("chat_panel_visible"),
 
             socket: null,
             socketId: null,
@@ -430,16 +430,16 @@ export default defineComponent({
             chatDepartments: [],
             onlineChatDepartments: [],
             convInitFields: {
-                name: '',
-                email: '',
-                department: '',
-                department_tag: '',
-                subject: '',
-                message: '',
+                name: "",
+                email: "",
+                department: "",
+                department_tag: "",
+                subject: "",
+                message: "",
                 user_info: {},
             },
             convInitFieldsErrors: {},
-            msg: '',
+            msg: "",
             pageInFocus: false,
             pageNotInFocusEmitted: false,
             typingHandler: {
@@ -448,12 +448,12 @@ export default defineComponent({
             pageVisitingHandler: null,
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
-            successSubmitOfflineChatReq: localStorage.getItem('success_submit_offline_chat_req') || false,
+            successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
 
             chatWidgetMiniWidth: 100,
             queuePosition: 1,
-            queuePositionInterval: '',
-            getOnlineDepartmentsInterval: '',
+            queuePositionInterval: "",
+            getOnlineDepartmentsInterval: "",
 
             whmcsInfoError: false,
             whmcsInfoAssigned: false,
@@ -465,9 +465,9 @@ export default defineComponent({
 
         // initiate first for listen response from parent
         window.addEventListener(
-            'message',
+            "message",
             (event) => {
-                if (event.data.res === 'widget_id' && event.data.value) {
+                if (event.data.res === "widget_id" && event.data.value) {
                     if (this.api_key === event.data.value) return; // a safe check
 
                     this.api_key = event.data.value;
@@ -475,25 +475,25 @@ export default defineComponent({
                     this.initializeSocket();
                 }
 
-                if (event.data.res === 'page_visit_info') {
+                if (event.data.res === "page_visit_info") {
                     this.sendPageVisitingInfo(event.data.value);
                 }
 
-                if (event.data.res === 'ec_minimized_panel') {
+                if (event.data.res === "ec_minimized_panel") {
                     this.panelVisibleStatus = false;
 
                     this.panelReady = true;
                 }
 
-                if (event.data.res === 'ec_maximized_panel') {
+                if (event.data.res === "ec_maximized_panel") {
                     this.panelVisibleStatus = true;
 
                     this.panelReady = true;
                 }
 
-                if (event.data.res === 'exonchat_obj' && event.data.value) {
+                if (event.data.res === "exonchat_obj" && event.data.value) {
                     if (
-                        event.data.value.hasOwnProperty('whmcs_info') &&
+                        event.data.value.hasOwnProperty("whmcs_info") &&
                         event.data.value.whmcs_info.clientId &&
                         event.data.value.whmcs_info.clientEmail
                     ) {
@@ -507,7 +507,7 @@ export default defineComponent({
         );
 
         // send mounted to parent so that it can send infos
-        window.parent.postMessage({ action: 'ec_mounted' }, '*');
+        window.parent.postMessage({ action: "ec_mounted" }, "*");
 
         this.handleChatPanelVisibility();
 
@@ -516,17 +516,17 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            conversations: 'chat/conversations',
-            clientInitiateConvInfo: 'chat/clientInitiateConvInfo',
+            conversations: "chat/conversations",
+            clientInitiateConvInfo: "chat/clientInitiateConvInfo",
         }),
 
         // which messages store by getConvMessages()
         conversationInfo(): any {
-            return this.$store.getters['chat/conversationInfo'](this.clientInitiateConvInfo.conv_id);
+            return this.$store.getters["chat/conversationInfo"](this.clientInitiateConvInfo.conv_id);
         },
 
         conversationMessages(): any {
-            return this.$store.getters['chat/conversationMessages'](this.clientInitiateConvInfo.conv_id);
+            return this.$store.getters["chat/conversationMessages"](this.clientInitiateConvInfo.conv_id);
         },
     },
 
@@ -551,14 +551,14 @@ export default defineComponent({
 
             window.parent.postMessage(
                 {
-                    action: 'ec_minimize_panel',
+                    action: "ec_minimize_panel",
                     param: {
                         height: `${height}px`,
                         width: `${width}px`,
-                        display: 'block',
+                        display: "block",
                     },
                 },
-                '*'
+                "*"
             );
         },
 
@@ -578,11 +578,11 @@ export default defineComponent({
             this.panelReady = false;
 
             if (toggleTo) {
-                window.localStorage.setItem('chat_panel_visible', 'true');
+                window.localStorage.setItem("chat_panel_visible", "true");
                 // first apply styles then make visible
                 this.panelMaximize();
             } else {
-                window.localStorage.removeItem('chat_panel_visible');
+                window.localStorage.removeItem("chat_panel_visible");
 
                 this.panelMinimize();
             }
@@ -591,19 +591,19 @@ export default defineComponent({
         panelMaximize() {
             window.parent.postMessage(
                 {
-                    action: 'ec_maximize_panel',
-                    param: { height: '560px', width: '350px', display: 'block' },
+                    action: "ec_maximize_panel",
+                    param: { height: "560px", width: "350px", display: "block" },
                 },
-                '*'
+                "*"
             );
         },
         panelMinimize() {
             window.parent.postMessage(
                 {
-                    action: 'ec_minimize_panel',
-                    param: { height: '300px', width: `${this.chatWidgetMiniWidth}px`, display: 'block' },
+                    action: "ec_minimize_panel",
+                    param: { height: "300px", width: `${this.chatWidgetMiniWidth}px`, display: "block" },
                 },
-                '*'
+                "*"
             );
         },
 
@@ -611,12 +611,12 @@ export default defineComponent({
             // handle actual close by emitting
             this.socket.close();
 
-            localStorage.removeItem('clientInitiateConvInfo');
-            localStorage.removeItem('ec_client_socket_token');
-            localStorage.removeItem('ec_client_socket_ses_id');
-            localStorage.removeItem('showRatingForm');
-            localStorage.removeItem('ec_intvl_ct');
-            localStorage.removeItem('success_submit_offline_chat_req');
+            localStorage.removeItem("clientInitiateConvInfo");
+            localStorage.removeItem("ec_client_socket_token");
+            localStorage.removeItem("ec_client_socket_ses_id");
+            localStorage.removeItem("showRatingForm");
+            localStorage.removeItem("ec_intvl_ct");
+            localStorage.removeItem("success_submit_offline_chat_req");
 
             this.resetConvInitForm();
 
@@ -624,14 +624,14 @@ export default defineComponent({
         },
 
         changeDepartment(event: any) {
-            this.convInitFields.department_tag = this.$_.find(this.chatDepartments, ['id', event]).tag;
-            this.convInitFieldsErrors.chat_department_id = '';
+            this.convInitFields.department_tag = this.$_.find(this.chatDepartments, ["id", event]).tag;
+            this.convInitFieldsErrors.chat_department_id = "";
             this.departmentAgentsOffline = !this.onlineChatDepartments.includes(this.convInitFields.department_tag);
         },
 
         getChatDepartments() {
             window.socketSessionApi
-                .get('/departments')
+                .get("/departments")
                 .then((res: any) => {
                     // console.log('webchat departments', res);
                     this.chatDepartments = res.data;
@@ -643,11 +643,11 @@ export default defineComponent({
 
         getOnlineChatDepartments() {
             if (!this.clientInitiateConvInfo.conv_id) {
-                this.socket.emit('ec_departments_online_status', {});
+                this.socket.emit("ec_departments_online_status", {});
 
                 this.getOnlineDepartmentsInterval = setInterval(() => {
                     if (!this.clientInitiateConvInfo.conv_id) {
-                        this.socket.emit('ec_departments_online_status', {});
+                        this.socket.emit("ec_departments_online_status", {});
                     } else {
                         clearInterval(this.getOnlineDepartmentsInterval);
                     }
@@ -657,7 +657,7 @@ export default defineComponent({
 
         // store conversation messages and get the messages by getters (messages)
         getConvMessages(convId: string) {
-            this.$store.dispatch('chat/getConvMessages', {
+            this.$store.dispatch("chat/getConvMessages", {
                 convId,
                 client_page: true,
             });
@@ -667,16 +667,16 @@ export default defineComponent({
             if (!this.api_key) return;
 
             // get conversation information
-            const clientInitiateConvInfo: any = localStorage.getItem('clientInitiateConvInfo');
+            const clientInitiateConvInfo: any = localStorage.getItem("clientInitiateConvInfo");
             this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
 
             // we are now supporting client chat after browser restart
-            this.sesId = localStorage.getItem('ec_client_socket_ses_id');
-            this.socketToken = localStorage.getItem('ec_client_socket_token');
+            this.sesId = localStorage.getItem("ec_client_socket_ses_id");
+            this.socketToken = localStorage.getItem("ec_client_socket_token");
 
             if (!this.sesId || !this.socketToken) {
                 await window.api
-                    .post('/socket-sessions', {
+                    .post("/socket-sessions", {
                         api_key: this.api_key,
                     })
                     .then((res: any) => {
@@ -685,11 +685,11 @@ export default defineComponent({
                         this.sesId = res.data.data.socket_session.id;
                         this.socketToken = res.data.bearerToken;
 
-                        localStorage.setItem('ec_client_socket_ses_id', this.sesId);
-                        localStorage.setItem('ec_client_socket_token', this.socketToken);
+                        localStorage.setItem("ec_client_socket_ses_id", this.sesId);
+                        localStorage.setItem("ec_client_socket_token", this.socketToken);
                     })
                     .catch((err: any) => {
-                        console.log('from web chat error', err.response);
+                        console.log("from web chat error", err.response);
 
                         if (err.response.status === 204) {
                             this.hasApiKey = false;
@@ -701,13 +701,13 @@ export default defineComponent({
 
             if (!this.sesId || !this.socketToken) {
                 // handle error
-                console.log('socket token or session not found for this sesId');
+                console.log("socket token or session not found for this sesId");
                 return;
             } else {
                 this.hasApiKey = true;
             }
 
-            this.socket = io(process.env.API || 'http://localhost:3000', {
+            this.socket = io(process.env.API || "http://localhost:3000", {
                 query: {
                     token: this.socketToken,
                 },
@@ -736,43 +736,43 @@ export default defineComponent({
         },
 
         fireSocketListeners() {
-            this.socket.on('connect', () => {
+            this.socket.on("connect", () => {
                 console.log(`Your Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('disconnect', () => {
-                console.log('You Are Disconnected'); // undefined
+            this.socket.on("disconnect", () => {
+                console.log("You Are Disconnected"); // undefined
 
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('ec_msg_from_user', (res: any) => {
-                res.socket_event = 'ec_msg_from_user';
-                res.caller_page = 'web-chat';
+            this.socket.on("ec_msg_from_user", (res: any) => {
+                res.socket_event = "ec_msg_from_user";
+                res.caller_page = "web-chat";
 
                 this.activityInterval.threeMinAgent.time = this.activityInterval.threeMinAgent.initTime;
                 this.threeMinAgentInterval();
 
-                this.$store.dispatch('chat/storeMessage', res);
+                this.$store.dispatch("chat/storeMessage", res);
 
                 // console.log('from ec_msg_from_user', res);
             });
-            this.socket.on('ec_is_typing_from_user', (res: any) => {
-                this.$store.dispatch('chat/updateTypingState', res);
+            this.socket.on("ec_is_typing_from_user", (res: any) => {
+                this.$store.dispatch("chat/updateTypingState", res);
 
                 // console.log('from ec_is_typing_from_user', res);
             });
 
-            this.socket.on('ec_reply_from_ai', (res: any) => {
-                this.$store.dispatch('chat/storeMessage', res);
+            this.socket.on("ec_reply_from_ai", (res: any) => {
+                this.$store.dispatch("chat/storeMessage", res);
 
                 // console.log('from ec_reply_from_ai', res);
             });
 
             // successfully sent to user
-            this.socket.on('ec_msg_to_client', (res: any) => {
+            this.socket.on("ec_msg_to_client", (res: any) => {
                 this.activityInterval.tenMinClient.time = this.activityInterval.tenMinClient.initTime;
                 this.activityInterval.thirteenMinClient.time = this.activityInterval.thirteenMinClient.initTime;
 
@@ -781,7 +781,7 @@ export default defineComponent({
 
                 this.chatActiveStatus = true;
 
-                this.$store.dispatch('chat/storeMessage', res);
+                this.$store.dispatch("chat/storeMessage", res);
 
                 // console.log('from ec_msg_to_client', res);
             });
@@ -789,35 +789,35 @@ export default defineComponent({
             //     console.log('from ec_is_typing_to_client', res);
             // });
 
-            this.socket.on('ec_conv_initiated_to_client', async (res: any) => {
-                if (res.status === 'success') {
+            this.socket.on("ec_conv_initiated_to_client", async (res: any) => {
+                if (res.status === "success") {
                     // we don't care now if it's re updating storage
-                    await this.$store.dispatch('chat/storeClientInitiateConvInfo', res);
+                    await this.$store.dispatch("chat/storeClientInitiateConvInfo", res);
                 }
             });
 
-            this.socket.on('ec_is_joined_from_conversation', (res: any) => {
+            this.socket.on("ec_is_joined_from_conversation", (res: any) => {
                 const convInfo = res.data.conv_ses_data;
 
-                this.$store.dispatch('chat/updateConvState', convInfo);
+                this.$store.dispatch("chat/updateConvState", convInfo);
 
                 clearInterval(this.queuePositionInterval);
                 // console.log('from ec_is_joined_from_conversation', convInfo);
             });
 
-            this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
+            this.socket.on("ec_is_leaved_from_conversation", (res: any) => {
                 const convInfo = res.data.conv_ses_data;
 
-                this.$store.dispatch('chat/updateConvState', convInfo);
+                this.$store.dispatch("chat/updateConvState", convInfo);
 
                 // console.log('from ec_is_leaved_from_conversation', convInfo);
             });
 
-            this.socket.on('ec_is_closed_from_conversation', (res: any) => {
+            this.socket.on("ec_is_closed_from_conversation", (res: any) => {
                 // this.$store.dispatch('chat/clearClientChatInitiate');
-                this.$store.dispatch('chat/updateConvStateToClosed', res.data.conv_data);
+                this.$store.dispatch("chat/updateConvStateToClosed", res.data.conv_data);
 
-                this.$store.commit('chat/showRatingForm', true);
+                this.$store.commit("chat/showRatingForm", true);
 
                 // this.socket.close();
                 // // force reload dom
@@ -828,22 +828,22 @@ export default defineComponent({
                 // console.log('from ec_is_closed_from_conversation', res);
             });
 
-            this.socket.on('ec_conv_queue_position_res', (res: any) => {
+            this.socket.on("ec_conv_queue_position_res", (res: any) => {
                 this.queuePosition = res.queue_position;
 
                 // console.log('from ec_conv_queue_position_res', res);
             });
 
-            this.socket.on('ec_departments_online_status_res', (res: any) => {
+            this.socket.on("ec_departments_online_status_res", (res: any) => {
                 this.onlineChatDepartments = res.departments;
-                console.log('from ec_departments_online_status_res', res);
+                console.log("from ec_departments_online_status_res", res);
             });
 
-            this.socket.on('ec_error', (res: any) => {
-                if (res.step === 'ec_init_conv_from_client') {
+            this.socket.on("ec_error", (res: any) => {
+                if (res.step === "ec_init_conv_from_client") {
                     this.$q.notify({
-                        type: 'warning',
-                        position: 'bottom',
+                        type: "warning",
+                        position: "bottom",
                         progress: true,
                         message: res.reason.message ? res.reason.message : res.reason,
                     });
@@ -857,13 +857,13 @@ export default defineComponent({
         chatInitialize() {
             // console.log(this.convInitFields);
 
-            this.socket.emit('ec_init_conv_from_client', { ...this.convInitFields });
+            this.socket.emit("ec_init_conv_from_client", { ...this.convInitFields });
 
             this.getQueueCountNumber();
         },
 
         getQueueCountNumber() {
-            this.socket.emit('ec_conv_queue_position', { conv_id: this.clientInitiateConvInfo.conv_id });
+            this.socket.emit("ec_conv_queue_position", { conv_id: this.clientInitiateConvInfo.conv_id });
 
             this.queuePositionInterval = setInterval(() => {
                 if (
@@ -871,7 +871,7 @@ export default defineComponent({
                     !this.conversationInfo.sessions[0].socket_session.user &&
                     !this.clientInitiateConvInfo.closed_at
                 ) {
-                    this.socket.emit('ec_conv_queue_position', { conv_id: this.clientInitiateConvInfo.conv_id });
+                    this.socket.emit("ec_conv_queue_position", { conv_id: this.clientInitiateConvInfo.conv_id });
                 }
 
                 // check agent joined and session is > 1
@@ -905,13 +905,13 @@ export default defineComponent({
             // console.log('firePageVisitListner');
 
             // Warn if the browser doesn't support addEventListener or the Page Visibility API
-            if (typeof document.addEventListener === 'undefined' || document.hidden === undefined) {
+            if (typeof document.addEventListener === "undefined" || document.hidden === undefined) {
                 console.log(
-                    'This check requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.'
+                    "This check requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API."
                 );
             } else {
                 // Handle page visibility change
-                document.addEventListener('visibilitychange', this.handlePageVisibilityChange, false);
+                document.addEventListener("visibilitychange", this.handlePageVisibilityChange, false);
 
                 this.pageInFocus = true;
 
@@ -919,7 +919,7 @@ export default defineComponent({
 
                 if (!this.pageVisitingHandler) {
                     this.pageVisitingHandler = setInterval(() => {
-                        window.parent.postMessage({ action: 'ec_page_visit_info' }, '*');
+                        window.parent.postMessage({ action: "ec_page_visit_info" }, "*");
                     }, 3000);
                 }
             }
@@ -927,10 +927,10 @@ export default defineComponent({
 
         fireOtherEvents() {
             setInterval(() => {
-                window.parent.postMessage({ action: 'getExonchatObj' }, '*');
+                window.parent.postMessage({ action: "getExonchatObj" }, "*");
             }, 3000);
 
-            window.addEventListener('storage', (event) => {
+            window.addEventListener("storage", (event) => {
                 if (event.oldValue !== event.newValue) {
                     if (event.key === `ec_update_storage_ec_whmcs_info_${this.api_key}` && event.newValue) {
                         // later handle whmcs logout
@@ -943,13 +943,13 @@ export default defineComponent({
         },
 
         handlePageVisibilityChange() {
-            this.pageInFocus = document.visibilityState === 'visible';
+            this.pageInFocus = document.visibilityState === "visible";
         },
 
         sendPageVisitingInfo(data: any) {
             if (this.socketId) {
                 if (this.pageInFocus) {
-                    this.socket.emit('ec_page_visit_info_from_client', {
+                    this.socket.emit("ec_page_visit_info_from_client", {
                         page_data: data,
                         sent_at: Date.now(),
                         visiting: true,
@@ -958,7 +958,7 @@ export default defineComponent({
                     this.pageNotInFocusEmitted = false;
                 } else {
                     if (!this.pageNotInFocusEmitted) {
-                        this.socket.emit('ec_page_visit_info_from_client', {
+                        this.socket.emit("ec_page_visit_info_from_client", {
                             page_data: data,
                             sent_at: Date.now(),
                             visiting: false,
@@ -984,9 +984,9 @@ export default defineComponent({
             if (this.msg && this.socketId) {
                 // console.log('typing');
 
-                this.socket.emit('ec_is_typing_from_client', {
+                this.socket.emit("ec_is_typing_from_client", {
                     msg: this.msg,
-                    sent_at: 'timestamp',
+                    sent_at: "timestamp",
                 });
             }
         },
@@ -998,11 +998,11 @@ export default defineComponent({
         },
 
         closeChat() {
-            this.socket.emit('ec_close_conversation', {
+            this.socket.emit("ec_close_conversation", {
                 conv_id: this.clientInitiateConvInfo.conv_id,
             });
 
-            this.$store.commit('chat/showRatingForm');
+            this.$store.commit("chat/showRatingForm");
 
             this.closeChatModal = false;
         },
@@ -1011,11 +1011,11 @@ export default defineComponent({
             this.convInitFields.chat_department_id = this.convInitFields.department;
 
             window.socketSessionApi
-                .post('offline-chat-requests', this.convInitFields)
+                .post("offline-chat-requests", this.convInitFields)
                 .then((res: any) => {
                     console.log(res.data);
                     this.successSubmitOfflineChatReq = true;
-                    localStorage.setItem('success_submit_offline_chat_req', 'true');
+                    localStorage.setItem("success_submit_offline_chat_req", "true");
                     this.resetConvInitForm();
                 })
                 .catch((err: any) => {
@@ -1040,23 +1040,23 @@ export default defineComponent({
             clearInterval(this.activityInterval.threeMinAgent.interval);
 
             this.activityInterval.threeMinAgent.interval = setInterval(() => {
-                console.log('transfer chat to other agent');
+                console.log("transfer chat to other agent");
 
                 const sesIds = this.conversationInfo.sessions.map((convSes: any) => convSes.socket_session.id);
 
                 const clientSocketSes = this.conversationInfo.sessions.find(
-                    (convSes: any) => convSes.socket_session.use_for === 'client'
+                    (convSes: any) => convSes.socket_session.use_for === "client"
                 ).socket_session;
 
-                this.socket.emit('ec_chat_transfer', {
+                this.socket.emit("ec_chat_transfer", {
                     conv_id: this.clientInitiateConvInfo.conv_id,
                     notify_except: sesIds,
                     client_info: clientSocketSes,
-                    reason: 'Chat transferred due to agent inactivity',
+                    reason: "Chat transferred due to agent inactivity",
                 });
 
                 // for preventing infinity chat transfer
-                localStorage.setItem('ec_intvl_ct', 'true');
+                localStorage.setItem("ec_intvl_ct", "true");
 
                 clearInterval(this.activityInterval.threeMinAgent.interval);
             }, this.activityInterval.threeMinAgent.time);
@@ -1069,14 +1069,14 @@ export default defineComponent({
         tenMinClientInterval() {
             clearInterval(this.activityInterval.tenMinClient.interval);
 
-            console.log('tenMinClientInterval start');
+            console.log("tenMinClientInterval start");
 
             this.activityInterval.tenMinClient.interval = setInterval(() => {
-                console.log('inactive this chat');
+                console.log("inactive this chat");
 
-                this.socket.emit('ec_updated_socket_room_info', {
-                    chat_status: 'inactive',
-                    status_for: 'client',
+                this.socket.emit("ec_updated_socket_room_info", {
+                    chat_status: "inactive",
+                    status_for: "client",
                 });
 
                 this.chatActiveStatus = false;
@@ -1088,14 +1088,14 @@ export default defineComponent({
         thirteenMinClientInterval() {
             clearInterval(this.activityInterval.thirteenMinClient.interval);
 
-            console.log('thirteenMinClientInterval start');
+            console.log("thirteenMinClientInterval start");
 
             this.activityInterval.thirteenMinClient.interval = setInterval(() => {
-                console.log('close this chat');
+                console.log("close this chat");
 
-                this.socket.emit('ec_close_conversation', {
+                this.socket.emit("ec_close_conversation", {
                     conv_id: this.clientInitiateConvInfo.conv_id,
-                    closed_reason: 'due to inactivity',
+                    closed_reason: "due to inactivity",
                 });
 
                 clearInterval(this.activityInterval.threeMinAgent.interval);
@@ -1115,16 +1115,16 @@ export default defineComponent({
 
                 if (joinedConvSes.length) {
                     const intervals: any = {
-                        agent: ['threeMinAgent'],
-                        client: ['tenMinClient', 'thirteenMinClient'],
+                        agent: ["threeMinAgent"],
+                        client: ["tenMinClient", "thirteenMinClient"],
                     };
 
                     Object.keys(intervals).forEach((type: any) => {
                         intervals[type].forEach((interval: any) => {
                             if (!this.activityInterval[interval].interval) {
                                 if (
-                                    interval !== 'threeMinAgent' ||
-                                    (interval === 'threeMinAgent' && localStorage.getItem('ec_intvl_ct') !== 'true')
+                                    interval !== "threeMinAgent" ||
+                                    (interval === "threeMinAgent" && localStorage.getItem("ec_intvl_ct") !== "true")
                                 )
                                     this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
                                         type,
@@ -1142,29 +1142,29 @@ export default defineComponent({
         },
 
         getRestOfDurationOfInterval(type: any, clientConv: any, activityTime: any, joinedConvSes: any) {
-            const mySocketSesId = this.$helpers.getMySocketSessionId('client');
+            const mySocketSesId = this.$helpers.getMySocketSessionId("client");
 
             const messages: any = Object.values(this.conversationMessages).filter((message: any) => {
-                if (type === 'agent') {
+                if (type === "agent") {
                     return message.socket_session_id !== mySocketSesId;
                 } else {
                     return message.socket_session_id === mySocketSesId;
                 }
             });
 
-            let lastActivity: any = '';
+            let lastActivity: any = "";
 
             if (!messages.length) {
                 lastActivity = this.$_.sortBy(joinedConvSes, [
-                    (convSes: any) => moment(convSes.joined_at).format('x'),
+                    (convSes: any) => moment(convSes.joined_at).format("x"),
                 ]).reverse()[0].joined_at;
             } else {
                 lastActivity = this.$_.sortBy(messages, [
-                    (message: any) => moment(message.created_at).format('x'),
+                    (message: any) => moment(message.created_at).format("x"),
                 ]).reverse()[0].created_at;
             }
 
-            const timerLeftDuration = moment().diff(lastActivity, 'milliseconds');
+            const timerLeftDuration = moment().diff(lastActivity, "milliseconds");
 
             return activityTime - timerLeftDuration;
         },
@@ -1198,7 +1198,7 @@ export default defineComponent({
                 return;
 
             window.api
-                .post('apps/whmcs/client-details', {
+                .post("apps/whmcs/client-details", {
                     clientid: whmcsCredential?.clientId, // change key to client_id
                     email: whmcsCredential?.clientEmail,
                 })
@@ -1265,14 +1265,14 @@ export default defineComponent({
                                         const imgRes = await this.$api.get(
                                             `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
                                             {
-                                                responseType: 'arraybuffer',
+                                                responseType: "arraybuffer",
                                             }
                                         );
 
                                         tempArray.srcs.push({
                                             conv_ses_id: convSes.id,
                                             src: URL.createObjectURL(
-                                                new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                                new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
                                             ),
                                         });
                                     } catch (e) {
@@ -1283,7 +1283,7 @@ export default defineComponent({
                         }
 
                         if (tempArray.srcs.length) {
-                            this.$store.commit('chat/updateConversationUserAvatar', tempArray);
+                            this.$store.commit("chat/updateConversationUserAvatar", tempArray);
                         }
                     }
                 }

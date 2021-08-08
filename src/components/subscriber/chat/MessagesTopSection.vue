@@ -284,9 +284,9 @@
                     <q-input v-model="ticketSubject" placeholder="Subject" dense></q-input>
                 </q-card-section>
 
-                <q-card-section class="tw-py-3 text-center"
-                    ><q-btn size="sm" label="Submit" color="green" class="full-width" @click="openTicket" unelevated
-                /></q-card-section>
+                <q-card-section class="tw-py-3 text-center">
+                    <q-btn size="sm" label="Submit" color="green" class="full-width" @click="openTicket" unelevated />
+                </q-card-section>
             </q-card>
             <q-inner-loading :showing="ticketSubmitLoader" color="green" />
         </q-dialog>
@@ -303,17 +303,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
+import { defineComponent } from "vue";
+import ConversationStateConfirmModal from "components/common/modal/ConversationStateConfirmModal.vue";
 
-import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
+import ConnectedUsersFaces from "src/components/subscriber/chat/ConnectedUsersFaces.vue";
 
-import { mapGetters, mapMutations } from 'vuex';
-import EcAvatar from 'src/components/common/EcAvatar.vue';
-import ChatTransferModal from 'components/common/modal/ChatTransferModal.vue';
+import { mapGetters, mapMutations } from "vuex";
+import EcAvatar from "src/components/common/EcAvatar.vue";
+import ChatTransferModal from "components/common/modal/ChatTransferModal.vue";
 
 export default defineComponent({
-    name: 'MessagesTopSection',
+    name: "MessagesTopSection",
     components: { ChatTransferModal, ConversationStateConfirmModal, ConnectedUsersFaces, EcAvatar },
     props: {
         conv_id: {
@@ -337,56 +337,56 @@ export default defineComponent({
         return {
             clientActiveStatus: false,
             confirmModal: false,
-            modalForState: '',
+            modalForState: "",
 
             openTicketModal: false,
             ticketSubmitLoader: false,
-            ticketSubject: '',
+            ticketSubject: "",
 
             showChatTransferModal: false,
             transferChatToExpand: false,
-            transferChatToFilter: '',
+            transferChatToFilter: "",
         };
     },
 
     mounted() {
-        this.$emitter.on('ec_get_client_ses_id_status_res', (res: any) => {
-            this.clientActiveStatus = res.status === 'active';
+        this.$emitter.on("ec_get_client_ses_id_status_res", (res: any) => {
+            this.clientActiveStatus = res.status === "active";
         });
 
-        console.log('msg top section initiated');
+        console.log("msg top section initiated");
     },
 
     computed: {
         ...mapGetters({
-            profile: 'auth/profile',
-            rightBarState: 'setting_ui/rightBarState',
-            chatUsers: 'chat/chatUsers',
+            profile: "auth/profile",
+            rightBarState: "setting_ui/rightBarState",
+            chatUsers: "chat/chatUsers",
         }),
 
         onlineUsers(): any {
-            const users = this.$store.getters['chat/chatUsers'];
+            const users = this.$store.getters["chat/chatUsers"];
 
             return this.transferChatToFilter ? users : users;
         },
 
         conversationInfo(): any {
-            return this.$store.getters['chat/conversationInfo'](this.conv_id);
+            return this.$store.getters["chat/conversationInfo"](this.conv_id);
         },
 
         conversationStatusForMe(): any {
-            return this.$store.getters['chat/conversationStatusForMe'](this.conv_id, this.profile?.socket_session?.id);
+            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id, this.profile?.socket_session?.id);
         },
 
         conversationWithUsersInfo(): any {
-            return this.$store.getters['chat/conversationWithUsersInfo'](
+            return this.$store.getters["chat/conversationWithUsersInfo"](
                 this.conv_id,
                 this.profile?.socket_session?.id
             );
         },
 
         conversationConnectedUsers(): any {
-            return this.$store.getters['chat/conversationConnectedUsers'](this.conv_id);
+            return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
         },
 
         // get teammate online status
@@ -397,12 +397,12 @@ export default defineComponent({
                 ).online_status;
             }
 
-            return 'offline';
+            return "offline";
         },
     },
 
     methods: {
-        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+        ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
         convStateHandle() {
             if (!this.modalForState) return;
@@ -415,7 +415,7 @@ export default defineComponent({
             window.socketSessionApi
                 .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: this.ticketSubject })
                 .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'Ticket submitted successfully');
+                    this.$helpers.showSuccessNotification(this, "Ticket submitted successfully");
                 })
                 .catch((e: any) => {
                     console.log(e);
@@ -428,19 +428,19 @@ export default defineComponent({
         },
 
         transferChat(agent: any) {
-            if (agent.online_status !== 'online') {
+            if (agent.online_status !== "online") {
                 this.$helpers.showErrorNotification(
                     this,
-                    'Transfer chat not possible. Agent is not online',
-                    'warning',
-                    'black'
+                    "Transfer chat not possible. Agent is not online",
+                    "warning",
+                    "black"
                 );
                 return;
             }
 
-            console.log('transferchat => ', agent);
+            console.log("transferchat => ", agent);
 
-            this.$socket.emit('ec_chat_transfer', {
+            this.$socket.emit("ec_chat_transfer", {
                 conv_id: this.conv_id,
                 notify_to: agent.socket_session.id,
                 agent_info: agent,
@@ -450,21 +450,21 @@ export default defineComponent({
         joinConversation(conv_id: any) {
             console.log(conv_id);
 
-            this.$socket.emit('ec_join_conversation', {
+            this.$socket.emit("ec_join_conversation", {
                 conv_id: conv_id,
             });
         },
 
         leaveConversation(conv_id: any) {
-            this.$socket.emit('ec_leave_conversation', {
+            this.$socket.emit("ec_leave_conversation", {
                 conv_id: conv_id,
             });
         },
 
         closeConversation(conv_id: any) {
-            console.log('from close');
+            console.log("from close");
 
-            this.$socket.emit('ec_close_conversation', {
+            this.$socket.emit("ec_close_conversation", {
                 conv_id: conv_id,
             });
         },

@@ -1,6 +1,6 @@
-import { MutationTree } from 'vuex';
-import { ClientConversationStateInterface } from './state';
-import helpers from '../../boot/helpers/helpers';
+import { MutationTree } from "vuex";
+import { ClientConversationStateInterface } from "./state";
+import helpers from "../../boot/helpers/helpers";
 
 const mutation: MutationTree<ClientConversationStateInterface> = {
     storeClientConversations(state: ClientConversationStateInterface, clientConversations: any) {

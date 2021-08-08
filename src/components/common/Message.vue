@@ -98,7 +98,7 @@
                                                 [$helpers.colors().dateTimeText]: true,
                                             }"
                                         >
-                                            {{ $helpers.myDate(message.created_at, 'MMM DD, Y h:mm a') }}
+                                            {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
                                         </div>
                                     </div>
                                 </div>
@@ -108,8 +108,8 @@
                                     class="tw-pb-0 tw-my-4 tw-shadow-md"
                                     :style="checkOwnMessage(message) ? 'background-color: #f0f5f8' : ''"
                                 >
-                                    <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }"
-                                        ><div
+                                    <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }">
+                                        <div
                                             class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                             :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                         >
@@ -158,7 +158,7 @@
                                                         [$helpers.colors().dateTimeText]: true,
                                                     }"
                                                 >
-                                                    {{ $helpers.myDate(message.created_at, 'MMM DD, Y h:mm a') }}
+                                                    {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
                                                 </div>
                                             </div>
 
@@ -196,8 +196,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div></q-card-section
-                                    >
+                                        </div>
+                                    </q-card-section>
                                 </q-card>
                             </div>
                         </template>
@@ -208,8 +208,8 @@
                             class="tw-pb-0 tw-mb-6 tw-shadow-md"
                             :class="checkOwnMessage(typing) ? 'bg-grey-2' : ''"
                         >
-                            <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }"
-                                ><div
+                            <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }">
+                                <div
                                     class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                     :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                 >
@@ -293,7 +293,7 @@
                                         msgForRightSide(message) ? 'text-white' : 'text-black',
                                     ]"
                                 >
-                                    {{ $helpers.myDate(message.created_at, 'MMMM Do YYYY, h:mm a') }}
+                                    {{ $helpers.myDate(message.created_at, "MMMM Do YYYY, h:mm a") }}
                                 </div>
                             </template>
 

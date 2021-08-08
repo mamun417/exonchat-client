@@ -1,6 +1,6 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from 'src/store';
-import { SettingProfileInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "src/store";
+import { SettingProfileInterface } from "./state";
 
 const actions: ActionTree<SettingProfileInterface, StateInterface> = {
     reloadProfileImage(context, user) {
@@ -8,14 +8,14 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
             if (user.user_meta.attachment) {
                 window.api
                     .get(`attachments/${user.user_meta.attachment.id}`, {
-                        responseType: 'arraybuffer',
+                        responseType: "arraybuffer",
                     })
                     .then((imgRes: any) => {
                         const imgSrc: any = URL.createObjectURL(
-                            new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                            new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
                         );
 
-                        context.commit('auth/updateUserProfileAvatar', imgSrc, { root: true });
+                        context.commit("auth/updateUserProfileAvatar", imgSrc, { root: true });
                         resolve(true);
                     })
                     .catch((e: any) => {
@@ -32,7 +32,7 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
     updateProfile(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('profile/update', payload.inputs)
+                .post("profile/update", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -45,7 +45,7 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
     updateOnlineStatus(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('profile/update-online-status', payload.inputs)
+                .post("profile/update-online-status", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -59,7 +59,7 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
         return new Promise((resolve, reject) => {
             window.api
                 .get(`attachments/${payload.id}`, {
-                    responseType: 'arraybuffer',
+                    responseType: "arraybuffer",
                 })
                 .then((res: any) => {
                     resolve(res);
@@ -73,14 +73,14 @@ const actions: ActionTree<SettingProfileInterface, StateInterface> = {
     updateAvatar(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('attachments', payload)
+                .post("attachments", payload)
                 .then((res: any) => {
                     console.log(res.data);
 
                     window.api
-                        .post('profile/update/avatar', { attachment_id: res.data.data[0].attachment_info.id })
+                        .post("profile/update/avatar", { attachment_id: res.data.data[0].attachment_info.id })
                         .then((res: any) => {
-                            context.commit('auth/updateUser', res.data, { root: true });
+                            context.commit("auth/updateUser", res.data, { root: true });
                             resolve(res);
                         })
                         .catch((err: any) => {

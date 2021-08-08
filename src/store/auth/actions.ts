@@ -1,6 +1,6 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { AuthStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { AuthStateInterface } from "./state";
 
 const actions: ActionTree<AuthStateInterface, StateInterface> = {
     someAction(/* context */) {
@@ -11,11 +11,11 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
     register(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('subscribers', payload.inputs)
+                .post("subscribers", payload.inputs)
                 .then((res: any) => {
                     const subscriberInfo = res.data;
 
-                    context.commit('authCreate', subscriberInfo);
+                    context.commit("authCreate", subscriberInfo);
                     resolve(res);
                 })
                 .catch((err: any) => {
@@ -27,11 +27,11 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
     login(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('auth/login', payload.inputs)
+                .post("auth/login", payload.inputs)
                 .then((res: any) => {
                     const userInfo = res.data;
 
-                    context.commit('authSuccess', userInfo);
+                    context.commit("authSuccess", userInfo);
                     resolve(res);
                 })
                 .catch((err: any) => {
@@ -42,7 +42,7 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
 
     logOut(context) {
         return new Promise((resolve) => {
-            context.commit('logOut');
+            context.commit("logOut");
             resolve(true);
         });
     },
@@ -50,9 +50,9 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
     refreshToken(context) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('auth/refresh')
+                .post("auth/refresh")
                 .then((res: any) => {
-                    context.commit('updateToken', res.data.bearerToken);
+                    context.commit("updateToken", res.data.bearerToken);
                     resolve(res);
                 })
                 .catch((err: any) => {
@@ -68,7 +68,7 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
             window.api
                 .get(`users/${userId}`)
                 .then((res: any) => {
-                    context.commit('authSuccess', { data: res.data });
+                    context.commit("authSuccess", { data: res.data });
                     resolve(res);
                 })
                 .catch((err: any) => {
@@ -80,7 +80,7 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
     sendPasswordResetEmail(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('password/email', payload.inputs)
+                .post("password/email", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -93,7 +93,7 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
     resetPassword(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('password/reset', payload.inputs)
+                .post("password/reset", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -106,7 +106,7 @@ const actions: ActionTree<AuthStateInterface, StateInterface> = {
     changePassword(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('password/change', payload.inputs)
+                .post("password/change", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

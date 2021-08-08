@@ -1,11 +1,11 @@
-import moment from 'moment';
-import * as _l from 'lodash';
-import 'moment-precise-range-plugin';
+import moment from "moment";
+import * as _l from "lodash";
+import "moment-precise-range-plugin";
 
 const notifications = {
-    reqOne: new Audio('assets/sound/notification/notification-request-001.mp3'),
-    replyOne: new Audio('assets/sound/notification/notification-reply-001.mp3'),
-    replyTwo: new Audio('assets/sound/notification/notification-reply-002.mp3'),
+    reqOne: new Audio("assets/sound/notification/notification-request-001.mp3"),
+    replyOne: new Audio("assets/sound/notification/notification-reply-001.mp3"),
+    replyTwo: new Audio("assets/sound/notification/notification-reply-002.mp3"),
 };
 
 const helpers = {
@@ -26,32 +26,32 @@ const helpers = {
         return moment.preciseDiff(fromTime || moment(Date.now()), toTime);
     },
 
-    myDate(timestamp: string, format = 'MMMM Do YYYY') {
+    myDate(timestamp: string, format = "MMMM Do YYYY") {
         return moment(timestamp).format(format);
     },
 
-    getMySocketSessionId(type = 'user') {
-        if (type === 'user') {
-            return sessionStorage.getItem('ec_user_socket_ses_id');
+    getMySocketSessionId(type = "user") {
+        if (type === "user") {
+            return sessionStorage.getItem("ec_user_socket_ses_id");
         }
 
-        return localStorage.getItem('ec_client_socket_ses_id');
+        return localStorage.getItem("ec_client_socket_ses_id");
     },
 
-    showErrorNotification(vm: any, message: any, color = 'negative', textColor = 'white') {
+    showErrorNotification(vm: any, message: any, color = "negative", textColor = "white") {
         vm.$q.notify({
             color: color,
             textColor: textColor,
             message: message,
-            position: 'top',
+            position: "top",
         });
     },
 
     showSuccessNotification(vm: any, message: any) {
         vm.$q.notify({
-            color: 'positive',
+            color: "positive",
             message: message,
-            position: 'top',
+            position: "top",
         });
     },
 
@@ -76,8 +76,8 @@ const helpers = {
 
     colors() {
         return {
-            defaultText: 'text-grey-7',
-            dateTimeText: 'text-grey-6',
+            defaultText: "text-grey-7",
+            dateTimeText: "text-grey-6",
         };
     },
 };

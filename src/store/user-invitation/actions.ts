@@ -1,12 +1,12 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { UserInvitationStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { UserInvitationStateInterface } from "./state";
 
 const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
     getInvitations() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('users/invitations')
+                .get("users/invitations")
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -19,7 +19,7 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
     sendInvitation(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('users/invitations/invite', payload.inputs)
+                .post("users/invitations/invite", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -71,7 +71,7 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
     joinInvitation(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('users/invitations/join', payload.inputs)
+                .post("users/invitations/join", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

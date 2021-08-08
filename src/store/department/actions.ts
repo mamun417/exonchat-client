@@ -1,12 +1,12 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { DepartmentStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { DepartmentStateInterface } from "./state";
 
 const actions: ActionTree<DepartmentStateInterface, StateInterface> = {
     getDepartments() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('departments')
+                .get("departments")
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -19,7 +19,7 @@ const actions: ActionTree<DepartmentStateInterface, StateInterface> = {
     getUsers() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('users')
+                .get("users")
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -32,7 +32,7 @@ const actions: ActionTree<DepartmentStateInterface, StateInterface> = {
     createDepartment(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('departments', payload.inputs)
+                .post("departments", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

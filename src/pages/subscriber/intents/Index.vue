@@ -78,14 +78,14 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
-import EcTable from 'src/components/common/table/EcTable.vue';
-import { defineComponent } from 'vue';
-import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
-import AddEditIntentForm from 'pages/subscriber/intents/AddEditIntentForm.vue';
+import _ from "lodash";
+import EcTable from "src/components/common/table/EcTable.vue";
+import { defineComponent } from "vue";
+import ConfirmModal from "components/common/modal/ConfirmModal.vue";
+import AddEditIntentForm from "pages/subscriber/intents/AddEditIntentForm.vue";
 
 export default defineComponent({
-    name: 'Intents',
+    name: "Intents",
     components: { AddEditIntentForm, ConfirmModal, EcTable },
     data(): any {
         return {
@@ -93,40 +93,40 @@ export default defineComponent({
             showAddEditIntentModal: false,
             updateModal: false,
             selectedForEditData: {},
-            deleteIntentId: '',
+            deleteIntentId: "",
             showDeleteModal: false,
-            bodyCelTemplate: { url_path: 'italic-bold' },
+            bodyCelTemplate: { url_path: "italic-bold" },
             columns: [
-                { name: 'tag', align: 'left', label: 'Intent Tag', field: 'tag' },
+                { name: "tag", align: "left", label: "Intent Tag", field: "tag" },
                 {
-                    name: 'url_path',
-                    align: 'center',
-                    label: 'URL Path',
-                    field: 'url_path',
+                    name: "url_path",
+                    align: "center",
+                    label: "URL Path",
+                    field: "url_path",
                 },
                 {
-                    name: 'content',
-                    align: 'center',
-                    label: 'Intent Mapped To',
-                    field: 'content',
+                    name: "content",
+                    align: "center",
+                    label: "Intent Mapped To",
+                    field: "content",
                 },
                 {
-                    name: 'connect_with_ai',
-                    label: 'Connect with AI',
-                    field: 'connect_with_ai',
-                    align: 'center',
+                    name: "connect_with_ai",
+                    label: "Connect with AI",
+                    field: "connect_with_ai",
+                    align: "center",
                 },
                 {
-                    name: 'status',
-                    label: 'Status',
-                    field: 'status',
-                    align: 'center',
+                    name: "status",
+                    label: "Status",
+                    field: "status",
+                    align: "center",
                 },
                 {
-                    name: 'action',
-                    label: 'Actions',
-                    field: 'action',
-                    align: 'center',
+                    name: "action",
+                    label: "Actions",
+                    field: "action",
+                    align: "center",
                 },
             ],
             // dynamicVariables: [
@@ -146,21 +146,21 @@ export default defineComponent({
 
             intents.map((intent: any) => {
                 intent.url_path =
-                    intent.intent_action.type === 'external'
+                    intent.intent_action.type === "external"
                         ? intent.intent_action.external_path
-                        : intent.intent_action.type === 'action'
+                        : intent.intent_action.type === "action"
                         ? `apisiteurl.com/action_resolver?action/${intent.intent_action.action_name}`
-                        : 'nil';
+                        : "nil";
 
                 intent.content = {
-                    content: intent.intent_action.type === 'static' ? intent.intent_action.content : '',
-                    loading: intent.intent_action.type !== 'static',
+                    content: intent.intent_action.type === "static" ? intent.intent_action.content : "",
+                    loading: intent.intent_action.type !== "static",
                     type: intent.intent_action.type,
                 };
 
-                intent.status = intent.active ? 'active' : 'inactive';
+                intent.status = intent.active ? "active" : "inactive";
 
-                if (intent.type !== 'static') {
+                if (intent.type !== "static") {
                     // call e.url_path get res & assign to e.content.content & e.content.loading = false
                 }
             });
@@ -172,7 +172,7 @@ export default defineComponent({
     methods: {
         getIntents() {
             this.$store
-                .dispatch('intent/getIntents')
+                .dispatch("intent/getIntents")
                 .then((res: any) => {
                     this.intents = res.data;
                 })
@@ -212,14 +212,14 @@ export default defineComponent({
             // },
             // but if u need let me know
             this.$store
-                .dispatch('intent/deleteIntent', {
+                .dispatch("intent/deleteIntent", {
                     id: this.deleteIntentId,
                 })
                 .then(() => {
                     this.showDeleteModal = false;
                     this.getIntents();
 
-                    this.$helpers.showSuccessNotification(this, 'Intent deleted successful');
+                    this.$helpers.showSuccessNotification(this, "Intent deleted successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);
@@ -228,7 +228,7 @@ export default defineComponent({
 
         changeIntentActiveStatus(intent: any) {
             this.$store
-                .dispatch('intent/changeIntentActiveStatus', {
+                .dispatch("intent/changeIntentActiveStatus", {
                     id: intent.id,
                     active: intent.active,
                 })
@@ -237,7 +237,7 @@ export default defineComponent({
 
                     this.intents[intentIndex] = res.data;
 
-                    this.$helpers.showSuccessNotification(this, 'Intent active status change successful');
+                    this.$helpers.showSuccessNotification(this, "Intent active status change successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);

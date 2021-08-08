@@ -42,11 +42,13 @@
                     clearable
                     dense
                 >
-                    <template v-slot:prepend> <q-icon name="group_add" :color="globalColor" /> </template>
+                    <template v-slot:prepend>
+                        <q-icon name="group_add" :color="globalColor" />
+                    </template>
 
                     <template v-slot:no-option>
                         <q-item>
-                            <q-item-section class="text-grey"> No agent </q-item-section>
+                            <q-item-section class="text-grey"> No agent</q-item-section>
                         </q-item>
                     </template>
                 </q-select>
@@ -73,19 +75,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: 'ChatTransferModal',
+    name: "ChatTransferModal",
     data(): any {
         return {
             loadingChatDepartments: false,
             chatDepartments: [],
-            agentFilterKey: '',
+            agentFilterKey: "",
             transferChatFormData: {
-                chat_department: '',
-                agent: '',
+                chat_department: "",
+                agent: "",
             },
         };
     },
@@ -98,12 +100,12 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalColor: 'setting_ui/globalColor',
-            profile: 'auth/profile',
+            globalColor: "setting_ui/globalColor",
+            profile: "auth/profile",
         }),
 
         onlineUsers(): any {
-            let chatUsers = this.$_.cloneDeep(this.$store.getters['chat/chatUsers']);
+            let chatUsers = this.$_.cloneDeep(this.$store.getters["chat/chatUsers"]);
 
             if (this.transferChatFormData.chat_department) {
                 const departmentUserIds = this.transferChatFormData.chat_department.users.map((user: any) => user.id);
@@ -119,7 +121,7 @@ export default defineComponent({
             }
 
             // filter only online users
-            return chatUsers.filter((user: any) => user.online_status === 'online');
+            return chatUsers.filter((user: any) => user.online_status === "online");
         },
     },
 
@@ -132,7 +134,7 @@ export default defineComponent({
             this.loadingChatDepartments = true;
 
             window.api
-                .get('/departments')
+                .get("/departments")
                 .then((res: any) => {
                     this.chatDepartments = res.data;
                 })
@@ -153,14 +155,14 @@ export default defineComponent({
 
         transferChat() {
             if (!(this.transferChatFormData.chat_department || this.transferChatFormData.agent)) {
-                this.$helpers.showErrorNotification(this, 'Please select chat department or agent');
+                this.$helpers.showErrorNotification(this, "Please select chat department or agent");
                 return;
             }
 
-            this.$socket.emit('ec_chat_transfer', {
+            this.$socket.emit("ec_chat_transfer", {
                 conv_id: this.conv_id,
                 notify_to_dep: this.transferChatFormData.chat_department.tag,
-                notify_to: this.transferChatFormData.agent ? this.transferChatFormData.agent.socket_session.id : '',
+                notify_to: this.transferChatFormData.agent ? this.transferChatFormData.agent.socket_session.id : "",
                 agent_info: this.profile,
             });
         },

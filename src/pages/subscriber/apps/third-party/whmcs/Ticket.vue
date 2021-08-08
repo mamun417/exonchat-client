@@ -7,7 +7,9 @@
         <div class="tw-flex-grow">
             <div class="tw-shadow-lg tw-bg-white tw-p-4">
                 <ec-table :rows="tickets" :columns="columns" :loading="loadingData" hideSearch>
-                    <template v-slot:filter><q-btn label="Reload" icon="refresh" size="sm" no-caps /></template>
+                    <template v-slot:filter>
+                        <q-btn label="Reload" icon="refresh" size="sm" no-caps />
+                    </template>
 
                     <template v-slot:cell-email="slotProps">
                         <div class="">
@@ -75,22 +77,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import EcTable from 'components/common/table/EcTable.vue';
-import TicketDetail from 'components/apps/whmcs/TicketDetail.vue';
+import { defineComponent } from "vue";
+import EcTable from "components/common/table/EcTable.vue";
+import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
 
 export default defineComponent({
     components: { TicketDetail, EcTable },
     data(): any {
         return {
             columns: [
-                { name: 'tid', align: 'center', label: 'Ticket ID', field: 'tid' },
-                { name: 'email', align: 'center', label: 'Email', field: 'email' },
-                { name: 'subject', align: 'center', label: 'Subject', field: 'subject' },
-                { name: 'status', align: 'center', label: 'Status', field: 'status' },
-                { name: 'priority', align: 'center', label: 'Priority', field: 'priority' },
-                { name: 'created_at', align: 'center', label: 'Created At', field: 'date' },
-                { name: 'action', label: 'Actions', field: 'action', align: 'center' },
+                { name: "tid", align: "center", label: "Ticket ID", field: "tid" },
+                { name: "email", align: "center", label: "Email", field: "email" },
+                { name: "subject", align: "center", label: "Subject", field: "subject" },
+                { name: "status", align: "center", label: "Status", field: "status" },
+                { name: "priority", align: "center", label: "Priority", field: "priority" },
+                { name: "created_at", align: "center", label: "Created At", field: "date" },
+                { name: "action", label: "Actions", field: "action", align: "center" },
             ],
             tickets: [],
 
@@ -117,12 +119,12 @@ export default defineComponent({
             this.loadingData = true;
 
             window.api
-                .get('/apps/whmcs/tickets')
+                .get("/apps/whmcs/tickets")
                 .then((res: any) => {
                     this.tickets = res.data.tickets.ticket;
                 })
                 .finally(() => {
-                    console.log('finally executed');
+                    console.log("finally executed");
 
                     this.loadingData = false;
                 });

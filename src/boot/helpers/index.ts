@@ -1,9 +1,9 @@
-import { boot } from 'quasar/wrappers';
-import * as _l from 'lodash';
-import helpers from 'boot/helpers/helpers';
-import mitt from 'mitt';
+import { boot } from "quasar/wrappers";
+import * as _l from "lodash";
+import helpers from "boot/helpers/helpers";
+import mitt from "mitt";
 
-require('colors');
+require("colors");
 
 declare global {
     interface Window {
@@ -11,7 +11,7 @@ declare global {
     }
 }
 
-window.clog = (text: any, type = 'black') => console.log(text[type]);
+window.clog = (text: any, type = "black") => console.log(text[type]);
 const emitter = mitt();
 
 export default boot(({ app }) => {

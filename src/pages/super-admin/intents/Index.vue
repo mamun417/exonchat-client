@@ -39,11 +39,11 @@
                     <template v-slot:body-cell-intent="props">
                         <q-td :props="props">
                             <q-badge color="green" class=""
-                                >{{ props.row.intent.name
-                                }}<q-tooltip class="" anchor="center right" :offset="[50, 14]">
+                                >{{ props.row.intent.name }}
+                                <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ props.row.intent.desc }}
-                                </q-tooltip></q-badge
-                            >
+                                </q-tooltip>
+                            </q-badge>
                         </q-td>
                     </template>
 
@@ -102,9 +102,11 @@
                 </q-card-section>
 
                 <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input label="Intent Name" color="green" prefix="@" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="label" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Intent Name" color="green" prefix="@" class="tw-my-2" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="label" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-select
                         label="Content Type"
@@ -113,8 +115,11 @@
                         color="green"
                         v-model="newIntentType"
                         dense
-                        ><template v-slot:prepend> <q-icon name="ballot" color="green" /> </template
-                    ></q-select>
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="ballot" color="green" />
+                        </template>
+                    </q-select>
 
                     <q-input
                         :label="newIntentType === 'action' ? 'Action Name' : 'Static Content'"
@@ -124,12 +129,17 @@
                         v-model="intentChoosed"
                         :autogrow="newIntentType === 'static'"
                         dense
-                        ><template v-slot:prepend> <q-icon name="work" color="green" /></template
-                    ></q-input>
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="work" color="green" />
+                        </template>
+                    </q-input>
 
-                    <q-input label="Description" color="green" class="tw-my-2" dense
-                        ><template v-slot:prepend> <q-icon name="description" color="green" /> </template
-                    ></q-input>
+                    <q-input label="Description" color="green" class="tw-my-2" dense>
+                        <template v-slot:prepend>
+                            <q-icon name="description" color="green" />
+                        </template>
+                    </q-input>
 
                     <q-checkbox class="tw-mt-2" label="Activate as soon as submitted to ai" color="green" dense />
                 </q-card-section>
@@ -144,87 +154,87 @@
 
 <script>
 const columns = [
-    { name: 'intent', align: 'left', label: 'Intent Name', field: 'intent' },
+    { name: "intent", align: "left", label: "Intent Name", field: "intent" },
     {
-        name: 'map_to',
-        align: 'center',
-        label: 'Map to Action/Content',
-        field: 'map_to',
+        name: "map_to",
+        align: "center",
+        label: "Map to Action/Content",
+        field: "map_to",
     },
     {
-        name: 'owned_by',
-        align: 'center',
-        label: 'Own By',
-        field: 'owned_by',
+        name: "owned_by",
+        align: "center",
+        label: "Own By",
+        field: "owned_by",
     },
     {
-        name: 'parent_intent',
-        align: 'center',
-        label: 'Parent Intent',
-        field: 'parent_intent',
+        name: "parent_intent",
+        align: "center",
+        label: "Parent Intent",
+        field: "parent_intent",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 
 const rows = [
     {
-        intent: { name: '@get/hosting/low/price', desc: 'message hi' },
-        map_to: 'get_lowest_hosting_price',
-        owned_by: 'admin',
-        parent_intent: 'nill',
-        status: 'active',
+        intent: { name: "@get/hosting/low/price", desc: "message hi" },
+        map_to: "get_lowest_hosting_price",
+        owned_by: "admin",
+        parent_intent: "nill",
+        status: "active",
     },
     {
-        intent: { name: '@del/order', desc: 'message hello' },
-        map_to: 'delte_order_by_id',
-        owned_by: 'admin',
-        parent_intent: 'nill',
-        status: 'inactive',
-    },
-    {
-        intent: {
-            name: '@post/profile/name',
-            desc: 'give shared hosting price',
-        },
-        map_to: 'update_profile_name',
-        owned_by: 'admin',
-        parent_intent: 'nill',
-        status: 'pending',
+        intent: { name: "@del/order", desc: "message hello" },
+        map_to: "delte_order_by_id",
+        owned_by: "admin",
+        parent_intent: "nill",
+        status: "inactive",
     },
     {
         intent: {
-            name: '@post/user/name',
-            desc: 'give shared hosting price',
+            name: "@post/profile/name",
+            desc: "give shared hosting price",
         },
-        map_to: 'update_user_name',
-        owned_by: '789',
-        parent_intent: '@post/profile/name',
-        status: 'pending',
+        map_to: "update_profile_name",
+        owned_by: "admin",
+        parent_intent: "nill",
+        status: "pending",
+    },
+    {
+        intent: {
+            name: "@post/user/name",
+            desc: "give shared hosting price",
+        },
+        map_to: "update_user_name",
+        owned_by: "789",
+        parent_intent: "@post/profile/name",
+        status: "pending",
     },
 ];
 
 const dynamicVariables = [
-    { name: 'user_name', des: 'will print assigned name else guest' },
-    { name: 'user_id', des: 'will print logged users id' },
+    { name: "user_name", des: "will print assigned name else guest" },
+    { name: "user_id", des: "will print logged users id" },
 ];
 export default {
     data() {
         return {
             newIntentModal: true,
-            newIntentType: 'action',
+            newIntentType: "action",
             variableListModal: false,
-            intentChoosed: '',
+            intentChoosed: "",
         };
     },
     setup() {

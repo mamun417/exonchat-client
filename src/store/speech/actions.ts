@@ -1,12 +1,12 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { SpeechStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { SpeechStateInterface } from "./state";
 
 const actions: ActionTree<SpeechStateInterface, StateInterface> = {
     getSpeeches() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('speeches')
+                .get("speeches")
                 .then((res: any) => {
                     resolve(res);
                 })
@@ -19,7 +19,7 @@ const actions: ActionTree<SpeechStateInterface, StateInterface> = {
     createSpeech(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('speeches', payload.inputs)
+                .post("speeches", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

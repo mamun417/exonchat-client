@@ -22,17 +22,18 @@
                             round
                             unelevated
                             dense
-                            ><q-tooltip class=""> Change avatar </q-tooltip></q-btn
                         >
+                            <q-tooltip class=""> Change avatar</q-tooltip>
+                        </q-btn>
                     </div>
 
                     <div class="tw-mb-1 tw-font-medium">{{ profile?.email }}</div>
 
                     <div class="tw-flex tw-gap-2">
                         <div class="tw-text-xs">Assigned Departments:</div>
-                        <q-badge :color="globalColor" v-for="dep of profile?.chat_departments" :key="dep.id">{{
-                            dep.tag
-                        }}</q-badge>
+                        <q-badge :color="globalColor" v-for="dep of profile?.chat_departments" :key="dep.id"
+                            >{{ dep.tag }}
+                        </q-badge>
                     </div>
                 </div>
             </q-card-section>
@@ -209,12 +210,14 @@
                     </q-card-section>
 
                     <q-card-actions class="tw-py-2 tw-flex tw-justify-center">
-                        <q-btn :color="globalColor" @click="changePassword" no-caps unelevated>Change Password </q-btn>
+                        <q-btn :color="globalColor" @click="changePassword" no-caps unelevated>Change Password</q-btn>
                     </q-card-actions>
                 </q-card>
 
                 <q-card>
-                    <q-card-section><div class="text-center">...</div></q-card-section>
+                    <q-card-section>
+                        <div class="text-center">...</div>
+                    </q-card-section>
                 </q-card>
             </div>
         </div>
@@ -260,34 +263,34 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
-import EcAvatar from 'components/common/EcAvatar.vue';
-import * as _l from 'lodash';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
+import EcAvatar from "components/common/EcAvatar.vue";
+import * as _l from "lodash";
 
 export default defineComponent({
-    name: 'SettingProfile',
+    name: "SettingProfile",
     components: { EcAvatar },
     data(): any {
         return {
-            existingAvatarUrl: '',
+            existingAvatarUrl: "",
             updateAvatarModal: false,
-            previewAvatar: '',
-            avatar: '',
+            previewAvatar: "",
+            avatar: "",
 
             formData: {
-                full_name: '',
-                display_name: '',
-                phone: '',
-                address: '',
-                facebook: '',
-                twitter: '',
-                linkedin: '',
+                full_name: "",
+                display_name: "",
+                phone: "",
+                address: "",
+                facebook: "",
+                twitter: "",
+                linkedin: "",
             },
             passFormData: {
-                old_password: '',
-                password: '',
-                confirm_password: '',
+                old_password: "",
+                password: "",
+                confirm_password: "",
             },
 
             formDataErrors: {},
@@ -296,20 +299,20 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapGetters({ profile: 'auth/profile', globalColor: 'setting_ui/globalColor' }),
+        ...mapGetters({ profile: "auth/profile", globalColor: "setting_ui/globalColor" }),
     },
 
     methods: {
         updateAvatarModalHandle() {
             this.updateAvatarModal = !this.updateAvatarModal;
-            this.previewAvatar = '';
-            this.avatar = '';
+            this.previewAvatar = "";
+            this.avatar = "";
         },
         clickUploadImage() {
             this.$refs.submitBtn.pickFiles();
         },
         loadAvatar(file: any) {
-            if (!file) return (this.previewAvatar = '');
+            if (!file) return (this.previewAvatar = "");
 
             let reader = new FileReader();
             reader.readAsDataURL(file);
@@ -320,28 +323,28 @@ export default defineComponent({
         },
         async updateAvatar() {
             let formData = new FormData();
-            formData.append('attachments', this.avatar, this.avatar.name);
+            formData.append("attachments", this.avatar, this.avatar.name);
 
             try {
-                await this.$store.dispatch('setting_profile/updateAvatar', formData);
+                await this.$store.dispatch("setting_profile/updateAvatar", formData);
 
-                this.$store.dispatch('setting_profile/reloadProfileImage', _l.cloneDeep(this.profile));
+                this.$store.dispatch("setting_profile/reloadProfileImage", _l.cloneDeep(this.profile));
 
                 this.updateAvatarModal = false;
-                this.$helpers.showSuccessNotification(this, 'Avatar update successful');
+                this.$helpers.showSuccessNotification(this, "Avatar update successful");
             } catch (err) {
-                this.$helpers.showErrorNotification(this, 'Avatar update failed');
+                this.$helpers.showErrorNotification(this, "Avatar update failed");
             }
         },
 
         async updateProfile() {
             try {
-                await this.$store.dispatch('setting_profile/updateProfile', {
+                await this.$store.dispatch("setting_profile/updateProfile", {
                     inputs: this.formData,
                 });
-                await this.$store.dispatch('auth/updateAuthInfo');
+                await this.$store.dispatch("auth/updateAuthInfo");
 
-                this.$helpers.showSuccessNotification(this, 'Profile update successful');
+                this.$helpers.showSuccessNotification(this, "Profile update successful");
             } catch (err) {
                 this.updateProfileErrorHandle(err);
             }
@@ -356,20 +359,20 @@ export default defineComponent({
 
         changePassword() {
             if (this.passFormData.password !== this.passFormData.confirm_password) {
-                this.$helpers.showErrorNotification(this, 'Password does not match');
+                this.$helpers.showErrorNotification(this, "Password does not match");
                 return;
             }
 
             this.$store
-                .dispatch('auth/changePassword', {
+                .dispatch("auth/changePassword", {
                     inputs: this.passFormData,
                 })
                 .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'Password change successful');
+                    this.$helpers.showSuccessNotification(this, "Password change successful");
 
                     // clear form
                     Object.keys(this.passFormData).forEach((key: any) => {
-                        this.passFormData[key] = '';
+                        this.passFormData[key] = "";
                     });
                 })
                 .catch((err: any) => {

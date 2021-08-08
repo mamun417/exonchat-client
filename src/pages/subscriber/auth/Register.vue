@@ -51,8 +51,10 @@
 
             <div class="tw-flex tw-mb-3">
                 <q-input v-model="formData.password" label="Password" class="full-width" color="green" dense>
-                    <template v-slot:prepend> <q-icon name="password" color="green" /> </template
-                ></q-input>
+                    <template v-slot:prepend>
+                        <q-icon name="password" color="green" />
+                    </template>
+                </q-input>
             </div>
             <div class="tw-flex tw-mb-3">
                 <q-input
@@ -62,8 +64,10 @@
                     color="green"
                     dense
                 >
-                    <template v-slot:prepend> <q-icon name="password" color="green" /> </template
-                ></q-input>
+                    <template v-slot:prepend>
+                        <q-icon name="password" color="green" />
+                    </template>
+                </q-input>
             </div>
 
             <!-- <div class="tw-flex tw-items-center tw-justify-between tw-mt-6">
@@ -91,20 +95,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'Register',
+    name: "Register",
     data(): any {
         return {
             formData: {
-                company_name: '',
-                company_display_name: '',
-                full_name: '',
-                display_name: '',
-                email: '',
-                password: '',
-                confirm_password: '',
+                company_name: "",
+                company_display_name: "",
+                full_name: "",
+                display_name: "",
+                email: "",
+                password: "",
+                confirm_password: "",
             },
         };
     },
@@ -112,19 +116,19 @@ export default defineComponent({
     methods: {
         registerButtonClicked() {
             if (!this.formData.password || this.formData.password !== this.formData.confirm_password) {
-                this.$helpers.showErrorNotification(this, 'Passwor does not match');
+                this.$helpers.showErrorNotification(this, "Passwor does not match");
                 return;
             }
 
             const inputs = this.formData;
 
             this.$store
-                .dispatch('auth/register', {
+                .dispatch("auth/register", {
                     inputs,
                 })
                 .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'Registration successful');
-                    this.$router.push('/auth/login');
+                    this.$helpers.showSuccessNotification(this, "Registration successful");
+                    this.$router.push("/auth/login");
                 })
                 .catch((err: any) => {
                     console.log(err.response.data);

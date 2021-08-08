@@ -1,12 +1,12 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { ChatTemplateStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { ChatTemplateStateInterface } from "./state";
 
 const actions: ActionTree<ChatTemplateStateInterface, StateInterface> = {
     getChatTemplates(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .get('chat-templates', {
+                .get("chat-templates", {
                     params: {
                         tag: payload?.keyword,
                     },
@@ -23,7 +23,7 @@ const actions: ActionTree<ChatTemplateStateInterface, StateInterface> = {
     createChatTemplate(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('chat-templates', payload.inputs)
+                .post("chat-templates", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

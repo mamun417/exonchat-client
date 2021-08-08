@@ -263,15 +263,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { mapGetters, mapMutations } from 'vuex';
-import LeftBar from 'src/components/subscriber/side-panel/LeftBar.vue';
-import RightBar from 'src/components/subscriber/side-panel/RightBar.vue';
+import { defineComponent, ref } from "vue";
+import { mapGetters, mapMutations } from "vuex";
+import LeftBar from "src/components/subscriber/side-panel/LeftBar.vue";
+import RightBar from "src/components/subscriber/side-panel/RightBar.vue";
 
-import * as _l from 'lodash';
-import EcAvatar from 'src/components/common/EcAvatar.vue';
-import StoreDebug from 'src/components/debug/StoreDebug.vue';
-import helpers from 'boot/helpers/helpers';
+import * as _l from "lodash";
+import EcAvatar from "src/components/common/EcAvatar.vue";
+import StoreDebug from "src/components/debug/StoreDebug.vue";
+import helpers from "boot/helpers/helpers";
 
 declare global {
     interface Window {
@@ -281,7 +281,7 @@ declare global {
 }
 
 export default defineComponent({
-    name: 'MainLayout',
+    name: "MainLayout",
     components: { StoreDebug, LeftBar, RightBar, EcAvatar },
     data(): any {
         return {
@@ -305,8 +305,8 @@ export default defineComponent({
 
             newChatTimeout: null,
             newConversationInfo: {
-                chat_department: { tag: 'technical' },
-                conversation_sessions: [{ socket_session: { init_name: 'younus' } }],
+                chat_department: { tag: "technical" },
+                conversation_sessions: [{ socket_session: { init_name: "younus" } }],
             },
 
             qPageSize: {
@@ -325,11 +325,11 @@ export default defineComponent({
     computed: {
         // ...mapGetters('socket', ['handshake']),
         ...mapGetters({
-            profile: 'auth/profile',
-            chatUsers: 'chat/chatUsers',
-            conversations: 'chat/conversations',
-            globalBgColor: 'setting_ui/globalBgColor',
-            rightBarState: 'setting_ui/rightBarState', // its a mistake to store & get from there
+            profile: "auth/profile",
+            chatUsers: "chat/chatUsers",
+            conversations: "chat/conversations",
+            globalBgColor: "setting_ui/globalBgColor",
+            rightBarState: "setting_ui/rightBarState", // its a mistake to store & get from there
         }),
 
         currentRouteName() {
@@ -338,11 +338,11 @@ export default defineComponent({
 
         rightDrawerVisible() {
             if (this.rightBarState.visible && this.rightBarState.mode) {
-                if (this.$route.name !== 'chats' && this.rightBarState.mode === 'client_info') {
+                if (this.$route.name !== "chats" && this.rightBarState.mode === "client_info") {
                     return false;
                 }
 
-                if (this.$route.name === 'chats' && this.rightBarState.mode === 'client_info') {
+                if (this.$route.name === "chats" && this.rightBarState.mode === "client_info") {
                     const conv: any = this.conversations[this.$route.params.conv_id];
 
                     if (!conv) return false;
@@ -368,18 +368,18 @@ export default defineComponent({
 
         this.domReady = true;
 
-        if (this.currentRouteName === 'chats') {
+        if (this.currentRouteName === "chats") {
             this.rightDrawer = true;
         }
 
-        this.$store.dispatch('setting_ui/getUiSetting');
+        this.$store.dispatch("setting_ui/getUiSetting");
 
         // its now only for check logout from other tab
-        window.addEventListener('storage', (event) => {
+        window.addEventListener("storage", (event) => {
             // !event.key means clear all key fire
-            if (!event.key || (event.key === 'exonchat_token' && !event.newValue)) {
+            if (!event.key || (event.key === "exonchat_token" && !event.newValue)) {
                 this.mutateAuthToLogout(); // it's also for update state
-                this.$router.push({ name: 'login' });
+                this.$router.push({ name: "login" });
             }
         });
     },
@@ -392,8 +392,8 @@ export default defineComponent({
 
     methods: {
         ...mapMutations({
-            mutateAuthToLogout: 'auth/logOut',
-            updateRightDrawerState: 'setting_ui/updateRightDrawerState',
+            mutateAuthToLogout: "auth/logOut",
+            updateRightDrawerState: "setting_ui/updateRightDrawerState",
         }),
 
         updateQPageSizeInfo(size: any) {
@@ -401,7 +401,7 @@ export default defineComponent({
         },
 
         getAllUsers() {
-            this.$store.dispatch('chat/getAllUsers');
+            this.$store.dispatch("chat/getAllUsers");
         },
 
         getUsers(ses_id = null) {
@@ -409,26 +409,26 @@ export default defineComponent({
             if (!ses_id || !this.chatUsers?.hasOwnProperty(ses_id)) {
                 // console.log('reloading users list');
 
-                this.$store.dispatch('chat/getUsers').then(() => {
+                this.$store.dispatch("chat/getUsers").then(() => {
                     // get new list first then get online
-                    this.$socket.emit('ec_get_logged_users', {});
+                    this.$socket.emit("ec_get_logged_users", {});
 
                     // load all users so that we can load user avatar
                     // this.getAllUsers();
                 });
             } else {
-                this.$socket.emit('ec_get_logged_users', {});
+                this.$socket.emit("ec_get_logged_users", {});
             }
         },
 
         async socketInitialize() {
             this.sesId = this.$helpers.getMySocketSessionId();
-            this.socketToken = sessionStorage.getItem('ec_user_socket_token');
+            this.socketToken = sessionStorage.getItem("ec_user_socket_token");
             console.log(this.sesId);
 
             if (!this.sesId) {
                 try {
-                    const res = await this.$api.post('/socket-sessions', {
+                    const res = await this.$api.post("/socket-sessions", {
                         api_key: this.profile.subscriber.subscriber_secret.api_key,
                         user_id: this.profile.id,
                     });
@@ -436,8 +436,8 @@ export default defineComponent({
                     this.sesId = res.data.data.socket_session.id;
                     this.socketToken = res.data.bearerToken;
 
-                    sessionStorage.setItem('ec_user_socket_ses_id', this.sesId);
-                    sessionStorage.setItem('ec_user_socket_token', this.socketToken);
+                    sessionStorage.setItem("ec_user_socket_ses_id", this.sesId);
+                    sessionStorage.setItem("ec_user_socket_token", this.socketToken);
                 } catch (err: any) {
                     console.log(err);
                 }
@@ -445,7 +445,7 @@ export default defineComponent({
 
             if (!this.socketToken) {
                 //handle error
-                console.log('socket token not found for this sesId');
+                console.log("socket token not found for this sesId");
                 return;
             }
 
@@ -456,83 +456,83 @@ export default defineComponent({
             this.getUsers();
             this.fireSocketListeners();
             this.reloadForProfileImageLoad();
-            this.$socket.emit('ec_get_logged_users', {});
+            this.$socket.emit("ec_get_logged_users", {});
 
             // in future handle interval for page visiting update. check visiting time & mutate visiting value
             // so that update reflects cz if a client's net gone or other issue happens visiting value might not change
         },
         fireSocketListeners() {
-            this.socket.on('connect', () => {
+            this.socket.on("connect", () => {
                 console.log(`Your user Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
                 this.socketId = this.socket.id;
             });
 
-            this.socket.on('disconnect', () => {
-                console.log('You Are Disconnected'); // undefined
+            this.socket.on("disconnect", () => {
+                console.log("You Are Disconnected"); // undefined
 
                 this.socketId = this.socket.id;
             });
 
             // successfully sent to client
-            this.socket.on('ec_msg_to_user', (res: any) => {
-                this.$store.dispatch('chat/storeMessage', res);
-                console.log('from ec_msg_to_user', res);
+            this.socket.on("ec_msg_to_user", (res: any) => {
+                this.$store.dispatch("chat/storeMessage", res);
+                console.log("from ec_msg_to_user", res);
             });
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on('ec_msg_from_user', (res: any) => {
-                res.socket_event = 'ec_msg_from_user';
+            this.socket.on("ec_msg_from_user", (res: any) => {
+                res.socket_event = "ec_msg_from_user";
 
-                this.$store.dispatch('chat/storeMessage', res);
+                this.$store.dispatch("chat/storeMessage", res);
 
                 this.$emitter.emit(`new_message_from_user_${res.conversation.id}`, res);
 
-                console.log('from ec_msg_from_user', res);
+                console.log("from ec_msg_from_user", res);
             });
 
-            this.socket.on('ec_msg_from_client', (res: any) => {
-                res.socket_event = 'ec_msg_from_client';
+            this.socket.on("ec_msg_from_client", (res: any) => {
+                res.socket_event = "ec_msg_from_client";
 
-                this.$store.dispatch('chat/storeMessage', res);
+                this.$store.dispatch("chat/storeMessage", res);
 
                 this.$emitter.emit(`new_message_from_client_${res.conversation.id}`, res);
 
-                console.log('from ec_msg_from_client', res);
+                console.log("from ec_msg_from_client", res);
             });
 
-            this.socket.on('ec_reply_from_ai', (res: any) => {
-                this.$store.dispatch('chat/storeMessage', res);
+            this.socket.on("ec_reply_from_ai", (res: any) => {
+                this.$store.dispatch("chat/storeMessage", res);
 
-                console.log('from ec_reply_from_ai', res);
+                console.log("from ec_reply_from_ai", res);
             });
 
             // handle only other users typing
-            this.socket.on('ec_is_typing_from_user', (res: any) => {
-                this.$store.dispatch('chat/updateTypingState', res);
+            this.socket.on("ec_is_typing_from_user", (res: any) => {
+                this.$store.dispatch("chat/updateTypingState", res);
 
-                console.log('from ec_is_typing_from_user', res);
+                console.log("from ec_is_typing_from_user", res);
             });
 
             // this.socket.on('ec_is_typing_to_user', (data: any) => {
             //     console.log('from ec_is_typing_to_user', data);
             // });
 
-            this.socket.on('ec_is_typing_from_client', (res: any) => {
-                this.$store.dispatch('chat/updateTypingState', res);
+            this.socket.on("ec_is_typing_from_client", (res: any) => {
+                this.$store.dispatch("chat/updateTypingState", res);
 
-                console.log('from ec_is_typing_from_client', res.msg);
+                console.log("from ec_is_typing_from_client", res.msg);
             });
 
-            this.socket.on('ec_conv_initiated_from_user', (data: any) => {
-                console.log('from ec_conv_initiated_from_user', data);
+            this.socket.on("ec_conv_initiated_from_user", (data: any) => {
+                console.log("from ec_conv_initiated_from_user", data);
 
-                this.$emitter.emit('listen_ec_init_conv_from_user', data);
+                this.$emitter.emit("listen_ec_init_conv_from_user", data);
             });
 
-            this.socket.on('ec_conv_initiated_from_client', (res: any) => {
-                console.log('from ec_conv_initiated_from_client', res);
+            this.socket.on("ec_conv_initiated_from_client", (res: any) => {
+                console.log("from ec_conv_initiated_from_client", res);
 
                 if (res.data.notify) {
                     clearTimeout(this.newChatTimeout);
@@ -546,56 +546,56 @@ export default defineComponent({
                     helpers.notifications().reqOne.play();
                 }
 
-                this.$store.dispatch('chat/storeNewChatFromClient', res.data);
+                this.$store.dispatch("chat/storeNewChatFromClient", res.data);
             });
 
-            this.socket.on('ec_is_joined_from_conversation', (res: any) => {
+            this.socket.on("ec_is_joined_from_conversation", (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
 
-                this.$store.dispatch('chat/updateConvState', convSesInfo);
+                this.$store.dispatch("chat/updateConvState", convSesInfo);
 
-                console.log('from ec_is_joined_from_conversation', convSesInfo);
+                console.log("from ec_is_joined_from_conversation", convSesInfo);
             });
 
-            this.socket.on('ec_is_leaved_from_conversation', (res: any) => {
+            this.socket.on("ec_is_leaved_from_conversation", (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
 
-                this.$store.dispatch('chat/updateConvState', convSesInfo);
+                this.$store.dispatch("chat/updateConvState", convSesInfo);
 
-                console.log('from ec_is_leaved_from_conversation', convSesInfo);
+                console.log("from ec_is_leaved_from_conversation", convSesInfo);
             });
 
-            this.socket.on('ec_is_closed_from_conversation', (res: any) => {
+            this.socket.on("ec_is_closed_from_conversation", (res: any) => {
                 const convInfo = res.data.conv_data;
 
-                this.$store.dispatch('chat/updateConvStateToClosed', convInfo);
+                this.$store.dispatch("chat/updateConvStateToClosed", convInfo);
 
-                console.log('from ec_is_closed_from_conversation', convInfo);
+                console.log("from ec_is_closed_from_conversation", convInfo);
             });
 
             // emitting this socket into mount
             // get online users list
-            this.socket.on('ec_logged_users_res', (data: any) => {
-                this.$store.dispatch('chat/updateOnlineUsers', data.users);
-                console.log('from ec_logged_users_res', data);
+            this.socket.on("ec_logged_users_res", (data: any) => {
+                this.$store.dispatch("chat/updateOnlineUsers", data.users);
+                console.log("from ec_logged_users_res", data);
             });
 
-            this.socket.on('ec_user_logged_in', (data: any) => {
+            this.socket.on("ec_user_logged_in", (data: any) => {
                 // used if a new user registered but not listed yet
                 this.getUsers(data.ses_id);
 
                 console.log(`from ec_user_logged_in ${data}`);
             });
 
-            this.socket.on('ec_user_logged_out', (data: any) => {
+            this.socket.on("ec_user_logged_out", (data: any) => {
                 setTimeout(() => {
                     // this.getUsers(); // currently no need cz we are getting this at first
-                    this.$socket.emit('ec_get_logged_users', {});
+                    this.$socket.emit("ec_get_logged_users", {});
                     console.log(`from ec_user_logged_out ${data}`);
                 }, 3000);
             });
 
-            this.socket.on('ec_from_api_events', (res: any) => {
+            this.socket.on("ec_from_api_events", (res: any) => {
                 // res = {action: [logout, others_are_coming], msg: res.msg || null, reason: res.reason || null}
                 // reason = why this type sent
                 // msg = if you want to show notification or taster
@@ -605,12 +605,12 @@ export default defineComponent({
                 // then sesInfo will change & receive an emit
                 // then convs search by clients ses then update socket session info
 
-                if (res.action === 'logout') {
+                if (res.action === "logout") {
                     this.$q.notify({
-                        position: 'top',
+                        position: "top",
                         progress: true,
                         message: res.msg,
-                        color: 'orange',
+                        color: "orange",
                         timeout: 5000,
                     });
 
@@ -619,17 +619,17 @@ export default defineComponent({
                     }, 6000);
                 }
 
-                console.log('from ec_from_api_events1', res);
+                console.log("from ec_from_api_events1", res);
             });
 
-            this.socket.on('ec_page_visit_info_from_client', (res: any) => {
-                this.$store.dispatch('visitor/updateVisitor', res);
+            this.socket.on("ec_page_visit_info_from_client", (res: any) => {
+                this.$store.dispatch("visitor/updateVisitor", res);
 
                 // console.log('from ec_page_visit_info_from_client', res);
             });
 
-            this.socket.on('ec_apps_notification', (res: any) => {
-                if (res.app === 'whmcs' && res.type === 'ticket') {
+            this.socket.on("ec_apps_notification", (res: any) => {
+                if (res.app === "whmcs" && res.type === "ticket") {
                     const ticket = res.data;
 
                     this.$q.notify({
@@ -638,49 +638,49 @@ export default defineComponent({
                         caption: ticket.subject,
                         progress: true,
                         multiLine: true,
-                        icon: 'confirmation_number',
-                        color: 'grey-10',
-                        textColor: 'white',
-                        position: 'top-right',
-                        classes: 'tw-w-80 tw-p-2',
+                        icon: "confirmation_number",
+                        color: "grey-10",
+                        textColor: "white",
+                        position: "top-right",
+                        classes: "tw-w-80 tw-p-2",
                         timeout: 20000,
-                        badgeClass: 'hidden',
+                        badgeClass: "hidden",
                         actions: [
                             {
-                                icon: 'close',
-                                color: 'orange',
-                                size: 'xs',
+                                icon: "close",
+                                color: "orange",
+                                size: "xs",
                             },
                         ],
                     });
                 }
-                console.log('from ec_apps_notification', res);
+                console.log("from ec_apps_notification", res);
             });
 
-            this.socket.on('ec_conversation_rated_from_client', (res: any) => {
-                this.$store.dispatch('chat/updateConvRating', res);
-                console.log('from ec_conversation_rated_from_client', res);
+            this.socket.on("ec_conversation_rated_from_client", (res: any) => {
+                this.$store.dispatch("chat/updateConvRating", res);
+                console.log("from ec_conversation_rated_from_client", res);
             });
 
-            this.socket.on('ec_chat_transfer', (data: any) => {
+            this.socket.on("ec_chat_transfer", (data: any) => {
                 helpers.notifications().reqOne.play();
 
                 let actions = [
                     {
-                        icon: 'send',
-                        color: 'white',
-                        size: 'xs',
+                        icon: "send",
+                        color: "white",
+                        size: "xs",
                         handler: () => {
                             window.router.push(`/chats/${data.conv_id}`);
                         },
                     },
                 ];
 
-                if (data.from === 'client') {
+                if (data.from === "client") {
                     actions.push({
-                        icon: 'clear',
-                        color: 'white',
-                        size: 'xs',
+                        icon: "clear",
+                        color: "white",
+                        size: "xs",
                         handler: () => {
                             //
                         },
@@ -690,43 +690,43 @@ export default defineComponent({
                 this.$q.notify({
                     group: `${data.conv_id}_notify`,
                     message:
-                        data.from === 'client'
+                        data.from === "client"
                             ? data.reason
                             : `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
-                    caption: 'Click send button to open this conversation',
+                    caption: "Click send button to open this conversation",
                     progress: true,
                     multiLine: true,
-                    icon: 'announcement',
-                    color: 'grey-8',
-                    textColor: 'white',
-                    position: 'top-right',
-                    classes: 'tw-w-80 tw-p-2',
+                    icon: "announcement",
+                    color: "grey-8",
+                    textColor: "white",
+                    position: "top-right",
+                    classes: "tw-w-80 tw-p-2",
                     timeout: 1000 * 60, // 1 min
-                    badgeClass: 'hidden',
+                    badgeClass: "hidden",
                     actions,
                 });
 
-                console.log('from ec_chat_transfer_from_user', data);
+                console.log("from ec_chat_transfer_from_user", data);
             });
 
-            this.socket.on('ec_updated_socket_room_info_res', (data: any) => {
-                this.$store.dispatch('chat/updateOnlineUsers', [
+            this.socket.on("ec_updated_socket_room_info_res", (data: any) => {
+                this.$store.dispatch("chat/updateOnlineUsers", [
                     { online_status: data.data.online_status, ses_id: data.ses_id, db_change: true },
                 ]);
 
-                this.socket.emit('ec_get_logged_users', {});
-                console.log('from ec_updated_socket_room_info_res', data);
+                this.socket.emit("ec_get_logged_users", {});
+                console.log("from ec_updated_socket_room_info_res", data);
             });
 
-            this.socket.on('ec_error', (data: any) => {
-                console.log('from ec_error', data);
+            this.socket.on("ec_error", (data: any) => {
+                console.log("from ec_error", data);
 
-                if (data.step === 'ec_chat_transfer_from_user') {
+                if (data.step === "ec_chat_transfer_from_user") {
                     this.$q.notify({
-                        color: 'warning',
-                        textColor: 'black',
+                        color: "warning",
+                        textColor: "black",
                         message: data.reason.message ? data.reason.message : data.reason,
-                        position: 'top',
+                        position: "top",
                     });
                 }
 
@@ -740,7 +740,7 @@ export default defineComponent({
 
             this.newConversationInfo = {};
 
-            window.socketInstance.emit('ec_join_conversation', {
+            window.socketInstance.emit("ec_join_conversation", {
                 conv_id: convData.id,
             });
 
@@ -748,17 +748,17 @@ export default defineComponent({
         },
 
         openChatPanelBoxForTest() {
-            const ls = window.localStorage.getItem('chat_panel_box_for_test');
+            const ls = window.localStorage.getItem("chat_panel_box_for_test");
 
-            if (ls && ls === 'true') {
+            if (ls && ls === "true") {
                 // eslint-disable-next-line @typescript-eslint/no-this-alias
                 const self = this;
 
                 // setTimeout for testing
                 setTimeout(() => {
-                    console.log('init client logged in id');
+                    console.log("init client logged in id");
 
-                    window.exonChat.whmcs_info = { clientId: '7', clientEmail: 'abdullah.ssc13@gmail.com' };
+                    window.exonChat.whmcs_info = { clientId: "7", clientEmail: "abdullah.ssc13@gmail.com" };
                 }, 20000);
 
                 window.exonChat = {};
@@ -768,26 +768,26 @@ export default defineComponent({
                     if (d.getElementById(id)) return;
                     js = d.createElement(s);
                     js.id = id;
-                    js.setAttribute('data-widget-id', self.profile.subscriber.subscriber_secret.api_key);
+                    js.setAttribute("data-widget-id", self.profile.subscriber.subscriber_secret.api_key);
                     js.src = `${location.origin}/assets/js/web-chat/web-chat.js`; // for other site dont use location.origin
                     fjs.parentNode.insertBefore(js, fjs);
-                })(document, 'script', 'exhonchat-chat-script');
+                })(document, "script", "exhonchat-chat-script");
             }
         },
 
         reloadForProfileImageLoad() {
             // clonedeep needed cz we are updating profiles image
-            this.$store.dispatch('setting_profile/reloadProfileImage', _l.cloneDeep(this.profile));
+            this.$store.dispatch("setting_profile/reloadProfileImage", _l.cloneDeep(this.profile));
         },
 
         logout() {
             this.$store
-                .dispatch('auth/logOut')
+                .dispatch("auth/logOut")
                 .then(() => {
                     this.$q.notify({
-                        color: 'positive',
-                        message: 'Logout Successful',
-                        position: 'top',
+                        color: "positive",
+                        message: "Logout Successful",
+                        position: "top",
                     });
 
                     if (this.socket) {
@@ -796,7 +796,7 @@ export default defineComponent({
 
                     this.$socket.close();
 
-                    this.$router.push({ name: 'login' });
+                    this.$router.push({ name: "login" });
                 })
                 .catch((err: any) => {
                     console.log(err);
@@ -807,8 +807,8 @@ export default defineComponent({
     beforeRouteUpdate(to, from) {
         console.log(to, from);
 
-        if (this.rightBarState?.mode || this.rightBarState.mode === 'conversation') {
-            this.updateRightDrawerState({ mode: 'client_info', visible: true });
+        if (this.rightBarState?.mode || this.rightBarState.mode === "conversation") {
+            this.updateRightDrawerState({ mode: "client_info", visible: true });
         }
     },
 
@@ -839,14 +839,14 @@ export default defineComponent({
                                         const imgRes = await this.$api.get(
                                             `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
                                             {
-                                                responseType: 'arraybuffer',
+                                                responseType: "arraybuffer",
                                             }
                                         );
 
                                         tempArray.srcs.push({
                                             conv_ses_id: convSes.id,
                                             src: URL.createObjectURL(
-                                                new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                                new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
                                             ),
                                         });
                                     } catch (e) {
@@ -857,7 +857,7 @@ export default defineComponent({
                         }
 
                         if (tempArray.srcs.length) {
-                            this.$store.commit('chat/updateConversationUserAvatar', tempArray);
+                            this.$store.commit("chat/updateConversationUserAvatar", tempArray);
                         }
                     }
                 }
@@ -891,7 +891,7 @@ export default defineComponent({
         //its safe then sorry
         // console.log('calling unmounted from main layout');
 
-        const dom = document.getElementById('exhonchat-container');
+        const dom = document.getElementById("exhonchat-container");
 
         if (dom) {
             dom.parentNode?.removeChild(dom);

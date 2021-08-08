@@ -1,7 +1,7 @@
-import { boot } from 'quasar/wrappers';
-import io from 'socket.io-client';
+import { boot } from "quasar/wrappers";
+import io from "socket.io-client";
 
-declare module '@vue/runtime-core' {
+declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         socket: SocketIOClient.Socket;
     }
@@ -13,7 +13,7 @@ declare global {
     }
 }
 
-const socket = io(process.env.API || 'http://localhost:3000', {
+const socket = io(process.env.API || "http://localhost:3000", {
     autoConnect: false,
 });
 

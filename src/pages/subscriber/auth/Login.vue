@@ -38,8 +38,10 @@
                         type="password"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="password" color="green" /> </template
-                    ></q-input>
+                        <template v-slot:prepend>
+                            <q-icon name="password" color="green" />
+                        </template>
+                    </q-input>
                 </div>
 
                 <div class="tw-flex tw-items-center tw-justify-between tw-mt-6">
@@ -72,16 +74,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'Login',
+    name: "Login",
     data(): any {
         return {
             formData: {
-                email: 'test@test.test',
-                password: '123',
-                company_name: 'test',
+                email: "test@test.test",
+                password: "123",
+                company_name: "test",
             },
         };
     },
@@ -97,15 +99,15 @@ export default defineComponent({
             };
 
             this.$store
-                .dispatch('auth/login', {
+                .dispatch("auth/login", {
                     inputs,
                 })
                 .then((res: any) => {
                     const userInfo = res.data;
-                    localStorage.setItem('ec_update_storage_auth', JSON.stringify(userInfo));
+                    localStorage.setItem("ec_update_storage_auth", JSON.stringify(userInfo));
 
-                    this.$helpers.showSuccessNotification(this, 'Login successful');
-                    this.$router.push({ name: 'chat-interaction' });
+                    this.$helpers.showSuccessNotification(this, "Login successful");
+                    this.$router.push({ name: "chat-interaction" });
                 })
                 .catch((err: any) => {
                     console.log(err);

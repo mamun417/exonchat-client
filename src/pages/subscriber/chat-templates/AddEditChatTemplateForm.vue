@@ -54,7 +54,9 @@
                         :color="globalColor"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="ballot" :color="globalColor" /> </template>
+                        <template v-slot:prepend>
+                            <q-icon name="ballot" :color="globalColor" />
+                        </template>
                     </q-select>
 
                     <q-select
@@ -67,7 +69,8 @@
                         :color="globalColor"
                         options-selected-class="text-green"
                         dense
-                        ><template v-slot:prepend>
+                    >
+                        <template v-slot:prepend>
                             <q-icon name="work" :color="globalColor" />
                         </template>
                         <template v-slot:option="scope">
@@ -77,8 +80,8 @@
                                     <q-item-label class="tw-text-xxs" caption>{{ scope.opt.description }}</q-item-label>
                                 </q-item-section>
                             </q-item>
-                        </template></q-select
-                    >
+                        </template>
+                    </q-select>
 
                     <div>
                         <!--intent info-->
@@ -97,7 +100,9 @@
                             :readonly="chosenContentType === 'intent'"
                             dense
                         >
-                            <template v-slot:prepend> <q-icon name="info" :color="globalColor" /> </template>
+                            <template v-slot:prepend>
+                                <q-icon name="info" :color="globalColor" />
+                            </template>
                         </q-input>
                     </div>
 
@@ -110,7 +115,9 @@
                         :color="globalColor"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="description" :color="globalColor" /> </template>
+                        <template v-slot:prepend>
+                            <q-icon name="description" :color="globalColor" />
+                        </template>
                     </q-input>
 
                     <div v-if="isAdmin">
@@ -164,35 +171,35 @@
                 <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
             </q-card-section>
 
-            <q-card-section class="tw-px-3 tw-pt-1"
-                ><q-list separator dense padding>
+            <q-card-section class="tw-px-3 tw-pt-1">
+                <q-list separator dense padding>
                     <q-item class="tw-font-bold" :class="`text-${globalColor}`">
-                        <q-item-section> Name </q-item-section>
-                        <q-item-section side :class="`text-${globalColor}`"> About </q-item-section>
+                        <q-item-section> Name</q-item-section>
+                        <q-item-section side :class="`text-${globalColor}`"> About</q-item-section>
                     </q-item>
 
                     <q-item v-for="item in dynamicVariables" class="tw-text-xs" :key="item.name" clickable v-ripple>
                         <q-item-section>{{ item.name }}</q-item-section>
                         <q-item-section class="tw-ml-4" side>{{ item.des }}</q-item-section>
                     </q-item>
-                </q-list></q-card-section
-            >
+                </q-list>
+            </q-card-section>
 
-            <q-card-section class="tw-pt-0"
-                ><div class="tw-text-xs text-center" :class="`text-${globalColor}`">
+            <q-card-section class="tw-pt-0">
+                <div class="tw-text-xs text-center" :class="`text-${globalColor}`">
                     Note: Click a item to copy a variable name
-                </div></q-card-section
-            >
+                </div>
+            </q-card-section>
         </q-card>
     </q-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: 'AddEditChatTemplateForm',
+    name: "AddEditChatTemplateForm",
 
     props: {
         showAddEditChatTemplateModal: {
@@ -213,15 +220,15 @@ export default defineComponent({
         return {
             departments: [],
             intents: [],
-            chosenDepartment: '',
-            chosenContentType: 'static',
-            chosenIntent: '',
+            chosenDepartment: "",
+            chosenContentType: "static",
+            chosenIntent: "",
             chosenIntentInfo: {},
             addEditChatTemplateFormData: {
-                tag: '',
-                content: '',
-                department_id: '',
-                intent_id: '',
+                tag: "",
+                content: "",
+                department_id: "",
+                intent_id: "",
                 description: [],
                 own: false,
                 active: true,
@@ -229,28 +236,28 @@ export default defineComponent({
             chatTemplateFormDataErrors: {},
             variableListModal: false,
             dynamicVariables: [
-                { name: 'user_name', des: 'will print assigned name else guest' },
-                { name: 'user_id', des: 'will print logged users id' },
+                { name: "user_name", des: "will print assigned name else guest" },
+                { name: "user_id", des: "will print logged users id" },
             ],
         };
     },
 
     computed: {
         ...mapGetters({
-            userProfile: 'auth/profile',
-            globalColor: 'setting_ui/globalColor',
-            globalBgColor: 'setting_ui/globalBgColor',
+            userProfile: "auth/profile",
+            globalColor: "setting_ui/globalColor",
+            globalBgColor: "setting_ui/globalBgColor",
         }),
 
         isAdmin(): any {
-            return this.userProfile.role.slug === 'admin';
+            return this.userProfile.role.slug === "admin";
         },
     },
 
     methods: {
         // load when form open
         loadDepartment() {
-            this.$store.dispatch('department/getDepartments').then((res: any) => {
+            this.$store.dispatch("department/getDepartments").then((res: any) => {
                 this.departments = [];
 
                 for (const department of res.data) {
@@ -264,12 +271,12 @@ export default defineComponent({
 
         // load when chose content type (intent)
         getIntents(contentType: any) {
-            this.chosenIntent = '';
-            this.addEditChatTemplateFormData.content = '';
+            this.chosenIntent = "";
+            this.addEditChatTemplateFormData.content = "";
             this.intents = [];
 
-            if (contentType === 'intent') {
-                this.$store.dispatch('intent/getIntents').then((res: any) => {
+            if (contentType === "intent") {
+                this.$store.dispatch("intent/getIntents").then((res: any) => {
                     for (const intent of res.data) {
                         this.intents.push({
                             label: `@${intent.tag}`,
@@ -287,7 +294,7 @@ export default defineComponent({
                 const id = intent.value;
 
                 this.$store
-                    .dispatch('intent/getIntent', {
+                    .dispatch("intent/getIntent", {
                         id,
                     })
                     .then((res: any) => {
@@ -310,15 +317,15 @@ export default defineComponent({
             }
 
             this.$store
-                .dispatch('chat_template/createChatTemplate', {
+                .dispatch("chat_template/createChatTemplate", {
                     inputs: this.addEditChatTemplateFormData,
                 })
                 .then(() => {
                     this.resetForm();
 
-                    this.$emit('createdChatTempPlate');
+                    this.$emit("createdChatTempPlate");
 
-                    this.$helpers.showSuccessNotification(this, 'Chat Template created successful');
+                    this.$helpers.showSuccessNotification(this, "Chat Template created successful");
                 })
                 .catch((err: any) => this.addEditChatTemplateErrorHandle(err));
         },
@@ -328,7 +335,7 @@ export default defineComponent({
                 this.addEditChatTemplateFormData.department_id = this.chosenDepartment.value;
             }
 
-            this.addEditChatTemplateFormData.intent_id = '';
+            this.addEditChatTemplateFormData.intent_id = "";
             if (this.chosenIntent) {
                 this.addEditChatTemplateFormData.intent_id = this.chosenIntent.value;
             }
@@ -336,15 +343,15 @@ export default defineComponent({
             console.log(this.addEditChatTemplateFormData);
 
             this.$store
-                .dispatch('chat_template/updateChatTemplate', {
+                .dispatch("chat_template/updateChatTemplate", {
                     inputs: this.addEditChatTemplateFormData,
                 })
                 .then((res: any) => {
                     this.resetForm();
 
-                    this.$emit('updatedChatTemplate', res.data);
+                    this.$emit("updatedChatTemplate", res.data);
 
-                    this.$helpers.showSuccessNotification(this, 'Chat Template updated successful');
+                    this.$helpers.showSuccessNotification(this, "Chat Template updated successful");
                 })
                 .catch((err: any) => this.addEditChatTemplateErrorHandle(err));
         },
@@ -358,12 +365,12 @@ export default defineComponent({
         },
 
         resetForm() {
-            this.$emit('hideModal');
+            this.$emit("hideModal");
             this.addEditChatTemplateFormData = {};
             this.addEditChatTemplateFormData.active = true;
-            this.chosenDepartment = '';
-            this.chosenContentType = 'static';
-            this.chosenIntent = '';
+            this.chosenDepartment = "";
+            this.chosenContentType = "static";
+            this.chosenIntent = "";
             this.chatTemplateFormDataErrors = {};
         },
     },
@@ -386,10 +393,10 @@ export default defineComponent({
                     // set intent information
                     if (selectedForEditData.intent_id) {
                         // content type
-                        this.chosenContentType = 'intent';
+                        this.chosenContentType = "intent";
 
                         // load intent list
-                        this.getIntents('intent');
+                        this.getIntents("intent");
 
                         // intent
                         this.chosenIntent = {

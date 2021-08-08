@@ -1,6 +1,6 @@
-import { MutationTree } from 'vuex';
-import { OfflineChatReqStateInterface } from './state';
-import helpers from 'boot/helpers/helpers';
+import { MutationTree } from "vuex";
+import { OfflineChatReqStateInterface } from "./state";
+import helpers from "boot/helpers/helpers";
 
 const mutation: MutationTree<OfflineChatReqStateInterface> = {
     updatePaginationMeta(state, data: any) {

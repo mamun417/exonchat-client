@@ -53,17 +53,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'ChatRatingForm',
+    name: "ChatRatingForm",
     data(): any {
         return {
-            conv_id: '',
+            conv_id: "",
             ratingForm: {
-                ratingTempValue: '',
-                rating: '',
-                comment: '',
+                ratingTempValue: "",
+                rating: "",
+                comment: "",
             },
             ratingFormErrors: {},
         };
@@ -74,12 +74,12 @@ export default defineComponent({
             this.$forceUpdate();
         }, 30000);
 
-        this.conv_id = JSON.parse(localStorage.getItem('clientInitiateConvInfo') || '').conv_id;
+        this.conv_id = JSON.parse(localStorage.getItem("clientInitiateConvInfo") || "").conv_id;
     },
 
     computed: {
         conversationInfo(): any {
-            return this.$store.getters['chat/conversationInfo'](this.conv_id);
+            return this.$store.getters["chat/conversationInfo"](this.conv_id);
         },
 
         // geEcClientSocketSesId(): any {
@@ -93,10 +93,10 @@ export default defineComponent({
             this.ratingForm.rating = this.ratingForm.ratingTempValue ? 5 : 1;
 
             window.socketSessionApi
-                .post('ratings', this.ratingForm)
+                .post("ratings", this.ratingForm)
                 .then((res: any) => {
                     console.log(res.data);
-                    this.$store.commit('chat/showRatingForm', false);
+                    this.$store.commit("chat/showRatingForm", false);
                 })
                 .catch((err: any) => {
                     console.log(err.response.data);

@@ -27,7 +27,9 @@
                         dense
                         hide-bottom-space
                     >
-                        <template v-slot:prepend> <q-icon name="tag" color="green" /> </template>
+                        <template v-slot:prepend>
+                            <q-icon name="tag" color="green" />
+                        </template>
                     </q-input>
 
                     <!--<q-input
@@ -59,7 +61,9 @@
                         dense
                         hide-bottom-space
                     >
-                        <template v-slot:prepend> <q-icon name="group_add" color="green" /> </template>
+                        <template v-slot:prepend>
+                            <q-icon name="group_add" color="green" />
+                        </template>
                         <template v-slot:option="scope">
                             <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" class="tw-py-2" dense>
                                 <q-item-section avatar>
@@ -94,10 +98,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'AddEditDepartmentForm',
+    name: "AddEditDepartmentForm",
 
     props: {
         showAddEditDepartmentModal: {
@@ -119,7 +123,7 @@ export default defineComponent({
             agentList: [],
             filterAgentList: [],
             addEditDepartmentFormData: {
-                tag: '',
+                tag: "",
                 user_ids: [],
                 assign_users: [],
             },
@@ -130,7 +134,7 @@ export default defineComponent({
     methods: {
         filterAgent(val: any, update: any) {
             update(() => {
-                if (val === '') {
+                if (val === "") {
                     this.filterAgentList = this.agentList;
                 } else {
                     const needle = val.toLowerCase();
@@ -143,13 +147,13 @@ export default defineComponent({
 
         getUsers() {
             this.$store
-                .dispatch('department/getUsers')
+                .dispatch("department/getUsers")
                 .then((res: any) => {
                     this.agentList = res.data.map((user: any) => {
                         return {
                             label: user.email,
                             value: user.id,
-                            avatar: user.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg',
+                            avatar: user.avatar ?? "https://cdn.quasar.dev/img/avatar1.jpg",
                         };
                     });
                 })
@@ -165,15 +169,15 @@ export default defineComponent({
             }
 
             this.$store
-                .dispatch('department/createDepartment', {
+                .dispatch("department/createDepartment", {
                     inputs: this.addEditDepartmentFormData,
                 })
                 .then(() => {
                     this.resetForm();
 
-                    this.$emit('createdDepartment');
+                    this.$emit("createdDepartment");
 
-                    this.$helpers.showSuccessNotification(this, 'Department created successful');
+                    this.$helpers.showSuccessNotification(this, "Department created successful");
                 })
                 .catch((err: any) => this.addEditDepartmentErrorHandle(err));
         },
@@ -187,15 +191,15 @@ export default defineComponent({
             }
 
             this.$store
-                .dispatch('department/updateDepartment', {
+                .dispatch("department/updateDepartment", {
                     inputs: this.addEditDepartmentFormData,
                 })
                 .then((res: any) => {
                     this.resetForm();
 
-                    this.$emit('updatedDepartment', res.data);
+                    this.$emit("updatedDepartment", res.data);
 
-                    this.$helpers.showSuccessNotification(this, 'Department updated successful');
+                    this.$helpers.showSuccessNotification(this, "Department updated successful");
                 })
                 .catch((err: any) => this.addEditDepartmentErrorHandle(err));
         },
@@ -209,7 +213,7 @@ export default defineComponent({
         },
 
         resetForm() {
-            this.$emit('hideModal');
+            this.$emit("hideModal");
             this.addEditDepartmentFormData = {};
             this.addEditDepartmentFormData.active = true;
             this.departmentFormDataErrors = {};
@@ -226,7 +230,7 @@ export default defineComponent({
                         return {
                             label: user.email,
                             value: user.id,
-                            avatar: user.avatar ?? 'https://cdn.quasar.dev/img/avatar1.jpg',
+                            avatar: user.avatar ?? "https://cdn.quasar.dev/img/avatar1.jpg",
                         };
                     });
                 }

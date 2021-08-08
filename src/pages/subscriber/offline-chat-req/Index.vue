@@ -21,7 +21,7 @@
 
                     <template v-slot:cell-created_at="slotProps">
                         <div class="tw-text-xss">
-                            {{ $helpers.myDate(slotProps.row.created_at, 'MMMM Do YYYY, h:mm a') }}
+                            {{ $helpers.myDate(slotProps.row.created_at, "MMMM Do YYYY, h:mm a") }}
                         </div>
                     </template>
                 </ec-table>
@@ -39,10 +39,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import EcTable from 'components/common/table/EcTable.vue';
-import Pagination from 'components/common/Pagination.vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import EcTable from "components/common/table/EcTable.vue";
+import Pagination from "components/common/Pagination.vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
     components: { Pagination, EcTable },
@@ -50,43 +50,43 @@ export default defineComponent({
         return {
             columns: [
                 {
-                    name: 'name',
-                    align: 'left',
-                    label: 'Name',
-                    field: 'name',
+                    name: "name",
+                    align: "left",
+                    label: "Name",
+                    field: "name",
                 },
                 {
-                    name: 'email',
-                    align: 'left',
-                    label: 'Email',
-                    field: 'email',
+                    name: "email",
+                    align: "left",
+                    label: "Email",
+                    field: "email",
                 },
                 {
-                    name: 'subject',
-                    align: 'left',
-                    label: 'Subject',
-                    field: 'subject',
-                },
-
-                {
-                    name: 'message',
-                    align: 'left',
-                    label: 'Message',
-                    field: 'message',
+                    name: "subject",
+                    align: "left",
+                    label: "Subject",
+                    field: "subject",
                 },
 
                 {
-                    name: 'chat_department',
-                    align: 'left',
-                    label: 'Department',
-                    field: 'chat_department',
+                    name: "message",
+                    align: "left",
+                    label: "Message",
+                    field: "message",
                 },
 
                 {
-                    name: 'created_at',
-                    align: 'left',
-                    label: 'Date',
-                    field: 'created_at',
+                    name: "chat_department",
+                    align: "left",
+                    label: "Department",
+                    field: "chat_department",
+                },
+
+                {
+                    name: "created_at",
+                    align: "left",
+                    label: "Date",
+                    field: "created_at",
                 },
 
                 /*{
@@ -107,15 +107,15 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            offlineChatReqPaginationMeta: 'offline_chat_req/paginationMeta',
-            offlineChatReqPipeline: 'offline_chat_req/pipeline',
+            offlineChatReqPaginationMeta: "offline_chat_req/paginationMeta",
+            offlineChatReqPipeline: "offline_chat_req/pipeline",
         }),
     },
 
     methods: {
         getChatRequests() {
             this.$store
-                .dispatch('offline_chat_req/getChatRequests')
+                .dispatch("offline_chat_req/getChatRequests")
                 .then((res: any) => {
                     this.chatRequests = res.data.chat_requests;
                 })
@@ -126,7 +126,7 @@ export default defineComponent({
 
         handlePipeline(pipeline: any) {
             this.$store
-                .dispatch('offline_chat_req/updatePipeline', {
+                .dispatch("offline_chat_req/updatePipeline", {
                     pipeline: pipeline,
                 })
                 .then(() => {
@@ -135,7 +135,7 @@ export default defineComponent({
         },
 
         offlineChatReqPaginationHandle(page: any) {
-            this.$store.dispatch('offline_chat_req/updateCurrentPage', page).then(() => {
+            this.$store.dispatch("offline_chat_req/updateCurrentPage", page).then(() => {
                 this.getChatRequests();
             });
         },

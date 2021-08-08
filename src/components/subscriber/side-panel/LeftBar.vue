@@ -94,8 +94,8 @@
                     <q-card>
                         <q-card-section class="tw-p-4 tw-flex tw-justify-between tw-items-center">
                             <div class="tw-font-bold">
-                                {{ incomingChatRequestsForMe.length || '-' }} Chat{{
-                                    incomingChatRequestsForMe.length > 1 ? 's' : ''
+                                {{ incomingChatRequestsForMe.length || "-" }} Chat{{
+                                    incomingChatRequestsForMe.length > 1 ? "s" : ""
                                 }}
                             </div>
                             <q-btn
@@ -145,7 +145,7 @@
 
                                     <q-item-section v-if="ongoingChat.count_unseen_msg" side>
                                         <q-badge color="orange">
-                                            {{ ongoingChat.count_unseen_msg > 9 ? '9+' : ongoingChat.count_unseen_msg }}
+                                            {{ ongoingChat.count_unseen_msg > 9 ? "9+" : ongoingChat.count_unseen_msg }}
                                         </q-badge>
                                     </q-item-section>
                                 </q-item>
@@ -199,9 +199,9 @@
                                     dense
                                 >
                                     <q-item-section>
-                                        <q-item-label class="tw-text-sm text-weight-medium tw-uppercase">{{
-                                            department.tag
-                                        }}</q-item-label>
+                                        <q-item-label class="tw-text-sm text-weight-medium tw-uppercase"
+                                            >{{ department.tag }}
+                                        </q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label side class="text-right tw-text-sm text-grey-7"
@@ -274,7 +274,7 @@
                                             {{
                                                 agentMsgInfo(user.conversation_id, user.socket_session.id)
                                                     .count_unseen_msg > 9
-                                                    ? '9+'
+                                                    ? "9+"
                                                     : agentMsgInfo(user.conversation_id, user.socket_session.id)
                                                           .count_unseen_msg
                                             }}
@@ -291,16 +291,16 @@
 </template>
 
 <script lang="ts">
-import EcAvatar from 'src/components/common/EcAvatar.vue';
-import { defineComponent } from 'vue';
-import { mapGetters, mapMutations } from 'vuex';
+import EcAvatar from "src/components/common/EcAvatar.vue";
+import { defineComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
 
-import * as _l from 'lodash';
-import moment from 'moment';
-import helpers from 'boot/helpers/helpers';
+import * as _l from "lodash";
+import moment from "moment";
+import helpers from "boot/helpers/helpers";
 
 export default defineComponent({
-    name: 'LeftBar',
+    name: "LeftBar",
 
     components: { EcAvatar },
 
@@ -311,9 +311,9 @@ export default defineComponent({
     data(): any {
         return {
             onlineStatus: [
-                { status: 'online', label: 'Available' },
-                { status: 'offline', label: 'Away' },
-                { status: 'invisible', label: 'Invisible' },
+                { status: "online", label: "Available" },
+                { status: "offline", label: "Away" },
+                { status: "invisible", label: "Invisible" },
             ],
             chatUsersAvatarLoading: false,
 
@@ -324,7 +324,7 @@ export default defineComponent({
     },
 
     async mounted() {
-        console.log('left bar initiated');
+        console.log("left bar initiated");
         await this.getChatRequest();
         await this.getOtherJoinedChats();
         await this.getJoinedChatsWithMe();
@@ -333,17 +333,17 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            incomingChatRequestsForMe: 'chat/incomingChatRequestsForMe',
+            incomingChatRequestsForMe: "chat/incomingChatRequestsForMe",
 
-            departmentalChatRequestsCount: 'chat/departmentalChatRequestsCount',
+            departmentalChatRequestsCount: "chat/departmentalChatRequestsCount",
 
-            myOngoingChats: 'chat/myOngoingChats',
+            myOngoingChats: "chat/myOngoingChats",
 
-            chatUsers: 'chat/chatUsers',
-            globalBgColor: 'setting_ui/globalBgColor',
-            globalColor: 'setting_ui/globalColor',
-            profile: 'auth/profile',
-            teamConversations: 'chat/teamConversation',
+            chatUsers: "chat/chatUsers",
+            globalBgColor: "setting_ui/globalBgColor",
+            globalColor: "setting_ui/globalColor",
+            profile: "auth/profile",
+            teamConversations: "chat/teamConversation",
         }),
 
         /*teamConversations(): any {
@@ -393,11 +393,11 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+        ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
         getChatDepartments() {
             window.api
-                .get('/departments')
+                .get("/departments")
                 .then((res: any) => {
                     // console.log('webchat departments', res);
                     this.chatDepartments = res.data;
@@ -408,35 +408,35 @@ export default defineComponent({
         },
 
         async getChatRequest() {
-            await this.$store.dispatch('chat/getChatRequests');
+            await this.$store.dispatch("chat/getChatRequests");
         },
         async getOtherJoinedChats() {
-            await this.$store.dispatch('chat/getOtherJoinedChats');
+            await this.$store.dispatch("chat/getOtherJoinedChats");
         },
         async getJoinedChatsWithMe() {
-            await this.$store.dispatch('chat/getJoinedChatsWithMe');
+            await this.$store.dispatch("chat/getJoinedChatsWithMe");
         },
 
         acceptNextChatHandler(convId: any) {
-            this.$socket.emit('ec_join_conversation', {
+            this.$socket.emit("ec_join_conversation", {
                 conv_id: convId,
             });
 
-            this.$router.push({ name: 'chats', params: { conv_id: convId } });
+            this.$router.push({ name: "chats", params: { conv_id: convId } });
         },
 
         agentMsgInfo(convId: any, sesId: any) {
-            if (!convId) return '';
+            if (!convId) return "";
 
             const returnObj: any = {
                 typing: false,
                 count_unseen_msg: 0,
             };
 
-            const typingStates = this.$store.getters['chat/typingState'](convId);
-            const sesTypingState = _l.find(typingStates, ['socket_session_id', sesId]);
+            const typingStates = this.$store.getters["chat/typingState"](convId);
+            const sesTypingState = _l.find(typingStates, ["socket_session_id", sesId]);
 
-            if (sesTypingState && sesTypingState.status === 'typing') {
+            if (sesTypingState && sesTypingState.status === "typing") {
                 returnObj.typing = true;
             }
 
@@ -474,15 +474,15 @@ export default defineComponent({
         },
 
         openUserToUserConversation(user: any) {
-            if (user.conversation_id && user.conversation_id !== this.$route.params['conv_id']) {
-                if (this.$route.name === 'chats') {
+            if (user.conversation_id && user.conversation_id !== this.$route.params["conv_id"]) {
+                if (this.$route.name === "chats") {
                     this.updateRightDrawerState({
                         conv_id: user.conversation_id,
-                        mode: 'conversation',
+                        mode: "conversation",
                         visible: true,
                     });
                 } else {
-                    this.$router.push({ name: 'chats', params: { conv_id: user.conversation_id } });
+                    this.$router.push({ name: "chats", params: { conv_id: user.conversation_id } });
                 }
 
                 return;
@@ -495,9 +495,9 @@ export default defineComponent({
             this.handleCreatedConversation(userSocketSessId);
 
             // create user to user conversation
-            this.$socket.emit('ec_init_conv_from_user', {
+            this.$socket.emit("ec_init_conv_from_user", {
                 ses_ids: [userSocketSessId],
-                chat_type: 'user_to_user_chat',
+                chat_type: "user_to_user_chat",
                 users_only: true,
             });
         },
@@ -505,32 +505,32 @@ export default defineComponent({
         handleCreatedConversation(userSocketSessId: any) {
             // find already created conversation_id from agents
             const fn = (data: any) => {
-                if (data.status === 'success' || data.status === 'conflict') {
-                    this.$store.commit('chat/updateConvIdToAChatUser', {
+                if (data.status === "success" || data.status === "conflict") {
+                    this.$store.commit("chat/updateConvIdToAChatUser", {
                         ses_id: userSocketSessId,
                         conv_id: data.data.conv_id,
                     });
 
-                    if (this.$route.params['conv_id'] !== data.data.conv_id) {
-                        if (this.$route.name === 'chats') {
+                    if (this.$route.params["conv_id"] !== data.data.conv_id) {
+                        if (this.$route.name === "chats") {
                             this.updateRightDrawerState({
                                 conv_id: data.data.conv_id,
-                                mode: 'conversation',
+                                mode: "conversation",
                                 visible: true,
                             });
                         } else {
-                            this.$router.push({ name: 'chats', params: { conv_id: data.data.conv_id } });
+                            this.$router.push({ name: "chats", params: { conv_id: data.data.conv_id } });
                         }
                     }
                 }
 
-                this.$emitter.off('listen_ec_init_conv_from_user', fn);
+                this.$emitter.off("listen_ec_init_conv_from_user", fn);
 
                 // this.$emitter.off('listen_error_ec_init_conv_from_user', fn);
             };
 
             // this event fire from MainLayout if conv from user created
-            this.$emitter.on('listen_ec_init_conv_from_user', fn);
+            this.$emitter.on("listen_ec_init_conv_from_user", fn);
 
             // no need this for now. cz returning if exists from api
             // this.$emitter.on('listen_error_ec_init_conv_from_user', fn);
@@ -550,17 +550,17 @@ export default defineComponent({
 
         async updateOnlineStatus(status: any) {
             // try {
-            await this.$store.dispatch('setting_profile/updateOnlineStatus', {
+            await this.$store.dispatch("setting_profile/updateOnlineStatus", {
                 inputs: {
                     online_status: status,
                 },
             });
 
-            await this.$store.dispatch('auth/updateAuthInfo');
+            await this.$store.dispatch("auth/updateAuthInfo");
 
-            this.$socket.emit('ec_updated_socket_room_info', {
+            this.$socket.emit("ec_updated_socket_room_info", {
                 online_status: status,
-                status_for: 'user',
+                status_for: "user",
             });
             // } catch (err) {
             //     this.updateOnlineStatusErrorHandle(err);
@@ -580,7 +580,7 @@ export default defineComponent({
         // if you need to load avatars everywhere then watch conversation n use same way in the layout template
         chatUsers: {
             handler: async function () {
-                console.log('chatUsers watcher started');
+                console.log("chatUsers watcher started");
                 if (this.chatUsersAvatarLoading) return;
 
                 this.chatUsersAvatarLoading = true;
@@ -593,13 +593,13 @@ export default defineComponent({
                         if (chatUser.user_meta?.attachment_id && !chatUser.user_meta?.src) {
                             try {
                                 const imgRes = await this.$api.get(`attachments/${chatUser.user_meta.attachment_id}`, {
-                                    responseType: 'arraybuffer',
+                                    responseType: "arraybuffer",
                                 });
 
                                 tempArray.push({
                                     user_id: chatUser.id,
                                     src: URL.createObjectURL(
-                                        new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                        new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
                                     ),
                                 });
                             } catch (e) {
@@ -610,7 +610,7 @@ export default defineComponent({
                 }
 
                 if (tempArray.length) {
-                    this.$store.commit('chat/updateChatUsersAvatar', tempArray);
+                    this.$store.commit("chat/updateChatUsersAvatar", tempArray);
                 }
 
                 this.chatUsersAvatarLoading = false;

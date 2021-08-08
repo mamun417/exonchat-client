@@ -50,8 +50,8 @@
                                 :key="period"
                                 color="green"
                                 class="tw-mx-1"
-                                >{{ period }}</q-badge
-                            >
+                                >{{ period }}
+                            </q-badge>
                         </q-td>
                     </template>
 
@@ -65,8 +65,8 @@
                                 >{{ 100 * (index + 1) }}
                                 <q-tooltip class="" anchor="center right" :offset="[50, 14]">
                                     {{ period }}
-                                </q-tooltip></q-badge
-                            >
+                                </q-tooltip>
+                            </q-badge>
                         </q-td>
                     </template>
 
@@ -125,41 +125,41 @@
 
 <script>
 const columns = [
-    { name: 'name', align: 'center', label: 'Name', field: 'name' },
+    { name: "name", align: "center", label: "Name", field: "name" },
     {
-        name: 'valid_periods',
-        align: 'center',
-        label: 'Valid Periods',
-        field: 'valid_periods',
+        name: "valid_periods",
+        align: "center",
+        label: "Valid Periods",
+        field: "valid_periods",
     },
     // prices will display dynamically
-    { name: 'prices', align: 'center', label: 'Prices', field: 'prices' },
+    { name: "prices", align: "center", label: "Prices", field: "prices" },
     {
-        name: 'position',
-        align: 'center',
-        label: 'Display Position',
-        field: 'position',
+        name: "position",
+        align: "center",
+        label: "Display Position",
+        field: "position",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 
 const rows = [
     {
-        name: 'lite',
-        valid_periods: ['monthly', 'semi_anually', 'anually'],
-        position: '1',
-        status: 'active',
+        name: "lite",
+        valid_periods: ["monthly", "semi_anually", "anually"],
+        position: "1",
+        status: "active",
     },
 ];
 

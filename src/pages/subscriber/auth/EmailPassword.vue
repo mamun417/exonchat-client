@@ -35,15 +35,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'EmailPassword',
+    name: "EmailPassword",
     data(): any {
         return {
             sendingEmail: false,
             formData: {
-                email: '',
+                email: "",
             },
             formDataError: {},
         };
@@ -54,7 +54,7 @@ export default defineComponent({
             this.sendingEmail = true;
 
             this.$store
-                .dispatch('auth/sendPasswordResetEmail', {
+                .dispatch("auth/sendPasswordResetEmail", {
                     inputs: this.formData,
                 })
                 .then((res: any) => {

@@ -42,13 +42,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import Message from 'components/common/Message.vue';
-import { mapGetters } from 'vuex';
-import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
+import { defineComponent } from "vue";
+import Message from "components/common/Message.vue";
+import { mapGetters } from "vuex";
+import ConversationStateConfirmModal from "components/common/modal/ConversationStateConfirmModal.vue";
 
 export default defineComponent({
-    name: 'ChatPanel',
+    name: "ChatPanel",
     components: { ConversationStateConfirmModal, Message },
     setup() {
         return {};
@@ -56,16 +56,16 @@ export default defineComponent({
     props: {
         conversationId: {
             type: String,
-            default: '',
+            default: "",
         },
     },
     data(): any {
         return {
-            sesId: '',
-            convId: '',
+            sesId: "",
+            convId: "",
             confirm: false,
-            convState: '',
-            msg: '',
+            convState: "",
+            msg: "",
             typingInstance: null,
             msgInputFocused: false,
             gotoBottomBtnShow: false,
@@ -73,28 +73,28 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log('chat panel initiated');
-        this.sesId = sessionStorage.getItem('ec_user_socket_ses_id');
+        console.log("chat panel initiated");
+        this.sesId = sessionStorage.getItem("ec_user_socket_ses_id");
     },
 
     computed: {
         conversationInfo(): any {
             const convId = this.getConvId();
-            return this.$store.getters['chat/conversationInfo'](convId);
+            return this.$store.getters["chat/conversationInfo"](convId);
         },
 
         convStateButtonInfo() {
             const convState = this.conversationInfo.stateInfo.status;
 
-            if (convState === 'left') {
-                return { name: 'Close', action: 'close' };
-            } else if (convState === 'closed') {
-                return { name: 'Closed' };
-            } else if (convState === 'joined') {
-                return { name: 'Leave', action: 'leave' };
+            if (convState === "left") {
+                return { name: "Close", action: "close" };
+            } else if (convState === "closed") {
+                return { name: "Closed" };
+            } else if (convState === "joined") {
+                return { name: "Leave", action: "leave" };
             }
 
-            return { name: 'Join', action: 'join' };
+            return { name: "Join", action: "join" };
         },
 
         isAgentToAgentConversation(): any {
@@ -102,19 +102,19 @@ export default defineComponent({
         },
 
         ...mapGetters({
-            profile: 'auth/profile',
+            profile: "auth/profile",
         }),
     },
 
     methods: {
         async getConvMessages(convId: string) {
-            await this.$store.dispatch('chat/getAgentConvMessages', {
+            await this.$store.dispatch("chat/getAgentConvMessages", {
                 convId,
             });
         },
 
         getConvId() {
-            return this.$route.params['conv_id'];
+            return this.$route.params["conv_id"];
         },
 
         convStateHandle(type: string) {
@@ -125,21 +125,21 @@ export default defineComponent({
         joinConversation(conv_id: any) {
             console.log(conv_id);
 
-            this.$socket.emit('ec_join_conversation', {
+            this.$socket.emit("ec_join_conversation", {
                 conv_id: conv_id,
             });
         },
 
         leaveConversation(conv_id: any) {
-            this.$socket.emit('ec_leave_conversation', {
+            this.$socket.emit("ec_leave_conversation", {
                 conv_id: conv_id,
             });
         },
 
         closeConversation(conv_id: any) {
-            console.log('from close');
+            console.log("from close");
 
-            this.$socket.emit('ec_close_conversation', {
+            this.$socket.emit("ec_close_conversation", {
                 conv_id: conv_id,
             });
         },

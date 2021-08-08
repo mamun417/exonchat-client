@@ -76,61 +76,61 @@
 
 <script>
 const columns = [
-    { name: 'name', align: 'center', label: 'Name', field: 'name' },
-    { name: 'email', align: 'center', label: 'Email', field: 'email' },
+    { name: "name", align: "center", label: "Name", field: "name" },
+    { name: "email", align: "center", label: "Email", field: "email" },
     {
-        name: 'package',
-        align: 'center',
-        label: 'Package',
-        field: 'package',
+        name: "package",
+        align: "center",
+        label: "Package",
+        field: "package",
     },
     {
-        name: 'valid_till',
-        align: 'center',
-        label: 'Validity Left',
-        field: 'valid_till',
+        name: "valid_till",
+        align: "center",
+        label: "Validity Left",
+        field: "valid_till",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 
 const rows = [
     {
-        name: 'aaaa',
-        email: 'mail@mail.com',
-        package: 'free',
-        valid_till: 'lifetime',
-        status: 'active',
+        name: "aaaa",
+        email: "mail@mail.com",
+        package: "free",
+        valid_till: "lifetime",
+        status: "active",
     },
     {
-        name: 'bbbb',
-        email: 'mail@mail.com',
-        package: 'lite',
-        valid_till: '10 days left',
-        status: 'active',
+        name: "bbbb",
+        email: "mail@mail.com",
+        package: "lite",
+        valid_till: "10 days left",
+        status: "active",
     },
     {
-        name: 'cccc',
-        email: 'mail@mail.com',
-        package: 'advance',
-        valid_till: '1 month',
-        status: 'active',
+        name: "cccc",
+        email: "mail@mail.com",
+        package: "advance",
+        valid_till: "1 month",
+        status: "active",
     },
 ];
 
 const dynamicVariables = [
-    { name: 'user_name', des: 'will print assigned name else guest' },
-    { name: 'user_id', des: 'will print logged users id' },
+    { name: "user_name", des: "will print assigned name else guest" },
+    { name: "user_id", des: "will print logged users id" },
 ];
 export default {
     // add department feature

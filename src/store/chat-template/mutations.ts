@@ -1,5 +1,5 @@
-import { MutationTree } from 'vuex';
-import { ChatTemplateStateInterface } from './state';
+import { MutationTree } from "vuex";
+import { ChatTemplateStateInterface } from "./state";
 
 const mutation: MutationTree<ChatTemplateStateInterface> = {
     someMutation(/* state: ChatStateInterface */) {

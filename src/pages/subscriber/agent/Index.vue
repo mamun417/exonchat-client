@@ -77,7 +77,7 @@
                     :bodyCelTemplate="bodyCelTemplate"
                 >
                     <template v-slot:cell-sent_at="slotProps">
-                        {{ $helpers.myDate(slotProps.row.created_at, 'MMMM Do YYYY, h:mm:ss a') }}
+                        {{ $helpers.myDate(slotProps.row.created_at, "MMMM Do YYYY, h:mm:ss a") }}
                     </template>
 
                     <template v-slot:cell-is_agent="slotProps">
@@ -216,86 +216,86 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import EcTable from 'components/common/table/EcTable.vue';
-import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import EcTable from "components/common/table/EcTable.vue";
+import ConfirmModal from "components/common/modal/ConfirmModal.vue";
+import { mapGetters } from "vuex";
 
 const userColumns = [
     {
-        name: 'info',
+        name: "info",
         required: true,
-        label: 'Name',
-        align: 'left',
+        label: "Name",
+        align: "left",
         field: (row: any) => row.info,
     },
     {
-        name: 'email',
-        align: 'left',
-        label: 'Email',
-        field: 'email',
+        name: "email",
+        align: "left",
+        label: "Email",
+        field: "email",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'is_agent',
-        label: 'Is Agent',
-        field: 'is_agent',
-        align: 'center',
+        name: "is_agent",
+        label: "Is Agent",
+        field: "is_agent",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'center',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "center",
     },
 ];
 
 const invitationColumns = [
     {
-        name: 'email',
-        align: 'left',
-        label: 'Email',
-        field: 'email',
+        name: "email",
+        align: "left",
+        label: "Email",
+        field: "email",
     },
     {
-        name: 'sent_at',
-        label: 'Sent At',
-        field: 'created_at',
-        align: 'center',
+        name: "sent_at",
+        label: "Sent At",
+        field: "created_at",
+        align: "center",
     },
     {
-        name: 'status',
-        label: 'Status',
-        field: 'status',
-        align: 'center',
+        name: "status",
+        label: "Status",
+        field: "status",
+        align: "center",
     },
     {
-        name: 'is_agent',
-        label: 'Is Agent',
-        field: 'is_agent',
-        align: 'center',
+        name: "is_agent",
+        label: "Is Agent",
+        field: "is_agent",
+        align: "center",
     },
     {
-        name: 'active',
-        label: 'Active',
-        field: 'active',
-        align: 'center',
+        name: "active",
+        label: "Active",
+        field: "active",
+        align: "center",
     },
     {
-        name: 'action',
-        label: 'Actions',
-        field: 'action',
-        align: 'left',
+        name: "action",
+        label: "Actions",
+        field: "action",
+        align: "left",
     },
 ];
 
 export default defineComponent({
-    name: 'Users',
+    name: "Users",
     components: { EcTable, ConfirmModal },
     data(): any {
         return {
@@ -308,15 +308,15 @@ export default defineComponent({
             assignAgentModal: false,
             invitations: [],
             sendInvitationFormData: {
-                email: '',
-                type: 'agent',
+                email: "",
+                type: "agent",
                 chat_department_ids: [],
                 active: true,
             },
             sendInvitationFormDataErrors: {},
-            deleteInvitationId: '',
+            deleteInvitationId: "",
             showDeleteModal: false,
-            statusSuccessValues: ['success'],
+            statusSuccessValues: ["success"],
 
             loadingChatDepartments: false,
             chatDepartments: [],
@@ -332,16 +332,16 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalBgColor: 'setting_ui/globalBgColor',
-            globalColor: 'setting_ui/globalColor',
-            profile: 'auth/profile',
+            globalBgColor: "setting_ui/globalBgColor",
+            globalColor: "setting_ui/globalColor",
+            profile: "auth/profile",
         }),
 
         mappedUsers(): any {
             return this.users
                 .map((user: any) => {
-                    user.status = user.active ? 'active' : 'inactive';
-                    user.is_agent = user.role.slug === 'agent';
+                    user.status = user.active ? "active" : "inactive";
+                    user.is_agent = user.role.slug === "agent";
 
                     return user;
                 })
@@ -352,8 +352,8 @@ export default defineComponent({
 
         mappedInvitations(): any {
             return this.invitations.map((inv: any) => {
-                inv.status = inv.status === 'success' ? 'success' : 'pending';
-                inv.is_agent = inv.type === 'agent';
+                inv.status = inv.status === "success" ? "success" : "pending";
+                inv.is_agent = inv.type === "agent";
                 inv.sent_at = inv.created_at;
 
                 return inv;
@@ -369,7 +369,7 @@ export default defineComponent({
     methods: {
         getUsers() {
             this.$store
-                .dispatch('user/getUsers')
+                .dispatch("user/getUsers")
                 .then((res: any) => {
                     this.users = res.data;
                 })
@@ -382,7 +382,7 @@ export default defineComponent({
             this.loadingChatDepartments = true;
 
             window.socketSessionApi
-                .get('/departments')
+                .get("/departments")
                 .then((res: any) => {
                     // console.log('webchat departments', res);
                     this.chatDepartments = res.data;
@@ -418,7 +418,7 @@ export default defineComponent({
 
         handleActivateDeactivate(user: any) {
             this.$store
-                .dispatch('user/updateStatus', {
+                .dispatch("user/updateStatus", {
                     inputs: user,
                 })
                 .then((res: any) => {
@@ -426,7 +426,7 @@ export default defineComponent({
 
                     this.users[index] = res.data;
 
-                    this.$helpers.showSuccessNotification(this, 'User status change successful');
+                    this.$helpers.showSuccessNotification(this, "User status change successful");
                 })
                 .catch((err: any) => {
                     this.assignUserErrorHandle(err);
@@ -443,7 +443,7 @@ export default defineComponent({
 
         getInvitations() {
             this.$store
-                .dispatch('user_invitation/getInvitations')
+                .dispatch("user_invitation/getInvitations")
                 .then((res: any) => {
                     this.invitations = res.data;
                 })
@@ -456,7 +456,7 @@ export default defineComponent({
             this.sendingInvitation = true;
 
             this.$store
-                .dispatch('user_invitation/sendInvitation', {
+                .dispatch("user_invitation/sendInvitation", {
                     inputs: this.sendInvitationFormData,
                 })
                 .then((res: any) => {
@@ -491,14 +491,14 @@ export default defineComponent({
 
         deleteInvitation() {
             this.$store
-                .dispatch('user_invitation/deleteInvitation', {
+                .dispatch("user_invitation/deleteInvitation", {
                     id: this.deleteInvitationId,
                 })
                 .then(() => {
                     this.showDeleteModal = false;
                     this.getInvitations();
 
-                    this.$helpers.showSuccessNotification(this, 'Invitation deleted successful');
+                    this.$helpers.showSuccessNotification(this, "Invitation deleted successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);
@@ -507,7 +507,7 @@ export default defineComponent({
 
         handleActivateDeactivateInvitation(invitation: any) {
             this.$store
-                .dispatch('user_invitation/convertType', {
+                .dispatch("user_invitation/convertType", {
                     inputs: invitation,
                 })
                 .then((res: any) => {
@@ -515,7 +515,7 @@ export default defineComponent({
 
                     this.invitations[index] = res.data;
 
-                    this.$helpers.showSuccessNotification(this, 'Invitation status change successful');
+                    this.$helpers.showSuccessNotification(this, "Invitation status change successful");
                 })
                 .catch((err: any) => {
                     this.sendInvitationErrorHandle(err);

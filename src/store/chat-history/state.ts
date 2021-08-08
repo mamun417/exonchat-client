@@ -13,7 +13,7 @@ function state(): ChatHistoryStateInterface {
             total: 0,
         },
         pipeline: {
-            s: '',
+            s: "",
         },
         newLoadedChatHistoriesIds: [],
     };

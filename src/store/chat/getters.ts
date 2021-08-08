@@ -1,9 +1,9 @@
-import moment from 'moment';
-import * as _l from 'lodash';
-import { GetterTree } from 'vuex';
-import { StateInterface } from '../index';
-import { ChatStateInterface } from './state';
-import helpers from 'boot/helpers/helpers';
+import moment from "moment";
+import * as _l from "lodash";
+import { GetterTree } from "vuex";
+import { StateInterface } from "../index";
+import { ChatStateInterface } from "./state";
+import helpers from "boot/helpers/helpers";
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
@@ -24,7 +24,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     conversationInfo: (state) => (convId: any) => {
         if (state.conversations[convId]) {
-            return _l.omit(state.conversations[convId], ['messages']);
+            return _l.omit(state.conversations[convId], ["messages"]);
         }
 
         return {};
@@ -34,13 +34,13 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         const conv = state.conversations[convId];
 
         if (!conv) return null;
-        if (conv.closed_at) return 'closed';
+        if (conv.closed_at) return "closed";
 
         let convState = null;
 
         conv.sessions.forEach((ses: any) => {
             if (ses.socket_session_id === mySesId) {
-                convState = ses.left_at ? 'left' : ses.joined_at ? 'joined' : null;
+                convState = ses.left_at ? "left" : ses.joined_at ? "joined" : null;
             }
         });
 
@@ -92,7 +92,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         const typingRes: any = [];
 
         Object.values(typingState).forEach((each: any) => {
-            const sesInfo = _l.find(conv.sessions, ['socket_session_id', each.socket_session_id]);
+            const sesInfo = _l.find(conv.sessions, ["socket_session_id", each.socket_session_id]);
 
             if (sesInfo) {
                 typingRes.push({
@@ -116,7 +116,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         if (conv.closed_at) {
             stateAsMsg.push({
                 id: `${conv.closed_by.id}_closed`,
-                state: 'closed',
+                state: "closed",
                 session: conv.closed_by,
                 conversation_id: convId,
                 created_at: conv.closed_at,
@@ -126,7 +126,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         if (conv.sessions && conv.sessions.length) {
             conv.sessions.forEach((convSes: any) => {
-                ['joined', 'left'].forEach((state: any) => {
+                ["joined", "left"].forEach((state: any) => {
                     if (convSes[`${state}_at`]) {
                         stateAsMsg.push({
                             id: `${convSes.socket_session_id}_${state}`,
@@ -156,7 +156,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 return { conversation_session: conv.sessions[0], ...conv, client_info }; // conv.sessions[0] cz we are already filtering length 1
             });
 
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x')).reverse();
+        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format("x")).reverse();
     },
 
     // ongoing other chats => for interaction page
@@ -164,8 +164,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         const chats = Object.values(state.conversations)
             .filter((conv: any) => {
                 const sesInfo = _l.find(conv.sessions, [
-                    'socket_session_id',
-                    rootGetters['auth/profile']?.socket_session?.id,
+                    "socket_session_id",
+                    rootGetters["auth/profile"]?.socket_session?.id,
                 ]);
 
                 return !conv.users_only && !conv.closed_at && !sesInfo;
@@ -178,7 +178,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 };
             });
 
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x')).reverse();
+        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format("x")).reverse();
     },
 
     // chat requests for me => for left bar & interaction page
@@ -188,7 +188,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 return (
                     !conv.users_only &&
                     !conv.closed_at &&
-                    _l.find(rootGetters['auth/profile'].chat_departments, ['tag', conv?.chat_department?.tag]) &&
+                    _l.find(rootGetters["auth/profile"].chat_departments, ["tag", conv?.chat_department?.tag]) &&
                     conv.sessions.length === 1
                 );
             })
@@ -197,7 +197,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 return { ...conv, client_info };
             });
 
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format('x'));
+        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format("x"));
     },
 
     // my running chats => for left bar & interaction page
@@ -205,8 +205,8 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         const myOngoingChats = Object.values(state.conversations)
             .filter((conv: any) => {
                 const sesInfo = _l.find(conv.sessions, [
-                    'socket_session_id',
-                    rootGetters['auth/profile']?.socket_session?.id,
+                    "socket_session_id",
+                    rootGetters["auth/profile"]?.socket_session?.id,
                 ]);
 
                 // Object.keys(conv.messages).length check for safe
@@ -251,7 +251,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 }; // conv.sessions[0] cz we are already filtering length 1
             });
 
-        return _l.sortBy(myOngoingChats, (conv: any) => moment(conv.created_at).format('x')).reverse();
+        return _l.sortBy(myOngoingChats, (conv: any) => moment(conv.created_at).format("x")).reverse();
     },
 
     // departmental chat requests count => for left bar
@@ -284,7 +284,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     chatUsers(state, getters, rootState, rootGetters) {
         const allUsers = state.chatUsers;
 
-        const authInfo = rootGetters['auth/profile'];
+        const authInfo = rootGetters["auth/profile"];
 
         return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
     },

@@ -46,7 +46,7 @@
                         <div class="text-xss">
                             {{
                                 $_.last(
-                                    $_.find(visitors, ['session_id', slotProps.row.client_info.socket_session_id])
+                                    $_.find(visitors, ["session_id", slotProps.row.client_info.socket_session_id])
                                         ?.visits
                                 )?.url
                             }}
@@ -107,7 +107,7 @@
                         <div class="text-xss">
                             {{
                                 $_.last(
-                                    $_.find(visitors, ['session_id', slotProps.row.client_info.socket_session_id])
+                                    $_.find(visitors, ["session_id", slotProps.row.client_info.socket_session_id])
                                         ?.visits
                                 )?.url
                             }}
@@ -172,7 +172,7 @@
                         <div class="text-xss">
                             {{
                                 $_.last(
-                                    $_.find(visitors, ['session_id', slotProps.row.connected_client.socket_session_id])
+                                    $_.find(visitors, ["session_id", slotProps.row.connected_client.socket_session_id])
                                         ?.visits
                                 )?.url
                             }}
@@ -197,10 +197,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapMutations, mapGetters } from 'vuex';
-import EcTable from 'components/common/table/EcTable.vue';
-import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFaces.vue';
+import { defineComponent } from "vue";
+import { mapMutations, mapGetters } from "vuex";
+import EcTable from "components/common/table/EcTable.vue";
+import ConnectedUsersFaces from "src/components/subscriber/chat/ConnectedUsersFaces.vue";
 // import TrackingConversationBtn from 'components/common/table/utilities/TrackingConversationBtn.vue';
 // import DirectMessageBtn from 'components/common/table/utilities/DirectMessageBtn.vue';
 // import CloseConversationBtn from 'components/common/table/utilities/CloseConversationBtn.vue';
@@ -213,22 +213,22 @@ import ConnectedUsersFaces from 'src/components/subscriber/chat/ConnectedUsersFa
 
 const columns = [
     {
-        name: 'client',
-        align: 'left',
-        label: 'Client',
-        field: 'client',
+        name: "client",
+        align: "left",
+        label: "Client",
+        field: "client",
     },
     {
-        name: 'currently_on',
-        align: 'center',
-        label: 'Currently On',
-        field: 'currently_on',
+        name: "currently_on",
+        align: "center",
+        label: "Currently On",
+        field: "currently_on",
     },
     {
-        name: 'department',
-        align: 'left',
-        label: 'Department',
-        field: 'department',
+        name: "department",
+        align: "left",
+        label: "Department",
+        field: "department",
     },
 ];
 
@@ -246,12 +246,12 @@ export default defineComponent({
     data(): any {
         return {
             currentPage: 1,
-            conversationId: '',
+            conversationId: "",
             confirm: false,
             departmentFilters: {
-                chatsInQueue: '',
-                myRunningChats: '',
-                ongoingOtherChats: '',
+                chatsInQueue: "",
+                myRunningChats: "",
+                ongoingOtherChats: "",
             },
             departments: [],
         };
@@ -264,54 +264,54 @@ export default defineComponent({
                 ...columns,
 
                 {
-                    name: 'elapsed_time',
-                    align: 'center',
-                    label: 'Elapsed Time',
-                    field: 'elapsed_time',
+                    name: "elapsed_time",
+                    align: "center",
+                    label: "Elapsed Time",
+                    field: "elapsed_time",
                 },
             ],
             typeTwoColumns: [
                 ...columns,
 
                 {
-                    name: 'chat_time',
-                    align: 'center',
-                    label: 'Chat Time',
-                    field: 'chat_time',
+                    name: "chat_time",
+                    align: "center",
+                    label: "Chat Time",
+                    field: "chat_time",
                 },
             ],
             typeThreeColumns: [
                 {
-                    name: 'client',
-                    align: 'left',
-                    label: 'Client',
-                    field: 'client',
+                    name: "client",
+                    align: "left",
+                    label: "Client",
+                    field: "client",
                 },
 
                 {
-                    name: 'connected_agents',
-                    align: 'center',
-                    label: 'Agents',
-                    field: 'connected_agents',
+                    name: "connected_agents",
+                    align: "center",
+                    label: "Agents",
+                    field: "connected_agents",
                 },
                 {
-                    name: 'currently_on',
-                    align: 'center',
-                    label: 'Currently On',
-                    field: 'currently_on',
+                    name: "currently_on",
+                    align: "center",
+                    label: "Currently On",
+                    field: "currently_on",
                 },
                 {
-                    name: 'department',
-                    align: 'left',
-                    label: 'Department',
-                    field: 'department',
+                    name: "department",
+                    align: "left",
+                    label: "Department",
+                    field: "department",
                 },
 
                 {
-                    name: 'elapsed_time',
-                    align: 'center',
-                    label: 'Elapsed Time',
-                    field: 'elapsed_time',
+                    name: "elapsed_time",
+                    align: "center",
+                    label: "Elapsed Time",
+                    field: "elapsed_time",
                 },
             ],
         };
@@ -319,18 +319,18 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            chatsInQueue: 'chat/incomingChatRequestsForMe',
-            myRunningChats: 'chat/myOngoingChats',
-            ongoingOtherChats: 'chat/ongoingOtherChats',
-            visitors: 'visitor/visitors',
-            globalColor: 'setting_ui/globalColor',
+            chatsInQueue: "chat/incomingChatRequestsForMe",
+            myRunningChats: "chat/myOngoingChats",
+            ongoingOtherChats: "chat/ongoingOtherChats",
+            visitors: "visitor/visitors",
+            globalColor: "setting_ui/globalColor",
         }),
 
         filteredChats: (app) => (chatType: any) => {
             if (app[chatType].length) {
                 return app[chatType].filter(
                     (chat: any) =>
-                        app.departmentFilters[chatType].label === 'All' ||
+                        app.departmentFilters[chatType].label === "All" ||
                         chat.chat_department.tag === app.departmentFilters[chatType].label
                 );
             }
@@ -344,10 +344,10 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+        ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
         rowClickHandle(row: any) {
-            this.$router.push({ name: 'chats', params: { conv_id: row.id } });
+            this.$router.push({ name: "chats", params: { conv_id: row.id } });
 
             // this.updateRightDrawerState({
             //     mode: 'conversation',
@@ -357,12 +357,12 @@ export default defineComponent({
         },
 
         loadDepartment() {
-            this.$store.dispatch('department/getDepartments').then((res: any) => {
+            this.$store.dispatch("department/getDepartments").then((res: any) => {
                 this.departments = [];
 
                 const defaultDep = {
-                    label: 'All',
-                    value: 'all',
+                    label: "All",
+                    value: "all",
                 };
 
                 this.departments.push(defaultDep);

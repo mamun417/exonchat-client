@@ -31,7 +31,7 @@
 
                     <template v-slot:cell-intent="slotProps">
                         <div class="tw-text-xxs tw-text-gray-700">
-                            {{ slotProps.row.intent ? '@' + slotProps.row.intent.tag : '' }}
+                            {{ slotProps.row.intent ? "@" + slotProps.row.intent.tag : "" }}
                         </div>
                     </template>
 
@@ -91,49 +91,49 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import ConfirmModal from 'components/common/modal/ConfirmModal.vue';
-import AddEditChatTemplateForm from 'pages/subscriber/chat-templates/AddEditChatTemplateForm.vue';
-import EcTable from 'components/common/table/EcTable.vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import ConfirmModal from "components/common/modal/ConfirmModal.vue";
+import AddEditChatTemplateForm from "pages/subscriber/chat-templates/AddEditChatTemplateForm.vue";
+import EcTable from "components/common/table/EcTable.vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
     components: { EcTable, AddEditChatTemplateForm, ConfirmModal },
     data(): any {
         return {
             columns: [
-                { name: 'tag', align: 'center', label: 'Tag Name', field: 'tag' },
-                { name: 'intent', align: 'center', label: 'Intent', field: 'intent' },
+                { name: "tag", align: "center", label: "Tag Name", field: "tag" },
+                { name: "intent", align: "center", label: "Intent", field: "intent" },
                 {
-                    name: 'msg',
-                    align: 'center',
-                    label: 'Message',
-                    field: 'msg',
+                    name: "msg",
+                    align: "center",
+                    label: "Message",
+                    field: "msg",
                 },
                 {
-                    name: 'chat_department',
-                    align: 'center',
-                    label: 'Department',
-                    field: 'chat_department',
+                    name: "chat_department",
+                    align: "center",
+                    label: "Department",
+                    field: "chat_department",
                 },
                 {
-                    name: 'status',
-                    label: 'Status',
-                    field: 'status',
-                    align: 'center',
+                    name: "status",
+                    label: "Status",
+                    field: "status",
+                    align: "center",
                 },
                 {
-                    name: 'action',
-                    label: 'Actions',
-                    field: 'action',
-                    align: 'center',
+                    name: "action",
+                    label: "Actions",
+                    field: "action",
+                    align: "center",
                 },
             ],
             chatTemplates: [],
             showAddEditChatTemplateModal: false,
             updateModal: false,
             selectedForEditData: {},
-            deleteChatTemplateId: '',
+            deleteChatTemplateId: "",
             showDeleteModal: false,
             bodyCelTemplate: {},
         };
@@ -145,8 +145,8 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalColor: 'setting_ui/globalColor',
-            globalBgColor: 'setting_ui/globalBgColor',
+            globalColor: "setting_ui/globalColor",
+            globalBgColor: "setting_ui/globalBgColor",
         }),
 
         mappedChatTemplates(): any {
@@ -154,15 +154,15 @@ export default defineComponent({
                 if (chatTemplate.intent) {
                     chatTemplate.intent.content = {
                         content:
-                            chatTemplate.intent.intent_action.type === 'static'
+                            chatTemplate.intent.intent_action.type === "static"
                                 ? chatTemplate.intent.intent_action.content
-                                : '',
-                        loading: chatTemplate.intent.intent_action.type !== 'static',
+                                : "",
+                        loading: chatTemplate.intent.intent_action.type !== "static",
                         type: chatTemplate.intent.intent_action.type,
                     };
                 }
 
-                chatTemplate.status = chatTemplate.active ? 'active' : 'inactive';
+                chatTemplate.status = chatTemplate.active ? "active" : "inactive";
 
                 return chatTemplate;
             });
@@ -200,7 +200,7 @@ export default defineComponent({
 
         getChatTemplates() {
             this.$store
-                .dispatch('chat_template/getChatTemplates')
+                .dispatch("chat_template/getChatTemplates")
                 .then((res: any) => {
                     this.chatTemplates = res.data;
                 })
@@ -232,7 +232,7 @@ export default defineComponent({
 
         changeChatTemplateActiveStatus(department: any) {
             this.$store
-                .dispatch('chat_template/changeChatTemplateActiveStatus', {
+                .dispatch("chat_template/changeChatTemplateActiveStatus", {
                     id: department.id,
                     active: department.active,
                 })
@@ -241,7 +241,7 @@ export default defineComponent({
 
                     this.chatTemplates[index] = res.data;
 
-                    this.$helpers.showSuccessNotification(this, 'Chat Template active status change successful');
+                    this.$helpers.showSuccessNotification(this, "Chat Template active status change successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);
@@ -255,14 +255,14 @@ export default defineComponent({
 
         deleteChatTemplate() {
             this.$store
-                .dispatch('chat_template/deleteChatTemplate', {
+                .dispatch("chat_template/deleteChatTemplate", {
                     id: this.deleteChatTemplateId,
                 })
                 .then(() => {
                     this.showDeleteModal = false;
                     this.getChatTemplates();
 
-                    this.$helpers.showSuccessNotification(this, 'Chat Template deleted successful');
+                    this.$helpers.showSuccessNotification(this, "Chat Template deleted successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);

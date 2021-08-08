@@ -58,24 +58,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
     data(): any {
         return {
-            existingAvatarUrl: '',
+            existingAvatarUrl: "",
             updateAvatarModal: false,
-            previewAvatar: '',
-            avatar: '',
+            previewAvatar: "",
+            avatar: "",
         };
     },
 
     computed: {
         ...mapGetters({
-            profile: 'auth/profile',
-            globalTextColor: 'setting_ui/globalTextColor',
-            globalColor: 'setting_ui/globalColor',
+            profile: "auth/profile",
+            globalTextColor: "setting_ui/globalTextColor",
+            globalColor: "setting_ui/globalColor",
         }),
     },
 

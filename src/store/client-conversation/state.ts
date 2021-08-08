@@ -15,7 +15,7 @@ function state(): ClientConversationStateInterface {
             total: 0,
         },
         pipeline: {
-            s: '',
+            s: "",
         },
         newLoadedConversationIds: [],
     };

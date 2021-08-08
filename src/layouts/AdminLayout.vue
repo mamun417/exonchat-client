@@ -9,8 +9,9 @@
             persistent
             no-swipe-close
             show-if-above
-            ><admin-left-bar></admin-left-bar
-        ></q-drawer>
+        >
+            <admin-left-bar></admin-left-bar>
+        </q-drawer>
         <q-page-container>
             <q-page>
                 <div class="tw-min-h-screen bg-green-1">
@@ -24,12 +25,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref } from "vue";
 // import { mapGetters } from 'vuex';
-import AdminLeftBar from 'src/components/super-admin/side-panel/AdminLeftBar.vue';
+import AdminLeftBar from "src/components/super-admin/side-panel/AdminLeftBar.vue";
 
 export default defineComponent({
-    name: 'MainLayout',
+    name: "MainLayout",
     components: { AdminLeftBar },
     data(): any {
         return {};
@@ -40,7 +41,7 @@ export default defineComponent({
         return { miniMode };
     },
     mounted() {
-        console.log('admin layout mounted');
+        console.log("admin layout mounted");
     },
     computed: {},
     methods: {},

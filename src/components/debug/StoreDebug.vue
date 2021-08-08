@@ -23,11 +23,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: 'StoreDebug',
+    name: "StoreDebug",
     props: {},
 
     data(): any {
@@ -36,7 +36,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            globalBgColor: 'setting_ui/globalBgColor',
+            globalBgColor: "setting_ui/globalBgColor",
         }),
     },
 });

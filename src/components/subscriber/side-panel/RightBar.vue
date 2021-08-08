@@ -36,12 +36,12 @@
                                     <q-item-section side>
                                         <q-item-label class="tw-font-medium"
                                             >{{ parsedUaString.browser.name }}
-                                            {{ parsedUaString.browser.version }}</q-item-label
-                                        >
+                                            {{ parsedUaString.browser.version }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
-                                <q-item dense
-                                    ><q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
+                                <q-item dense>
+                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
                                         <q-icon name="devices" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
@@ -49,8 +49,8 @@
                                     </q-item-section>
                                     <q-item-section side>
                                         <q-item-label class="tw-font-medium"
-                                            >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}</q-item-label
-                                        >
+                                            >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -61,9 +61,9 @@
                                         <q-item-label>IP</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">{{
-                                            conversationWithUsersInfo[0].socket_session.init_ip
-                                        }}</q-item-label>
+                                        <q-item-label class="tw-font-medium"
+                                            >{{ conversationWithUsersInfo[0].socket_session.init_ip }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -100,9 +100,9 @@
                                         <q-item-label>Department</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium text-capitalize">{{
-                                            conversationInfo.chat_department.tag
-                                        }}</q-item-label>
+                                        <q-item-label class="tw-font-medium text-capitalize"
+                                            >{{ conversationInfo.chat_department.tag }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -110,9 +110,9 @@
                                         <q-item-label>Chat Start</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">{{
-                                            $helpers.myDate(conversationInfo.created_at, 'MMMM Do YYYY, h:mm a')
-                                        }}</q-item-label>
+                                        <q-item-label class="tw-font-medium"
+                                            >{{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -121,9 +121,9 @@
                                     </q-item-section>
                                     <q-item-section side>
                                         <q-item-label ref="chat_duration" class="tw-font-medium">
-                                            <template v-if="!conversationInfo.closed_at">{{
-                                                $helpers.preciseDiff(conversationInfo.created_at)
-                                            }}</template>
+                                            <template v-if="!conversationInfo.closed_at"
+                                                >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
+                                            </template>
                                             <template v-else>
                                                 {{
                                                     $helpers.preciseDiff(
@@ -144,7 +144,7 @@
                                             <template v-if="conversationInfo.rating">
                                                 <span
                                                     :class="conversationInfo.rating.rating === 5 ? 'green' : 'orange'"
-                                                    >{{ conversationInfo.rating.rating === 5 ? 'Good' : 'Bad' }}</span
+                                                    >{{ conversationInfo.rating.rating === 5 ? "Good" : "Bad" }}</span
                                                 >
                                             </template>
                                             <template v-else>Not Rated</template>
@@ -249,12 +249,12 @@
                                     <q-item-section side>
                                         <q-item-label class="tw-font-medium"
                                             >{{ parsedUaString.browser.name }}
-                                            {{ parsedUaString.browser.version }}</q-item-label
-                                        >
+                                            {{ parsedUaString.browser.version }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
-                                <q-item dense
-                                    ><q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
+                                <q-item dense>
+                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
                                         <q-icon name="devices" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
@@ -262,8 +262,8 @@
                                     </q-item-section>
                                     <q-item-section side>
                                         <q-item-label class="tw-font-medium"
-                                            >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}</q-item-label
-                                        >
+                                            >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -274,9 +274,9 @@
                                         <q-item-label>IP</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">{{
-                                            conversationWithUsersInfo[0].socket_session.init_ip
-                                        }}</q-item-label>
+                                        <q-item-label class="tw-font-medium"
+                                            >{{ conversationWithUsersInfo[0].socket_session.init_ip }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -302,9 +302,9 @@
                                         <q-item-label>Department</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium text-capitalize">{{
-                                            conversationInfo.chat_department.tag
-                                        }}</q-item-label>
+                                        <q-item-label class="tw-font-medium text-capitalize"
+                                            >{{ conversationInfo.chat_department.tag }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -312,9 +312,9 @@
                                         <q-item-label>Chat Start</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">{{
-                                            $helpers.myDate(conversationInfo.created_at, 'MMMM Do YYYY, h:mm a')
-                                        }}</q-item-label>
+                                        <q-item-label class="tw-font-medium"
+                                            >{{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
+                                        </q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -323,9 +323,9 @@
                                     </q-item-section>
                                     <q-item-section side>
                                         <q-item-label ref="chat_duration" class="tw-font-medium">
-                                            <template v-if="!conversationInfo.closed_at">{{
-                                                $helpers.preciseDiff(conversationInfo.created_at)
-                                            }}</template>
+                                            <template v-if="!conversationInfo.closed_at"
+                                                >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
+                                            </template>
                                             <template v-else>
                                                 {{
                                                     $helpers.preciseDiff(
@@ -346,7 +346,7 @@
                                             <template v-if="conversationInfo.rating">
                                                 <span
                                                     :class="conversationInfo.rating.rating === 5 ? 'green' : 'orange'"
-                                                    >{{ conversationInfo.rating.rating === 5 ? 'Good' : 'Bad' }}</span
+                                                    >{{ conversationInfo.rating.rating === 5 ? "Good" : "Bad" }}</span
                                                 >
                                             </template>
                                             <template v-else>Not Rated</template>
@@ -415,7 +415,7 @@
                                         <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
-                                        <q-item-label>{{ visit.url }} </q-item-label>
+                                        <q-item-label>{{ visit.url }}</q-item-label>
                                         <q-item-label caption
                                             >{{
                                                 visit.visiting
@@ -455,8 +455,8 @@
                                         <q-icon name="chat_bubble_outline" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
-                                        <q-item-label>{{ conv.messages[0].msg }} </q-item-label>
-                                        <q-item-label caption>{{ $helpers.myDate(conv.created_at) }} </q-item-label>
+                                        <q-item-label>{{ conv.messages[0].msg }}</q-item-label>
+                                        <q-item-label caption>{{ $helpers.myDate(conv.created_at) }}</q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -494,7 +494,7 @@
                                         <q-icon name="confirmation_number" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
-                                        <q-item-label>{{ ticket.subject }} </q-item-label>
+                                        <q-item-label>{{ ticket.subject }}</q-item-label>
                                         <q-item-label caption>
                                             <div class="tw-flex tw-justify-between tw-items-center">
                                                 <div class="tw-mr-2">{{ $helpers.myDate(ticket.date) }}</div>
@@ -527,26 +527,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 
-import Message from 'components/common/Message.vue';
-import MessagesTopSection from 'components/subscriber/chat/MessagesTopSection.vue';
-import EcAvatar from 'src/components/common/EcAvatar.vue';
+import Message from "components/common/Message.vue";
+import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vue";
+import EcAvatar from "src/components/common/EcAvatar.vue";
 
-import UAParser from 'ua-parser-js';
-import TicketDetail from 'components/apps/whmcs/TicketDetail.vue';
-import ConnectedUsersFaces from 'components/subscriber/chat/ConnectedUsersFaces.vue';
+import UAParser from "ua-parser-js";
+import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
+import ConnectedUsersFaces from "components/subscriber/chat/ConnectedUsersFaces.vue";
 
 export default defineComponent({
-    name: 'RightBar',
+    name: "RightBar",
     components: { ConnectedUsersFaces, TicketDetail, MessagesTopSection, Message, EcAvatar },
     setup() {
         return {};
     },
     data(): any {
         return {
-            sesId: '',
+            sesId: "",
             confirm: false,
 
             clientPreviousChats: [],
@@ -555,7 +555,7 @@ export default defineComponent({
             ticketSelected: null,
             ticketDetailModal: false,
 
-            chatDuration: '',
+            chatDuration: "",
 
             conversationShowDetail: false,
         };
@@ -563,23 +563,23 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            rightBarState: 'setting_ui/rightBarState',
-            profile: 'auth/profile',
-            globalBgColor: 'setting_ui/globalBgColor',
-            globalColor: 'setting_ui/globalColor',
+            rightBarState: "setting_ui/rightBarState",
+            profile: "auth/profile",
+            globalBgColor: "setting_ui/globalBgColor",
+            globalColor: "setting_ui/globalColor",
         }),
 
         conversationInfo(): any {
-            return this.$store.getters['chat/conversationInfo'](this.fullChatConvId);
+            return this.$store.getters["chat/conversationInfo"](this.fullChatConvId);
         },
 
         conversationConnectedUsers(): any {
-            return this.$store.getters['chat/conversationConnectedUsers'](this.fullChatConvId);
+            return this.$store.getters["chat/conversationConnectedUsers"](this.fullChatConvId);
         },
 
         fullChatConvId(): any {
-            if (this.$route.name === 'chats' && this.rightBarState.mode === 'client_info') {
-                return this.$route.params['conv_id'];
+            if (this.$route.name === "chats" && this.rightBarState.mode === "client_info") {
+                return this.$route.params["conv_id"];
             }
 
             return this.rightBarState?.conv_id || null;
@@ -588,22 +588,22 @@ export default defineComponent({
         conversationWithUsersInfo(): any {
             // if (!(this.$route.name === 'chats' && this.rightBarState.mode === 'client_info')) return [];
 
-            return this.$store.getters['chat/conversationWithUsersInfo'](
+            return this.$store.getters["chat/conversationWithUsersInfo"](
                 this.fullChatConvId,
                 this.profile?.socket_session?.id
             );
         },
 
         visits(): any {
-            if (!(this.$route.name === 'chats' && this.rightBarState.mode === 'client_info')) return [];
+            if (!(this.$route.name === "chats" && this.rightBarState.mode === "client_info")) return [];
 
-            return this.$store.getters['visitor/visits'](this.conversationWithUsersInfo[0].socket_session.id);
+            return this.$store.getters["visitor/visits"](this.conversationWithUsersInfo[0].socket_session.id);
         },
 
         parsedUaString(): any {
             const uaString: any = this.conversationWithUsersInfo.length
                 ? this.conversationWithUsersInfo[0].socket_session.init_user_agent
-                : '';
+                : "";
 
             // console.log(uaString, UAParser(uaString));
 
@@ -612,12 +612,12 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log('right bar initiated');
+        console.log("right bar initiated");
 
         setInterval(() => {
             if (
-                this.$route.name === 'chats' &&
-                this.rightBarState.mode === 'client_info' &&
+                this.$route.name === "chats" &&
+                this.rightBarState.mode === "client_info" &&
                 this.conversationWithUsersInfo?.length
             ) {
                 this.$refs.page_visit_list?.$forceUpdate();
@@ -626,8 +626,8 @@ export default defineComponent({
         }, 10000);
 
         if (
-            this.$route.name === 'chats' &&
-            this.rightBarState.mode === 'client_info' &&
+            this.$route.name === "chats" &&
+            this.rightBarState.mode === "client_info" &&
             this.conversationWithUsersInfo?.length
         ) {
         }

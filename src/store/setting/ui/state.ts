@@ -4,9 +4,9 @@ export interface SettingUiStateInterface {
 }
 
 function state(): SettingUiStateInterface {
-    const rightDrawerState = localStorage.getItem('right_drawer_state');
+    const rightDrawerState = localStorage.getItem("right_drawer_state");
     return {
-        globalColor: localStorage.getItem('globalColor') || 'blue-grey',
+        globalColor: localStorage.getItem("globalColor") || "blue-grey",
         rightDrawerState: rightDrawerState ? JSON.parse(rightDrawerState) : { visible: false },
     };
 }

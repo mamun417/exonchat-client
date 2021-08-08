@@ -2,8 +2,8 @@
     <q-dialog :model-value="modal_show" @update:modelValue="$emit('modalUpdate', $event)" full-width>
         <q-card>
             <q-card-section class="tw-border-b-2 tw-py-2 tw-font-medium"
-                >Ticket #{{ ticketDetail.tid }} {{ ticketDetail.subject }}</q-card-section
-            >
+                >Ticket #{{ ticketDetail.tid }} {{ ticketDetail.subject }}
+            </q-card-section>
 
             <q-card-section>
                 <q-timeline layout="dense" color="secondary">
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
     props: {

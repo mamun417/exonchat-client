@@ -40,21 +40,21 @@
                             >
                                 <q-menu anchor="bottom right" self="top right">
                                     <q-list class="text-green-8" style="min-width: 180px">
-                                        <q-item clickable v-close-popup
-                                            ><q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                        <q-item clickable v-close-popup>
+                                            <q-item-section avatar class="tw-pr-2 tw-min-w-0">
                                                 <q-icon name="open_in_full" />
                                             </q-item-section>
                                             <q-item-section>Full Image</q-item-section>
                                         </q-item>
-                                        <q-item clickable v-close-popup
-                                            ><q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                        <q-item clickable v-close-popup>
+                                            <q-item-section avatar class="tw-pr-2 tw-min-w-0">
                                                 <q-icon name="forward_to_inbox" />
                                             </q-item-section>
                                             <q-item-section>Forward To</q-item-section>
                                         </q-item>
                                         <q-separator />
-                                        <q-item clickable v-close-popup
-                                            ><q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                        <q-item clickable v-close-popup>
+                                            <q-item-section avatar class="tw-pr-2 tw-min-w-0">
                                                 <q-icon name="data_usage" />
                                             </q-item-section>
                                             <q-item-section>Show Usage</q-item-section>
@@ -73,8 +73,8 @@
                                             <q-item-section class="text-orange-8">Delete</q-item-section>
                                         </q-item>
                                     </q-list>
-                                </q-menu></q-btn
-                            >
+                                </q-menu>
+                            </q-btn>
                         </div>
                     </div>
                 </div>
@@ -84,9 +84,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
-import * as _l from 'lodash';
+import * as _l from "lodash";
 
 export default defineComponent({
     data(): any {
@@ -104,7 +104,7 @@ export default defineComponent({
     methods: {
         getUploadedFiles() {
             window.api
-                .get('attachments')
+                .get("attachments")
                 .then(async (res: any) => {
                     console.log(res.data);
                     this.uploadedFiles = res.data;
@@ -114,11 +114,11 @@ export default defineComponent({
                             try {
                                 file.loading = false;
                                 const imgRes = await this.$socketSessionApi.get(`attachments/${file.id}`, {
-                                    responseType: 'arraybuffer',
+                                    responseType: "arraybuffer",
                                 });
 
                                 file.src = URL.createObjectURL(
-                                    new Blob([imgRes.data], { type: imgRes.headers['content-type'] })
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
                                 );
                             } catch (e) {
                                 console.log(e);

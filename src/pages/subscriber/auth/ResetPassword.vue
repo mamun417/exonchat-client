@@ -34,7 +34,9 @@
                         color="green"
                         type="password"
                     >
-                        <template v-slot:prepend> <q-icon name="password" color="green" /> </template>
+                        <template v-slot:prepend>
+                            <q-icon name="password" color="green" />
+                        </template>
                     </q-input>
                 </div>
                 <div class="tw-flex tw-mb-3">
@@ -45,7 +47,9 @@
                         color="green"
                         type="password"
                     >
-                        <template v-slot:prepend> <q-icon name="password" color="green" /> </template>
+                        <template v-slot:prepend>
+                            <q-icon name="password" color="green" />
+                        </template>
                     </q-input>
                 </div>
 
@@ -68,16 +72,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'ResetPassword',
+    name: "ResetPassword",
     data(): any {
         return {
             formData: {
-                email: '',
-                password: '',
-                confirm_password: '',
+                email: "",
+                password: "",
+                confirm_password: "",
                 token: this.$route.params.token,
             },
             formDataError: {},
@@ -87,19 +91,19 @@ export default defineComponent({
     methods: {
         resetPassword() {
             if (this.formData.password !== this.formData.confirm_password) {
-                this.$helpers.showErrorNotification(this, 'Password does not match');
+                this.$helpers.showErrorNotification(this, "Password does not match");
                 return;
             }
 
             this.sendingEmail = true;
 
             this.$store
-                .dispatch('auth/resetPassword', {
+                .dispatch("auth/resetPassword", {
                     inputs: this.formData,
                 })
                 .then(() => {
-                    this.$helpers.showSuccessNotification(this, 'Password reset successful');
-                    this.$router.push({ name: 'login' });
+                    this.$helpers.showSuccessNotification(this, "Password reset successful");
+                    this.$router.push({ name: "login" });
                 })
                 .catch((err: any) => this.resetPasswordErrorHandle(err))
                 .then(() => {

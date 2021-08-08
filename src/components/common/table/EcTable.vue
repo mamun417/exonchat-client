@@ -90,8 +90,9 @@
                             <div v-else>{{ props.row[col.name] }}</div>
                         </template>
                     </slot>
-                </q-td> </q-tr
-            ><q-inner-loading :showing="loading" color="green"></q-inner-loading>
+                </q-td>
+            </q-tr>
+            <q-inner-loading :showing="loading" color="green"></q-inner-loading>
         </template>
 
         <template v-slot:no-data>
@@ -105,24 +106,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import ItalicBold from 'components/common/table/utilities/ItalicBold.vue';
-import EditBtn from 'components/common/table/utilities/EditBtn.vue';
-import DeleteBtn from 'components/common/table/utilities/DeleteBtn.vue';
-import { mapGetters } from 'vuex';
+import { defineComponent } from "vue";
+import ItalicBold from "components/common/table/utilities/ItalicBold.vue";
+import EditBtn from "components/common/table/utilities/EditBtn.vue";
+import DeleteBtn from "components/common/table/utilities/DeleteBtn.vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
-    name: 'EcTable',
+    name: "EcTable",
     components: { DeleteBtn, EditBtn, ItalicBold },
     props: {
-        searchValue: { type: String, default: '' },
+        searchValue: { type: String, default: "" },
         rows: [],
         columns: [],
-        noDataMsg: { type: String, default: 'Well this is sad... No data found' },
-        urlPath: { type: String, default: '' },
+        noDataMsg: { type: String, default: "Well this is sad... No data found" },
+        urlPath: { type: String, default: "" },
         hideSearch: { type: Boolean, default: false },
-        statusColumnName: { type: String, default: 'status' },
-        statusSuccessValues: { type: Array, default: () => ['active'] },
+        statusColumnName: { type: String, default: "status" },
+        statusSuccessValues: { type: Array, default: () => ["active"] },
         bodyCelTemplate: {
             type: Object,
             default: () => ({}),
@@ -135,14 +136,14 @@ export default defineComponent({
     },
     data(): any {
         return {
-            handlePipelineTimer: '',
+            handlePipelineTimer: "",
         };
     },
 
     computed: {
         ...mapGetters({
-            globalColor: 'setting_ui/globalColor',
-            rightBarState: 'setting_ui/rightBarState',
+            globalColor: "setting_ui/globalColor",
+            rightBarState: "setting_ui/rightBarState",
         }),
     },
 
@@ -151,19 +152,19 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log('ec table mounted');
+        console.log("ec table mounted");
     },
 
     methods: {
         rowClickHandle(row: any) {
-            console.log(row, 'aaa');
-            this.$emit('rowClick', row);
+            console.log(row, "aaa");
+            this.$emit("rowClick", row);
         },
         handlePipeline($event: any) {
             clearTimeout(this.handlePipelineTimer);
 
             this.handlePipelineTimer = setTimeout(() => {
-                this.$emit('handlePipeline', $event);
+                this.$emit("handlePipeline", $event);
             }, 300);
         },
     },

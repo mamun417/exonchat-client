@@ -73,8 +73,10 @@
                         color="green"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="qr_code" color="green" /> </template
-                    ></q-input>
+                        <template v-slot:prepend>
+                            <q-icon name="qr_code" color="green" />
+                        </template>
+                    </q-input>
                 </div>
 
                 <div class="tw-flex tw-mb-3">
@@ -88,8 +90,10 @@
                         color="green"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="password" color="green" /> </template
-                    ></q-input>
+                        <template v-slot:prepend>
+                            <q-icon name="password" color="green" />
+                        </template>
+                    </q-input>
                 </div>
 
                 <div class="tw-flex tw-mb-3">
@@ -103,8 +107,10 @@
                         color="green"
                         dense
                     >
-                        <template v-slot:prepend> <q-icon name="password" color="green" /> </template
-                    ></q-input>
+                        <template v-slot:prepend>
+                            <q-icon name="password" color="green" />
+                        </template>
+                    </q-input>
                 </div>
 
                 <!-- <div class="tw-flex tw-items-center tw-justify-between tw-mt-6">
@@ -140,20 +146,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
     data(): any {
         return {
             formData: {
-                email: '',
-                full_name: '',
-                display_name: '',
-                password: '',
-                confirm_password: '',
-                code: '',
-                invitation_id: '',
-                type: '',
+                email: "",
+                full_name: "",
+                display_name: "",
+                password: "",
+                confirm_password: "",
+                code: "",
+                invitation_id: "",
+                type: "",
             },
             formDataErrors: {},
             error: false,
@@ -167,15 +173,15 @@ export default defineComponent({
     methods: {
         getInvitationInfo() {
             this.$store
-                .dispatch('user_invitation/getInvitationInfo', {
-                    id: this.$route.params['id'],
+                .dispatch("user_invitation/getInvitationInfo", {
+                    id: this.$route.params["id"],
                 })
                 .then((res: any) => {
                     if (!res.data) this.error = true;
 
                     this.formData.email = res.data.email;
                     this.formData.type = res.data.type;
-                    this.formData.invitation_id = this.$route.params['id'];
+                    this.formData.invitation_id = this.$route.params["id"];
                 })
                 .catch((err: any) => {
                     console.log(err);
@@ -184,12 +190,12 @@ export default defineComponent({
 
         join() {
             if (this.formData.password !== this.formData.confirm_password) {
-                this.$helpers.showErrorNotification(this, 'Password does not match');
+                this.$helpers.showErrorNotification(this, "Password does not match");
                 return;
             }
 
             this.$store
-                .dispatch('user_invitation/joinInvitation', {
+                .dispatch("user_invitation/joinInvitation", {
                     inputs: this.formData,
                 })
                 .then((res: any) => {
@@ -197,11 +203,11 @@ export default defineComponent({
 
                     this.$helpers.showSuccessNotification(
                         this,
-                        'Your account activated successful. You can login  now.'
+                        "Your account activated successful. You can login  now."
                     );
 
-                    if (res.data.status === 'success') {
-                        this.$router.push({ name: 'login' });
+                    if (res.data.status === "success") {
+                        this.$router.push({ name: "login" });
                     }
                 })
                 .catch((err: any) => {

@@ -1,12 +1,12 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { UserStateInterface } from './state';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { UserStateInterface } from "./state";
 
 const actions: ActionTree<UserStateInterface, StateInterface> = {
     getUsers() {
         return new Promise((resolve, reject) => {
             window.api
-                .get('users')
+                .get("users")
                 .then((res: any) => {
                     resolve(res);
                 })

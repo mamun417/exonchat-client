@@ -1,41 +1,41 @@
-import { ActionTree } from 'vuex';
-import { StateInterface } from '../index';
-import { ChatHistoryStateInterface } from './state';
-import * as _l from 'lodash';
+import { ActionTree } from "vuex";
+import { StateInterface } from "../index";
+import { ChatHistoryStateInterface } from "./state";
+import * as _l from "lodash";
 
 const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
     getChatHistories(context) {
         return new Promise((resolve, reject) => {
             window.api
-                .post('conversations/chat-history', null, {
+                .post("conversations/chat-history", null, {
                     params: {
                         p: context.state.paginationMeta.current_page,
                         s: context.state.pipeline.s,
                     },
                 })
                 .then((res: any) => {
-                    context.commit('updatePaginationMeta', res.data.chat_histories.pagination);
+                    context.commit("updatePaginationMeta", res.data.chat_histories.pagination);
 
                     const chatHistories = res.data.chat_histories.data || [];
 
                     context.commit(
-                        'updateNewLoadedChatHistoriesIds',
+                        "updateNewLoadedChatHistoriesIds",
                         chatHistories.map((conv: any) => conv.id)
                     );
 
                     chatHistories.forEach((conv: any) => {
                         context.commit(
-                            'chat/updateConversation',
+                            "chat/updateConversation",
                             {
                                 conv_id: conv.id,
                                 conversation: _l.pick(conv, [
-                                    'id',
-                                    'users_only',
-                                    'type',
-                                    'closed_at',
-                                    'created_at',
-                                    'created_by_id',
-                                    'closed_by_id',
+                                    "id",
+                                    "users_only",
+                                    "type",
+                                    "closed_at",
+                                    "created_at",
+                                    "created_by_id",
+                                    "closed_by_id",
                                 ]),
                                 sessions: conv.conversation_sessions,
                                 chat_department: conv.chat_department,
@@ -46,7 +46,7 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                                 closed_by: conv.closed_by,
                                 closed_at: conv.closed_at,
                                 rating: conv.conversation_rating,
-                                caller: 'getClientConversations',
+                                caller: "getClientConversations",
                             },
                             { root: true }
                         );
@@ -61,15 +61,15 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
 
     updateCurrentPage(context, currentPage) {
         return new Promise((resolve) => {
-            context.commit('updateCurrentPage', currentPage);
+            context.commit("updateCurrentPage", currentPage);
             resolve(true);
         });
     },
 
     updatePipeline(context, payload) {
         return new Promise((resolve) => {
-            context.commit('updatePipeline', payload);
-            context.commit('updateCurrentPage', 1);
+            context.commit("updatePipeline", payload);
+            context.commit("updateCurrentPage", 1);
             resolve(true);
         });
     },

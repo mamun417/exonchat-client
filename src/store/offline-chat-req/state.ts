@@ -12,7 +12,7 @@ function state(): OfflineChatReqStateInterface {
             total: 0,
         },
         pipeline: {
-            s: '',
+            s: "",
         },
     };
 }

@@ -45,15 +45,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import Message from 'components/common/Message.vue';
-import MessagesTopSection from 'components/subscriber/chat/MessagesTopSection.vue';
+import { defineComponent } from "vue";
+import Message from "components/common/Message.vue";
+import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vue";
 // import ConversationStateConfirmModal from 'components/common/modal/ConversationStateConfirmModal.vue';
 
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters, mapMutations } from "vuex";
 
 export default defineComponent({
-    name: 'ChatPage',
+    name: "ChatPage",
     components: { MessagesTopSection, Message },
 
     setup() {
@@ -74,30 +74,30 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            profile: 'auth/profile',
-            rightBarState: 'setting_ui/rightBarState',
+            profile: "auth/profile",
+            rightBarState: "setting_ui/rightBarState",
         }),
 
         conversationInfo(): any {
-            return this.$store.getters['chat/conversationInfo'](this.$route.params['conv_id']);
+            return this.$store.getters["chat/conversationInfo"](this.$route.params["conv_id"]);
         },
     },
 
     beforeRouteEnter(to, from, next) {
         next((vm: any) => {
             // vm.messageInputAutoFocus = from.name === 'clients-conversations';
-            if (!vm.rightBarState.mode || vm.rightBarState.mode === 'client_info') {
-                vm.updateRightDrawerState({ mode: 'client_info', visible: true });
+            if (!vm.rightBarState.mode || vm.rightBarState.mode === "client_info") {
+                vm.updateRightDrawerState({ mode: "client_info", visible: true });
             }
         });
     },
 
     methods: {
-        ...mapMutations({ updateRightDrawerState: 'setting_ui/updateRightDrawerState' }),
+        ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
     },
 
     beforeUnmount() {
-        console.log('chat unmount called');
+        console.log("chat unmount called");
 
         // if (t/his.rightBarState.mode && this.rightBarState.mode === 'client_info') {
         //     this.updateRightDrawerState({ mode: null, visible: false });

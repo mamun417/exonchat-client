@@ -5,8 +5,8 @@ export interface SocketStateInterface {
 
 function state(): SocketStateInterface {
     return {
-        agentSesId: sessionStorage.getItem('exonchat-ses-id'),
-        apiKey: localStorage.getItem('agent-api-key'),
+        agentSesId: sessionStorage.getItem("exonchat-ses-id"),
+        apiKey: localStorage.getItem("agent-api-key"),
     };
 }
 
