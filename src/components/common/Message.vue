@@ -1166,6 +1166,12 @@ export default defineComponent({
             clearInterval(this.typingHandler);
         },
         keyUpHandle(e: any) {
+            // prevent only enter so that before send new line does not show
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+            }
+            // this.msg = e.target.value;
+
             if (this.chatPanelType !== "client" && e.key === "/") {
                 this.chatTemplate = true;
                 e.preventDefault();
@@ -1283,6 +1289,13 @@ export default defineComponent({
                     : { temp_id: this.$helpers.getTempId() };
 
             const dynamicSocket = this.socket || this.$socket;
+
+            // send not typing from here also before send emit so that typing flicker goes
+            dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
+                conv_id: this.conv_id,
+                msg: "",
+                status: "not_typing",
+            });
 
             dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
                 ...dynamicBody,

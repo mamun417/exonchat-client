@@ -4,21 +4,22 @@
             <q-card class="tw-h-full">
                 <q-card-section
                     class="tw-flex tw-flex-col tw-h-full"
-                    :class="{ 'tw-p-3 tw-w-56': mini_box, 'tw-w-84': !mini_box }"
+                    :class="{ 'tw-p-3 tw-w-60': mini_box, 'tw-w-84': !mini_box }"
                 >
-                    <div class="tw-flex tw-flex-wrap tw-border-b-2">
-                        <q-btn
-                            padding="10"
-                            @click="emojiGroup = group.name"
-                            v-for="(group, key) in emojiGroups"
-                            :key="key"
-                            class="tw-border-blue-700"
-                            :style="group.name === emojiGroup ? 'border-bottom: 3px solid rgb(76 142 60)' : ''"
-                            flat
-                            :dense="mini_box"
-                        >
-                            {{ group.char }}
-                        </q-btn>
+                    <div class="tw-flex tw-flex-wrap tw-border-b-2 tw-gap-1">
+                        <div v-for="(group, key) in emojiGroups" class="tw-flex tw-justify-center tw-w-8">
+                            <q-btn
+                                padding="10"
+                                @click="emojiGroup = group.name"
+                                :key="key"
+                                class="tw-border-blue-700"
+                                :style="group.name === emojiGroup ? 'border-bottom: 3px solid rgb(76 142 60)' : ''"
+                                flat
+                                :dense="mini_box"
+                            >
+                                {{ group.char }}
+                            </q-btn>
+                        </div>
                     </div>
 
                     <q-input
@@ -50,16 +51,18 @@
                             opacity: 0.5,
                         }"
                     >
-                        <div class="tw-flex tw-flex-wrap tw-gap-3" v-if="filterNewEmoji.length">
-                            <div
-                                v-for="(emojiObj, key) in filterNewEmoji"
-                                @click="handleEmojiClick(emojiObj)"
-                                :key="key"
-                                class="tw-cursor-pointer hover:tw-bg-gray-200"
-                                style="font-size: 18px"
-                            >
-                                {{ emojiObj.char }}
-                            </div>
+                        <div class="tw-flex tw-flex-wrap tw-gap-1 tw-justify-between" v-if="filterNewEmoji.length">
+                            <template v-for="(emojiObj, key) in filterNewEmoji">
+                                <div
+                                    v-if="!emojiObj.char.includes('&')"
+                                    @click="handleEmojiClick(emojiObj)"
+                                    :key="key"
+                                    class="tw-cursor-pointer hover:tw-bg-gray-200 tw-w-6 tw-flex tw-justify-center"
+                                    style="font-size: 18px"
+                                >
+                                    {{ emojiObj.char }}
+                                </div>
+                            </template>
                         </div>
                         <div v-else>
                             <b>Oh no!</b>
@@ -127,7 +130,9 @@ export default defineComponent({
         //     this.$refs.emojiMenu.$forceUpdate();
         // }, 3000);
 
-        this.emojis = emojiJson.filter((emoji: any) => !["smiling face"].includes(emoji.name));
+        this.emojis = emojiJson.filter((emoji: any) => emoji.codes.split(" ").length < 3);
+
+        console.log({ em: this.emojis });
 
         this.emojis.forEach((emoji: any) => {
             if (
