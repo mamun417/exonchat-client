@@ -93,8 +93,8 @@
 
                                         <div
                                             :class="{
-                                                'tw-text-xs': mini_mode,
-                                                'tw-text-sm': !mini_mode,
+                                                'tw-text-xxs': mini_mode,
+                                                'tw-text-xs': !mini_mode,
                                                 [$helpers.colors().dateTimeText]: true,
                                             }"
                                         >
@@ -108,7 +108,7 @@
                                     class="tw-pb-0 tw-my-4 tw-shadow-md"
                                     :style="checkOwnMessage(message) ? 'background-color: #f0f5f8' : ''"
                                 >
-                                    <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }">
+                                    <q-card-section class="tw-px-0 tw-flex tw-py-3" :class="{ 'tw-py-2': mini_mode }">
                                         <div
                                             class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                             :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
@@ -153,8 +153,8 @@
 
                                                 <div
                                                     :class="{
-                                                        'tw-text-xs': mini_mode,
-                                                        'tw-text-sm': !mini_mode,
+                                                        'tw-text-xxs': mini_mode,
+                                                        'tw-text-xs': !mini_mode,
                                                         [$helpers.colors().dateTimeText]: true,
                                                     }"
                                                 >
@@ -293,7 +293,7 @@
                                         msgForRightSide(message) ? 'text-white' : 'text-black',
                                     ]"
                                 >
-                                    {{ $helpers.myDate(message.created_at, "MMMM Do YYYY, h:mm a") }}
+                                    {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
                                 </div>
                             </template>
 
@@ -421,7 +421,7 @@
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
-                            {{ $helpers.myDate(conversationInfo.rating.created_at, "MMMM Do YYYY, h:mm a") }}
+                            {{ $helpers.myDate(conversationInfo.rating.created_at, "MMM DD, Y h:mm a") }}
                         </div>
                         <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
                         <div class="tw-mt-2">
@@ -1115,7 +1115,7 @@ export default defineComponent({
                     ? `| ${message.session.user ? "Agent" : "Client"} Ended chat ${convSes.closed_reason || ""}`
                     : "";
 
-            const time = `at ${this.$helpers.myDate(message.created_at, "MMMM Do YYYY, h:mm a")}`;
+            const time = `at ${this.$helpers.myDate(message.created_at, "MMM DD, Y h:mm a")}`;
 
             if (this.chatPanelType === "user") {
                 return {

@@ -23,7 +23,7 @@
                                         <q-item-label>Country</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">Not Available</q-item-label>
+                                        <q-item-label>Not Available</q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -34,8 +34,8 @@
                                         <q-item-label>Browser</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ parsedUaString.browser.name }}
+                                        <q-item-label>
+                                            {{ parsedUaString.browser.name }}
                                             {{ parsedUaString.browser.version }}
                                         </q-item-label>
                                     </q-item-section>
@@ -48,8 +48,8 @@
                                         <q-item-label>OS</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
+                                        <q-item-label>
+                                            {{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
@@ -61,8 +61,8 @@
                                         <q-item-label>IP</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ conversationWithUsersInfo[0].socket_session.init_ip }}
+                                        <q-item-label>
+                                            {{ conversationWithUsersInfo[0].socket_session.init_ip }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
@@ -100,7 +100,7 @@
                                         <q-item-label>Department</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium text-capitalize"
+                                        <q-item-label class="text-capitalize"
                                             >{{ conversationInfo.chat_department.tag }}
                                         </q-item-label>
                                     </q-item-section>
@@ -110,8 +110,8 @@
                                         <q-item-label>Chat Start</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
+                                        <q-item-label>
+                                            {{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
@@ -120,7 +120,7 @@
                                         <q-item-label>Chat Duration</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label ref="chat_duration" class="tw-font-medium">
+                                        <q-item-label ref="chat_duration">
                                             <template v-if="!conversationInfo.closed_at"
                                                 >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
                                             </template>
@@ -140,7 +140,7 @@
                                         <q-item-label>Chat Rating</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">
+                                        <q-item-label>
                                             <template v-if="conversationInfo.rating">
                                                 <span
                                                     :class="conversationInfo.rating.rating === 5 ? 'green' : 'orange'"
@@ -236,7 +236,7 @@
                                         <q-item-label>Country</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">Not Available</q-item-label>
+                                        <q-item-label>Not Available</q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-item dense>
@@ -247,8 +247,8 @@
                                         <q-item-label>Browser</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ parsedUaString.browser.name }}
+                                        <q-item-label>
+                                            {{ parsedUaString.browser.name }}
                                             {{ parsedUaString.browser.version }}
                                         </q-item-label>
                                     </q-item-section>
@@ -261,8 +261,8 @@
                                         <q-item-label>OS</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
+                                        <q-item-label>
+                                            {{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
@@ -274,8 +274,8 @@
                                         <q-item-label>IP</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ conversationWithUsersInfo[0].socket_session.init_ip }}
+                                        <q-item-label>
+                                            {{ conversationWithUsersInfo[0].socket_session.init_ip }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
@@ -302,7 +302,7 @@
                                         <q-item-label>Department</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium text-capitalize"
+                                        <q-item-label class="text-capitalize"
                                             >{{ conversationInfo.chat_department.tag }}
                                         </q-item-label>
                                     </q-item-section>
@@ -312,8 +312,8 @@
                                         <q-item-label>Chat Start</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium"
-                                            >{{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
+                                        <q-item-label>
+                                            {{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
@@ -322,7 +322,7 @@
                                         <q-item-label>Chat Duration</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label ref="chat_duration" class="tw-font-medium">
+                                        <q-item-label ref="chat_duration">
                                             <template v-if="!conversationInfo.closed_at"
                                                 >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
                                             </template>
@@ -342,7 +342,7 @@
                                         <q-item-label>Chat Rating</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-item-label class="tw-font-medium">
+                                        <q-item-label>
                                             <template v-if="conversationInfo.rating">
                                                 <span
                                                     :class="conversationInfo.rating.rating === 5 ? 'green' : 'orange'"
