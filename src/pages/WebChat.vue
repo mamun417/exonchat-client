@@ -142,7 +142,11 @@
                             </template>
 
                             <template v-slot:scroll-area-last-section>
-                                <div class="text-center" v-if="!conversationInfo.closed_at && !chatActiveStatus">
+                                <div
+                                    class="text-center"
+                                    :class="$helpers.colors().defaultText"
+                                    v-if="!conversationInfo.closed_at && !chatActiveStatus"
+                                >
                                     Chat is idle due to 10 minutes of inactivity
                                 </div>
 
