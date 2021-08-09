@@ -7,11 +7,10 @@
                     :class="{ 'tw-p-3 tw-w-60': mini_box, 'tw-w-84': !mini_box }"
                 >
                     <div class="tw-flex tw-flex-wrap tw-border-b-2 tw-gap-1">
-                        <div v-for="(group, key) in emojiGroups" class="tw-flex tw-justify-center tw-w-8">
+                        <div v-for="(group, key) in emojiGroups" :key="key" class="tw-flex tw-justify-center tw-w-8">
                             <q-btn
                                 padding="10"
                                 @click="emojiGroup = group.name"
-                                :key="key"
                                 class="tw-border-blue-700"
                                 :style="group.name === emojiGroup ? 'border-bottom: 3px solid rgb(76 142 60)' : ''"
                                 flat
