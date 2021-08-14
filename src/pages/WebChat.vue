@@ -57,7 +57,7 @@
 
         <div
             v-show="panelReady && panelVisibleStatus"
-            class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-bg-blue-50 tw-text-blueGray-900 tw-rounded-md"
+            class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-rounded-md"
         >
             <template v-if="hasApiKey">
                 <div
@@ -115,7 +115,12 @@
                         id="webchat-container"
                         class="tw-flex-grow tw-flex tw-flex-col"
                     >
-                        <message :ses_id="sesId" :socket="socket" :conv_id="clientInitiateConvInfo.conv_id">
+                        <message
+                            :ses_id="sesId"
+                            :socket="socket"
+                            :conv_id="clientInitiateConvInfo.conv_id"
+                            :mini_mode="true"
+                        >
                             <template v-slot:scroll-area-top-section>
                                 <div
                                     v-if="

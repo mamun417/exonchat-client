@@ -41,237 +41,237 @@
                     </div>
                 </div>-->
 
-                <template v-if="chatPanelType === 'user'">
-                    <div class="tw-relative tw-z-10">
-                        <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
-                            <div class="">
+                <!--                <template v-if="chatPanelType === 'user'">-->
+                <div class="tw-relative tw-z-10">
+                    <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
+                        <div class="">
+                            <div
+                                v-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
+                                class="tw-flex tw-items-center tw-py-4"
+                            >
                                 <div
-                                    v-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
-                                    class="tw-flex tw-items-center tw-py-4"
+                                    v-if="isAgentChatPanel"
+                                    class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                    :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                 >
+                                    <i
+                                        class="fa fa-circle"
+                                        :class="`text-${globalColor}-6`"
+                                        :style="`font-size: 5px`"
+                                        aria-hidden="true"
+                                    ></i>
+                                </div>
+                                <div
+                                    class="tw-flex tw-items-center tw-w-full tw-pr-4"
+                                    :class="{
+                                        'tw-justify-between tw-text-sm': isAgentChatPanel,
+                                        'tw-justify-center tw-text-xs': !isAgentChatPanel,
+                                    }"
+                                >
+                                    <div class="text-center">
+                                        <span
+                                            :class="`tw-mr-1 tw-break-none tw-font-medium tw-capitalize text-${globalColor}`"
+                                        >
+                                            {{ getConvStateStatusMessage(message).name }}
+                                        </span>
+                                        <span :class="$helpers.colors().defaultText">
+                                            {{
+                                                `${getConvStateStatusMessage(message).state_message} ${
+                                                    getConvStateStatusMessage(message).end_message
+                                                }`
+                                            }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        v-if="isAgentChatPanel"
+                                        :class="{
+                                            'tw-text-xxs': mini_mode,
+                                            'tw-text-xs': !mini_mode,
+                                            [$helpers.colors().dateTimeText]: true,
+                                        }"
+                                    >
+                                        {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <q-card
+                                v-if="message.msg || (message.attachments && message.attachments.length)"
+                                class="tw-pb-0 tw-my-4 tw-shadow-sm"
+                                :style="
+                                    checkOwnMessage(message)
+                                        ? `background-color: ${
+                                              isAgentChatPanel ? '#f0f5f8' : 'rgba(46, 104, 44, 0.04)'
+                                          }`
+                                        : ''
+                                "
+                            >
+                                <q-card-section class="tw-px-0 tw-flex tw-py-3" :class="{ 'tw-py-2': mini_mode }">
                                     <div
                                         class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                         :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                     >
-                                        <i
-                                            class="fa fa-circle"
-                                            :class="`text-${globalColor}-6`"
-                                            :style="`font-size: 5px`"
-                                            aria-hidden="true"
-                                        ></i>
+                                        <ec-avatar
+                                            :size="mini_mode ? 'lg' : 'xl'"
+                                            :image_src="
+                                                msgSenderInfo(message, index).type === 'ai'
+                                                    ? 'fas fa-robot'
+                                                    : msgSenderInfo(message, index).src
+                                            "
+                                            :name="msgSenderInfo(message, index).img_alt_name"
+                                            :is_icon="msgSenderInfo(message, index).type === 'ai'"
+                                            class=""
+                                        >
+                                            <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
+                                        </ec-avatar>
                                     </div>
-                                    <div
-                                        class="tw-flex tw-justify-between tw-items-center tw-text-base tw-w-full tw-pr-4"
-                                    >
-                                        <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
-                                            <div
-                                                :class="`tw-flex tw-flex-wrap tw-gap-1 tw-font-medium tw-capitalize text-${globalColor}`"
-                                            >
-                                                <div>{{ getConvStateStatusMessage(message).name }}</div>
-                                                <!--<div>
+                                    <div class="tw-pr-4 tw-text-base tw-w-full">
+                                        <div
+                                            class="tw-flex tw-justify-between tw-items-center"
+                                            :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
+                                        >
+                                            <div class="tw-flex tw-gap-2 tw-mr-4">
+                                                <div
+                                                    :class="`tw-font-medium tw-capitalize text-${globalColor} tw-text-sm`"
+                                                >
+                                                    {{ msgSenderInfo(message, index).display_name }}
+                                                </div>
+                                                <div v-if="!isAgentToAgentConversation && isAgentChatPanel">
                                                     <q-badge
-                                                        class="tw-uppercase tw-text-xxs"
+                                                        class="tw-uppercase"
                                                         :color="
-                                                            getConvStateStatusMessage(message).user_type === 'client'
+                                                            msgSenderInfo(message, index).type === 'client'
                                                                 ? 'grey-7'
                                                                 : globalColor
                                                         "
-                                                        :label="getConvStateStatusMessage(message).user_type"
+                                                        :label="msgSenderInfo(message, index).type"
                                                     />
-                                                </div>-->
-                                            </div>
-                                            <div class="tw-flex">
-                                                <div :class="$helpers.colors().defaultText">
-                                                    {{
-                                                        `${getConvStateStatusMessage(message).state_message} ${
-                                                            getConvStateStatusMessage(message).end_message
-                                                        }`
-                                                    }}
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div
-                                            :class="{
-                                                'tw-text-xxs': mini_mode,
-                                                'tw-text-xs': !mini_mode,
-                                                [$helpers.colors().dateTimeText]: true,
-                                            }"
-                                        >
-                                            {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <q-card
-                                    v-if="message.msg || (message.attachments && message.attachments.length)"
-                                    class="tw-pb-0 tw-my-4 tw-shadow-md"
-                                    :style="checkOwnMessage(message) ? 'background-color: #f0f5f8' : ''"
-                                >
-                                    <q-card-section class="tw-px-0 tw-flex tw-py-3" :class="{ 'tw-py-2': mini_mode }">
-                                        <div
-                                            class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
-                                            :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
-                                        >
-                                            <ec-avatar
-                                                :size="mini_mode ? 'lg' : 'xl'"
-                                                :image_src="
-                                                    msgSenderInfo(message, index).type === 'ai'
-                                                        ? 'fas fa-robot'
-                                                        : msgSenderInfo(message, index).src
-                                                "
-                                                :name="msgSenderInfo(message, index).img_alt_name"
-                                                :is_icon="msgSenderInfo(message, index).type === 'ai'"
-                                                class=""
-                                            >
-                                                <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
-                                            </ec-avatar>
-                                        </div>
-                                        <div class="tw-pr-4 tw-text-base tw-w-full">
                                             <div
-                                                class="tw-flex tw-justify-between tw-items-center"
-                                                :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
+                                                :class="{
+                                                    'tw-text-xxs': mini_mode,
+                                                    'tw-text-xs': !mini_mode,
+                                                    [$helpers.colors().dateTimeText]: true,
+                                                }"
                                             >
-                                                <div class="tw-flex tw-gap-2 tw-mr-4">
-                                                    <div
-                                                        :class="`tw-font-medium tw-capitalize text-${globalColor} tw-text-sm`"
-                                                    >
-                                                        {{ msgSenderInfo(message, index).display_name }}
-                                                    </div>
-                                                    <div v-if="!isAgentToAgentConversation">
-                                                        <q-badge
-                                                            class="tw-uppercase"
-                                                            :color="
-                                                                msgSenderInfo(message, index).type === 'client'
-                                                                    ? 'grey-7'
-                                                                    : globalColor
-                                                            "
-                                                            :label="msgSenderInfo(message, index).type"
-                                                        />
-                                                    </div>
-                                                </div>
+                                                {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
+                                            </div>
+                                        </div>
 
-                                                <div
-                                                    :class="{
-                                                        'tw-text-xxs': mini_mode,
-                                                        'tw-text-xs': !mini_mode,
-                                                        [$helpers.colors().dateTimeText]: true,
-                                                    }"
-                                                >
-                                                    {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
-                                                </div>
+                                        <div :class="$helpers.colors().defaultText">
+                                            <div class="tw-text-sm">
+                                                {{ message.msg }}
                                             </div>
 
-                                            <div :class="$helpers.colors().defaultText">
-                                                <div class="tw-text-sm">
-                                                    {{ message.msg }}
-                                                </div>
-
+                                            <div
+                                                v-if="message.attachments && message.attachments.length"
+                                                class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
+                                            >
                                                 <div
-                                                    v-if="message.attachments && message.attachments.length"
-                                                    class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
+                                                    v-for="attachment in message.attachments"
+                                                    :key="attachment.id"
+                                                    style="width: 200px; max-height: 200px"
+                                                    class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
                                                 >
-                                                    <div
-                                                        v-for="attachment in message.attachments"
-                                                        :key="attachment.id"
-                                                        style="width: 200px; max-height: 200px"
-                                                        class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                                    <q-img
+                                                        fit="cover"
+                                                        spinner-color="green"
+                                                        @click="
+                                                            attachmentPreview = attachment;
+                                                            attachmentPreviewModal = true;
+                                                        "
+                                                        :src="attachment.src"
                                                     >
-                                                        <q-img
-                                                            fit="cover"
-                                                            spinner-color="green"
-                                                            @click="
-                                                                attachmentPreview = attachment;
-                                                                attachmentPreviewModal = true;
-                                                            "
-                                                            :src="attachment.src"
-                                                        >
-                                                            <q-tooltip
-                                                                :class="globalBgColor"
-                                                                anchor="bottom middle"
-                                                                :offset="[10, 10]"
-                                                                >{{ attachment.original_name }}
-                                                            </q-tooltip>
-                                                        </q-img>
-                                                    </div>
+                                                        <q-tooltip
+                                                            :class="globalBgColor"
+                                                            anchor="bottom middle"
+                                                            :offset="[10, 10]"
+                                                            >{{ attachment.original_name }}
+                                                        </q-tooltip>
+                                                    </q-img>
                                                 </div>
                                             </div>
                                         </div>
-                                    </q-card-section>
-                                </q-card>
-                            </div>
-                        </template>
+                                    </div>
+                                </q-card-section>
+                            </q-card>
+                        </div>
+                    </template>
 
-                        <q-card
-                            v-for="(typing, index) in typingState"
-                            :key="index"
-                            class="tw-pb-0 tw-mb-6 tw-shadow-md"
-                            :class="checkOwnMessage(typing) ? 'bg-grey-2' : ''"
-                        >
-                            <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }">
-                                <div
-                                    class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
-                                    :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
+                    <q-card
+                        v-for="(typing, index) in typingState"
+                        :key="index"
+                        class="tw-pb-0 tw-mb-6 tw-shadow-md"
+                        :class="checkOwnMessage(typing) ? 'bg-grey-2' : ''"
+                    >
+                        <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }">
+                            <div
+                                class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
+                            >
+                                <ec-avatar
+                                    :size="mini_mode ? 'lg' : 'xl'"
+                                    :image_src="
+                                        msgSenderInfo(typing, index).type === 'ai'
+                                            ? 'fas fa-robot'
+                                            : msgSenderInfo(typing, index).src
+                                    "
+                                    :name="msgSenderInfo(typing, index).img_alt_name"
+                                    :is_icon="msgSenderInfo(typing, index).type === 'ai'"
+                                    class=""
                                 >
-                                    <ec-avatar
-                                        :size="mini_mode ? 'lg' : 'xl'"
-                                        :image_src="
-                                            msgSenderInfo(typing, index).type === 'ai'
-                                                ? 'fas fa-robot'
-                                                : msgSenderInfo(typing, index).src
-                                        "
-                                        :name="msgSenderInfo(typing, index).img_alt_name"
-                                        :is_icon="msgSenderInfo(typing, index).type === 'ai'"
-                                        class=""
-                                    >
-                                        <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
-                                    </ec-avatar>
-                                </div>
-                                <div class="tw-pr-4 tw-text-base tw-w-full">
-                                    <div
-                                        class="tw-flex tw-justify-between tw-items-center"
-                                        :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
-                                    >
-                                        <div class="tw-flex tw-gap-2 tw-mr-4">
-                                            <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
-                                                {{ msgSenderInfo(typing, index).display_name }}
-                                            </div>
-                                            <div>
-                                                <q-badge
-                                                    class="tw-pb-1 tw-uppercase"
-                                                    :color="
-                                                        msgSenderInfo(typing, index).type === 'client'
-                                                            ? 'grey-7'
-                                                            : globalColor
-                                                    "
-                                                    :label="msgSenderInfo(typing, index).type"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div :class="$helpers.colors().defaultText">
-                                        <div class="tw-text-sm">
-                                            {{ typing.msg }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </q-card-section>
-                        </q-card>
-
-                        <div
-                            class="tw-absolute tw-top-0 tw-h-full tw--z-1"
-                            :class="{ 'tw-left-10': !mini_mode, 'tw-left-8': mini_mode }"
-                        >
-                            <div class="tw-flex tw-h-full">
-                                <div class="tw-border-l-2 tw-border-gray-300 tw-h-full" style="margin-left: -1px"></div>
-                                <!--                                <div class="tw-border-l-2 tw-h-full"></div>-->
+                                    <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
+                                </ec-avatar>
                             </div>
+                            <div class="tw-pr-4 tw-text-base tw-w-full">
+                                <div
+                                    class="tw-flex tw-justify-between tw-items-center"
+                                    :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
+                                >
+                                    <div class="tw-flex tw-gap-2 tw-mr-4">
+                                        <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
+                                            {{ msgSenderInfo(typing, index).display_name }}
+                                        </div>
+                                        <div>
+                                            <q-badge
+                                                class="tw-pb-1 tw-uppercase"
+                                                :color="
+                                                    msgSenderInfo(typing, index).type === 'client'
+                                                        ? 'grey-7'
+                                                        : globalColor
+                                                "
+                                                :label="msgSenderInfo(typing, index).type"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div :class="$helpers.colors().defaultText">
+                                    <div class="tw-text-sm">
+                                        {{ typing.msg }}
+                                    </div>
+                                </div>
+                            </div>
+                        </q-card-section>
+                    </q-card>
+
+                    <div
+                        v-if="isAgentChatPanel"
+                        class="tw-absolute tw-top-0 tw-h-full tw--z-1"
+                        :class="{ 'tw-left-10': !mini_mode, 'tw-left-8': mini_mode }"
+                    >
+                        <div class="tw-flex tw-h-full">
+                            <div class="tw-border-l-2 tw-border-gray-300 tw-h-full" style="margin-left: -1px"></div>
+                            <!--                                <div class="tw-border-l-2 tw-h-full"></div>-->
                         </div>
                     </div>
-                </template>
+                </div>
+                <!--                </template>-->
 
-                <template v-else>
+                <!--                <template v-else>
                     <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
                         <q-chat-message
                             v-if="message.msg || (message.attachments && message.attachments.length)"
@@ -308,7 +308,7 @@
                                     :is_icon="msgSenderInfo(message, index).type === 'ai'"
                                     class="tw-mx-2"
                                 >
-                                    <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
+                                    &lt;!&ndash;<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>&ndash;&gt;
                                 </ec-avatar>
                             </template>
 
@@ -384,7 +384,7 @@
                         </q-chat-message>
                     </template>
 
-                    <!-- {{ typingState }} -->
+                    &lt;!&ndash; {{ typingState }} &ndash;&gt;
 
                     <template v-for="(typing, index) in typingState" :key="index">
                         <q-chat-message
@@ -415,9 +415,12 @@
                             </div>
                         </q-chat-message>
                     </template>
-                </template>
+                </template>-->
 
-                <div v-if="conversationInfo.rating" class="text-center tw-py-2 text-grey-8">
+                <div
+                    v-if="conversationInfo.rating && chatPanelType === 'client'"
+                    class="text-center tw-py-2 text-grey-8"
+                >
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
@@ -904,6 +907,10 @@ export default defineComponent({
                     this.conversationInfo.scroll_info?.auto_scroll_to_bottom)
             );
         },
+
+        isAgentChatPanel(): any {
+            return this.chatPanelType === "user";
+        },
     },
 
     methods: {
@@ -1117,17 +1124,17 @@ export default defineComponent({
 
             const time = `at ${this.$helpers.myDate(message.created_at, "MMM DD, Y h:mm a")}`;
 
-            if (this.chatPanelType === "user") {
-                return {
-                    name: name,
-                    state: message.state,
-                    state_message: `${message.state} the chat`,
-                    end_message: endMaker,
-                    user_type: message.session.user ? "agent" : "client",
-                };
-            }
+            // if (this.chatPanelType === "user") {
+            return {
+                name: name,
+                state: message.state,
+                state_message: `${message.state} the chat`,
+                end_message: endMaker,
+                user_type: message.session.user ? "agent" : "client",
+            };
+            // }
 
-            return `${name} ${message.state} the chat ${message.state !== "joined" ? time : ""} ${endMaker}`;
+            // return `${name} ${message.state} the chat ${message.state !== "joined" ? time : ""} ${endMaker}`;
         },
 
         inputFocusHandle() {
