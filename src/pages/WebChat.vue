@@ -10,7 +10,7 @@
                     <q-btn icon="close" size="xs" class="tw-shadow" round flat />
                 </div>
                 <!--                <div>-->
-                <div class="tw-p-2 bg-white tw-shadow-lg">
+                <div class="ec-help-text tw-p-2 bg-white tw-shadow-lg">
                     <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
                     <div class="" v-show="conversationInfo.id || onlineChatDepartments.length">
                         <div class="tw-font-medium">Need Help?</div>
@@ -454,7 +454,7 @@ export default defineComponent({
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
 
-            chatWidgetMiniWidth: 100,
+            chatWidgetMiniWidth: 200,
             queuePosition: 1,
             queuePositionInterval: "",
             getOnlineDepartmentsInterval: "",
@@ -545,7 +545,7 @@ export default defineComponent({
             //     size.width = 160;
             // }
 
-            let width = 180;
+            let width = 190;
             let height = size.height;
 
             if (this.onlineChatDepartments.length && !this.showNeedHelpText) {

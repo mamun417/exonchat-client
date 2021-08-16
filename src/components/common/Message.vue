@@ -515,8 +515,8 @@
                 class="ec-msg-input"
                 :class="[`ec-msg-input-${uid}`, mini_mode ? 'tw-text-xxs ec-mini-mode-msg-input' : '']"
                 :autofocus="messageInputAutoFocus"
-                @keyup.enter.exact="sendMessage"
-                @keydown="keyUpHandle"
+                @keydown="keyDownHandle"
+                @keyup="keyUpHandle"
                 @focus="inputFocusHandle"
                 @blur="inputBlurHandle"
                 hide-bottom-space
@@ -526,56 +526,64 @@
             >
                 <q-menu
                     v-if="chatPanelType !== 'client'"
-                    anchor="bottom left"
+                    anchor="top left"
                     self="bottom left"
-                    style="max-height: 500px"
+                    class="chat_template_box"
+                    style="max-height: 500px; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05)"
+                    :style="{ maxWidth: `${msgInputWidth}px` }"
+                    :offset="[15, 0]"
                     :ref="`ec_template_dom_${uid}`"
                     :class="[`ec_template_dom_${uid}`, 'tw-mr-2']"
                     v-model="chatTemplate"
                     @show="chatTemplateShowHandle"
                     @hide="chatTemplateHideHandle"
                     no-parent-event
+                    no-focus
+                    fit
                 >
-                    <div class="tw-font-bold tw-text-xs tw-px-4 tw-py-2" :class="[`text-${globalColor}`]">
-                        Suggestions
+                    <div
+                        class="chat_template_box_header tw-text-xs tw-tracking-wide tw-px-4 tw-py-4 tw-font-medium"
+                        :class="[`text-${globalColor}`]"
+                    >
+                        Predefined Replies
                     </div>
-                    <q-separator />
-                    <q-list separator style="min-width: 300px">
+                    <q-separator style="background-color: rgba(0, 87, 143, 0.1)" />
+                    <q-list v-if="mappedChatTemplates.length" separator style="min-width: 300px">
                         <q-item
                             v-for="(template, key) in mappedChatTemplates"
                             :key="key"
                             :active="template.is_focused"
-                            active-class="bg-green-3"
-                            class="tw-font-medium"
+                            active-class="chat_template_selected_item"
+                            class=""
                             @click="chatTemplateSelectHandle(key)"
                             @keyup.enter.exact="chatTemplateSelectHandle(key)"
                             clickable
                         >
                             <q-item-section>
                                 <q-item-label>
-                                    <div class="tw-flex tw-justify-between tw-items-center tw-gap-3">
-                                        <div class="tw-text-sm">/{{ template.tag }}</div>
-                                        <div class="tw-text-xs text-grey-9">{{ template.content }}</div>
+                                    <div class="tw-flex tw-items-center tw-gap-3">
+                                        <div class="tw-text-sm tw-font-medium">/{{ template.tag }}</div>
+                                        <div
+                                            class="tw-text-xs tw-overflow-hidden tw-whitespace-nowrap tw-overflow-ellipsis"
+                                            :class="$helpers.colors().defaultText"
+                                        >
+                                            {{ template.content }}
+                                        </div>
                                     </div>
                                 </q-item-label>
                             </q-item-section>
                         </q-item>
                     </q-list>
-                    <q-separator />
-                    <div class="tw-px-4">
-                        <!-- n here keyup is for finally done press so that i dont call this func continiously -->
-                        <q-input
-                            v-model="chatTemplateInputVal"
-                            placeholder="search"
-                            color="green-8"
-                            @keyup="chatTemplateSearchHandle"
-                            autofocus
-                            borderless
-                            dense
-                        />
-                    </div>
+                    <div v-else class="tw-p-4 text-orange">No Result Found!</div>
                 </q-menu>
+
+                <q-resize-observer
+                    ref="messageInputResizeObserver"
+                    :debounce="200"
+                    @resize="messageInputResizeObserver"
+                />
             </q-input>
+
             <div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
                 <q-avatar
                     v-for="(attachmentObj, key) in finalAttachments"
@@ -705,6 +713,7 @@ export default defineComponent({
             convId: "",
             confirm: false,
             convState: "",
+
             msg: "",
             typingInstance: null,
             msgInputFocused: false,
@@ -713,6 +722,7 @@ export default defineComponent({
                 typing: false,
             },
             notTypingEmitted: {},
+            msgInputWidth: 50,
 
             attachments: [],
             finalAttachments: [],
@@ -725,7 +735,7 @@ export default defineComponent({
             chatTemplateLoading: true,
             chatTemplates: [],
             chatTemplateInputVal: "",
-            chatTemplateBeforeKeyUpInputVal: "",
+            beforeKeyUpInputVal: "",
             getChatTemplateTimer: "",
 
             usersAvatarLoading: false,
@@ -850,11 +860,11 @@ export default defineComponent({
 
             if (!mappedChatTemplates.length) {
                 return [
-                    {
-                        tag: "No Result! Append in message box",
-                        content: `/${this.chatTemplateInputVal}`,
-                        is_focused: true,
-                    },
+                    // {
+                    //     tag: "No Result! Append in message box",
+                    //     content: `/${this.chatTemplateInputVal}`,
+                    //     is_focused: true,
+                    // },
                 ];
             }
 
@@ -916,6 +926,9 @@ export default defineComponent({
                     last_position: this.scrollInfo.verticalPercentage,
                 });
             }
+        },
+        messageInputResizeObserver(size: any) {
+            this.msgInputWidth = size.width;
         },
 
         emitSocketEvents() {
@@ -1165,17 +1178,35 @@ export default defineComponent({
             });
             clearInterval(this.typingHandler);
         },
-        keyUpHandle(e: any) {
-            // prevent only enter so that before send new line does not show
+
+        keyDownHandle(e: any) {
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-            }
-            // this.msg = e.target.value;
 
-            if (this.chatPanelType !== "client" && e.key === "/") {
-                this.chatTemplate = true;
-                e.preventDefault();
+                if (!this.chatTemplate) {
+                    this.sendMessage();
+                }
             }
+        },
+        keyUpHandle(e: any) {
+            // prevent only enter so that before send new line does not show
+            if (this.chatPanelType !== "client" && e.key === "/" && !this.beforeKeyUpInputVal) {
+                this.chatTemplate = true;
+            }
+
+            /// when backspace press this.msg is empty
+            if (!this.msg && e.key === "Backspace") {
+                this.chatTemplate = false;
+            }
+
+            if (this.chatTemplate) {
+                if (!["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(e.key)) {
+                    this.chatTemplateSearchHandle(e.target.value.slice(1));
+                }
+            }
+
+            // e.target.value is the previous state
+            this.beforeKeyUpInputVal = e.target.value;
         },
 
         getChatTemplates(keyword = "") {
@@ -1202,9 +1233,6 @@ export default defineComponent({
             this.chatTemplateDomPositionUpdate();
         },
         chatTemplateHideHandle() {
-            this.chatTemplateInputVal = "";
-            this.chatTemplateBeforeKeyUpInputVal = "";
-
             document.body.removeEventListener("keyup", this.chatTemplateArrowKeyUpDownHandle);
         },
         chatTemplateArrowKeyUpDownHandle(e: any) {
@@ -1237,29 +1265,18 @@ export default defineComponent({
         chatTemplateSelectHandle(key: any) {
             if (key !== -1) {
                 //if has intent handle loader wait then add content
-                this.msg += this.mappedChatTemplates[key].content;
-                this.chatTemplate = false;
+                this.msg = this.mappedChatTemplates[key].content;
             }
+
+            this.chatTemplate = false;
         },
-        chatTemplateSearchHandle(e: any) {
-            if (["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(e.key)) return;
-
-            // console.log(e.target.value);
-
+        chatTemplateSearchHandle(value: any) {
             // clear before backspace check so that one api call save's
             clearTimeout(this.getChatTemplateTimer);
 
-            if (!e.target.value && !this.chatTemplateBeforeKeyUpInputVal && e.key === "Backspace") {
-                this.chatTemplate = false;
-
-                return;
-            }
-
             this.getChatTemplateTimer = setTimeout(() => {
-                this.getChatTemplates(e.target.value);
+                this.getChatTemplates(value);
             }, 200);
-
-            this.chatTemplateBeforeKeyUpInputVal = e.target.value;
         },
         chatTemplateDomPositionUpdate() {
             // this method will fix the menu position when content changes its height
@@ -1271,7 +1288,7 @@ export default defineComponent({
             const templateDom: any = document.getElementsByClassName(`ec_template_dom_${this.uid}`)[0];
 
             templateDom.style.top = "unset";
-            templateDom.style.bottom = `${bodyHeight - msgInputBottomPos + 11}px`;
+            templateDom.style.bottom = `${bodyHeight - msgInputBottomPos + 50}px`;
         },
 
         sendMessage(): any {
@@ -1638,6 +1655,30 @@ export default defineComponent({
 
         &:last-child {
             min-height: 40px;
+        }
+    }
+}
+
+.chat_template_box {
+    .q-list--separator {
+        .q-item-type:not(:first-child) {
+            border-top: 1px solid rgba(0, 87, 143, 0.1);
+        }
+    }
+
+    .chat_template_selected_item,
+    //.chat_template_box_header
+    {
+        background-color: rgba(0, 87, 143, 0.06);
+    }
+
+    .q-item-type:hover .q-focus-helper {
+        background: rgba(0, 87, 143, 0.06) !important;
+        opacity: unset !important;
+
+        &:before {
+            opacity: unset;
+            background: unset;
         }
     }
 }
