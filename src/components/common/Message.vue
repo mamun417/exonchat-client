@@ -1122,7 +1122,7 @@ export default defineComponent({
                     ? `| ${message.session.user ? "Agent" : "Client"} Ended chat ${convSes.closed_reason || ""}`
                     : "";
 
-            const time = `at ${this.$helpers.myDate(message.created_at, "MMM DD, Y h:mm a")}`;
+            // const time = `at ${this.$helpers.myDate(message.created_at, "MMM DD, Y h:mm a")}`;
 
             // if (this.chatPanelType === "user") {
             return {

@@ -1,8 +1,9 @@
 <template>
     <q-page
         v-if="allCheck"
-        class="tw-flex tw-flex-col tw-h-full tw-justify-end tw-rounded-md"
+        class="ec-webchat-page tw-flex tw-flex-col tw-h-full tw-justify-end tw-rounded-md"
         style="min-height: unset"
+        :class="$helpers.colors().defaultText"
     >
         <div v-show="panelReady && !panelVisibleStatus">
             <div class="tw-mb-3" v-show="showNeedHelpText">
@@ -29,7 +30,7 @@
                     v-show="conversationInfo.id || onlineChatDepartments.length"
                     icon="forum"
                     size="18px"
-                    color="blue-grey"
+                    :color="globalColor"
                     class="tw-shadow-xl"
                     @click="toggleChatPanel(true)"
                     round
@@ -41,7 +42,7 @@
                 <q-btn
                     v-show="!conversationInfo.id && !onlineChatDepartments.length"
                     icon="mail"
-                    color="blue-grey"
+                    :color="globalColor"
                     class="tw-shadow-xl"
                     @click="toggleChatPanel(true)"
                     rounded
@@ -60,10 +61,8 @@
             class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-rounded-md"
         >
             <template v-if="hasApiKey">
-                <div
-                    class="bg-blue-grey text-weight-bold tw-text-gray-50 tw-px-4 tw-py-2 tw-flex tw-items-center tw-rounded-t-md"
-                >
-                    <div>
+                <div class="tw-text-gray-50 tw-px-4 tw-py-1 tw-flex tw-items-center" :class="`bg-${globalColor}`">
+                    <div class="tw-text-base">
                         {{
                             conversationInfo.id || onlineChatDepartments.length
                                 ? "Online - Chat with us"
@@ -97,10 +96,10 @@
                                 <div class="tw-text-md tw-text-center">Are you sure you want to close chat?</div>
                             </q-card-section>
                             <q-card-actions align="center">
-                                <q-btn @click="closeChat" color="blue-grey" label="Yes" style="width: 70px" />
+                                <q-btn @click="closeChat" :color="globalColor" label="Yes" style="width: 70px" />
                                 <q-btn
                                     @click="closeChatModal = false"
-                                    color="blue-grey"
+                                    :color="globalColor"
                                     label="No"
                                     style="width: 70px"
                                 />
@@ -166,7 +165,7 @@
                                 v-if="conversationInfo.closed_at"
                                 @click="clearSession"
                                 dense
-                                color="blue-grey"
+                                :color="globalColor"
                                 class="full-width"
                                 no-caps
                                 unelevated
@@ -183,15 +182,15 @@
                         <chat-rating-form @ratedByClient="clearSession" />
                     </div>-->
 
-                    <div v-else class="tw-flex tw-flex-col justify-center tw-flex-grow">
-                        <div class="tw-bg-white tw-shadow-lg tw-m-5 tw-relative">
-                            <div class="tw-px-4 tw-py-8">
+                    <div v-else class="">
+                        <div class="tw-m-5 tw-relative">
+                            <div class="">
                                 <template v-if="successSubmitOfflineChatReq">
                                     Ticket has been successfully submitted. Our agents will reply you when they are
                                     online.
                                     <q-btn
                                         dense
-                                        color="blue-grey"
+                                        :color="globalColor"
                                         class="full-width tw-mt-6"
                                         @click="clearSession"
                                         no-caps
@@ -202,58 +201,65 @@
 
                                 <template v-else>
                                     <template v-if="onlineChatDepartments.length">
+                                        <div class="tw-mb-5">
+                                            Welcome to Live Chat. Please enter the information below to chat with a
+                                            representative. Please remember "Technical Support" department is not for
+                                            sales query. For Sales query, please select sales department. If sales
+                                            department is offline please email to sales@exonhost.com with your query.
+                                        </div>
+
                                         <q-input
                                             v-model="convInitFields.name"
-                                            :error-message="convInitFieldsErrors.name"
                                             :error="!!convInitFieldsErrors.name"
                                             @update:model-value="convInitFieldsErrors.name = ''"
                                             hide-bottom-space
                                             dense
+                                            no-error-icon
                                             label="Your Name"
-                                            color="blue-grey"
+                                            :color="globalColor"
                                             class="tw-mb-3"
                                         >
-                                            <template v-slot:prepend>
-                                                <q-icon name="person" size="xs" color="blue-grey" />
-                                            </template>
+                                            <!--<template v-slot:prepend>
+                                                <q-icon name="person" size="xs"                                             :color="globalColor" />
+                                            </template>-->
                                         </q-input>
 
                                         <q-input
                                             v-model="convInitFields.email"
-                                            :error-message="convInitFieldsErrors.email"
                                             :error="!!convInitFieldsErrors.email"
                                             @update:model-value="convInitFieldsErrors.email = ''"
                                             hide-bottom-space
                                             dense
-                                            color="blue-grey"
+                                            no-error-icon
+                                            :color="globalColor"
                                             class="tw-mb-3"
                                             label="Your Email"
                                             type="email"
                                         >
-                                            <template v-slot:prepend>
-                                                <q-icon name="email" size="xs" color="blue-grey" />
-                                            </template>
+                                            <!--<template v-slot:prepend>
+                                                <q-icon name="email" size="xs"                                             :color="globalColor" />
+                                            </template>-->
                                         </q-input>
 
                                         <q-select
                                             v-model="convInitFields.department"
                                             :options="chatDepartments"
                                             @update:model-value="changeDepartment($event)"
-                                            :error-message="convInitFieldsErrors.chat_department_id"
                                             :error="!!convInitFieldsErrors.chat_department_id"
                                             hide-bottom-space
                                             option-value="id"
                                             option-label="tag"
                                             label="Chat Department"
                                             class="tw-mb-3"
-                                            color="blue-grey"
+                                            :color="globalColor"
                                             emit-value
                                             map-options
                                             dense
+                                            no-error-icon
                                         >
-                                            <template v-slot:prepend>
-                                                <q-icon name="person" size="xs" color="blue-grey" />
-                                            </template>
+                                            <!--<template v-slot:prepend>
+                                                <q-icon name="person" size="xs"                                             :color="globalColor" />
+                                            </template>-->
 
                                             <template v-slot:option="{ itemProps, opt }">
                                                 <q-item v-bind="itemProps">
@@ -289,41 +295,41 @@
                                         <div v-if="departmentAgentsOffline">
                                             <q-input
                                                 v-model="convInitFields.subject"
-                                                :error-message="convInitFieldsErrors.subject"
                                                 :error="!!convInitFieldsErrors.subject"
                                                 @update:model-value="convInitFieldsErrors.subject = ''"
                                                 hide-bottom-space
                                                 dense
+                                                no-error-icon
                                                 label="Your Subject"
-                                                color="blue-grey"
+                                                :color="globalColor"
                                                 class="tw-mb-3"
                                             >
-                                                <template v-slot:prepend>
-                                                    <q-icon name="subject" size="xs" color="blue-grey" />
-                                                </template>
+                                                <!--<template v-slot:prepend>
+                                                    <q-icon name="subject" size="xs" :color="globalColor" />
+                                                </template>-->
                                             </q-input>
 
                                             <q-input
                                                 v-model="convInitFields.message"
-                                                :error-message="convInitFieldsErrors.message"
                                                 :error="!!convInitFieldsErrors.message"
                                                 @update:model-value="convInitFieldsErrors.message = ''"
                                                 hide-bottom-space
                                                 dense
+                                                no-error-icon
                                                 label="Your Message"
-                                                color="blue-grey"
+                                                :color="globalColor"
                                                 class="tw-mb-3"
                                                 autogrow
                                             >
-                                                <template v-slot:prepend>
-                                                    <q-icon name="textsms" size="xs" color="blue-grey" />
-                                                </template>
+                                                <!--<template v-slot:prepend>
+                                                    <q-icon name="textsms" size="xs" :color="globalColor" />
+                                                </template>-->
                                             </q-input>
 
                                             <q-btn
                                                 dense
-                                                color="blue-grey"
-                                                class="full-width tw-mt-6"
+                                                :color="globalColor"
+                                                class="full-width tw-mt-4"
                                                 @click="submitOfflineChatReq"
                                                 no-caps
                                                 >Submit Ticket
@@ -338,8 +344,8 @@
                                         <q-btn
                                             v-else
                                             dense
-                                            color="blue-grey"
-                                            class="full-width tw-mt-6"
+                                            :color="globalColor"
+                                            class="full-width tw-mt-2"
                                             @click="chatInitialize"
                                             no-caps
                                             unelevated
@@ -351,6 +357,7 @@
                                         v-else
                                         @submitOfflineMessage="successSubmitOfflineChatReq = true"
                                         :chat-departments="chatDepartments"
+                                        :global-color="globalColor"
                                     />
                                 </template>
                             </div>
@@ -364,7 +371,7 @@
                     <div class="text-orange tw-font-medium tw-text-lg">API Key Invalid</div>
                     <div class="text-caption">Please contact support or Notify site owner</div>
                     <q-btn
-                        color="blue-grey"
+                        :color="globalColor"
                         class="tw-mt-4"
                         label="Hide Panel"
                         @click="toggleChatPanel(false)"
@@ -466,6 +473,7 @@ export default defineComponent({
 
             whmcsInfoError: false,
             whmcsInfoAssigned: false,
+            globalColor: "green-10",
         };
     },
 
@@ -565,6 +573,7 @@ export default defineComponent({
                         height: `${height}px`,
                         width: `${width}px`,
                         display: "block",
+                        "box-shadow": "unset",
                     },
                 },
                 "*"
@@ -601,7 +610,12 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: "ec_maximize_panel",
-                    param: { height: "560px", width: "350px", display: "block" },
+                    param: {
+                        height: "560px",
+                        width: "350px",
+                        display: "block",
+                        "box-shadow": "0 0 0 3px rgb(0 0 0 / 5%)",
+                    },
                 },
                 "*"
             );
@@ -610,7 +624,12 @@ export default defineComponent({
             window.parent.postMessage(
                 {
                     action: "ec_minimize_panel",
-                    param: { height: "300px", width: `${this.chatWidgetMiniWidth}px`, display: "block" },
+                    param: {
+                        height: "300px",
+                        width: `${this.chatWidgetMiniWidth}px`,
+                        display: "block",
+                        "box-shadow": "unset",
+                    },
                 },
                 "*"
             );
@@ -850,14 +869,22 @@ export default defineComponent({
 
             this.socket.on("ec_error", (res: any) => {
                 if (res.step === "ec_init_conv_from_client") {
-                    this.$q.notify({
-                        type: "warning",
-                        position: "bottom",
-                        progress: true,
-                        message: res.reason.message ? res.reason.message : res.reason,
-                    });
+                    console.log(res.reason);
 
-                    this.departmentAgentsOffline = true;
+                    if (res.cause === "required_field") {
+                        //
+                    }
+
+                    if (res.cause === "offline_agent") {
+                        this.departmentAgentsOffline = true;
+
+                        this.$q.notify({
+                            type: "warning",
+                            position: "bottom",
+                            progress: true,
+                            message: res.reason.message ? res.reason.message : res.reason,
+                        });
+                    }
                 }
                 // console.log('from ec_error', res);
             });
@@ -1305,3 +1332,15 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="scss">
+.ec-webchat-page {
+    .q-field__control {
+        &.text-negative {
+            &:after {
+                background-color: rgb(232, 206, 204);
+            }
+        }
+    }
+}
+</style>

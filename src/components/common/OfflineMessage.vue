@@ -1,98 +1,100 @@
 <template>
+    <div class="tw-mb-5">
+        Unfortunately Live Chat is not available. Please fill out the form below to leave us a message.
+    </div>
+
     <q-input
         v-model="convInitFields.name"
-        :error-message="convInitFieldsErrors.name"
         :error="!!convInitFieldsErrors.name"
         @update:model-value="convInitFieldsErrors.name = ''"
         hide-bottom-space
         dense
+        no-error-icon
         label="Your Name"
-        color="blue-grey"
+        :color="globalColor"
         class="tw-mb-3"
     >
-        <template v-slot:prepend>
-            <q-icon name="person" size="xs" color="blue-grey" />
-        </template>
+        <!--<template v-slot:prepend>
+            <q-icon name="person" size="xs" :color="globalColor" />
+        </template>-->
     </q-input>
 
     <q-input
         v-model="convInitFields.email"
-        :error-message="convInitFieldsErrors.email"
         :error="!!convInitFieldsErrors.email"
         @update:model-value="convInitFieldsErrors.email = ''"
         hide-bottom-space
         dense
-        color="blue-grey"
+        no-error-icon
+        :color="globalColor"
         class="tw-mb-3"
         label="Your Email"
         type="email"
     >
-        <template v-slot:prepend>
-            <q-icon name="email" size="xs" color="blue-grey" />
-        </template>
+        <!--<template v-slot:prepend>
+            <q-icon name="email" size="xs" :color="globalColor" />
+        </template>-->
     </q-input>
 
     <q-select
         v-model="convInitFields.department"
         :options="chatDepartments"
         @update:model-value="changeDepartment($event)"
-        :error-message="convInitFieldsErrors.chat_department_id"
         :error="!!convInitFieldsErrors.chat_department_id"
         hide-bottom-space
         option-value="id"
         option-label="tag"
         label="Chat Department"
         class="tw-mb-3"
-        color="blue-grey"
+        :color="globalColor"
         emit-value
         map-options
         dense
+        no-error-icon
     >
-        <template v-slot:prepend>
-            <q-icon name="person" size="xs" color="blue-grey" />
-        </template>
+        <!--<template v-slot:prepend>
+            <q-icon name="person" size="xs" :color="globalColor" />
+        </template>-->
     </q-select>
 
     <q-input
         v-model="convInitFields.subject"
-        :error-message="convInitFieldsErrors.subject"
         :error="!!convInitFieldsErrors.subject"
         @update:model-value="convInitFieldsErrors.subject = ''"
         hide-bottom-space
         dense
+        no-error-icon
         label="Your Subject"
-        color="blue-grey"
+        :color="globalColor"
         class="tw-mb-3"
     >
-        <template v-slot:prepend>
-            <q-icon name="subject" size="xs" color="blue-grey" />
-        </template>
+        <!--<template v-slot:prepend>
+            <q-icon name="subject" size="xs" :color="globalColor" />
+        </template>-->
     </q-input>
 
     <q-input
         v-model="convInitFields.message"
-        :error-message="convInitFieldsErrors.message"
         :error="!!convInitFieldsErrors.message"
         @update:model-value="convInitFieldsErrors.message = ''"
         hide-bottom-space
         dense
+        no-error-icon
         label="Your Message"
-        color="blue-grey"
+        :color="globalColor"
         class="tw-mb-3"
         autogrow
     >
-        <template v-slot:prepend>
-            <q-icon name="textsms" size="xs" color="blue-grey" />
-        </template>
+        <!--<template v-slot:prepend>
+            <q-icon name="textsms" size="xs" :color="globalColor" />
+        </template>-->
     </q-input>
 
-    <q-btn dense color="blue-grey" class="full-width tw-mt-6" @click="submitOfflineChatReq" no-caps unelevated>
+    <q-btn dense :color="globalColor" class="full-width tw-mt-4" @click="submitOfflineChatReq" no-caps unelevated>
         Submit Ticket
     </q-btn>
 
-    <div class="tw-text-xxs tw-mt-2">
-        <div>Note: Our agents will resolve your issue when they are online.</div>
-    </div>
+    <div class="tw-text-xxs tw-mt-2 tw-shadow-none">Note: Our agents will resolve your issue when they are online.</div>
 </template>
 
 <script lang="ts">
@@ -119,6 +121,10 @@ export default defineComponent({
         chatDepartments: {
             type: [],
             default: [],
+        },
+        globalColor: {
+            type: String,
+            default: "green-10",
         },
     },
 
