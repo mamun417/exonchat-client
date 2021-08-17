@@ -168,9 +168,8 @@
                             <q-btn
                                 v-if="conversationInfo.closed_at"
                                 @click="clearSession"
-                                dense
                                 :color="globalColor"
-                                class="full-width"
+                                class="full-width tw-mb-2"
                                 no-caps
                                 unelevated
                             >
@@ -361,7 +360,7 @@
                                             @click="chatInitialize"
                                             no-caps
                                             unelevated
-                                            >Start Chat as Guest
+                                            >Start the chat
                                         </q-btn>
                                     </template>
 
