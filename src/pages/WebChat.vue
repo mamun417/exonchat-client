@@ -58,17 +58,21 @@
 
         <div
             v-show="panelReady && panelVisibleStatus"
-            class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow tw-rounded-md"
+            class="tw-h-full tw-w-full tw-fixed tw-bottom-0 tw-flex tw-flex-col tw-flex-grow"
         >
             <template v-if="hasApiKey">
-                <div class="tw-text-gray-50 tw-px-4 tw-py-1 tw-flex tw-items-center" :class="`bg-${globalColor}`">
+                <div
+                    class="tw-text-gray-50 tw-px-4 tw-py-1 tw-flex tw-items-center"
+                    :class="`bg-${globalColor}`"
+                    style="border-radius: 8px 8px 0 0"
+                >
                     <div class="tw-text-base">
                         {{
                             conversationInfo.id || onlineChatDepartments.length
                                 ? "Online - Chat with us"
                                 : "Offline - Send offline message"
                         }}
-                        <!--                        <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />-->
+                        <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />
                     </div>
                     <q-space></q-space>
 
@@ -218,6 +222,7 @@
                                             label="Your Name"
                                             :color="globalColor"
                                             class="tw-mb-3"
+                                            outlined
                                         >
                                             <!--<template v-slot:prepend>
                                                 <q-icon name="person" size="xs"                                             :color="globalColor" />
@@ -235,6 +240,7 @@
                                             class="tw-mb-3"
                                             label="Your Email"
                                             type="email"
+                                            outlined
                                         >
                                             <!--<template v-slot:prepend>
                                                 <q-icon name="email" size="xs"                                             :color="globalColor" />
@@ -245,7 +251,10 @@
                                             v-model="convInitFields.department"
                                             :options="chatDepartments"
                                             @update:model-value="changeDepartment($event)"
-                                            :error="!!convInitFieldsErrors.chat_department_id"
+                                            :error="
+                                                !!convInitFieldsErrors.chat_department_id ||
+                                                !!convInitFieldsErrors.department
+                                            "
                                             hide-bottom-space
                                             option-value="id"
                                             option-label="tag"
@@ -256,6 +265,7 @@
                                             map-options
                                             dense
                                             no-error-icon
+                                            outlined
                                         >
                                             <!--<template v-slot:prepend>
                                                 <q-icon name="person" size="xs"                                             :color="globalColor" />
@@ -303,6 +313,7 @@
                                                 label="Your Subject"
                                                 :color="globalColor"
                                                 class="tw-mb-3"
+                                                outlined
                                             >
                                                 <!--<template v-slot:prepend>
                                                     <q-icon name="subject" size="xs" :color="globalColor" />
@@ -320,6 +331,7 @@
                                                 :color="globalColor"
                                                 class="tw-mb-3"
                                                 autogrow
+                                                outlined
                                             >
                                                 <!--<template v-slot:prepend>
                                                     <q-icon name="textsms" size="xs" :color="globalColor" />
@@ -614,7 +626,8 @@ export default defineComponent({
                         height: "560px",
                         width: "350px",
                         display: "block",
-                        "box-shadow": "0 0 0 3px rgb(0 0 0 / 5%)",
+                        "box-shadow": "rgb(0 0 0 / 30%) 0px 4px 12px",
+                        "border-radius": "8px",
                     },
                 },
                 "*"
@@ -869,29 +882,13 @@ export default defineComponent({
 
             this.socket.on("ec_error", (res: any) => {
                 if (res.step === "ec_init_conv_from_client") {
-                    console.log(res.reason);
-
-                    if (res.cause === "required_field") {
-                        //
-                    }
-
-                    if (res.cause === "offline_agent") {
-                        this.departmentAgentsOffline = true;
-
-                        this.$q.notify({
-                            type: "warning",
-                            position: "bottom",
-                            progress: true,
-                            message: res.reason.message ? res.reason.message : res.reason,
-                        });
-                    }
+                    this.errorHandleEcInitConvFromClient(res);
                 }
-                // console.log('from ec_error', res);
             });
         },
 
         chatInitialize() {
-            // console.log(this.convInitFields);
+            console.log(this.convInitFields);
 
             this.socket.emit("ec_init_conv_from_client", { ...this.convInitFields });
 
@@ -1261,6 +1258,29 @@ export default defineComponent({
                     this.whmcsInfoError = true;
                 });
         },
+
+        errorHandleEcInitConvFromClient(res: any) {
+            if (res.cause === "required_field") {
+                this.submitOfflineChatReqErrorHandle({
+                    response: {
+                        data: {
+                            message: res.reason.messages,
+                        },
+                    },
+                });
+            }
+
+            if (res.cause === "offline_agent") {
+                this.departmentAgentsOffline = true;
+
+                this.$q.notify({
+                    type: "warning",
+                    position: "bottom",
+                    progress: true,
+                    message: res.reason.message ? res.reason.message : res.reason,
+                });
+            }
+        },
     },
 
     unmounted() {
@@ -1338,9 +1358,13 @@ export default defineComponent({
     .q-field__control {
         &.text-negative {
             &:after {
-                background-color: rgb(232, 206, 204);
+                border-color: rgb(232, 206, 204);
             }
         }
     }
+}
+
+.q-field--outlined:hover .q-field__control:before {
+    border: 1px solid rgba(0, 0, 0, 0.24);
 }
 </style>

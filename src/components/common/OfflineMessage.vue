@@ -13,6 +13,7 @@
         label="Your Name"
         :color="globalColor"
         class="tw-mb-3"
+        outlined
     >
         <!--<template v-slot:prepend>
             <q-icon name="person" size="xs" :color="globalColor" />
@@ -30,6 +31,7 @@
         class="tw-mb-3"
         label="Your Email"
         type="email"
+        outlined
     >
         <!--<template v-slot:prepend>
             <q-icon name="email" size="xs" :color="globalColor" />
@@ -51,6 +53,7 @@
         map-options
         dense
         no-error-icon
+        outlined
     >
         <!--<template v-slot:prepend>
             <q-icon name="person" size="xs" :color="globalColor" />
@@ -67,6 +70,7 @@
         label="Your Subject"
         :color="globalColor"
         class="tw-mb-3"
+        outlined
     >
         <!--<template v-slot:prepend>
             <q-icon name="subject" size="xs" :color="globalColor" />
@@ -84,6 +88,7 @@
         :color="globalColor"
         class="tw-mb-3"
         autogrow
+        outlined
     >
         <!--<template v-slot:prepend>
             <q-icon name="textsms" size="xs" :color="globalColor" />
