@@ -12,7 +12,7 @@ const mutation: MutationTree<SettingUiStateInterface> = {
 
         const info: any = {
             visible: payload.hasOwnProperty("visible") ? payload.visible : state.rightDrawerState.visible,
-            mode: payload.mode,
+            mode: payload.mode || state.rightDrawerState.mode,
         };
 
         if (payload.mode === "conversation") {

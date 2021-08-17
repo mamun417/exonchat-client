@@ -47,7 +47,7 @@ export default defineComponent({
         },
         icon_color: {
             type: String,
-            default: "text-grey-5",
+            default: "text-blue-grey-3",
         },
     },
 

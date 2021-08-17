@@ -2,19 +2,21 @@
     <q-scroll-area
         @scroll="scrollInfo = $event"
         ref="msgScrollArea"
-        class="tw-px-1 tw-flex-grow tw-text-xs"
+        class="tw-px-0 tw-flex-grow tw-text-xs"
         style="height: 1px"
         :bar-style="{
             background: '#60A5FA',
             width: '4px',
             opacity: 0.2,
             borderRadius: '10px',
+            zIndex: 99999,
         }"
         :thumb-style="{
             borderRadius: '9px',
             backgroundColor: '#60A5FA',
             width: '4px',
             opacity: 0.7,
+            zIndex: 99999,
         }"
         :content-style="{}"
     >
@@ -47,7 +49,7 @@
                         <div class="">
                             <div
                                 v-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
-                                class="tw-flex tw-items-center tw-py-4"
+                                class="tw-flex tw-items-center tw-py-2"
                             >
                                 <div
                                     v-if="isAgentChatPanel"
@@ -131,22 +133,38 @@
                                             class="tw-flex tw-justify-between tw-items-center"
                                             :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
                                         >
-                                            <div class="tw-flex tw-gap-2 tw-mr-4">
+                                            <div class="tw-flex tw-items-center tw-gap-2 tw-mr-4">
                                                 <div
                                                     :class="`tw-font-medium tw-capitalize text-${globalColor} tw-text-sm`"
                                                 >
                                                     {{ msgSenderInfo(message, index).display_name }}
                                                 </div>
                                                 <div v-if="!isAgentToAgentConversation && isAgentChatPanel">
-                                                    <q-badge
-                                                        class="tw-uppercase"
-                                                        :color="
-                                                            msgSenderInfo(message, index).type === 'client'
-                                                                ? 'grey-7'
-                                                                : globalColor
-                                                        "
-                                                        :label="msgSenderInfo(message, index).type"
-                                                    />
+                                                    <div
+                                                        class="tw-rounded-sm tw-text-xxs tw-px-1 tw-uppercase"
+                                                        :class="{ '': msgSenderInfo(message, index).type === 'client' }"
+                                                        style="border: 1px solid"
+                                                        :style="{
+                                                            backgroundColor:
+                                                                msgSenderInfo(message, index).type === 'client'
+                                                                    ? '#f0f5f8'
+                                                                    : '#00568b',
+                                                            borderColor:
+                                                                msgSenderInfo(message, index).type === 'client'
+                                                                    ? '#cddee8'
+                                                                    : '#003658',
+                                                            color:
+                                                                msgSenderInfo(message, index).type === 'client'
+                                                                    ? '#333'
+                                                                    : '#fff',
+                                                        }"
+                                                    >
+                                                        {{
+                                                            msgSenderInfo(message, index).type === "agent"
+                                                                ? "staff"
+                                                                : msgSenderInfo(message, index).type
+                                                        }}
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -201,62 +219,36 @@
                         </div>
                     </template>
 
-                    <q-card
-                        v-for="(typing, index) in typingState"
-                        :key="index"
-                        class="tw-pb-0 tw-mb-6 tw-shadow-md"
-                        :class="checkOwnMessage(typing) ? 'bg-grey-2' : ''"
-                    >
-                        <q-card-section class="tw-px-0 tw-flex" :class="{ 'tw-py-2': mini_mode }">
+                    <div>
+                        <div
+                            v-for="(typing, index) in typingState"
+                            :key="index"
+                            class="tw-flex tw-items-center tw-py-2"
+                        >
                             <div
                                 class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                 :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                             >
-                                <ec-avatar
-                                    :size="mini_mode ? 'lg' : 'xl'"
-                                    :image_src="
-                                        msgSenderInfo(typing, index).type === 'ai'
-                                            ? 'fas fa-robot'
-                                            : msgSenderInfo(typing, index).src
-                                    "
-                                    :name="msgSenderInfo(typing, index).img_alt_name"
-                                    :is_icon="msgSenderInfo(typing, index).type === 'ai'"
-                                    class=""
-                                >
-                                    <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
-                                </ec-avatar>
+                                <q-spinner-dots color="blue-grey-8" size="1.4em" />
                             </div>
-                            <div class="tw-pr-4 tw-text-base tw-w-full">
-                                <div
-                                    class="tw-flex tw-justify-between tw-items-center"
-                                    :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
-                                >
-                                    <div class="tw-flex tw-gap-2 tw-mr-4">
-                                        <div :class="`tw-font-medium tw-capitalize text-${globalColor}`">
-                                            {{ msgSenderInfo(typing, index).display_name }}
-                                        </div>
-                                        <div>
-                                            <q-badge
-                                                class="tw-pb-1 tw-uppercase"
-                                                :color="
-                                                    msgSenderInfo(typing, index).type === 'client'
-                                                        ? 'grey-7'
-                                                        : globalColor
-                                                "
-                                                :label="msgSenderInfo(typing, index).type"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
 
+                            <div>
+                                <div>
+                                    <span
+                                        :class="`tw-mr-1 tw-break-none tw-font-medium tw-capitalize text-${globalColor}`"
+                                    >
+                                        {{ msgSenderInfo(typing).display_name }}
+                                    </span>
+                                    <span>is typing</span>
+                                </div>
                                 <div :class="$helpers.colors().defaultText">
                                     <div class="tw-text-sm">
                                         {{ typing.msg }}
                                     </div>
                                 </div>
                             </div>
-                        </q-card-section>
-                    </q-card>
+                        </div>
+                    </div>
 
                     <div
                         v-if="isAgentChatPanel"
@@ -471,8 +463,8 @@
 
     <div
         v-if="showSendMessageInput"
-        class="tw-w-full tw-py-2 tw-flex tw-mt-3 tw-bg-white tw-shadow-lg tw-self-end tw-rounded"
-        :class="[mini_mode ? 'tw-border-t-2' : '']"
+        class="tw-w-full tw-py-2 tw-flex tw-mt-3 tw-bg-white tw-self-end tw-rounded"
+        :class="[mini_mode ? 'tw-shadow-smt' : 'tw-shadow-md']"
     >
         <q-file
             v-model="attachments"
@@ -1075,7 +1067,7 @@ export default defineComponent({
             return false;
         },
         msgSenderInfo(msg: any, index: any) {
-            const prevMsg = this.messages[index - 1];
+            // const prevMsg = this.messages[index - 1];
 
             if (!msg.socket_session_id) {
                 return {
@@ -1085,11 +1077,7 @@ export default defineComponent({
                 };
             }
 
-            const display_name_condition =
-                this.chatPanelType === "user" ||
-                index === 0 ||
-                !prevMsg.hasOwnProperty("msg") ||
-                msg.socket_session_id !== prevMsg.socket_session_id;
+            const display_name_condition = true;
 
             const findSes = _l.find(this.conversationInfo.sessions, ["socket_session_id", msg.socket_session_id]);
 

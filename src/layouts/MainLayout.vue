@@ -3,7 +3,7 @@
         <template v-if="domReady">
             <q-drawer
                 :model-value="true"
-                class="tw-shadow-lgr"
+                class="tw-shadow-mdr"
                 side="left"
                 :breakpoint="599"
                 :width="!leftDrawer ? 65 : 300"
@@ -75,7 +75,7 @@
             <q-drawer
                 :model-value="rightDrawerVisible"
                 :class="{
-                    'tw-shadow-lgl': rightBarState.mode === 'conversation',
+                    'tw-shadow-mdl': rightBarState.mode === 'conversation',
                 }"
                 class="bg-blue-grey-1"
                 side="right"
@@ -140,7 +140,19 @@
                         <!--                        <div class='tw-flex tw-gap-2 tw-mb-2 text-white tw-text-base'><div>younus</div><div>|</div><div class='tw-px-2 bg-blue-grey-6 tw-rounded-md'>technical</div></div>-->
                     </q-card-section>
                 </q-card>
+
                 <q-page class="tw-flex">
+                    <div v-if="rightBarState.mode" class="tw-absolute tw-top-6 tw-right-0" style="z-index: 9999">
+                        <q-btn
+                            size="sm"
+                            :icon="rightDrawerVisible ? 'chevron_right' : 'chevron_left'"
+                            @click="updateRightDrawerState({ visible: !rightDrawerVisible })"
+                            class="tw-p-0"
+                            color="blue-grey-2"
+                            unelevated
+                        />
+                    </div>
+
                     <router-view
                         :class="`tw-w-full tw-p-3`"
                         style="background-color: #f8fafb"
