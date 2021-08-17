@@ -6,17 +6,17 @@
         :icon="image_src"
         :class="`text-white ${globalBgColor}`"
     ></q-avatar>
-    <q-avatar v-else-if="image_src && !local_preview_src" class="shadow-1" :size="size">
+    <q-avatar v-else-if="image_src && !local_preview_src" :size="size">
         <img :src="image_src" alt="" />
         <slot name="default"></slot>
     </q-avatar>
 
-    <q-avatar v-else-if="local_preview_src" class="shadow-1" :size="size" :class="`text-white ${globalBgColor}`">
+    <q-avatar v-else-if="local_preview_src" :size="size" :class="`text-white ${globalBgColor}`">
         <img :src="local_preview_src" alt="" />
     </q-avatar>
-    <q-avatar v-else :size="size" icon="person" :class="`shadow-1 ${icon_color}`">
+    <q-icon v-else :size="size" name="fa fa-user-circle" :class="`${icon_color}`">
         <slot name="default"></slot>
-    </q-avatar>
+    </q-icon>
 </template>
 
 <script lang="ts">
@@ -47,7 +47,7 @@ export default defineComponent({
         },
         icon_color: {
             type: String,
-            default: "text-grey-8",
+            default: "text-grey-5",
         },
     },
 
