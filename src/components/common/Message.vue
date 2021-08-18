@@ -59,7 +59,7 @@
                                     <i
                                         class="fa fa-circle"
                                         :class="`text-${globalColor}-6`"
-                                        :style="`font-size: 5px`"
+                                        :style="`font-size: 4px`"
                                         aria-hidden="true"
                                     ></i>
                                 </div>
@@ -232,7 +232,7 @@
                                 <q-spinner-dots color="blue-grey-8" size="1.4em" />
                             </div>
 
-                            <div>
+                            <div :class="$helpers.colors().defaultText">
                                 <div>
                                     <span
                                         :class="`tw-mr-1 tw-break-none tw-font-medium tw-capitalize text-${globalColor}`"
@@ -409,7 +409,11 @@
                     </template>
                 </template>-->
 
-                <div v-if="conversationInfo.rating && chatPanelType === 'user'" class="text-center tw-py-2 text-grey-8">
+                <div
+                    v-if="conversationInfo.rating && chatPanelType === 'user'"
+                    class="text-center tw-py-2"
+                    :class="$helpers.colors().defaultText"
+                >
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}

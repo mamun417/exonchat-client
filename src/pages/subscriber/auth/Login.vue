@@ -45,8 +45,16 @@
                 </div>
 
                 <div class="tw-flex tw-items-center tw-justify-between tw-mt-6">
-                    <q-btn type="submit" @click="loginButtonClicked" color="green" class="tw-px-10" dense unelevated>
-                        Login
+                    <q-btn
+                        :loading="loginLoading"
+                        type="submit"
+                        @click="loginButtonClicked"
+                        color="green"
+                        class="tw-px-10"
+                        unelevated
+                    >
+                        <q-icon v-if="loginSuccess" name="check"></q-icon>
+                        <div v-else>Login</div>
                     </q-btn>
                     <div
                         class="text-green tw-cursor-pointer tw-font-medium"
@@ -80,16 +88,20 @@ export default defineComponent({
     name: "Login",
     data(): any {
         return {
+            loginLoading: false,
             formData: {
                 email: "test@test.test",
                 password: "123",
                 company_name: "test",
             },
+            loginSuccess: false,
         };
     },
 
     methods: {
         loginButtonClicked() {
+            this.loginLoading = true;
+
             const inputs = {
                 pass: this.formData.password,
                 login_info: JSON.stringify({
@@ -106,11 +118,20 @@ export default defineComponent({
                     const userInfo = res.data;
                     localStorage.setItem("ec_update_storage_auth", JSON.stringify(userInfo));
 
-                    this.$helpers.showSuccessNotification(this, "Login successful");
-                    this.$router.push({ name: "chat-interaction" });
+                    // this.$helpers.showSuccessNotification(this, "Login successful");
+
+                    setTimeout(() => {
+                        this.loginLoading = false;
+                    }, 1000);
+
+                    this.loginSuccess = true;
+
+                    setTimeout(() => {
+                        this.$router.push({ name: "chat-interaction" });
+                    }, 2000);
                 })
                 .catch((err: any) => {
-                    console.log(err);
+                    this.loginLoading = false;
                     this.$helpers.showErrorNotification(this, err.response.data.message);
                 });
         },

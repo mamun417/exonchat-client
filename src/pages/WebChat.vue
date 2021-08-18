@@ -195,7 +195,7 @@
                     </div>-->
 
                     <div v-else class="">
-                        <div class="tw-m-5 tw-relative">
+                        <div class="tw-m-5 tw-mt-2 tw-relative">
                             <div class="">
                                 <template v-if="successSubmitOfflineChatReq">
                                     Ticket has been successfully submitted. Our agents will reply you when they are
@@ -213,7 +213,7 @@
 
                                 <template v-else>
                                     <template v-if="onlineChatDepartments.length">
-                                        <div class="tw-mb-5">
+                                        <div class="tw-mb-4">
                                             Welcome to Live Chat. Please enter the information below to chat with a
                                             representative. Please remember "Technical Support" department is not for
                                             sales query. For Sales query, please select sales department. If sales
@@ -349,15 +349,13 @@
                                             <q-btn
                                                 dense
                                                 :color="globalColor"
-                                                class="full-width tw-mt-4"
+                                                class="full-width tw-mt-2"
                                                 @click="submitOfflineChatReq"
                                                 no-caps
                                                 >Submit Ticket
                                             </q-btn>
                                             <div class="tw-text-xxs tw-mt-1">
-                                                <div>
-                                                    Note: Our agents will resolve your issue when they are online.
-                                                </div>
+                                                <div>Our agents will resolve your issue when they are online.</div>
                                             </div>
                                         </div>
 
