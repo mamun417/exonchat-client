@@ -100,7 +100,7 @@
                             </div>
                             <q-btn
                                 label="Accept Next"
-                                color="green"
+                                :color="globalColor"
                                 size="sm"
                                 :disable="!incomingChatRequestsForMe.length"
                                 @click="acceptNextChatHandler(incomingChatRequestsForMe[0].id)"

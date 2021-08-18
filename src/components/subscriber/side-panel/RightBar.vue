@@ -199,7 +199,7 @@
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow-lg"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -291,14 +291,12 @@
 
                 <div class="tw-mb-4"></div>
 
-                <div class="tw-mb-4"></div>
-
                 <q-expansion-item
                     label="CUSTOMER PAGE VISITS"
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow-lg"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -332,7 +330,7 @@
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow-lg"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -367,7 +365,7 @@
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow-lg"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -518,7 +516,7 @@ export default defineComponent({
                 this.$refs.chat_duration?.$forceUpdate();
                 this.$refs.connectedForTimer?.$forceUpdate();
             }
-        }, 10000);
+        }, 1000);
 
         if (
             this.$route.name === "chats" &&

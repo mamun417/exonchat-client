@@ -3,10 +3,10 @@
         <template v-if="domReady">
             <q-drawer
                 :model-value="true"
-                class="tw-shadow-mdr"
+                class="tw-shadow"
                 side="left"
                 :breakpoint="599"
-                :width="!leftDrawer ? 65 : 300"
+                :width="!leftDrawer ? 65 : 280"
                 persistent
                 show-if-above
             >
@@ -75,7 +75,7 @@
             <q-drawer
                 :model-value="rightDrawerVisible"
                 :class="{
-                    'tw-shadow-mdl': rightBarState.mode === 'conversation',
+                    'tw-shadow': rightBarState.mode === 'conversation',
                 }"
                 class="bg-blue-grey-1"
                 side="right"
@@ -142,7 +142,15 @@
                 </q-card>
 
                 <q-page class="tw-flex">
-                    <div v-if="rightBarState.mode" class="tw-absolute tw-top-6 tw-right-0" style="z-index: 9999">
+                    <div
+                        v-if="
+                            rightBarState.mode &&
+                            ((rightBarState.mode === 'client_info' && !conversationInfo.users_only) ||
+                                (rightBarState.mode === 'conversation' && rightBarState.conv_id))
+                        "
+                        class="tw-absolute tw-top-9 tw-right-0"
+                        style="z-index: 9999"
+                    >
                         <q-btn
                             size="sm"
                             :icon="rightDrawerVisible ? 'chevron_right' : 'chevron_left'"
@@ -343,6 +351,12 @@ export default defineComponent({
             globalBgColor: "setting_ui/globalBgColor",
             rightBarState: "setting_ui/rightBarState", // its a mistake to store & get from there
         }),
+
+        conversationInfo(): any {
+            if (this.$route.name !== "chats" || !this.$route.params.conv_id) return {};
+
+            return this.$store.getters["chat/conversationInfo"](this.$route.params.conv_id);
+        },
 
         currentRouteName() {
             return this.$route.name;
