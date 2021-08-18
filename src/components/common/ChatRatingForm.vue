@@ -1,53 +1,71 @@
 <template>
     <div>
         <q-card class="tw-shadow-sm">
-            <q-card-section class="tw-pb-2">
-                <div class="tw-text-base tw-text-center tw-font-medium" :class="$helpers.colors().defaultText">
-                    Rate This Chat
+            <q-card-section>
+                <div class="tw-text-base tw-text-center tw-font-bold text-dark" :class="$helpers.colors().defaultText">
+                    <div v-if="ratingForm.ratingTempValue === ''">Rate This Chat!</div>
+                    <div v-else>
+                        <div v-if="ratingForm.ratingTempValue === true">Good</div>
+                        <div v-if="ratingForm.ratingTempValue === false">Bad</div>
+                    </div>
+                </div>
+                <div class="tw-mt-2 tw-text-center tw-text-sm">
+                    Please click on one of the options below to rate your experience.
                 </div>
             </q-card-section>
-            <q-card-actions align="around">
-                <q-btn
-                    @click="ratingForm.ratingTempValue = true"
-                    color="green"
-                    icon="thumb_up"
-                    label="Good"
-                    size="sm"
-                    :flat="!ratingForm.ratingTempValue"
-                />
-                <q-btn
-                    @click="ratingForm.ratingTempValue = false"
-                    color="red"
-                    icon="thumb_down"
-                    label="Bad"
-                    size="sm"
-                    :flat="ratingForm.ratingTempValue"
-                />
+
+            <q-card-section class="tw-pt-0">
+                <div class="tw-flex tw-justify-center tw-gap-2 tw-mb-6 rating-icons">
+                    <q-btn
+                        @click="ratingForm.ratingTempValue = true"
+                        text-color="green-10"
+                        :color="ratingForm.ratingTempValue === true ? '' : 'green-1'"
+                        :class="{ 'rating-icon-bg': ratingForm.ratingTempValue !== true }"
+                        size="xl"
+                        unelevated
+                        flat
+                    >
+                        <q-icon
+                            class=""
+                            :name="`${ratingForm.ratingTempValue === true ? 'fas' : 'far'} fa-thumbs-up`"
+                        ></q-icon>
+                    </q-btn>
+
+                    <q-btn
+                        @click="ratingForm.ratingTempValue = false"
+                        :text-color="[ratingForm.ratingTempValue === false ? 'red-10' : 'green-10']"
+                        :icon="`${ratingForm.ratingTempValue === false ? 'fas' : 'far'} fa-thumbs-down`"
+                        :color="ratingForm.ratingTempValue === false ? '' : 'green-1'"
+                        :class="{ 'rating-icon-bg': ratingForm.ratingTempValue === false }"
+                        class="rating-icon-thumbs-down"
+                        size="xl"
+                        unelevated
+                    />
+                </div>
 
                 <q-input
                     v-model="ratingForm.comment"
                     dense
-                    label="Your Comment"
-                    color="blue-grey"
-                    class="tw-py-3 full-width"
+                    label="Leave a comment"
+                    class="full-width tw-mb-4"
+                    :color="globalColor"
+                    outlined
                 >
-                    <template v-slot:prepend>
-                        <q-icon name="insert_comment" size="xs" color="blue-grey" />
-                    </template>
                 </q-input>
 
                 <q-btn
                     @click="submitRating"
                     :disable="ratingForm.ratingTempValue === ''"
-                    dense
-                    color="blue-grey"
-                    class="full-width tw-mt-2"
+                    :color="ratingForm.ratingTempValue === '' ? 'green-1' : globalColor"
+                    :text-color="ratingForm.ratingTempValue === '' ? 'green-6' : ''"
+                    class="tw-mt-2 full-width"
+                    style="padding: 0 20px"
                     no-caps
                     unelevated
                 >
-                    Submit Rate
+                    Submit Rating
                 </q-btn>
-            </q-card-actions>
+            </q-card-section>
         </q-card>
     </div>
 </template>
@@ -66,6 +84,7 @@ export default defineComponent({
                 comment: "",
             },
             ratingFormErrors: {},
+            globalColor: "green-10",
         };
     },
 
@@ -115,4 +134,27 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style lang="scss">
+.rating-icons {
+    .q-btn {
+        -webkit-text-stroke: 2px white;
+    }
+}
+
+.rating-icon-bg {
+    background-color: rgba(46, 104, 44, 0.06) !important;
+}
+
+.rating-icon-thumbs-down:hover {
+    background: rgba(178, 0, 0, 0.05) !important;
+    color: #b20000 !important;
+}
+
+//.q-btn {
+//    &:hover {
+//        .q-focus-helper {
+//            background: unset !important;
+//        }
+//    }
+//}
+</style>

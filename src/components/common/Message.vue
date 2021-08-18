@@ -93,7 +93,7 @@
                                             [$helpers.colors().dateTimeText]: true,
                                         }"
                                     >
-                                        {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
+                                        {{ getDateTime(message.created_at) }}
                                     </div>
                                 </div>
                             </div>
@@ -175,7 +175,7 @@
                                                     [$helpers.colors().dateTimeText]: true,
                                                 }"
                                             >
-                                                {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
+                                                {{ getDateTime(message.created_at) }}
                                             </div>
                                         </div>
 
@@ -285,7 +285,7 @@
                                         msgForRightSide(message) ? 'text-white' : 'text-black',
                                     ]"
                                 >
-                                    {{ $helpers.myDate(message.created_at, "MMM DD, Y h:mm a") }}
+                                    {{ getDateTime(message.created_at) }}
                                 </div>
                             </template>
 
@@ -409,14 +409,11 @@
                     </template>
                 </template>-->
 
-                <div
-                    v-if="conversationInfo.rating && chatPanelType === 'client'"
-                    class="text-center tw-py-2 text-grey-8"
-                >
+                <div v-if="conversationInfo.rating && chatPanelType === 'user'" class="text-center tw-py-2 text-grey-8">
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
-                            {{ $helpers.myDate(conversationInfo.rating.created_at, "MMM DD, Y h:mm a") }}
+                            {{ getDateTime(conversationInfo.rating.created_at) }}
                         </div>
                         <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
                         <div class="tw-mt-2">
@@ -743,6 +740,7 @@ export default defineComponent({
             lastTopVerticalPosition: 0,
 
             timeToShowSpeakingInfo: false,
+            clientPanlelGlobalColor: "green-10",
         };
     },
 
@@ -1123,7 +1121,7 @@ export default defineComponent({
                     ? `| ${message.session.user ? "Agent" : "Client"} Ended chat ${convSes.closed_reason || ""}`
                     : "";
 
-            // const time = `at ${this.$helpers.myDate(message.created_at, "MMM DD, Y h:mm a")}`;
+            // const time = `at ${this.getDateTime(message.created_at)}`;
 
             // if (this.chatPanelType === "user") {
             return {
@@ -1536,6 +1534,10 @@ export default defineComponent({
                     }
                 );
             }
+        },
+
+        getDateTime(date: any) {
+            return this.$helpers.myDate(date, `${this.isAgentChatPanel ? "MMM DD, Y" : ""} h:mm a`);
         },
     },
 
