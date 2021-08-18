@@ -1668,7 +1668,7 @@ export default defineComponent({
     }
 
     .chat_template_selected_item,
-    //.chat_template_box_header
+        //.chat_template_box_header
     {
         background-color: rgba(0, 87, 143, 0.06);
     }

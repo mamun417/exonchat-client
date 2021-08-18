@@ -11,7 +11,7 @@
                 />
 
                 <template v-if="!conversationInfo.users_only && conversationWithUsersInfo.length">
-                    <q-card class="tw-shadow-md">
+                    <q-card class="tw-shadow">
                         <q-separator />
                         <q-card-section class="tw-px-0 tw-py-2">
                             <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
@@ -82,14 +82,14 @@
                         </q-card-section>
                     </q-card>
 
-                    <q-separator v-show="conversationShowDetail" />
+                    <q-separator v-show="conversationShowDetail" class="tw-shadow" />
 
-                    <q-card v-show="conversationShowDetail" class="tw-shadow-md tw-mb-3">
+                    <q-card v-show="conversationShowDetail" class="tw-shadow tw-mb-3">
                         <q-card-section class="tw-px-0 tw-py-2">
                             <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
                                 <q-item dense>
                                     <q-item-section>
-                                        <q-item-label>Agents</q-item-label>
+                                        <q-item-label>Connected Agents</q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
                                         <connected-users-faces :users_conv_ses="conversationConnectedUsers" size="md" />

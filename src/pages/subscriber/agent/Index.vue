@@ -1,6 +1,6 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+        <div class="tw-shadow tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">My Agents</div>
             <q-btn
                 :color="globalColor"
@@ -10,11 +10,12 @@
                     assignAgentModal = true;
                     getChatDepartments();
                 "
+                unelevated
             ></q-btn>
         </div>
 
         <div>
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table :rows="mappedUsers" :columns="userColumns" :bodyCelTemplate="bodyCelTemplate">
                     <template v-slot:cell-info="slotProps">
                         <div class="tw-flex tw-items-center">
@@ -63,12 +64,12 @@
             </div>
         </div>
 
-        <div class="tw-mt-7 tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+        <div class="tw-mt-7 tw-shadow tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Invitations</div>
         </div>
 
         <div class="tw-flex-grow">
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     :rows="mappedInvitations"
                     :columns="invitationColumns"

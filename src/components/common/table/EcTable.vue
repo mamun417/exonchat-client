@@ -26,7 +26,7 @@
 
         <template v-slot:header="props">
             <q-tr :props="props">
-                <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                <q-th v-for="col in props.cols" :key="col.name" :props="props" style="border-bottom-width: 0">
                     <!-- if you want to change a header col style or anything just call -->
                     <!-- <template v-slot:header-cell-colname="slotProps" >your div {{slotProps.col.name}}</template> -->
                     <!-- slotProps will contain col so for the name slotProps.col.name -->

@@ -14,7 +14,7 @@
         </div>
 
         <div class="tw-mb-5">
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     :columns="typeOneColumns"
                     :rows="filteredChats('chatsInQueue')"
@@ -75,7 +75,7 @@
         </div>
 
         <div class="tw-mb-5">
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     :columns="typeTwoColumns"
                     :rows="filteredChats('myRunningChats')"
@@ -136,7 +136,7 @@
         </div>
 
         <div class="">
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     :columns="typeThreeColumns"
                     :rows="filteredChats('ongoingOtherChats')"

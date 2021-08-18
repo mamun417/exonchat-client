@@ -1,8 +1,8 @@
 <template>
     <div>
-        <q-card class="tw-mb-4">
-            <q-card-section class="tw-border-b-2">
-                <div class="tw-font-bold te-text-base">Apps Integration</div>
+        <q-card class="tw-mb-4 tw-shadow">
+            <q-card-section class="tw-border-b-1">
+                <div class="tw-font-medium te-text-base">Apps Integration</div>
             </q-card-section>
 
             <q-tabs
@@ -20,9 +20,9 @@
         </q-card>
 
         <!-- these will come from api (which apps, their inputs, input types) -->
-        <q-card>
+        <q-card class="tw-shadow">
             <q-card-section>
-                <div class="tw-mb-4 tw-border-b-2">
+                <div class="tw-mb-4 tw-border-b-1">
                     <div class="tw-font-medium">WHMCS Api Manager</div>
                 </div>
 
@@ -32,7 +32,7 @@
                         v-model="formInputs.apps_whmcs_identifier_key"
                         :type="isPwdWhmcs.identifier ? 'password' : 'text'"
                         bg-color="white"
-                        class="tw-mb-2 tw-shadow-md tw-px-2"
+                        class="tw-mb-2 tw-shadow tw-px-2"
                         hide-bottom-space
                         standout
                         borderless
@@ -46,7 +46,7 @@
                         v-model="formInputs.apps_whmcs_secret_key"
                         :type="isPwdWhmcs.secret ? 'password' : 'text'"
                         bg-color="white"
-                        class="tw-mb-2 tw-shadow-md tw-px-2"
+                        class="tw-mb-2 tw-shadow tw-px-2"
                         hide-bottom-space
                         standout
                         borderless
@@ -108,6 +108,7 @@
                     :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
                     color="green"
                     size="sm"
+                    unelevated
                 >
                     Update App Setting
                 </q-btn>
