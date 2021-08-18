@@ -173,8 +173,8 @@
                                 >
                                     <q-item-section>
                                         <q-item-label class="tw-text-xs text-weight-medium tw-uppercase"
-                                            >All</q-item-label
-                                        >
+                                            >All
+                                        </q-item-label>
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label side class="text-right tw-text-sm text-grey-7">

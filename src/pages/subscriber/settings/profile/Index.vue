@@ -4,7 +4,7 @@
         <!--            <q-card-section class="tw-text-lg tw-font-bold">Profile</q-card-section>-->
         <!--        </q-card>-->
 
-        <q-card class="tw-mb-4">
+        <q-card class="tw-mb-4 tw-shadow">
             <q-card-section>
                 <div class="tw-flex tw-flex-col tw-items-center">
                     <div class="tw-mb-3 ec-settings-profile-img tw-relative">
@@ -41,9 +41,9 @@
 
         <div class="tw-grid lg:tw-grid-cols-2 md:tw-grid-cold-1 tw-grid tw-gap-4">
             <div>
-                <q-card class="tw-mb-4">
+                <q-card class="tw-mb-4 tw-shadow">
                     <q-card-section class="tw-py-2">
-                        <div class="tw-border-b-2 tw-text-lg tw-font-medium tw-mb-4">Personal Information</div>
+                        <div class="tw-border-b-1 tw-text-lg tw-font-medium tw-mb-4">Personal Information</div>
 
                         <div class="tw-mb-6">
                             <div>Full Name</div>
@@ -53,7 +53,7 @@
                                 :error="!!formDataErrors.full_name"
                                 @update:model-value="formDataErrors.full_name = ''"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -68,7 +68,7 @@
                                 :error="!!formDataErrors.display_name"
                                 @update:model-value="formDataErrors.display_name = ''"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -84,16 +84,16 @@
                     </q-card-actions>
                 </q-card>
 
-                <q-card>
+                <q-card class="tw-shadow">
                     <q-card-section class="tw-py-2">
-                        <div class="tw-border-b-2 tw-text-lg tw-font-medium tw-mb-4">Other Information</div>
+                        <div class="tw-border-b-1 tw-text-lg tw-font-medium tw-mb-4">Other Information</div>
 
                         <div class="tw-mb-6">
                             <div>Phone Number</div>
                             <q-input
                                 v-model="formData.phone"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -105,7 +105,7 @@
                             <q-input
                                 v-model="formData.address"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -117,7 +117,7 @@
                             <q-input
                                 v-model="formData.facebook"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -129,7 +129,7 @@
                             <q-input
                                 v-model="formData.twitter"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -141,7 +141,7 @@
                             <q-input
                                 v-model="formData.linkedin"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -159,9 +159,9 @@
             </div>
 
             <div>
-                <q-card class="tw-mb-4">
+                <q-card class="tw-mb-4 tw-shadow">
                     <q-card-section class="tw-py-2">
-                        <div class="tw-border-b-2 tw-text-lg tw-font-medium tw-mb-4">Change Password</div>
+                        <div class="tw-border-b-1 tw-text-lg tw-font-medium tw-mb-4">Change Password</div>
 
                         <div class="tw-mb-6">
                             <div>Old Password</div>
@@ -171,7 +171,7 @@
                                 :error="!!formDataErrors.old_password"
                                 @update:model-value="formDataErrors.old_password = ''"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -187,7 +187,7 @@
                                 :error="!!formDataErrors.password"
                                 @update:model-value="formDataErrors.password = ''"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -200,7 +200,7 @@
                             <q-input
                                 v-model="passFormData.confirm_password"
                                 bg-color="white"
-                                class="tw-mb-2 tw-shadow-md tw-px-2"
+                                class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
                                 borderless
@@ -214,7 +214,7 @@
                     </q-card-actions>
                 </q-card>
 
-                <q-card>
+                <q-card class="tw-shadow">
                     <q-card-section>
                         <div class="text-center">...</div>
                     </q-card-section>

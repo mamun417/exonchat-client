@@ -12,6 +12,7 @@ import routes from "./routes";
  * with the Router instance.
  */
 
+// @ts-ignore
 export default route<StateInterface>(function ({ store }) {
     const createHistory = process.env.SERVER
         ? createMemoryHistory

@@ -148,14 +148,14 @@
                             ((rightBarState.mode === 'client_info' && !conversationInfo.users_only) ||
                                 (rightBarState.mode === 'conversation' && rightBarState.conv_id))
                         "
-                        class="tw-absolute tw-top-9 tw-right-0"
+                        class="tw-absolute tw-top-6 tw-right-0"
                         style="z-index: 9999"
                     >
                         <q-btn
                             size="sm"
                             :icon="rightDrawerVisible ? 'chevron_right' : 'chevron_left'"
                             @click="updateRightDrawerState({ visible: !rightDrawerVisible })"
-                            class="tw-p-0"
+                            class="tw-px-0 tw-py-3"
                             color="blue-grey-2"
                             unelevated
                         />

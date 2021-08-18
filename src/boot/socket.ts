@@ -1,9 +1,9 @@
 import { boot } from "quasar/wrappers";
-import io from "socket.io-client";
+import { io } from "socket.io-client";
 
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
-        socket: SocketIOClient.Socket;
+        socket: any;
     }
 }
 

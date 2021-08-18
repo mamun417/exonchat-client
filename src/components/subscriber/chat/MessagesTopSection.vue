@@ -163,8 +163,8 @@
                                         <q-item-section
                                             @click="openTicketModal = true"
                                             :class="$helpers.colors().defaultText"
-                                            >Open Ticket</q-item-section
-                                        >
+                                            >Open Ticket
+                                        </q-item-section>
                                     </q-item>
 
                                     <q-item v-if="conversationStatusForMe === 'joined'" clickable v-close-popup>

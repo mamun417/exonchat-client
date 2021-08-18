@@ -1,6 +1,6 @@
 <template>
     <div>
-        <q-card class="tw-mt-4 tw-mb-10 tw-p-6 tw-shadow-lg">
+        <q-card class="tw-mt-4 tw-mb-10 tw-p-6 tw-shadow">
             <div class="tw-font-bold tw-text-lg">ORGANIZATIONS & ACCOUNT</div>
             <div class="tw-my-4 text-grey-7">
                 <q-btn @click="$router.push({ name: 'users' })" flat stack no-caps>
@@ -18,7 +18,7 @@
             </div>
         </q-card>
 
-        <q-card class="tw-mt-4 tw-mb-8 tw-p-6 tw-shadow-lg">
+        <q-card class="tw-mt-4 tw-mb-8 tw-p-6 tw-shadow">
             <div class="tw-font-bold tw-text-lg">CHAT SETTINGS</div>
             <div class="tw-my-4 text-grey-7">
                 <q-btn flat stack no-caps>

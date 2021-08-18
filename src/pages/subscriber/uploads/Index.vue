@@ -1,12 +1,12 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+        <div class="tw-shadow tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">My Uploads</div>
-            <q-btn color="green" icon="add" label="Assign" @click="assignAgentModal = true"></q-btn>
+            <q-btn :color="globalColor" icon="add" label="Assign" @click="assignAgentModal = true"></q-btn>
         </div>
 
         <div class="tw-flex-grow">
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <div class="tw-flex">
                     <q-input placeholder="Search" dense />
                     <q-space />
@@ -87,6 +87,7 @@
 import { defineComponent } from "vue";
 
 import * as _l from "lodash";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
     data(): any {
@@ -100,6 +101,12 @@ export default defineComponent({
 
     mounted() {
         this.getUploadedFiles();
+    },
+    computed: {
+        ...mapGetters({
+            globalColor: "setting_ui/globalColor",
+            globalBgColor: "setting_ui/globalBgColor",
+        }),
     },
     methods: {
         getUploadedFiles() {

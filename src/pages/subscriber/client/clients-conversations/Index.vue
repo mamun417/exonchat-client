@@ -1,11 +1,11 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+        <div class="tw-shadow tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Client Conversation List</div>
         </div>
 
         <div class="tw-flex-grow">
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     @handlePipeline="handlePipeline({ s: $event })"
                     :search-value="clientConvPipeline.s"

@@ -1,13 +1,13 @@
 <template>
     <div class="tw-flex tw-flex-col">
-        <div class="tw-shadow-lg tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
+        <div class="tw-shadow tw-bg-white tw-p-4 tw-flex tw-justify-between tw-mb-7">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-py-1">Intents List</div>
-            <q-btn color="green" icon="add" label="Add New" @click="showCreateIntentModal"></q-btn>
+            <q-btn :color="globalColor" icon="add" label="Add New" @click="showCreateIntentModal"></q-btn>
         </div>
 
         <!--intent list-->
         <div class="tw-flex-grow">
-            <div class="tw-shadow-lg tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     :rows="mappedIntents"
                     :columns="columns"
@@ -83,6 +83,7 @@ import EcTable from "src/components/common/table/EcTable.vue";
 import { defineComponent } from "vue";
 import ConfirmModal from "components/common/modal/ConfirmModal.vue";
 import AddEditIntentForm from "pages/subscriber/intents/AddEditIntentForm.vue";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
     name: "Intents",
@@ -141,6 +142,11 @@ export default defineComponent({
     },
 
     computed: {
+        ...mapGetters({
+            globalColor: "setting_ui/globalColor",
+            globalBgColor: "setting_ui/globalBgColor",
+        }),
+
         mappedIntents(): any {
             const intents = _.cloneDeep(this.intents);
 
