@@ -15,13 +15,15 @@
             </q-card-section>
 
             <q-card-section class="tw-pt-0">
-                <div class="tw-flex tw-justify-center tw-gap-2 tw-mb-6">
+                <div class="tw-flex tw-justify-center tw-gap-2 tw-mb-6 rating-icons">
                     <q-btn
                         @click="ratingForm.ratingTempValue = true"
-                        :text-color="globalColor"
+                        text-color="green-10"
                         :color="ratingForm.ratingTempValue === true ? '' : 'green-1'"
+                        :class="{ 'rating-icon-bg': ratingForm.ratingTempValue !== true }"
                         size="xl"
                         unelevated
+                        flat
                     >
                         <q-icon
                             class=""
@@ -31,9 +33,11 @@
 
                     <q-btn
                         @click="ratingForm.ratingTempValue = false"
-                        text-color="red-10"
+                        :text-color="[ratingForm.ratingTempValue === false ? 'red-10' : 'green-10']"
                         :icon="`${ratingForm.ratingTempValue === false ? 'fas' : 'far'} fa-thumbs-down`"
-                        :color="ratingForm.ratingTempValue === false ? '' : 'red-1'"
+                        :color="ratingForm.ratingTempValue === false ? '' : 'green-1'"
+                        :class="{ 'rating-icon-bg': ratingForm.ratingTempValue === false }"
+                        class="rating-icon-thumbs-down"
                         size="xl"
                         unelevated
                     />
@@ -130,4 +134,27 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style lang="scss">
+.rating-icons {
+    .q-btn {
+        -webkit-text-stroke: 2px white;
+    }
+}
+
+.rating-icon-bg {
+    background-color: rgba(46, 104, 44, 0.06) !important;
+}
+
+.rating-icon-thumbs-down:hover {
+    background: rgba(178, 0, 0, 0.05) !important;
+    color: #b20000 !important;
+}
+
+//.q-btn {
+//    &:hover {
+//        .q-focus-helper {
+//            background: unset !important;
+//        }
+//    }
+//}
+</style>

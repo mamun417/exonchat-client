@@ -95,17 +95,26 @@
 
                 <div v-show="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
                     <div class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5">
-                        <q-card>
+                        <q-card class="shadow-0">
                             <q-card-section>
-                                <div class="tw-text-md tw-text-center">Are you sure you want to close chat?</div>
+                                <div class="tw-text-md tw-text-center">Are you sure you want to end this chat?</div>
                             </q-card-section>
                             <q-card-actions align="center">
-                                <q-btn @click="closeChat" :color="globalColor" label="Yes" style="width: 70px" />
+                                <q-btn
+                                    @click="closeChat"
+                                    :color="globalColor"
+                                    label="Yes"
+                                    style="width: 70px"
+                                    no-caps
+                                    unelevated
+                                />
                                 <q-btn
                                     @click="closeChatModal = false"
                                     :color="globalColor"
                                     label="No"
                                     style="width: 70px"
+                                    no-caps
+                                    unelevated
                                 />
                             </q-card-actions>
                         </q-card>
@@ -164,7 +173,7 @@
                             </template>
                         </message>
 
-                        <div class="tw-px-3 full-width">
+                        <div class="tw-px-5 full-width">
                             <q-btn
                                 v-if="conversationInfo.closed_at"
                                 @click="clearSession"

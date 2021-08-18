@@ -417,10 +417,7 @@
                     </template>
                 </template>-->
 
-                <div
-                    v-if="conversationInfo.rating && chatPanelType === 'client'"
-                    class="text-center tw-py-2 text-grey-8"
-                >
+                <div v-if="conversationInfo.rating && chatPanelType === 'user'" class="text-center tw-py-2 text-grey-8">
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
