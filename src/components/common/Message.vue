@@ -1079,13 +1079,17 @@ export default defineComponent({
                 };
             }
 
-            const display_name_condition = true;
-
             const findSes = _l.find(this.conversationInfo.sessions, ["socket_session_id", msg.socket_session_id]);
+
+            const isMyMsg =
+                (this.chatPanelType !== "user" && !findSes.socket_session.user) ||
+                (this.chatPanelType === "user" &&
+                    findSes.socket_session.user &&
+                    findSes.socket_session.user.id === this.profile.id);
 
             if (findSes.socket_session.user) {
                 return {
-                    display_name: display_name_condition ? findSes.socket_session.user.user_meta.display_name : "",
+                    display_name: isMyMsg ? "You" : findSes.socket_session.user.user_meta.display_name,
                     img_alt_name: findSes.socket_session.user.user_meta.display_name,
                     email: findSes.socket_session.user.email,
                     src: findSes.socket_session.user.user_meta.src || null,
@@ -1094,7 +1098,7 @@ export default defineComponent({
             }
 
             return {
-                display_name: display_name_condition ? findSes.socket_session.init_name : "",
+                display_name: isMyMsg ? "You" : findSes.socket_session.init_name,
                 img_alt_name: findSes.socket_session.init_name,
                 email: findSes.socket_session.init_email,
                 type: "client",
