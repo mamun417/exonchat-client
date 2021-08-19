@@ -20,7 +20,7 @@
                         @click="ratingForm.ratingTempValue = true"
                         text-color="green-10"
                         :color="ratingForm.ratingTempValue === true ? '' : 'green-1'"
-                        :class="{ 'rating-icon-bg': ratingForm.ratingTempValue !== true }"
+                        class="rating-icon-bg"
                         size="xl"
                         unelevated
                         flat
@@ -36,8 +36,7 @@
                         :text-color="[ratingForm.ratingTempValue === false ? 'red-10' : 'green-10']"
                         :icon="`${ratingForm.ratingTempValue === false ? 'fas' : 'far'} fa-thumbs-down`"
                         :color="ratingForm.ratingTempValue === false ? '' : 'green-1'"
-                        :class="{ 'rating-icon-bg': ratingForm.ratingTempValue === false }"
-                        class="rating-icon-thumbs-down"
+                        class="rating-icon-bg rating-icon-thumbs-down"
                         size="xl"
                         unelevated
                     />

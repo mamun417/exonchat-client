@@ -36,14 +36,6 @@
                     Loading History...
                 </div>
 
-                <!--<div v-if="speakingWithUser.name" class="tw-text-center">
-                    <ec-avatar :image_src="speakingWithUser.avater" :name="speakingWithUser.name"> </ec-avatar>
-                    <div class="tw-mt-2 tw-text-sm">
-                        You are currently speaking to {{ $_.upperFirst(speakingWithUser.name) }}
-                    </div>
-                </div>-->
-
-                <!--                <template v-if="chatPanelType === 'user'">-->
                 <div class="tw-relative tw-z-10">
                     <template v-for="(message, index) in messages" :key="message.id" class="justify-center">
                         <div class="">
@@ -51,6 +43,7 @@
                                 v-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
                                 class="tw-flex tw-items-center tw-py-2"
                             >
+                                <!--dot circle-->
                                 <div
                                     v-if="isAgentChatPanel"
                                     class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
@@ -63,11 +56,14 @@
                                         aria-hidden="true"
                                     ></i>
                                 </div>
+
+                                <!--state info-->
                                 <div
-                                    class="tw-flex tw-items-center tw-w-full tw-pr-4"
+                                    class="tw-flex tw-items-center tw-w-full"
                                     :class="{
                                         'tw-justify-between tw-text-sm': isAgentChatPanel,
                                         'tw-justify-center tw-text-xs': !isAgentChatPanel,
+                                        'tw-pr-4': !mini_mode,
                                     }"
                                 >
                                     <div class="text-center">
@@ -98,6 +94,33 @@
                                 </div>
                             </div>
 
+                            <!--speaking with -->
+                            <div
+                                v-if="!message.msg && !message.attachments && !isAgentToAgentConversation"
+                                class="tw-flex tw-items-center tw-justify-center tw--mt-2"
+                            >
+                                <div
+                                    v-if="
+                                        this.chatPanelType === 'client' &&
+                                        message.session.user &&
+                                        message.state === 'joined' &&
+                                        speakingWithUser.id === message.session?.user?.id
+                                    "
+                                    class="tw-text-center tw-mt-4"
+                                >
+                                    <ec-avatar
+                                        :image_src="speakingWithUser.user_meta.src"
+                                        :name="speakingWithUser.user_meta.display_name"
+                                    >
+                                    </ec-avatar>
+                                    <div class="tw-mt-2 tw-text-sm" :class="$helpers.colors().defaultText">
+                                        You are currently speaking to
+                                        {{ $_.upperFirst(speakingWithUser.user_meta.display_name) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--message-->
                             <q-card
                                 v-if="message.msg || (message.attachments && message.attachments.length)"
                                 class="tw-pb-0 tw-my-4 tw-shadow-sm"
@@ -135,7 +158,7 @@
                                         >
                                             <div class="tw-flex tw-items-center tw-gap-2 tw-mr-4">
                                                 <div
-                                                    :class="`tw-font-medium tw-capitalize text-${globalColor} tw-text-sm`"
+                                                    :class="`tw-font-bold tw-capitalize text-${globalColor} tw-text-sm`"
                                                 >
                                                     {{ msgSenderInfo(message, index).display_name }}
                                                 </div>
@@ -184,6 +207,7 @@
                                                 {{ message.msg }}
                                             </div>
 
+                                            <!--attachment-->
                                             <div
                                                 v-if="message.attachments && message.attachments.length"
                                                 class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
@@ -219,6 +243,7 @@
                         </div>
                     </template>
 
+                    <!--typing state-->
                     <div>
                         <div
                             v-for="(typing, index) in typingState"
@@ -250,6 +275,7 @@
                         </div>
                     </div>
 
+                    <!--long border up to bottom-->
                     <div
                         v-if="isAgentChatPanel"
                         class="tw-absolute tw-top-0 tw-h-full tw--z-1"
@@ -463,6 +489,7 @@
     </q-scroll-area>
 
     <div
+        style="border-top: 1px solid rgba(0, 0, 0, 0.08)"
         v-if="showSendMessageInput"
         class="tw-w-full tw-py-2 tw-flex tw-mt-3 tw-bg-white tw-self-end tw-rounded"
         :class="[mini_mode ? 'tw-shadow-smt' : 'tw-shadow-md']"
@@ -484,7 +511,7 @@
         <div class="tw-flex tw-flex-col tw-justify-end">
             <q-btn
                 flat
-                :color="globalColor"
+                :color="chatPanelType === 'user' ? globalColor : clientPanelGlobalColor"
                 icon="attachment"
                 :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
                 :dense="mini_mode"
@@ -497,6 +524,7 @@
                 :class="[mini_mode ? 'tw-px-1' : 'tw-px-2']"
                 :dense="mini_mode"
                 :mini_box="mini_mode || chatPanelType === 'client'"
+                :color="chatPanelType === 'user' ? globalColor : clientPanelGlobalColor"
             />
         </div>
 
@@ -509,7 +537,7 @@
                 placeholder="Write Message..."
                 :color="globalColor"
                 class="ec-msg-input"
-                :class="[`ec-msg-input-${uid}`, mini_mode ? 'tw-text-xxs ec-mini-mode-msg-input' : '']"
+                :class="[`ec-msg-input-${uid}`, mini_mode ? 'ec-mini-mode-msg-input' : '']"
                 :autofocus="messageInputAutoFocus"
                 @keydown="keyDownHandle"
                 @keyup="keyUpHandle"
@@ -617,7 +645,7 @@
             <q-btn
                 icon="send"
                 flat
-                :color="globalColor"
+                :color="chatPanelType === 'user' ? globalColor : clientPanelGlobalColor"
                 :dense="mini_mode"
                 :disable="getSendBtnStatus"
                 @click="sendMessage"
@@ -744,7 +772,7 @@ export default defineComponent({
             lastTopVerticalPosition: 0,
 
             timeToShowSpeakingInfo: false,
-            clientPanlelGlobalColor: "green-10",
+            clientPanelGlobalColor: "green-10",
         };
     },
 
@@ -1017,6 +1045,7 @@ export default defineComponent({
                 this.$store
                     .dispatch("chat/getConvMessages", {
                         convId: this.conv_id,
+                        client_page: !this.isAgentChatPanel,
                     })
                     .then((res: any) => {
                         // console.log({ res });

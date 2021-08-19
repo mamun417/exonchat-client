@@ -201,11 +201,11 @@
                                     Ticket has been successfully submitted. Our agents will reply you when they are
                                     online.
                                     <q-btn
-                                        dense
                                         :color="globalColor"
                                         class="full-width tw-mt-6"
                                         @click="clearSession"
                                         no-caps
+                                        unelevated
                                     >
                                         Start New Chat
                                     </q-btn>
@@ -361,7 +361,6 @@
 
                                         <q-btn
                                             v-else
-                                            dense
                                             :color="globalColor"
                                             class="full-width tw-mt-2"
                                             @click="chatInitialize"
