@@ -279,6 +279,26 @@
             <!--                </q-fab-action>-->
             <!--            </q-fab>-->
         </div>
+
+        <q-dialog
+            v-model="socketConnectError"
+            position="top"
+            class="tw-px-0"
+            id="network-error-dialog"
+            full-width
+            seamless
+            persistent
+            square
+        >
+            <q-card class="tw-shadow-sm bg-orange-8">
+                <q-card-section
+                    class="tw-flex tw-items-center tw-justify-center tw-py-1 text-center text-blue-grey-10 tw-text-xs"
+                    ><q-spinner-ios color="blue-grey-10" class="tw-mr-1" /><span
+                        >Network Error - Trying to Reconnect</span
+                    ></q-card-section
+                >
+            </q-card>
+        </q-dialog>
     </q-layout>
 </template>
 
@@ -333,6 +353,8 @@ export default defineComponent({
                 width: 100,
                 height: 100,
             },
+
+            socketConnectError: false,
         };
     },
 
@@ -492,6 +514,7 @@ export default defineComponent({
                 console.log(`Your user Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
                 this.socketId = this.socket.id;
+                this.socketConnectError = false;
             });
 
             this.socket.on("disconnect", () => {
@@ -759,6 +782,11 @@ export default defineComponent({
                 // check if not then new event
                 this.$emitter.emit(`listen_error_${data.step}`, data);
             });
+
+            this.socket.on("connect_error", (err: any) => {
+                console.log(`connect_error due to ${err.message}`);
+                this.socketConnectError = true;
+            });
         },
 
         takeThisChat(convData: any) {
@@ -931,3 +959,15 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="scss">
+#network-error-dialog {
+    .q-dialog__inner {
+        padding: 0;
+
+        & > div {
+            box-shadow: 0 1px 0 -1px rgb(0 0 0 / 20%), 0 1px 0 rgb(0 0 0 / 14%), 0 1px 5px rgb(0 0 0 / 12%);
+        }
+    }
+}
+</style>
