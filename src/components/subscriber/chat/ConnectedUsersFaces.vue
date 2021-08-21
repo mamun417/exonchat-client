@@ -7,17 +7,20 @@
             :name="
                 userConv.socket_session.user
                     ? userConv.socket_session.user.user_meta.display_name
-                    : userConv.socket_session.user.init_email
+                    : userConv.socket_session.init_name
             "
             :key="key"
             :style="key !== 0 ? 'margin-left: -7px' : ''"
             :size="size"
+            :email="
+                userConv.socket_session.user ? userConv.socket_session.user.email : userConv.socket_session.init_email
+            "
         >
             <q-tooltip class="">
                 {{
                     userConv.socket_session.user
                         ? userConv.socket_session.user.email
-                        : userConv.socket_session.user.init_email
+                        : userConv.socket_session.init_email
                 }}
             </q-tooltip>
         </ec-avatar>

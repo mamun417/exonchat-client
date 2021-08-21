@@ -213,11 +213,9 @@
 
                                 <template v-else>
                                     <template v-if="onlineChatDepartments.length">
-                                        <div class="tw-mb-4">
-                                            Welcome to Live Chat. Please enter the information below to chat with a
-                                            representative. Please remember "Technical Support" department is not for
-                                            sales query. For Sales query, please select sales department. If sales
-                                            department is offline please email to sales@exonhost.com with your query.
+                                        <div class="tw-my-7">
+                                            Welcome to our LiveChat! Please fill in the form below before starting the
+                                            chat.
                                         </div>
 
                                         <q-input
@@ -310,6 +308,25 @@
                                             </template>
                                         </q-select>
 
+                                        <q-input
+                                            v-model="convInitFields.message"
+                                            :error="!!convInitFieldsErrors.message"
+                                            @update:model-value="convInitFieldsErrors.message = ''"
+                                            hide-bottom-space
+                                            dense
+                                            no-error-icon
+                                            label="Your Message"
+                                            :color="globalColor"
+                                            class="tw-mb-3"
+                                            autogrow
+                                            outlined
+                                        >
+                                            <!--<template v-slot:prepend>
+                                                <q-icon name="textsms" size="xs" :color="globalColor" />
+                                            </template>-->
+                                        </q-input>
+
+                                        <!--offline form-->
                                         <div v-if="departmentAgentsOffline">
                                             <q-input
                                                 v-model="convInitFields.subject"
@@ -397,6 +414,17 @@
                     />
                 </div>
                 <div class="text-center">powered by <b>Exonhost</b></div>
+            </div>
+        </div>
+
+        <div
+            v-if="!clientInitiateConvInfo.conv_id && panelVisibleStatus"
+            class="text-center tw-flex tw-justify-center tw-items-center tw-py-1 tw-gap-1"
+            style="background: rgb(240, 240, 240)"
+        >
+            <div class="tw-text-xxs">Powered by</div>
+            <div>
+                <q-img src="https://www.exonhost.com/img/logo.png" width="80px" />
             </div>
         </div>
     </q-page>

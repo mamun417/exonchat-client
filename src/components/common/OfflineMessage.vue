@@ -1,5 +1,5 @@
 <template>
-    <div class="tw-mb-5">
+    <div class="tw-my-7">
         Unfortunately Live Chat is not available. Please fill out the form below to leave us a message.
     </div>
 

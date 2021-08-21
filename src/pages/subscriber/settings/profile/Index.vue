@@ -11,6 +11,7 @@
                         <ec-avatar
                             :image_src="profile?.user_meta?.attachment?.src"
                             :name="profile?.user_meta?.display_name"
+                            :email="profile?.email"
                             size="100px"
                         ></ec-avatar>
                         <q-btn
@@ -228,6 +229,7 @@
                     <ec-avatar
                         :image_src="profile.user_meta.attachment?.src"
                         :name="profile.user_meta.display_name"
+                        :email="profile.email"
                         :local_preview_src="previewAvatar"
                         size="150px"
                     />

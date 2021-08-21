@@ -198,8 +198,8 @@
                     label="CUSTOMER"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow"
+                    :header-class="`text-weight-bold  tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow card-header-bg"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -212,6 +212,7 @@
                                                 size="xl"
                                                 :image_src="null"
                                                 :name="conversationWithUsersInfo[0].socket_session.init_name"
+                                                :email="conversationWithUsersInfo[0].socket_session.init_email"
                                             ></ec-avatar>
                                             <div class="tw-flex tw-flex-col tw-justify-center">
                                                 <q-item-label class="text-weight-bold text-right tw-text-sm">
@@ -292,11 +293,53 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
+                    v-if="conversationInfo.closed_at"
+                    label="AGENTS"
+                    dense
+                    default-opened
+                    :header-class="`text-weight-bold tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow card-header-bg"
+                    expand-icon-class="hidden"
+                >
+                    <q-card>
+                        <q-card-section class="tw-px-0 tw-py-2">
+                            <q-list>
+                                <q-item v-for="agent of conversationConnectedUsers" :key="agent.id" dense>
+                                    <q-item-section class="tw-w-full">
+                                        <div class="tw-flex tw-w-full tw-my-1 tw-gap-4">
+                                            <ec-avatar
+                                                :size="mini_mode ? 'md' : 'xl'"
+                                                :image_src="null"
+                                                :name="agent.socket_session.user.user_meta.display_name"
+                                                :email="agent.socket_session.user.email"
+                                            ></ec-avatar>
+                                            <div class="tw-flex tw-flex-col tw-justify-center">
+                                                <q-item-label class="text-weight-bold tw-text-sm">
+                                                    {{
+                                                        $_.upperFirst(agent.socket_session.user.user_meta.display_name)
+                                                    }}
+                                                </q-item-label>
+                                                <q-item-label :class="$helpers.colors().defaultText" caption
+                                                    >{{ agent.socket_session.user.email }}
+                                                </q-item-label>
+                                            </div>
+                                        </div>
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-card-section>
+                    </q-card>
+                </q-expansion-item>
+
+                <div class="tw-mb-4"></div>
+
+                <q-expansion-item
+                    v-if="!conversationInfo.closed_at"
                     label="CUSTOMER PAGE VISITS"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow"
+                    :header-class="`text-weight-bold tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow card-header-bg"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -326,11 +369,12 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
+                    v-if="!conversationInfo.closed_at"
                     label="PREVIOUS CHATS"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow"
+                    :header-class="`text-weight-bold tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow card-header-bg"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -361,11 +405,12 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
+                    v-if="!conversationInfo.closed_at"
                     label="TICKETS"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow"
+                    :header-class="`text-weight-bold  tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow card-header-bg"
                     expand-icon-class="hidden"
                 >
                     <q-card>

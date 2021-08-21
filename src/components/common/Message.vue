@@ -111,6 +111,7 @@
                                     <ec-avatar
                                         :image_src="speakingWithUser.user_meta.src"
                                         :name="speakingWithUser.user_meta.display_name"
+                                        :email="speakingWithUser.email"
                                     >
                                     </ec-avatar>
                                     <div class="tw-mt-2 tw-text-sm" :class="$helpers.colors().defaultText">
@@ -146,6 +147,7 @@
                                             "
                                             :name="msgSenderInfo(message, index).img_alt_name"
                                             :is_icon="msgSenderInfo(message, index).type === 'ai'"
+                                            :email="msgSenderInfo(message, index).email"
                                             class=""
                                         >
                                             <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
@@ -1564,12 +1566,14 @@ export default defineComponent({
                     (convConnectedUser: any) => convConnectedUser.socket_session_id === mySocketSesId
                 );
 
-                await window.api.post(
-                    `conversations/update-last-message-seen-time/conversation-session/${selfSession.id}`,
-                    {
-                        last_msg_seen_time: lastMsgSeenTime,
-                    }
-                );
+                if (selfSession) {
+                    await window.api.post(
+                        `conversations/update-last-message-seen-time/conversation-session/${selfSession.id}`,
+                        {
+                            last_msg_seen_time: lastMsgSeenTime,
+                        }
+                    );
+                }
             }
         },
 

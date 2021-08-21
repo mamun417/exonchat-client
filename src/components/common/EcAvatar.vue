@@ -14,6 +14,12 @@
     <q-avatar v-else-if="local_preview_src" :size="size" :class="`text-white ${globalBgColor}`">
         <img :src="local_preview_src" alt="" />
     </q-avatar>
+
+    <!--check email-->
+    <q-avatar v-else-if="email && foundAvatar && !local_preview_src" :size="size">
+        <q-img :src="this.avatarUrl" alt="" @error="foundAvatar = false" />
+    </q-avatar>
+
     <q-icon v-else :size="size" name="fa fa-user-circle" :class="`${icon_color}`">
         <slot name="default"></slot>
     </q-icon>
@@ -22,6 +28,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
+import CryptoJS from "crypto-js";
 
 export default defineComponent({
     name: "EcAvatar",
@@ -49,16 +56,39 @@ export default defineComponent({
             type: String,
             default: "text-blue-grey-3",
         },
+        email: {
+            type: String,
+            default: "",
+        },
     },
 
     data(): any {
-        return {};
+        return {
+            avatarUrl: "",
+            foundAvatar: true,
+        };
+    },
+
+    mounted() {
+        this.loadAvatar();
     },
 
     computed: {
         ...mapGetters({
             globalBgColor: "setting_ui/globalBgColor",
         }),
+    },
+
+    methods: {
+        loadAvatar() {
+            if (this.email) {
+                const hash = CryptoJS.MD5(this.email.trim());
+                const client_photo = `https://www.gravatar.com/avatar/${hash}?d=404`;
+
+                this.avatarUrl = client_photo;
+                console.log({ client_photo });
+            }
+        },
     },
 });
 </script>

@@ -133,6 +133,7 @@
                                         <ec-avatar
                                             :image_src="senderInfo(ongoingChat).src || null"
                                             :name="senderInfo(ongoingChat).img_alt_name"
+                                            :email="senderInfo(ongoingChat).email"
                                             size="23px"
                                         ></ec-avatar>
                                     </q-item-section>
@@ -238,6 +239,7 @@
                                         <ec-avatar
                                             :image_src="user?.user_meta?.attachment?.src"
                                             :name="user?.user_meta?.display_name"
+                                            :email="user?.email"
                                             size="23px"
                                         >
                                             <q-badge

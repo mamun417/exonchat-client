@@ -15,6 +15,11 @@
                                 ? conversationWithUsersInfo[0].socket_session.user.user_meta.display_name
                                 : conversationWithUsersInfo[0].socket_session.init_name
                         "
+                        :email="
+                            conversationWithUsersInfo[0].socket_session.user
+                                ? conversationWithUsersInfo[0].socket_session.user.email
+                                : conversationWithUsersInfo[0].socket_session.init_email
+                        "
                     ></ec-avatar>
                 </q-item-section>
 
@@ -52,12 +57,12 @@
                             {{ clientActiveStatus ? 'Online' : 'Offline' }}
                         </q-badge>-->
 
-                        <q-badge
+                        <!--<q-badge
                             v-if="conversationInfo.closed_at"
                             color="orange"
                             :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
                             >Chat Closed
-                        </q-badge>
+                        </q-badge>-->
 
                         <div v-if="!conversationInfo.users_only && !conversationInfo.closed_at">
                             <!--                            q-card used for the ref instance-->
@@ -127,10 +132,7 @@
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
                                         <q-item-section
-                                            @click="
-                                                modalForState = 'join';
-                                                confirmModal = !confirmModal;
-                                            "
+                                            @click="convStateHandle('join')"
                                             :class="$helpers.colors().defaultText"
                                             >Join Chat
                                         </q-item-section>
@@ -153,7 +155,10 @@
                                     </q-item>
 
                                     <q-item
-                                        v-if="['technical', 'Technical'].includes(conversationInfo.chat_department.tag)"
+                                        v-if="
+                                            ['technical', 'Technical'].includes(conversationInfo.chat_department.tag) &&
+                                            conversationStatusForMe === 'joined'
+                                        "
                                         clickable
                                         v-close-popup
                                     >
