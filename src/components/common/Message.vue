@@ -125,8 +125,8 @@
                             >
                                 <div class="tw-text-center tw-mt-4">
                                     <ec-avatar
-                                        :image_src="speakingWithUser.user_meta.src"
-                                        :name="speakingWithUser.user_meta.display_name"
+                                        :image_src="speakingWithUser.user.user_meta.src"
+                                        :name="speakingWithUser.user.user_meta.display_name"
                                         :email="speakingWithUser.email"
                                     >
                                     </ec-avatar>
@@ -218,7 +218,7 @@
                                             >
                                                 <div>
                                                     <div class="tw-text-sm tw-my-2">
-                                                        {{ msgItem.msg }}
+                                                        <pre>{{ msgItem.msg }}</pre>
                                                     </div>
 
                                                     <!--attachment-->
@@ -831,6 +831,7 @@ export default defineComponent({
                     )[0];
 
                     if (sessionInfo && firstJoin && sessionInfo.socket_session.id === firstJoin.socket_session_id) {
+                        console.log({ opopopo: { user: sessionInfo.socket_session.user, msg: firstJoin } });
                         return { user: sessionInfo.socket_session.user, msg: firstJoin };
                     }
                 }
@@ -1241,9 +1242,6 @@ export default defineComponent({
 
         sendMessage(): any {
             this.msg = this.msg.trim();
-
-            console.log(this.msg);
-            return false;
 
             if (!this.finalAttachments.length && !this.msg.length) {
                 return false;

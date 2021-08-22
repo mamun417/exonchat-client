@@ -164,6 +164,7 @@
                             :socket="socket"
                             :conv_id="clientInitiateConvInfo.conv_id"
                             :mini_mode="true"
+                            ref="message"
                         >
                             <template v-slot:scroll-area-top-section>
                                 <div
@@ -552,6 +553,7 @@ export default defineComponent({
             whmcsInfoAssigned: false,
             globalColor: "green-10",
             roundBtnHover: false,
+            sendChatInitiateMsgInterval: "",
         };
     },
 
@@ -961,6 +963,18 @@ export default defineComponent({
             this.socket.emit("ec_init_conv_from_client", { ...this.convInitFields });
 
             this.getQueueCountNumber();
+
+            // chat initiate message send to agent
+            this.sendChatInitiateMsgInterval = setInterval(() => {
+                if (this.$refs.message) {
+                    console.log("hit send message");
+
+                    this.$refs.message.msg = this.convInitFields.message;
+                    this.$refs.message.sendMessage();
+
+                    clearInterval(this.sendChatInitiateMsgInterval);
+                }
+            }, 500);
         },
 
         getQueueCountNumber() {
