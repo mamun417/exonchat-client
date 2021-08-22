@@ -13,7 +13,8 @@
                 <div class="tw-flex tw-h-full">
                     <div
                         id="left-bar-menu"
-                        class="tw-w-16 tw-flex tw-flex-col tw-justify-between tw-py-3 text-white left-bar-menu-bg"
+                        :class="[`${globalBgColor}-8`]"
+                        class="tw-w-16 tw-flex tw-flex-col tw-justify-between tw-py-3 text-white"
                     >
                         <div class="tw-flex tw-flex-col tw-items-center">
                             <q-icon name="fas fa-headset" class="tw-mb-2 tw-rounded-full tw-p-1" size="lg" />
@@ -969,13 +970,5 @@ export default defineComponent({
             box-shadow: 0 1px 0 -1px rgb(0 0 0 / 20%), 0 1px 0 rgb(0 0 0 / 14%), 0 1px 5px rgb(0 0 0 / 12%);
         }
     }
-}
-
-.left-bar-menu-bg {
-    background: #294156;
-}
-
-.card-header-bg {
-    background: #7f8d9a;
 }
 </style>

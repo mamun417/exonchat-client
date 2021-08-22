@@ -198,8 +198,8 @@
                     label="CUSTOMER"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold  tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow card-header-bg"
+                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -297,8 +297,8 @@
                     label="AGENTS"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow card-header-bg"
+                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -338,8 +338,9 @@
                     label="CUSTOMER PAGE VISITS"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow card-header-bg"
+                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                    :class="[`${globalBgColor}-8`]"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -373,8 +374,9 @@
                     label="PREVIOUS CHATS"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow card-header-bg"
+                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                    :class="[`${globalBgColor}-8`]"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>
@@ -409,8 +411,9 @@
                     label="TICKETS"
                     dense
                     default-opened
-                    :header-class="`text-weight-bold  tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow card-header-bg"
+                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                    :class="[`${globalBgColor}-8`]"
+                    class="tw-shadow"
                     expand-icon-class="hidden"
                 >
                     <q-card>

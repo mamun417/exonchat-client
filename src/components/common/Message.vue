@@ -680,8 +680,9 @@
                     name: 'chat-interaction',
                 })
             "
-            label="CLose Chat"
+            label="Close Chat"
             :color="globalColor"
+            no-caps
         />
     </div>
 </template>

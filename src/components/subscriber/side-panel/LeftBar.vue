@@ -105,6 +105,7 @@
                                 :disable="!incomingChatRequestsForMe.length"
                                 @click="acceptNextChatHandler(incomingChatRequestsForMe[0].id)"
                                 unelevated
+                                no-caps
                             />
                         </q-card-section>
                     </q-card>

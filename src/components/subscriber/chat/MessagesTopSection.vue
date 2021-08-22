@@ -24,7 +24,10 @@
                 </q-item-section>
 
                 <q-item-section class="tw-w-full">
-                    <q-item-label class="text-weight-bold" :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg']">
+                    <q-item-label
+                        class="text-weight-bold"
+                        :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg', $helpers.colors().defaultText]"
+                    >
                         <div v-for="{ socket_session } in conversationWithUsersInfo" :key="socket_session.id">
                             <span class="text-capitalize tw-mr-1">{{
                                 socket_session.user
