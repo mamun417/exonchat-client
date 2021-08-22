@@ -7,6 +7,46 @@
     >
         <div v-show="panelReady && !panelVisibleStatus">
             <div style="display: none">
+                <div ref="ec_chat_helper_container">
+                    <div style="height: 100%; display: flex; justify-content: center">
+                        <div style="display: flex; align-items: center">
+                            <div style="display: flex; align-items: center; margin-right: 20px">
+                                <svg
+                                    aria-hidden="true"
+                                    focusable="false"
+                                    data-prefix="fas"
+                                    data-icon="comments"
+                                    class="svg-inline--fa fa-comments fa-w-18"
+                                    role="img"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    style="height: 50px; color: #1b5e20"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M416 192c0-88.4-93.1-160-208-160S0 103.6 0 192c0 34.3 14.1 65.9 38 92-13.4 30.2-35.5 54.2-35.8 54.5-2.2 2.3-2.8 5.7-1.5 8.7S4.8 352 8 352c36.6 0 66.9-12.3 88.7-25 32.2 15.7 70.3 25 111.3 25 114.9 0 208-71.6 208-160zm122 220c23.9-26 38-57.7 38-92 0-66.9-53.5-124.2-129.3-148.1.9 6.6 1.3 13.3 1.3 20.1 0 105.9-107.7 192-240 192-10.8 0-21.3-.8-31.7-1.9C207.8 439.6 281.8 480 368 480c41 0 79.1-9.2 111.3-25 21.8 12.7 52.1 25 88.7 25 3.2 0 6.1-1.9 7.3-4.8 1.3-2.9.7-6.3-1.5-8.7-.3-.3-22.4-24.2-35.8-54.5z"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div style="font-size: 20px; font-weight: 700; margin-bottom: 3px">
+                                    {{
+                                        !onlineChatDepartments || onlineChatDepartments.length
+                                            ? "Need Help?"
+                                            : "Chat is Offline"
+                                    }}
+                                </div>
+                                <div style="font-size: 18px; font-weight: 500; line-height: 20px">
+                                    {{
+                                        !onlineChatDepartments || onlineChatDepartments.length
+                                            ? "Click here and start chatting with us!"
+                                            : "Click here to leave us a message"
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="tw-flex tw-justify-end tw-mb-1">
                     <q-btn icon="close" size="xs" class="tw-shadow" round flat />
                 </div>
@@ -20,6 +60,7 @@
                         <div class="">
                             <div class="tw-text-lg tw-font-bold tw-whitespace-nowrap">Need Help?</div>
                             <div>Click here and start chatting with us!</div>
+                            <!--                            Click here to leave us a message-->
                         </div>
                     </div>
                 </div>
@@ -28,11 +69,12 @@
 
             <div class="tw-flex tw-justify-end">
                 <q-btn
-                    v-show="conversationInfo.id || onlineChatDepartments.length"
+                    v-show="conversationInfo.id || !onlineChatDepartments || onlineChatDepartments.length"
                     size="20px"
                     :color="globalColor"
                     class="ec_mini_mode_btn tw-shadow-xl round-btn"
                     @click="toggleChatPanel(true)"
+                    style="box-shadow: rgb(0 0 0 / 30%) 0 1px 5px"
                     round
                     no-caps
                     no-wrap
@@ -62,7 +104,7 @@
                 </q-btn>
 
                 <q-btn
-                    v-show="!conversationInfo.id && !onlineChatDepartments.length"
+                    v-show="!conversationInfo.id && onlineChatDepartments && !onlineChatDepartments.length"
                     icon="mail"
                     :color="globalColor"
                     class="tw-shadow-xl"
@@ -90,7 +132,7 @@
                 >
                     <div class="tw-text-base">
                         {{
-                            conversationInfo.id || onlineChatDepartments.length
+                            conversationInfo.id || !onlineChatDepartments || onlineChatDepartments.length
                                 ? "Online - Chat with us"
                                 : "Offline - Send offline message"
                         }}
@@ -234,7 +276,7 @@
                                 </template>
 
                                 <template v-else>
-                                    <template v-if="onlineChatDepartments.length">
+                                    <template v-if="onlineChatDepartments && onlineChatDepartments.length">
                                         <div class="tw-my-7">
                                             Welcome to our LiveChat! Please fill in the form below before starting the
                                             chat.
@@ -683,13 +725,55 @@ export default defineComponent({
 
         showNeedHelpTexSection() {
             setTimeout(() => {
-                const checkLocalShowNeedHelpText = localStorage.getItem("show_need_help_text");
+                const hideNeedHelpText = localStorage.getItem("hide_need_help_text");
 
-                this.showNeedHelpText = !checkLocalShowNeedHelpText;
+                if (!hideNeedHelpText) {
+                    window.parent.postMessage(
+                        {
+                            action: "ec_show_chat_helper_container",
+                            param: {
+                                header_text: "Need Help?",
+                                content: "Click here and start chatting with us!",
+                                icon: true,
+                                style: {
+                                    display: "block",
+                                    bottom: "85px",
+                                    position: "fixed",
+                                    right: "15px",
+                                    height: "150px",
+                                    width: "300px",
+                                    background: "#fff",
+                                    padding: "15px",
+                                    "box-shadow": "rgb(0 0 0 / 30%) 0px 0px 2px",
+                                },
+                                dom: this.$refs.ec_chat_helper_container.innerHTML,
+                            },
+                        },
+                        "*"
+                    );
+
+                    console.log({ helper: this.$refs.ec_chat_helper_container });
+                }
             }, 1500);
         },
 
+        hideNeedHelpTextSection() {
+            window.parent.postMessage(
+                {
+                    action: "ec_hide_chat_helper_container",
+                    param: {
+                        style: {
+                            display: "none",
+                        },
+                    },
+                },
+                "*"
+            );
+        },
+
         panelMaximize() {
+            this.hideNeedHelpTextSection();
+
             window.parent.postMessage(
                 {
                     action: "ec_maximize_panel",
@@ -717,16 +801,6 @@ export default defineComponent({
                 },
                 "*"
             );
-
-            window.parent.postMessage(
-                {
-                    action: "ec_show_chat_helper_container",
-                    param: {},
-                },
-                "*"
-            );
-
-            console.log({ helper: this.$refs.ec_chat_helper_container });
         },
 
         clearSession() {
@@ -961,19 +1035,23 @@ export default defineComponent({
             this.socket.on("ec_departments_online_status_res", (res: any) => {
                 this.onlineChatDepartments = res.departments;
 
-                if (!res.departments.length && !this.panelVisibleStatus) {
-                    window.parent.postMessage(
-                        {
-                            action: "ec_minimize_panel",
-                            param: {
-                                height: "80px",
-                                width: `200px`,
-                                display: "block",
-                                "box-shadow": "unset",
+                if (!this.panelVisibleStatus) {
+                    if (!res.departments.length) {
+                        window.parent.postMessage(
+                            {
+                                action: "ec_minimize_panel",
+                                param: {
+                                    height: "60px",
+                                    width: `200px`,
+                                    display: "block",
+                                    "box-shadow": "unset",
+                                },
                             },
-                        },
-                        "*"
-                    );
+                            "*"
+                        );
+                    } else {
+                        this.panelMinimize();
+                    }
                 }
                 console.log("from ec_departments_online_status_res", res);
             });
@@ -992,7 +1070,6 @@ export default defineComponent({
 
             this.getQueueCountNumber();
         },
-
         getQueueCountNumber() {
             this.socket.emit("ec_conv_queue_position", { conv_id: this.clientInitiateConvInfo.conv_id });
 
@@ -1076,7 +1153,6 @@ export default defineComponent({
         handlePageVisibilityChange() {
             this.pageInFocus = document.visibilityState === "visible";
         },
-
         sendPageVisitingInfo(data: any) {
             if (this.socketId) {
                 if (this.pageInFocus) {
@@ -1106,7 +1182,6 @@ export default defineComponent({
                 this.sendTypingData();
             }, 1000);
         },
-
         inputBlurHandle() {
             clearInterval(this.typingHandler);
         },
@@ -1121,7 +1196,6 @@ export default defineComponent({
                 });
             }
         },
-
         setTypingFalse() {
             setInterval(() => {
                 this.typingHandler.typing = false;
@@ -1153,7 +1227,6 @@ export default defineComponent({
                     this.submitOfflineChatReqErrorHandle(err);
                 });
         },
-
         submitOfflineChatReqErrorHandle(err: any) {
             if (this.$_.isObject(err.response.data.message)) {
                 this.convInitFieldsErrors = err.response.data.message;
@@ -1161,7 +1234,6 @@ export default defineComponent({
                 this.$helpers.showErrorNotification(this, err.response.data.message);
             }
         },
-
         resetConvInitForm() {
             this.convInitFields = {};
             this.convInitFieldsErrors = {};
@@ -1192,11 +1264,9 @@ export default defineComponent({
                 clearInterval(this.activityInterval.threeMinAgent.interval);
             }, this.activityInterval.threeMinAgent.time);
         },
-
         reload() {
             location.reload();
         },
-
         tenMinClientInterval() {
             clearInterval(this.activityInterval.tenMinClient.interval);
 
@@ -1215,7 +1285,6 @@ export default defineComponent({
                 clearInterval(this.activityInterval.tenMinClient.interval);
             }, this.activityInterval.tenMinClient.time);
         },
-
         thirteenMinClientInterval() {
             clearInterval(this.activityInterval.thirteenMinClient.interval);
 
@@ -1382,7 +1451,7 @@ export default defineComponent({
 
         closeHelpText() {
             this.showNeedHelpText = false;
-            localStorage.setItem("show_need_help_text", "false");
+            localStorage.setItem("hide_need_help_text", "false");
         },
     },
 

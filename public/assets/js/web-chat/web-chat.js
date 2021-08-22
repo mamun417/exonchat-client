@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 function addDom(d, s, id, src, crossorigin = null, integrity = null) {
-    // console.log(d.body);
-    var js;
-
-    // console.log(js, fjs);
+    let js;
 
     if (d.getElementById(id)) return;
 
@@ -52,7 +49,7 @@ let ecChatHelperContainer = document.getElementById("exhonchat-chat-box-helper-c
 //     "</div>";
 
 ecChatContainer.style =
-    "display: none; transition: all 300ms ease 0s; position: fixed; bottom: 15px; right: 15px; z-index: 9999999; overflow: hidden";
+    "display: none; background:white; transition: all 300ms ease 0s; position: fixed; bottom: 15px; right: 15px; z-index: 9999999; overflow: hidden";
 
 ecChatHelperContainer.style = "";
 
@@ -99,6 +96,20 @@ function ec_page_visit_info() {
         { res: "page_visit_info", value: { url: window.document.URL, referrer: window.document.referrer } },
         "*"
     );
+}
+
+function ec_show_chat_helper_container(domObj = {}) {
+    ecChatHelperContainer.innerHTML = domObj.dom;
+
+    Object.keys(domObj.style).forEach((styleKey) => {
+        ecChatHelperContainer.style[styleKey] = domObj.style[styleKey];
+    });
+}
+
+function ec_hide_chat_helper_container(domObj = {}) {
+    Object.keys(domObj.style).forEach((styleKey) => {
+        ecChatHelperContainer.style[styleKey] = domObj.style[styleKey];
+    });
 }
 
 window.addEventListener(
