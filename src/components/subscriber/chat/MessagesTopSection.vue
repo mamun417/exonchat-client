@@ -130,7 +130,11 @@
                         >
                             <q-menu anchor="bottom right" self="top end">
                                 <q-list style="min-width: 200px">
-                                    <q-item v-if="!conversationStatusForMe" clickable v-close-popup>
+                                    <q-item
+                                        v-if="!conversationStatusForMe || conversationStatusForMe !== 'joined'"
+                                        clickable
+                                        v-close-popup
+                                    >
                                         <!--                                        <q-item-section class="tw-w-8 tw-min-w-0" avatar>-->
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
@@ -141,11 +145,7 @@
                                         </q-item-section>
                                     </q-item>
 
-                                    <q-item
-                                        v-if="['joined', 'left'].includes(conversationStatusForMe)"
-                                        clickable
-                                        v-close-popup
-                                    >
+                                    <q-item v-if="['joined'].includes(conversationStatusForMe)" clickable v-close-popup>
                                         <!--                                        <q-item-section class="tw-w-8 tw-min-w-0" avatar>-->
                                         <!--                                            <q-icon name="shortcut" />-->
                                         <!--                                        </q-item-section>-->

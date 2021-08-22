@@ -822,8 +822,6 @@ export default defineComponent({
                 },
             });
 
-            this.allCheck = true;
-
             this.fireSocketListeners();
 
             this.firePageVisitListner();
@@ -842,6 +840,8 @@ export default defineComponent({
             this.getOnlineChatDepartments();
 
             this.fireOtherEvents();
+
+            this.allCheck = true;
         },
 
         fireSocketListeners() {

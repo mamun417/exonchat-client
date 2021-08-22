@@ -47,6 +47,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             notify_status: convInfo.notify, // of this action if notify then true
             caller: "storeNewChatFromClient",
         });
+
+        if (convData.log_message) {
+            context.commit("updateConversation", { conv_id: convData.id, message: convData.log_message });
+        }
     },
 
     updateConvState(context, convSesInfo) {
@@ -55,6 +59,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             session: convSesInfo,
             caller: "updateConvState",
         });
+
+        if (convSesInfo.log_message) {
+            context.commit("updateConversation", {
+                conv_id: convSesInfo.conversation_id,
+                message: convSesInfo.log_message,
+            });
+        }
     },
     updateConvStateToClosed(context, convInfo) {
         context.commit("updateConversation", {
@@ -66,6 +77,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             sessions: convInfo.conversation_sessions, // not sending now
             caller: "updateConvStateToClosed",
         });
+
+        if (convInfo.log_message) {
+            context.commit("updateConversation", {
+                conv_id: convInfo.id,
+                message: convInfo.log_message,
+            });
+        }
     },
 
     // get client conversation messages from db

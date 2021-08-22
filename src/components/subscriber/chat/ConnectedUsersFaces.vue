@@ -10,7 +10,7 @@
                     : userConv.socket_session.init_name
             "
             :key="key"
-            :style="key !== 0 ? 'margin-left: -7px' : ''"
+            :style="key !== 0 ? 'margin-left: -15px' : ''"
             :size="size"
             :email="
                 userConv.socket_session.user ? userConv.socket_session.user.email : userConv.socket_session.init_email

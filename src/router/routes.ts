@@ -13,6 +13,16 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("pages/subscriber/Chat.vue"),
             },
             {
+                path: "staffs",
+                name: "staffs",
+                component: () => import("pages/subscriber/staffs/Staff.vue"),
+            },
+            {
+                path: "staffs/:staff_id",
+                name: "staff_id",
+                component: () => import("pages/subscriber/staffs/Staff.vue"),
+            },
+            {
                 meta: { requiresRoleAdmin: true },
                 path: "users",
                 name: "users",
