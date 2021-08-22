@@ -122,13 +122,13 @@ export default defineComponent({
 
                     setTimeout(() => {
                         this.loginLoading = false;
-                    }, 1000);
+                    }, 500);
 
                     this.loginSuccess = true;
 
                     setTimeout(() => {
                         this.$router.push({ name: "chat-interaction" });
-                    }, 2000);
+                    }, 1000);
                 })
                 .catch((err: any) => {
                     this.loginLoading = false;

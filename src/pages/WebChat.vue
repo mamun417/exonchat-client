@@ -6,20 +6,31 @@
         :class="$helpers.colors().defaultText"
     >
         <div v-show="panelReady && !panelVisibleStatus">
-            <div class="tw-mb-3" v-show="showNeedHelpText">
-                <div @click="showNeedHelpText = false" class="tw-flex tw-justify-end tw-mb-1">
+            <div
+                class="tw-mb-3 tw-cursor-pointer"
+                :class="{ hidden: !showNeedHelpText }"
+                @click="toggleChatPanel(true)"
+            >
+                <div @click.stop="closeHelpText" class="tw-flex tw-justify-end tw-mb-1">
                     <q-btn icon="close" size="xs" class="tw-shadow" round flat />
                 </div>
                 <!--                <div>-->
-                <div class="ec-help-text tw-p-2 bg-white tw-shadow-lg">
+                <div class="ec-help-text tw-p-2 bg-white tw-border-1">
                     <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
-                    <div class="" v-show="conversationInfo.id || onlineChatDepartments.length">
-                        <div class="tw-font-medium">Need Help?</div>
-                        <div>Start chatting with us!</div>
-                    </div>
-                    <div class="" v-show="!conversationInfo.id && !onlineChatDepartments.length">
-                        <div class="tw-font-medium">Need Help?</div>
-                        <div>Click here to leave us a message</div>
+                    <div
+                        class="tw-flex tw-justify-center tw-items-center tw-gap-2"
+                        v-show="conversationInfo.id || onlineChatDepartments.length"
+                    >
+                        <div class="">
+                            <q-icon color="blue-8" name="forum" size="45px"></q-icon>
+                        </div>
+                        <div class="">
+                            <div class="tw-text-lg tw-font-bold tw-whitespace-nowrap">Need Help?</div>
+                            <div v-if="conversationInfo.id || onlineChatDepartments.length">
+                                Click here and start chatting with us!
+                            </div>
+                            <div v-else>Start chatting with us!</div>
+                        </div>
                     </div>
                 </div>
                 <!--                </div>-->
@@ -28,16 +39,37 @@
             <div class="tw-flex tw-justify-end">
                 <q-btn
                     v-show="conversationInfo.id || onlineChatDepartments.length"
-                    icon="forum"
-                    size="18px"
+                    size="20px"
                     :color="globalColor"
-                    class="tw-shadow-xl"
+                    class="ec_mini_mode_btn tw-shadow-xl round-btn"
                     @click="toggleChatPanel(true)"
                     round
                     no-caps
                     no-wrap
                     unelevated
-                ></q-btn>
+                >
+                    <template v-slot:default>
+                        <div class="tw-relative tw-flex tw-items-center tw-justify-center">
+                            <q-icon
+                                color="white"
+                                class="tw-absolute default-icon widget-mini-mode-static"
+                                size="30px"
+                                name="far fa-comment-alt"
+                            />
+                            <q-icon
+                                color="white"
+                                class="tw-absolute default-icon widget-mini-mode-spinner"
+                                size="30px"
+                                name="fas fa-comment-alt"
+                            />
+                            <q-spinner-dots
+                                :color="globalColor"
+                                class="tw-absolute widget-mini-mode-spinner tw--top-3"
+                                size="18px"
+                            />
+                        </div>
+                    </template>
+                </q-btn>
 
                 <q-btn
                     v-show="!conversationInfo.id && !onlineChatDepartments.length"
@@ -143,7 +175,7 @@
                                     class="tw-py-4 tw-text-sm"
                                     :class="$helpers.colors().defaultText"
                                 >
-                                    <div class="text-center tw-mb-1">
+                                    <div class="text-center tw-mb-1 tw-px-2">
                                         One of our representatives will be with you shortly. Thank you for your
                                         patience.
                                     </div>
@@ -456,7 +488,7 @@ export default defineComponent({
     data(): any {
         return {
             develop: process.env.DEV,
-            showNeedHelpText: true,
+            showNeedHelpText: false,
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
@@ -511,7 +543,7 @@ export default defineComponent({
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
 
-            chatWidgetMiniWidth: 200,
+            chatWidgetMiniWidth: 230,
             queuePosition: 1,
             queuePositionInterval: "",
             getOnlineDepartmentsInterval: "",
@@ -519,6 +551,7 @@ export default defineComponent({
             whmcsInfoError: false,
             whmcsInfoAssigned: false,
             globalColor: "green-10",
+            roundBtnHover: false,
         };
     },
 
@@ -574,6 +607,8 @@ export default defineComponent({
         this.handleChatPanelVisibility();
 
         // await this.initializeSocket();
+
+        this.showNeedHelpTexSection();
     },
 
     computed: {
@@ -657,7 +692,7 @@ export default defineComponent({
                     action: "ec_maximize_panel",
                     param: {
                         height: "560px",
-                        width: "350px",
+                        width: "420px",
                         display: "block",
                         "box-shadow": "rgb(0 0 0 / 30%) 0px 4px 12px",
                         "border-radius": "8px",
@@ -1314,6 +1349,19 @@ export default defineComponent({
                 });
             }
         },
+
+        showNeedHelpTexSection() {
+            setTimeout(() => {
+                const checkLocalShowNeedHelpText = localStorage.getItem("show_need_help_text");
+
+                this.showNeedHelpText = !checkLocalShowNeedHelpText;
+            }, 1500);
+        },
+
+        closeHelpText() {
+            this.showNeedHelpText = false;
+            localStorage.setItem("show_need_help_text", "false");
+        },
     },
 
     unmounted() {
@@ -1387,6 +1435,20 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+//.widget-mini-mode-spinner {
+//    circle {
+//        fill: rgb(15, 133, 36);
+//    }
+//}
+
+.round-btn {
+    &:hover {
+        .q-focus-helper {
+            background: unset !important;
+        }
+    }
+}
+
 .ec-webchat-page {
     .q-field__control {
         &.text-negative {
@@ -1399,5 +1461,27 @@ export default defineComponent({
 
 .q-field--outlined:hover .q-field__control:before {
     border: 1px solid rgba(0, 0, 0, 0.24);
+}
+
+.widget-mini-mode-static {
+    opacity: 1;
+}
+
+.widget-mini-mode-spinner {
+    opacity: 0;
+    transition: transform 250ms ease-in-out, opacity 250ms ease-out;
+}
+
+.ec_mini_mode_btn {
+    &:hover {
+        .widget-mini-mode-static {
+            opacity: 0;
+        }
+        .widget-mini-mode-spinner {
+            opacity: 1;
+            transform: scale(1.1);
+            //transition: transform 250ms ease-in-out, opacity 250ms ease-out;
+        }
+    }
 }
 </style>
