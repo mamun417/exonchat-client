@@ -170,7 +170,11 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
                 const agentsLength = conv.sessions.filter((convSes: any) => convSes.socket_session.user);
 
-                return !conv.users_only && !conv.closed_at && (agentsLength.length > 1 || !sesInfo);
+                return (
+                    !conv.users_only &&
+                    !conv.closed_at &&
+                    (agentsLength.length > 1 || (agentsLength.length === 1 && !sesInfo))
+                );
             })
             .map((conv: any) => {
                 return {
