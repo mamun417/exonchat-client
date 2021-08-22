@@ -151,7 +151,7 @@
                             >
                                 <q-card-section class="tw-px-0 tw-flex tw-py-3" :class="{ 'tw-py-2': mini_mode }">
                                     <div
-                                        class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                        class="tw-flex-shrink-0 tw-flex tw-justify-center"
                                         :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                     >
                                         <ec-avatar
@@ -208,52 +208,59 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div
-                                                :class="{
-                                                    'tw-text-xxs': mini_mode,
-                                                    'tw-text-xs': !mini_mode,
-                                                    [$helpers.colors().dateTimeText]: true,
-                                                }"
-                                            >
-                                                {{ getDateTime(message.created_at) }}
-                                            </div>
                                         </div>
 
                                         <div :class="$helpers.colors().defaultText">
-                                            <div v-for="(msgItem, index) of message.messageArray" :key="index">
-                                                <div class="tw-text-sm tw-my-2">
-                                                    {{ msgItem.msg }}
+                                            <div
+                                                v-for="(msgItem, index) of message.messageArray"
+                                                :key="index"
+                                                class="tw-flex tw-justify-between tw-gap-2"
+                                            >
+                                                <div>
+                                                    <div class="tw-text-sm tw-my-2">
+                                                        {{ msgItem.msg }}
+                                                    </div>
+
+                                                    <!--attachment-->
+                                                    <div
+                                                        v-if="msgItem.attachments && msgItem.attachments.length"
+                                                        class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
+                                                    >
+                                                        <div
+                                                            v-for="attachment in msgItem.attachments"
+                                                            :key="attachment.id"
+                                                            style="width: 200px; max-height: 200px"
+                                                            class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                                        >
+                                                            <q-img
+                                                                fit="cover"
+                                                                spinner-color="green"
+                                                                @click="
+                                                                    attachmentPreview = attachment;
+                                                                    attachmentPreviewModal = true;
+                                                                "
+                                                                :src="attachment.src"
+                                                            >
+                                                                <q-tooltip
+                                                                    :class="globalBgColor"
+                                                                    anchor="bottom middle"
+                                                                    :offset="[10, 10]"
+                                                                    >{{ attachment.original_name }}
+                                                                </q-tooltip>
+                                                            </q-img>
+                                                        </div>
+                                                    </div>
                                                 </div>
 
-                                                <!--attachment-->
                                                 <div
-                                                    v-if="msgItem.attachments && msgItem.attachments.length"
-                                                    class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
+                                                    class="tw-whitespace-nowrap"
+                                                    :class="{
+                                                        'tw-text-xxs': mini_mode,
+                                                        'tw-text-xs': !mini_mode,
+                                                        [$helpers.colors().dateTimeText]: true,
+                                                    }"
                                                 >
-                                                    <div
-                                                        v-for="attachment in msgItem.attachments"
-                                                        :key="attachment.id"
-                                                        style="width: 200px; max-height: 200px"
-                                                        class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
-                                                    >
-                                                        <q-img
-                                                            fit="cover"
-                                                            spinner-color="green"
-                                                            @click="
-                                                                attachmentPreview = attachment;
-                                                                attachmentPreviewModal = true;
-                                                            "
-                                                            :src="attachment.src"
-                                                        >
-                                                            <q-tooltip
-                                                                :class="globalBgColor"
-                                                                anchor="bottom middle"
-                                                                :offset="[10, 10]"
-                                                                >{{ attachment.original_name }}
-                                                            </q-tooltip>
-                                                        </q-img>
-                                                    </div>
+                                                    {{ getDateTime(message.created_at) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -1234,6 +1241,9 @@ export default defineComponent({
 
         sendMessage(): any {
             this.msg = this.msg.trim();
+
+            console.log(this.msg);
+            return false;
 
             if (!this.finalAttachments.length && !this.msg.length) {
                 return false;
