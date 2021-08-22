@@ -6,30 +6,20 @@
         :class="$helpers.colors().defaultText"
     >
         <div v-show="panelReady && !panelVisibleStatus">
-            <div
-                class="tw-mb-3 tw-cursor-pointer"
-                :class="{ hidden: !showNeedHelpText }"
-                @click="toggleChatPanel(true)"
-            >
-                <div @click.stop="closeHelpText" class="tw-flex tw-justify-end tw-mb-1">
+            <div style="display: none">
+                <div class="tw-flex tw-justify-end tw-mb-1">
                     <q-btn icon="close" size="xs" class="tw-shadow" round flat />
                 </div>
                 <!--                <div>-->
                 <div class="ec-help-text tw-p-2 bg-white tw-border-1">
                     <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
-                    <div
-                        class="tw-flex tw-justify-center tw-items-center tw-gap-2"
-                        v-show="conversationInfo.id || onlineChatDepartments.length"
-                    >
+                    <div class="tw-flex tw-justify-center tw-items-center tw-gap-2">
                         <div class="">
                             <q-icon color="blue-8" name="forum" size="45px"></q-icon>
                         </div>
                         <div class="">
                             <div class="tw-text-lg tw-font-bold tw-whitespace-nowrap">Need Help?</div>
-                            <div v-if="conversationInfo.id || onlineChatDepartments.length">
-                                Click here and start chatting with us!
-                            </div>
-                            <div v-else>Start chatting with us!</div>
+                            <div>Click here and start chatting with us!</div>
                         </div>
                     </div>
                 </div>
@@ -521,7 +511,7 @@ export default defineComponent({
             showChatForm: false,
             userLogged: false,
             chatDepartments: [],
-            onlineChatDepartments: [],
+            onlineChatDepartments: null,
             convInitFields: {
                 name: "",
                 email: "",
@@ -543,7 +533,7 @@ export default defineComponent({
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
 
-            chatWidgetMiniWidth: 230,
+            chatWidgetMiniWidth: 250,
             queuePosition: 1,
             queuePositionInterval: "",
             getOnlineDepartmentsInterval: "",
@@ -552,6 +542,8 @@ export default defineComponent({
             whmcsInfoAssigned: false,
             globalColor: "green-10",
             roundBtnHover: false,
+
+            firstTimeLoaded: false,
         };
     },
 
@@ -578,6 +570,8 @@ export default defineComponent({
                     this.panelVisibleStatus = false;
 
                     this.panelReady = true;
+
+                    this.showNeedHelpTexSection();
                 }
 
                 if (event.data.res === "ec_maximized_panel") {
@@ -604,8 +598,6 @@ export default defineComponent({
         // send mounted to parent so that it can send infos
         window.parent.postMessage({ action: "ec_mounted" }, "*");
 
-        this.handleChatPanelVisibility();
-
         // await this.initializeSocket();
 
         this.showNeedHelpTexSection();
@@ -629,6 +621,7 @@ export default defineComponent({
 
     methods: {
         onResizeMiniMode(size: any) {
+            return;
             // call this function one time for get height & width
             if (this.panelVisibleStatus) return;
 
@@ -677,6 +670,8 @@ export default defineComponent({
 
             if (toggleTo) {
                 window.localStorage.setItem("chat_panel_visible", "true");
+
+                this.showNeedHelpText = false;
                 // first apply styles then make visible
                 this.panelMaximize();
             } else {
@@ -684,6 +679,14 @@ export default defineComponent({
 
                 this.panelMinimize();
             }
+        },
+
+        showNeedHelpTexSection() {
+            setTimeout(() => {
+                const checkLocalShowNeedHelpText = localStorage.getItem("show_need_help_text");
+
+                this.showNeedHelpText = !checkLocalShowNeedHelpText;
+            }, 1500);
         },
 
         panelMaximize() {
@@ -706,14 +709,24 @@ export default defineComponent({
                 {
                     action: "ec_minimize_panel",
                     param: {
-                        height: "300px",
-                        width: `${this.chatWidgetMiniWidth}px`,
+                        height: "80px",
+                        width: `${this.onlineChatDepartments === null || this.chatDepartments ? 100 : 200}px`,
                         display: "block",
                         "box-shadow": "unset",
                     },
                 },
                 "*"
             );
+
+            window.parent.postMessage(
+                {
+                    action: "ec_show_chat_helper_container",
+                    param: {},
+                },
+                "*"
+            );
+
+            console.log({ helper: this.$refs.ec_chat_helper_container });
         },
 
         clearSession() {
@@ -842,6 +855,8 @@ export default defineComponent({
             this.fireOtherEvents();
 
             this.allCheck = true;
+
+            setTimeout(() => this.handleChatPanelVisibility(), 1000);
         },
 
         fireSocketListeners() {
@@ -945,6 +960,21 @@ export default defineComponent({
 
             this.socket.on("ec_departments_online_status_res", (res: any) => {
                 this.onlineChatDepartments = res.departments;
+
+                if (!res.departments.length && !this.panelVisibleStatus) {
+                    window.parent.postMessage(
+                        {
+                            action: "ec_minimize_panel",
+                            param: {
+                                height: "80px",
+                                width: `200px`,
+                                display: "block",
+                                "box-shadow": "unset",
+                            },
+                        },
+                        "*"
+                    );
+                }
                 console.log("from ec_departments_online_status_res", res);
             });
 
@@ -1348,14 +1378,6 @@ export default defineComponent({
                     message: res.reason.message ? res.reason.message : res.reason,
                 });
             }
-        },
-
-        showNeedHelpTexSection() {
-            setTimeout(() => {
-                const checkLocalShowNeedHelpText = localStorage.getItem("show_need_help_text");
-
-                this.showNeedHelpText = !checkLocalShowNeedHelpText;
-            }, 1500);
         },
 
         closeHelpText() {
