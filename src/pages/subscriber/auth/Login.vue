@@ -90,9 +90,9 @@ export default defineComponent({
         return {
             loginLoading: false,
             formData: {
-                email: "test@test.test",
-                password: "123",
-                company_name: "test",
+                email: "",
+                password: "",
+                company_name: "",
             },
             loginSuccess: false,
         };
