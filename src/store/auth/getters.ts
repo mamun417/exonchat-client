@@ -18,6 +18,10 @@ const getters: GetterTree<AuthStateInterface, StateInterface> = {
     profile(state) {
         return state.user;
     },
+
+    isAdmin(state) {
+        return state.user?.role?.slug === "admin";
+    },
 };
 
 export default getters;

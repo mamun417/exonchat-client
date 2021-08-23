@@ -5,7 +5,7 @@ import * as _l from "lodash";
 const mutation: MutationTree<ChatStateInterface> = {
     storeClientInitiateConvInfo(state: ChatStateInterface, payload: any) {
         const data = JSON.stringify(payload.data);
-        localStorage.setItem("clientInitiateConvInfo", data);
+        sessionStorage.setItem("clientInitiateConvInfo", data);
         state.clientInitiateConvInfo = payload.data;
     },
 
@@ -256,7 +256,7 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     showRatingForm(state: ChatStateInterface, ratingFormState) {
-        localStorage.setItem("showRatingForm", ratingFormState);
+        sessionStorage.setItem("showRatingForm", ratingFormState);
         state.clientInitiateConvInfo.showRatingForm = ratingFormState;
     },
 };

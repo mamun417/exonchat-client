@@ -6,76 +6,96 @@
         :class="$helpers.colors().defaultText"
     >
         <div v-show="panelReady && !panelVisibleStatus">
-            <div
-                class="tw-mb-3 tw-cursor-pointer"
-                :class="{ hidden: !showNeedHelpText }"
-                @click="toggleChatPanel(true)"
-            >
-                <div @click.stop="closeHelpText" class="tw-flex tw-justify-end tw-mb-1">
-                    <q-btn icon="close" size="xs" class="tw-shadow" round flat />
-                </div>
-                <!--                <div>-->
-                <div class="ec-help-text tw-p-2 bg-white tw-border-1">
-                    <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
-                    <div
-                        class="tw-flex tw-justify-center tw-items-center tw-gap-2"
-                        v-show="conversationInfo.id || onlineChatDepartments.length"
-                    >
-                        <div class="">
-                            <q-icon color="blue-8" name="forum" size="45px"></q-icon>
-                        </div>
-                        <div class="">
-                            <div class="tw-text-lg tw-font-bold tw-whitespace-nowrap">Need Help?</div>
-                            <div v-if="conversationInfo.id || onlineChatDepartments.length">
-                                Click here and start chatting with us!
+            <div style="display: none">
+                <div ref="ec_chat_helper_container">
+                    <div style="height: 100%; display: flex; justify-content: center">
+                        <div style="display: flex; align-items: center">
+                            <div style="display: flex; align-items: center; margin-right: 20px">
+                                <svg
+                                    aria-hidden="true"
+                                    focusable="false"
+                                    data-prefix="fas"
+                                    data-icon="comments"
+                                    class="svg-inline--fa fa-comments fa-w-18"
+                                    role="img"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    style="height: 50px; color: #1b5e20"
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M416 192c0-88.4-93.1-160-208-160S0 103.6 0 192c0 34.3 14.1 65.9 38 92-13.4 30.2-35.5 54.2-35.8 54.5-2.2 2.3-2.8 5.7-1.5 8.7S4.8 352 8 352c36.6 0 66.9-12.3 88.7-25 32.2 15.7 70.3 25 111.3 25 114.9 0 208-71.6 208-160zm122 220c23.9-26 38-57.7 38-92 0-66.9-53.5-124.2-129.3-148.1.9 6.6 1.3 13.3 1.3 20.1 0 105.9-107.7 192-240 192-10.8 0-21.3-.8-31.7-1.9C207.8 439.6 281.8 480 368 480c41 0 79.1-9.2 111.3-25 21.8 12.7 52.1 25 88.7 25 3.2 0 6.1-1.9 7.3-4.8 1.3-2.9.7-6.3-1.5-8.7-.3-.3-22.4-24.2-35.8-54.5z"
+                                    ></path>
+                                </svg>
                             </div>
-                            <div v-else>Start chatting with us!</div>
+                            <div>
+                                <div
+                                    style="
+                                        font-size: 20px;
+                                        font-weight: 700;
+                                        margin-bottom: 3px;
+                                        color: rgb(50, 50, 50);
+                                    "
+                                >
+                                    {{
+                                        !onlineChatDepartments || onlineChatDepartments.length
+                                            ? "Need Help?"
+                                            : "Chat is Offline"
+                                    }}
+                                </div>
+                                <div style="font-size: 18px; font-weight: 500; line-height: 20px">
+                                    {{
+                                        !onlineChatDepartments || onlineChatDepartments.length
+                                            ? "Click here and start chatting with us!"
+                                            : "Click here to leave us a message"
+                                    }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!--                </div>-->
             </div>
 
             <div class="tw-flex tw-justify-end">
                 <q-btn
-                    v-show="conversationInfo.id || onlineChatDepartments.length"
+                    v-show="conversationInfo.id || !onlineChatDepartments || onlineChatDepartments.length"
                     size="20px"
                     :color="globalColor"
                     class="ec_mini_mode_btn tw-shadow-xl round-btn"
                     @click="toggleChatPanel(true)"
+                    style="box-shadow: rgb(0 0 0 / 30%) 0 1px 5px"
                     round
                     no-caps
                     no-wrap
                     unelevated
                 >
-                    <template v-slot:default>
-                        <div class="tw-relative tw-flex tw-items-center tw-justify-center">
-                            <q-icon
-                                color="white"
-                                class="tw-absolute default-icon widget-mini-mode-static"
-                                size="30px"
-                                name="far fa-comment-alt"
-                            />
-                            <q-icon
-                                color="white"
-                                class="tw-absolute default-icon widget-mini-mode-spinner"
-                                size="30px"
-                                name="fas fa-comment-alt"
-                            />
-                            <q-spinner-dots
-                                :color="globalColor"
-                                class="tw-absolute widget-mini-mode-spinner tw--top-3"
-                                size="18px"
-                            />
-                        </div>
-                    </template>
+                    <div class="tw-relative tw-flex tw-items-center tw-justify-center">
+                        <q-icon
+                            color="white"
+                            class="tw-absolute default-icon widget-mini-mode-static"
+                            size="30px"
+                            name="far fa-comment-alt"
+                        />
+                        <q-icon
+                            color="white"
+                            class="tw-absolute default-icon widget-mini-mode-spinner"
+                            size="30px"
+                            name="fas fa-comment-alt"
+                        />
+                        <q-icon
+                            color="green-8"
+                            class="tw-absolute default-icon widget-mini-mode-spinner tw--top-3"
+                            size="20px"
+                            name="fas fa-ellipsis-h"
+                        />
+                    </div>
                 </q-btn>
 
                 <q-btn
-                    v-show="!conversationInfo.id && !onlineChatDepartments.length"
+                    v-show="!conversationInfo.id && onlineChatDepartments && !onlineChatDepartments.length"
                     icon="mail"
                     :color="globalColor"
-                    class="tw-shadow-xl"
+                    class="tw-shadow-xl tw-mb-4"
                     @click="toggleChatPanel(true)"
                     rounded
                     label="Leave a message"
@@ -100,7 +120,7 @@
                 >
                     <div class="tw-text-base">
                         {{
-                            conversationInfo.id || onlineChatDepartments.length
+                            conversationInfo.id || !onlineChatDepartments || onlineChatDepartments.length
                                 ? "Online - Chat with us"
                                 : "Offline - Send offline message"
                         }}
@@ -245,7 +265,7 @@
                                 </template>
 
                                 <template v-else>
-                                    <template v-if="onlineChatDepartments.length">
+                                    <template v-if="onlineChatDepartments && onlineChatDepartments.length">
                                         <div class="tw-my-7">
                                             Welcome to our LiveChat! Please fill in the form below before starting the
                                             chat.
@@ -435,7 +455,7 @@
 
             <div v-else class="tw-p-6 tw-flex tw-flex-col tw-flex-grow">
                 <div class="tw-flex tw-flex-col tw-flex-grow tw-justify-center text-center">
-                    <div class="text-orange tw-font-medium tw-text-lg">API Key Invalid</div>
+                    <div class="text-orange tw-font-medium tw-text-lg">Authorization Keys Invalid</div>
                     <div class="text-caption">Please contact support or Notify site owner</div>
                     <q-btn
                         :color="globalColor"
@@ -446,7 +466,6 @@
                         unelevated
                     />
                 </div>
-                <div class="text-center">powered by <b>Exonhost</b></div>
             </div>
         </div>
 
@@ -489,7 +508,10 @@ export default defineComponent({
     data(): any {
         return {
             develop: process.env.DEV,
+
             showNeedHelpText: false,
+            showNeedHelpTextTimeout: null,
+
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
@@ -510,6 +532,8 @@ export default defineComponent({
             },
             closeChatModal: false,
             allCheck: false,
+
+            widget_origin: "", // for current handle
             api_key: null,
             hasApiKey: false,
 
@@ -522,7 +546,7 @@ export default defineComponent({
             showChatForm: false,
             userLogged: false,
             chatDepartments: [],
-            onlineChatDepartments: [],
+            onlineChatDepartments: null,
             convInitFields: {
                 name: "",
                 email: "",
@@ -542,9 +566,9 @@ export default defineComponent({
             pageVisitingHandler: null,
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
-            successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
+            successSubmitOfflineChatReq: sessionStorage.getItem("success_submit_offline_chat_req") || false,
 
-            chatWidgetMiniWidth: 230,
+            chatWidgetMiniWidth: 250,
             queuePosition: 1,
             queuePositionInterval: "",
             getOnlineDepartmentsInterval: "",
@@ -568,6 +592,7 @@ export default defineComponent({
                     if (this.api_key === event.data.value) return; // a safe check
 
                     this.api_key = event.data.value;
+                    this.widget_origin = event.origin;
 
                     this.initializeSocket();
                 }
@@ -576,10 +601,19 @@ export default defineComponent({
                     this.sendPageVisitingInfo(event.data.value);
                 }
 
+                if (event.data.res === "ec_chat_helper_container_clicked") {
+                    this.panelMaximize();
+                }
+                if (event.data.res === "ec_chat_helper_container_closed_btn_clicked") {
+                    this.closeHelpText();
+                }
+
                 if (event.data.res === "ec_minimized_panel") {
                     this.panelVisibleStatus = false;
 
                     this.panelReady = true;
+
+                    this.showNeedHelpTexSection();
                 }
 
                 if (event.data.res === "ec_maximized_panel") {
@@ -606,8 +640,6 @@ export default defineComponent({
         // send mounted to parent so that it can send infos
         window.parent.postMessage({ action: "ec_mounted" }, "*");
 
-        this.handleChatPanelVisibility();
-
         // await this.initializeSocket();
 
         this.showNeedHelpTexSection();
@@ -631,6 +663,7 @@ export default defineComponent({
 
     methods: {
         onResizeMiniMode(size: any) {
+            return;
             // call this function one time for get height & width
             if (this.panelVisibleStatus) return;
 
@@ -679,6 +712,8 @@ export default defineComponent({
 
             if (toggleTo) {
                 window.localStorage.setItem("chat_panel_visible", "true");
+
+                this.showNeedHelpText = false;
                 // first apply styles then make visible
                 this.panelMaximize();
             } else {
@@ -688,7 +723,60 @@ export default defineComponent({
             }
         },
 
+        showNeedHelpTexSection() {
+            clearTimeout(this.showNeedHelpTextTimeout);
+
+            this.showNeedHelpTextTimeout = setTimeout(() => {
+                const hideNeedHelpText = localStorage.getItem("hide_need_help_text");
+
+                if (!hideNeedHelpText && this.hasApiKey) {
+                    window.parent.postMessage(
+                        {
+                            action: "ec_show_chat_helper_container",
+                            param: {
+                                header_text: "Need Help?",
+                                content: "Click here and start chatting with us!",
+                                icon: true,
+                                style: {
+                                    display: "block",
+                                    bottom: "85px",
+                                    position: "fixed",
+                                    right: "15px",
+                                    height: "110px",
+                                    width: "260px",
+                                    background: "#fff",
+                                    padding: "20px",
+                                    "box-shadow": "rgb(0 0 0 / 30%) 0px 0px 2px",
+                                    cursor: "pointer",
+                                },
+                                dom: this.$refs.ec_chat_helper_container.innerHTML,
+                            },
+                        },
+                        "*"
+                    );
+                }
+            }, 1500);
+        },
+
+        hideNeedHelpTextSection() {
+            clearTimeout(this.showNeedHelpTextTimeout);
+
+            window.parent.postMessage(
+                {
+                    action: "ec_hide_chat_helper_container",
+                    param: {
+                        style: {
+                            display: "none",
+                        },
+                    },
+                },
+                "*"
+            );
+        },
+
         panelMaximize() {
+            this.hideNeedHelpTextSection();
+
             window.parent.postMessage(
                 {
                     action: "ec_maximize_panel",
@@ -708,8 +796,8 @@ export default defineComponent({
                 {
                     action: "ec_minimize_panel",
                     param: {
-                        height: "300px",
-                        width: `${this.chatWidgetMiniWidth}px`,
+                        height: `${!this.onlineChatDepartments || this.onlineChatDepartments.length ? 65 : 60}px`,
+                        width: `${!this.onlineChatDepartments || this.onlineChatDepartments.length ? 100 : 200}px`,
                         display: "block",
                         "box-shadow": "unset",
                     },
@@ -722,12 +810,12 @@ export default defineComponent({
             // handle actual close by emitting
             this.socket.close();
 
-            localStorage.removeItem("clientInitiateConvInfo");
-            localStorage.removeItem("ec_client_socket_token");
-            localStorage.removeItem("ec_client_socket_ses_id");
-            localStorage.removeItem("showRatingForm");
-            localStorage.removeItem("ec_intvl_ct");
-            localStorage.removeItem("success_submit_offline_chat_req");
+            sessionStorage.removeItem("clientInitiateConvInfo");
+            sessionStorage.removeItem("ec_client_socket_token");
+            sessionStorage.removeItem("ec_client_socket_ses_id");
+            sessionStorage.removeItem("showRatingForm");
+            sessionStorage.removeItem("ec_intvl_ct");
+            sessionStorage.removeItem("success_submit_offline_chat_req");
 
             this.resetConvInitForm();
 
@@ -778,17 +866,18 @@ export default defineComponent({
             if (!this.api_key) return;
 
             // get conversation information
-            const clientInitiateConvInfo: any = localStorage.getItem("clientInitiateConvInfo");
+            const clientInitiateConvInfo: any = sessionStorage.getItem("clientInitiateConvInfo");
             this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
 
             // we are now supporting client chat after browser restart
-            this.sesId = localStorage.getItem("ec_client_socket_ses_id");
-            this.socketToken = localStorage.getItem("ec_client_socket_token");
+            this.sesId = sessionStorage.getItem("ec_client_socket_ses_id");
+            this.socketToken = sessionStorage.getItem("ec_client_socket_token");
 
             if (!this.sesId || !this.socketToken) {
                 await window.api
                     .post("/socket-sessions", {
                         api_key: this.api_key,
+                        site_url: this.widget_origin,
                     })
                     .then((res: any) => {
                         // console.log(res.data);
@@ -796,13 +885,13 @@ export default defineComponent({
                         this.sesId = res.data.data.socket_session.id;
                         this.socketToken = res.data.bearerToken;
 
-                        localStorage.setItem("ec_client_socket_ses_id", this.sesId);
-                        localStorage.setItem("ec_client_socket_token", this.socketToken);
+                        sessionStorage.setItem("ec_client_socket_ses_id", this.sesId);
+                        sessionStorage.setItem("ec_client_socket_token", this.socketToken);
                     })
                     .catch((err: any) => {
                         console.log("from web chat error", err.response);
 
-                        if (err.response.status === 204) {
+                        if ([204, 400].includes(err.response.status)) {
                             this.hasApiKey = false;
                         }
                     });
@@ -813,37 +902,38 @@ export default defineComponent({
             if (!this.sesId || !this.socketToken) {
                 // handle error
                 console.log("socket token or session not found for this sesId");
-                return;
             } else {
                 this.hasApiKey = true;
+
+                this.socket = io(process.env.API || "http://localhost:3000", {
+                    query: {
+                        token: this.socketToken,
+                    },
+                });
+
+                this.fireSocketListeners();
+
+                this.firePageVisitListner();
+
+                if (this.clientInitiateConvInfo.conv_id) {
+                    this.getConvMessages(this.clientInitiateConvInfo.conv_id);
+                }
+
+                this.getChatDepartments();
+                this.setTypingFalse();
+                // localStorage.debug = '*';
+                // console.log(this.socket);
+
+                this.getQueueCountNumber();
+
+                this.getOnlineChatDepartments();
+
+                this.fireOtherEvents();
             }
-
-            this.socket = io(process.env.API || "http://localhost:3000", {
-                query: {
-                    token: this.socketToken,
-                },
-            });
-
-            this.fireSocketListeners();
-
-            this.firePageVisitListner();
-
-            if (this.clientInitiateConvInfo.conv_id) {
-                this.getConvMessages(this.clientInitiateConvInfo.conv_id);
-            }
-
-            this.getChatDepartments();
-            this.setTypingFalse();
-            // localStorage.debug = '*';
-            // console.log(this.socket);
-
-            this.getQueueCountNumber();
-
-            this.getOnlineChatDepartments();
-
-            this.fireOtherEvents();
 
             this.allCheck = true;
+
+            setTimeout(() => this.handleChatPanelVisibility(), 1000);
         },
 
         fireSocketListeners() {
@@ -947,6 +1037,10 @@ export default defineComponent({
 
             this.socket.on("ec_departments_online_status_res", (res: any) => {
                 this.onlineChatDepartments = res.departments;
+
+                if (!this.panelVisibleStatus) {
+                    this.panelMinimize();
+                }
                 console.log("from ec_departments_online_status_res", res);
             });
 
@@ -958,8 +1052,6 @@ export default defineComponent({
         },
 
         chatInitialize() {
-            console.log(this.convInitFields);
-
             this.socket.emit("ec_init_conv_from_client", { ...this.convInitFields });
 
             this.getQueueCountNumber();
@@ -976,7 +1068,6 @@ export default defineComponent({
                 }
             }, 500);
         },
-
         getQueueCountNumber() {
             this.socket.emit("ec_conv_queue_position", { conv_id: this.clientInitiateConvInfo.conv_id });
 
@@ -1049,7 +1140,7 @@ export default defineComponent({
                 if (event.oldValue !== event.newValue) {
                     if (event.key === `ec_update_storage_ec_whmcs_info_${this.api_key}` && event.newValue) {
                         // later handle whmcs logout
-                        localStorage.removeItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`);
+                        sessionStorage.removeItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`);
 
                         sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, event.newValue);
                     }
@@ -1060,7 +1151,6 @@ export default defineComponent({
         handlePageVisibilityChange() {
             this.pageInFocus = document.visibilityState === "visible";
         },
-
         sendPageVisitingInfo(data: any) {
             if (this.socketId) {
                 if (this.pageInFocus) {
@@ -1090,7 +1180,6 @@ export default defineComponent({
                 this.sendTypingData();
             }, 1000);
         },
-
         inputBlurHandle() {
             clearInterval(this.typingHandler);
         },
@@ -1105,7 +1194,6 @@ export default defineComponent({
                 });
             }
         },
-
         setTypingFalse() {
             setInterval(() => {
                 this.typingHandler.typing = false;
@@ -1128,16 +1216,15 @@ export default defineComponent({
             window.socketSessionApi
                 .post("offline-chat-requests", this.convInitFields)
                 .then((res: any) => {
-                    console.log(res.data);
+                    // console.log(res.data);
                     this.successSubmitOfflineChatReq = true;
-                    localStorage.setItem("success_submit_offline_chat_req", "true");
+                    sessionStorage.setItem("success_submit_offline_chat_req", "true");
                     this.resetConvInitForm();
                 })
                 .catch((err: any) => {
                     this.submitOfflineChatReqErrorHandle(err);
                 });
         },
-
         submitOfflineChatReqErrorHandle(err: any) {
             if (this.$_.isObject(err.response.data.message)) {
                 this.convInitFieldsErrors = err.response.data.message;
@@ -1145,7 +1232,6 @@ export default defineComponent({
                 this.$helpers.showErrorNotification(this, err.response.data.message);
             }
         },
-
         resetConvInitForm() {
             this.convInitFields = {};
             this.convInitFieldsErrors = {};
@@ -1171,16 +1257,14 @@ export default defineComponent({
                 });
 
                 // for preventing infinity chat transfer
-                localStorage.setItem("ec_intvl_ct", "true");
+                sessionStorage.setItem("ec_intvl_ct", "true");
 
                 clearInterval(this.activityInterval.threeMinAgent.interval);
             }, this.activityInterval.threeMinAgent.time);
         },
-
         reload() {
             location.reload();
         },
-
         tenMinClientInterval() {
             clearInterval(this.activityInterval.tenMinClient.interval);
 
@@ -1199,7 +1283,6 @@ export default defineComponent({
                 clearInterval(this.activityInterval.tenMinClient.interval);
             }, this.activityInterval.tenMinClient.time);
         },
-
         thirteenMinClientInterval() {
             clearInterval(this.activityInterval.thirteenMinClient.interval);
 
@@ -1239,7 +1322,7 @@ export default defineComponent({
                             if (!this.activityInterval[interval].interval) {
                                 if (
                                     interval !== "threeMinAgent" ||
-                                    (interval === "threeMinAgent" && localStorage.getItem("ec_intvl_ct") !== "true")
+                                    (interval === "threeMinAgent" && sessionStorage.getItem("ec_intvl_ct") !== "true")
                                 )
                                     this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
                                         type,
@@ -1318,7 +1401,7 @@ export default defineComponent({
                     email: whmcsCredential?.clientEmail,
                 })
                 .then((res: any) => {
-                    console.log(res.data);
+                    // console.log(res.data);
                     this.convInitFields.name = res.data.fullname;
                     this.convInitFields.email = res.data.email;
 
@@ -1331,7 +1414,7 @@ export default defineComponent({
 
                     sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
-                    localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
+                    sessionStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
                     this.whmcsInfoAssigned = true;
                 })
@@ -1364,17 +1447,11 @@ export default defineComponent({
             }
         },
 
-        showNeedHelpTexSection() {
-            setTimeout(() => {
-                const checkLocalShowNeedHelpText = localStorage.getItem("show_need_help_text");
-
-                this.showNeedHelpText = !checkLocalShowNeedHelpText;
-            }, 1500);
-        },
-
         closeHelpText() {
             this.showNeedHelpText = false;
-            localStorage.setItem("show_need_help_text", "false");
+            this.hideNeedHelpTextSection();
+
+            localStorage.setItem("hide_need_help_text", "false");
         },
     },
 
