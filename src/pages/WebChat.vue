@@ -29,7 +29,14 @@
                                 </svg>
                             </div>
                             <div>
-                                <div style="font-size: 20px; font-weight: 700; margin-bottom: 3px">
+                                <div
+                                    style="
+                                        font-size: 20px;
+                                        font-weight: 700;
+                                        margin-bottom: 3px;
+                                        color: rgb(50, 50, 50);
+                                    "
+                                >
                                     {{
                                         !onlineChatDepartments || onlineChatDepartments.length
                                             ? "Need Help?"
@@ -47,24 +54,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="tw-flex tw-justify-end tw-mb-1">
-                    <q-btn icon="close" size="xs" class="tw-shadow" round flat />
-                </div>
-                <!--                <div>-->
-                <div class="ec-help-text tw-p-2 bg-white tw-border-1">
-                    <!--                    check letter count then use nowrap iff needed otherwise content height flickers-->
-                    <div class="tw-flex tw-justify-center tw-items-center tw-gap-2">
-                        <div class="">
-                            <q-icon color="blue-8" name="forum" size="45px"></q-icon>
-                        </div>
-                        <div class="">
-                            <div class="tw-text-lg tw-font-bold tw-whitespace-nowrap">Need Help?</div>
-                            <div>Click here and start chatting with us!</div>
-                            <!--                            Click here to leave us a message-->
-                        </div>
-                    </div>
-                </div>
-                <!--                </div>-->
             </div>
 
             <div class="tw-flex tw-justify-end">
@@ -80,34 +69,33 @@
                     no-wrap
                     unelevated
                 >
-                    <template v-slot:default>
-                        <div class="tw-relative tw-flex tw-items-center tw-justify-center">
-                            <q-icon
-                                color="white"
-                                class="tw-absolute default-icon widget-mini-mode-static"
-                                size="30px"
-                                name="far fa-comment-alt"
-                            />
-                            <q-icon
-                                color="white"
-                                class="tw-absolute default-icon widget-mini-mode-spinner"
-                                size="30px"
-                                name="fas fa-comment-alt"
-                            />
-                            <q-spinner-dots
-                                :color="globalColor"
-                                class="tw-absolute widget-mini-mode-spinner tw--top-3"
-                                size="18px"
-                            />
-                        </div>
-                    </template>
+                    <div class="tw-relative tw-flex tw-items-center tw-justify-center">
+                        <q-icon
+                            color="white"
+                            class="tw-absolute default-icon widget-mini-mode-static"
+                            size="30px"
+                            name="far fa-comment-alt"
+                        />
+                        <q-icon
+                            color="white"
+                            class="tw-absolute default-icon widget-mini-mode-spinner"
+                            size="30px"
+                            name="fas fa-comment-alt"
+                        />
+                        <q-icon
+                            color="green-8"
+                            class="tw-absolute default-icon widget-mini-mode-spinner tw--top-3"
+                            size="20px"
+                            name="fas fa-ellipsis-h"
+                        />
+                    </div>
                 </q-btn>
 
                 <q-btn
                     v-show="!conversationInfo.id && onlineChatDepartments && !onlineChatDepartments.length"
                     icon="mail"
                     :color="globalColor"
-                    class="tw-shadow-xl"
+                    class="tw-shadow-xl tw-mb-4"
                     @click="toggleChatPanel(true)"
                     rounded
                     label="Leave a message"
@@ -520,7 +508,10 @@ export default defineComponent({
     data(): any {
         return {
             develop: process.env.DEV,
+
             showNeedHelpText: false,
+            showNeedHelpTextTimeout: null,
+
             chatActiveStatus: true,
             activityInterval: {
                 threeMinAgent: {
@@ -606,6 +597,13 @@ export default defineComponent({
 
                 if (event.data.res === "page_visit_info") {
                     this.sendPageVisitingInfo(event.data.value);
+                }
+
+                if (event.data.res === "ec_chat_helper_container_clicked") {
+                    this.panelMaximize();
+                }
+                if (event.data.res === "ec_chat_helper_container_closed_btn_clicked") {
+                    this.closeHelpText();
                 }
 
                 if (event.data.res === "ec_minimized_panel") {
@@ -724,7 +722,9 @@ export default defineComponent({
         },
 
         showNeedHelpTexSection() {
-            setTimeout(() => {
+            clearTimeout(this.showNeedHelpTextTimeout);
+
+            this.showNeedHelpTextTimeout = setTimeout(() => {
                 const hideNeedHelpText = localStorage.getItem("hide_need_help_text");
 
                 if (!hideNeedHelpText) {
@@ -740,24 +740,25 @@ export default defineComponent({
                                     bottom: "85px",
                                     position: "fixed",
                                     right: "15px",
-                                    height: "150px",
-                                    width: "300px",
+                                    height: "110px",
+                                    width: "260px",
                                     background: "#fff",
-                                    padding: "15px",
+                                    padding: "20px",
                                     "box-shadow": "rgb(0 0 0 / 30%) 0px 0px 2px",
+                                    cursor: "pointer",
                                 },
                                 dom: this.$refs.ec_chat_helper_container.innerHTML,
                             },
                         },
                         "*"
                     );
-
-                    console.log({ helper: this.$refs.ec_chat_helper_container });
                 }
             }, 1500);
         },
 
         hideNeedHelpTextSection() {
+            clearTimeout(this.showNeedHelpTextTimeout);
+
             window.parent.postMessage(
                 {
                     action: "ec_hide_chat_helper_container",
@@ -793,8 +794,8 @@ export default defineComponent({
                 {
                     action: "ec_minimize_panel",
                     param: {
-                        height: "80px",
-                        width: `${this.onlineChatDepartments === null || this.chatDepartments ? 100 : 200}px`,
+                        height: `${!this.onlineChatDepartments || this.onlineChatDepartments.length ? 65 : 60}px`,
+                        width: `${!this.onlineChatDepartments || this.onlineChatDepartments.length ? 100 : 200}px`,
                         display: "block",
                         "box-shadow": "unset",
                     },
@@ -1036,22 +1037,7 @@ export default defineComponent({
                 this.onlineChatDepartments = res.departments;
 
                 if (!this.panelVisibleStatus) {
-                    if (!res.departments.length) {
-                        window.parent.postMessage(
-                            {
-                                action: "ec_minimize_panel",
-                                param: {
-                                    height: "60px",
-                                    width: `200px`,
-                                    display: "block",
-                                    "box-shadow": "unset",
-                                },
-                            },
-                            "*"
-                        );
-                    } else {
-                        this.panelMinimize();
-                    }
+                    this.panelMinimize();
                 }
                 console.log("from ec_departments_online_status_res", res);
             });
@@ -1064,8 +1050,6 @@ export default defineComponent({
         },
 
         chatInitialize() {
-            console.log(this.convInitFields);
-
             this.socket.emit("ec_init_conv_from_client", { ...this.convInitFields });
 
             this.getQueueCountNumber();
@@ -1218,7 +1202,7 @@ export default defineComponent({
             window.socketSessionApi
                 .post("offline-chat-requests", this.convInitFields)
                 .then((res: any) => {
-                    console.log(res.data);
+                    // console.log(res.data);
                     this.successSubmitOfflineChatReq = true;
                     localStorage.setItem("success_submit_offline_chat_req", "true");
                     this.resetConvInitForm();
@@ -1403,7 +1387,7 @@ export default defineComponent({
                     email: whmcsCredential?.clientEmail,
                 })
                 .then((res: any) => {
-                    console.log(res.data);
+                    // console.log(res.data);
                     this.convInitFields.name = res.data.fullname;
                     this.convInitFields.email = res.data.email;
 
@@ -1451,6 +1435,8 @@ export default defineComponent({
 
         closeHelpText() {
             this.showNeedHelpText = false;
+            this.hideNeedHelpTextSection();
+
             localStorage.setItem("hide_need_help_text", "false");
         },
     },
