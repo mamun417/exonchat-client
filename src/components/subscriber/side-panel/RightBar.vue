@@ -7,11 +7,12 @@
             <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true">
                 <template v-slot:scroll-area-top-section>
                     <div class="tw-mb-3">
-                        <!--<messages-top-section
+                        <messages-top-section
+                            v-if="conversationInfo.users_only"
                             :conv_id="rightBarState.conv_id"
                             :mini_mode="true"
                             :class="{ 'tw-mb-3': conversationInfo.users_only }"
-                        />-->
+                        />
 
                         <template v-if="!conversationInfo.users_only && conversationWithUsersInfo.length">
                             <q-list
@@ -298,7 +299,6 @@
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    :class="[`${globalBgColor}-8`]"
                     class="tw-shadow"
                     expand-icon-class="hidden"
                 >
@@ -334,7 +334,6 @@
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    :class="[`${globalBgColor}-8`]"
                     class="tw-shadow"
                     expand-icon-class="hidden"
                 >
@@ -371,7 +370,6 @@
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    :class="[`${globalBgColor}-8`]"
                     class="tw-shadow"
                     expand-icon-class="hidden"
                 >
@@ -430,7 +428,7 @@ import { defineComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 
 import Message from "components/common/Message.vue";
-// import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vue";
+import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vue";
 import EcAvatar from "src/components/common/EcAvatar.vue";
 
 import UAParser from "ua-parser-js";
@@ -444,7 +442,7 @@ export default defineComponent({
         CustomerDetailsCard,
         ConnectedUsersFaces,
         TicketDetail,
-        // MessagesTopSection,
+        MessagesTopSection,
         Message,
         EcAvatar,
     },

@@ -165,6 +165,9 @@ export default defineComponent({
                 notify_to: this.transferChatFormData.agent ? this.transferChatFormData.agent.socket_session.id : "",
                 agent_info: this.profile,
             });
+
+            this.$emit("transferChat");
+            this.$helpers.showSuccessNotification(this, "Chat transfer success");
         },
     },
 });

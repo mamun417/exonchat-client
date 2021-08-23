@@ -131,6 +131,7 @@
                             <q-menu anchor="bottom right" self="top end">
                                 <q-list style="min-width: 200px">
                                     <q-item
+                                        @click="convStateHandle('join')"
                                         v-if="!conversationStatusForMe || conversationStatusForMe !== 'joined'"
                                         clickable
                                         v-close-popup
@@ -138,10 +139,8 @@
                                         <!--                                        <q-item-section class="tw-w-8 tw-min-w-0" avatar>-->
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
-                                        <q-item-section
-                                            @click="convStateHandle('join')"
-                                            :class="$helpers.colors().defaultText"
-                                            >Join Chat
+                                        <q-item-section :class="$helpers.colors().defaultText">
+                                            Join Chat
                                         </q-item-section>
                                     </q-item>
 
@@ -264,10 +263,11 @@
                 </q-card-section>
 
                 <q-card-section class="tw-py-3 text-center">
-                    <q-btn size="sm" label="Submit" color="green" class="full-width" @click="openTicket" unelevated />
+                    <q-btn label="Submit" color="green" class="full-width" @click="openTicket" unelevated />
                 </q-card-section>
+
+                <q-inner-loading :showing="ticketSubmitLoader" color="green" />
             </q-card>
-            <q-inner-loading :showing="ticketSubmitLoader" color="green" />
         </q-dialog>
 
         <conversation-state-confirm-modal
@@ -277,7 +277,11 @@
             @hide="confirmModal = false"
         />
 
-        <chat-transfer-modal v-if="showChatTransferModal" @hide="showChatTransferModal = false" :conv_id="conv_id" />
+        <chat-transfer-modal
+            v-if="showChatTransferModal"
+            @transferChat="showChatTransferModal = false"
+            :conv_id="conv_id"
+        />
     </q-card>
 </template>
 
@@ -394,7 +398,11 @@ export default defineComponent({
     methods: {
         ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
-        convStateHandle() {
+        convStateHandle(state: any = "") {
+            if (state) {
+                this.modalForState = state;
+            }
+
             if (!this.modalForState) return;
             this[`${this.modalForState}Conversation`](this.conv_id);
         },
@@ -406,6 +414,7 @@ export default defineComponent({
                 .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: this.ticketSubject })
                 .then(() => {
                     this.$helpers.showSuccessNotification(this, "Ticket submitted successfully");
+                    this.ticketSubject = "";
                 })
                 .catch((e: any) => {
                     console.log(e);

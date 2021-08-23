@@ -373,6 +373,9 @@
                                             class="tw-mb-3"
                                             autogrow
                                             outlined
+                                            type="textarea"
+                                            input-style="min-height: 50px"
+                                            rows="3"
                                         >
                                             <!--<template v-slot:prepend>
                                                 <q-icon name="textsms" size="xs" :color="globalColor" />
