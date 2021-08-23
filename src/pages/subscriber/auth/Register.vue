@@ -113,6 +113,10 @@ export default defineComponent({
         };
     },
 
+    mounted() {
+        this.$router.push("/auth/login");
+    },
+
     methods: {
         registerButtonClicked() {
             if (!this.formData.password || this.formData.password !== this.formData.confirm_password) {

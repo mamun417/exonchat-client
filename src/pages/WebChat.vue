@@ -454,7 +454,7 @@
 
             <div v-else class="tw-p-6 tw-flex tw-flex-col tw-flex-grow">
                 <div class="tw-flex tw-flex-col tw-flex-grow tw-justify-center text-center">
-                    <div class="text-orange tw-font-medium tw-text-lg">API Key Invalid</div>
+                    <div class="text-orange tw-font-medium tw-text-lg">Authorization Keys Invalid</div>
                     <div class="text-caption">Please contact support or Notify site owner</div>
                     <q-btn
                         :color="globalColor"
@@ -465,7 +465,6 @@
                         unelevated
                     />
                 </div>
-                <div class="text-center">powered by <b>Exonhost</b></div>
             </div>
         </div>
 
@@ -532,6 +531,8 @@ export default defineComponent({
             },
             closeChatModal: false,
             allCheck: false,
+
+            widget_origin: "", // for current handle
             api_key: null,
             hasApiKey: false,
 
@@ -564,7 +565,7 @@ export default defineComponent({
             pageVisitingHandler: null,
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
-            successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
+            successSubmitOfflineChatReq: sessionStorage.getItem("success_submit_offline_chat_req") || false,
 
             chatWidgetMiniWidth: 250,
             queuePosition: 1,
@@ -591,6 +592,7 @@ export default defineComponent({
                     if (this.api_key === event.data.value) return; // a safe check
 
                     this.api_key = event.data.value;
+                    this.widget_origin = event.origin;
 
                     this.initializeSocket();
                 }
@@ -727,7 +729,7 @@ export default defineComponent({
             this.showNeedHelpTextTimeout = setTimeout(() => {
                 const hideNeedHelpText = localStorage.getItem("hide_need_help_text");
 
-                if (!hideNeedHelpText) {
+                if (!hideNeedHelpText && this.hasApiKey) {
                     window.parent.postMessage(
                         {
                             action: "ec_show_chat_helper_container",
@@ -808,12 +810,12 @@ export default defineComponent({
             // handle actual close by emitting
             this.socket.close();
 
-            localStorage.removeItem("clientInitiateConvInfo");
-            localStorage.removeItem("ec_client_socket_token");
-            localStorage.removeItem("ec_client_socket_ses_id");
-            localStorage.removeItem("showRatingForm");
-            localStorage.removeItem("ec_intvl_ct");
-            localStorage.removeItem("success_submit_offline_chat_req");
+            sessionStorage.removeItem("clientInitiateConvInfo");
+            sessionStorage.removeItem("ec_client_socket_token");
+            sessionStorage.removeItem("ec_client_socket_ses_id");
+            sessionStorage.removeItem("showRatingForm");
+            sessionStorage.removeItem("ec_intvl_ct");
+            sessionStorage.removeItem("success_submit_offline_chat_req");
 
             this.resetConvInitForm();
 
@@ -864,17 +866,18 @@ export default defineComponent({
             if (!this.api_key) return;
 
             // get conversation information
-            const clientInitiateConvInfo: any = localStorage.getItem("clientInitiateConvInfo");
+            const clientInitiateConvInfo: any = sessionStorage.getItem("clientInitiateConvInfo");
             this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
 
             // we are now supporting client chat after browser restart
-            this.sesId = localStorage.getItem("ec_client_socket_ses_id");
-            this.socketToken = localStorage.getItem("ec_client_socket_token");
+            this.sesId = sessionStorage.getItem("ec_client_socket_ses_id");
+            this.socketToken = sessionStorage.getItem("ec_client_socket_token");
 
             if (!this.sesId || !this.socketToken) {
                 await window.api
                     .post("/socket-sessions", {
                         api_key: this.api_key,
+                        site_url: this.widget_origin,
                     })
                     .then((res: any) => {
                         // console.log(res.data);
@@ -882,13 +885,13 @@ export default defineComponent({
                         this.sesId = res.data.data.socket_session.id;
                         this.socketToken = res.data.bearerToken;
 
-                        localStorage.setItem("ec_client_socket_ses_id", this.sesId);
-                        localStorage.setItem("ec_client_socket_token", this.socketToken);
+                        sessionStorage.setItem("ec_client_socket_ses_id", this.sesId);
+                        sessionStorage.setItem("ec_client_socket_token", this.socketToken);
                     })
                     .catch((err: any) => {
                         console.log("from web chat error", err.response);
 
-                        if (err.response.status === 204) {
+                        if ([204, 400].includes(err.response.status)) {
                             this.hasApiKey = false;
                         }
                     });
@@ -899,35 +902,34 @@ export default defineComponent({
             if (!this.sesId || !this.socketToken) {
                 // handle error
                 console.log("socket token or session not found for this sesId");
-                return;
             } else {
                 this.hasApiKey = true;
+
+                this.socket = io(process.env.API || "http://localhost:3000", {
+                    query: {
+                        token: this.socketToken,
+                    },
+                });
+
+                this.fireSocketListeners();
+
+                this.firePageVisitListner();
+
+                if (this.clientInitiateConvInfo.conv_id) {
+                    this.getConvMessages(this.clientInitiateConvInfo.conv_id);
+                }
+
+                this.getChatDepartments();
+                this.setTypingFalse();
+                // localStorage.debug = '*';
+                // console.log(this.socket);
+
+                this.getQueueCountNumber();
+
+                this.getOnlineChatDepartments();
+
+                this.fireOtherEvents();
             }
-
-            this.socket = io(process.env.API || "http://localhost:3000", {
-                query: {
-                    token: this.socketToken,
-                },
-            });
-
-            this.fireSocketListeners();
-
-            this.firePageVisitListner();
-
-            if (this.clientInitiateConvInfo.conv_id) {
-                this.getConvMessages(this.clientInitiateConvInfo.conv_id);
-            }
-
-            this.getChatDepartments();
-            this.setTypingFalse();
-            // localStorage.debug = '*';
-            // console.log(this.socket);
-
-            this.getQueueCountNumber();
-
-            this.getOnlineChatDepartments();
-
-            this.fireOtherEvents();
 
             this.allCheck = true;
 
@@ -1126,7 +1128,7 @@ export default defineComponent({
                 if (event.oldValue !== event.newValue) {
                     if (event.key === `ec_update_storage_ec_whmcs_info_${this.api_key}` && event.newValue) {
                         // later handle whmcs logout
-                        localStorage.removeItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`);
+                        sessionStorage.removeItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`);
 
                         sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, event.newValue);
                     }
@@ -1204,7 +1206,7 @@ export default defineComponent({
                 .then((res: any) => {
                     // console.log(res.data);
                     this.successSubmitOfflineChatReq = true;
-                    localStorage.setItem("success_submit_offline_chat_req", "true");
+                    sessionStorage.setItem("success_submit_offline_chat_req", "true");
                     this.resetConvInitForm();
                 })
                 .catch((err: any) => {
@@ -1243,7 +1245,7 @@ export default defineComponent({
                 });
 
                 // for preventing infinity chat transfer
-                localStorage.setItem("ec_intvl_ct", "true");
+                sessionStorage.setItem("ec_intvl_ct", "true");
 
                 clearInterval(this.activityInterval.threeMinAgent.interval);
             }, this.activityInterval.threeMinAgent.time);
@@ -1308,7 +1310,7 @@ export default defineComponent({
                             if (!this.activityInterval[interval].interval) {
                                 if (
                                     interval !== "threeMinAgent" ||
-                                    (interval === "threeMinAgent" && localStorage.getItem("ec_intvl_ct") !== "true")
+                                    (interval === "threeMinAgent" && sessionStorage.getItem("ec_intvl_ct") !== "true")
                                 )
                                     this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
                                         type,
@@ -1400,7 +1402,7 @@ export default defineComponent({
 
                     sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
-                    localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
+                    sessionStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
                     this.whmcsInfoAssigned = true;
                 })

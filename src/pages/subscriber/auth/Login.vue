@@ -66,16 +66,16 @@
 
                 <div class="tw-mt-8 tw-mb-4"></div>
 
-                <div class="text-caption tw-text-gray-500">
-                    Dont have an account.
-                    <span class="text-green tw-font-bold tw-cursor-pointer" @click="$router.push('/auth/register')"
-                        >Create One?</span
-                    >
-                </div>
+                <!--<div class="text-caption tw-text-gray-500">-->
+                <!--    Dont have an account.-->
+                <!--    <span class="text-green tw-font-bold tw-cursor-pointer" @click="$router.push('/auth/register')"-->
+                <!--        >Create One?</span-->
+                <!--    >-->
+                <!--</div>-->
 
-                <div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">
-                    admin is test@test.com. for agent/user test1@test.com or test2@test.com. for all password is 123
-                </div>
+                <!--<div class="tw-text-xxs tw-mt-6 text-white bg-orange tw-p-2 tw-font-bold">-->
+                <!--    admin is test@test.com. for agent/user test1@test.com or test2@test.com. for all password is 123-->
+                <!--</div>-->
             </form>
         </div>
     </div>
