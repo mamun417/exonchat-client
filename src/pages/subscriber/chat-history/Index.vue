@@ -46,7 +46,7 @@
                     </template>-->
 
                     <template v-slot:cell-connected_agents="slotProps">
-                        <connected-users-faces :users_conv_ses="slotProps.row.connected_agents" />
+                        <connected-users-faces :users_conv_ses="slotProps.row.connected_agents" size="sm" />
                     </template>
 
                     <template v-slot:cell-chat_department="slotProps">

@@ -83,10 +83,7 @@ export default defineComponent({
         loadAvatar() {
             if (this.email) {
                 const hash = CryptoJS.MD5(this.email.trim());
-                const client_photo = `https://www.gravatar.com/avatar/${hash}?d=404`;
-
-                this.avatarUrl = client_photo;
-                console.log({ client_photo });
+                this.avatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404`;
             }
         },
     },

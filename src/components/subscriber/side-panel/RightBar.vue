@@ -2,176 +2,224 @@
     <div class="tw-h-full tw-flex tw-flex-col tw-relative">
         <slot name="extra"></slot>
 
+        <!--right bar mini mode-->
         <template v-if="rightBarState.mode === 'conversation'">
-            <div class="tw-mb-3">
-                <messages-top-section
-                    :conv_id="rightBarState.conv_id"
-                    :mini_mode="true"
-                    :class="{ 'tw-mb-3': conversationInfo.users_only }"
-                />
+            <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true">
+                <template v-slot:scroll-area-top-section>
+                    <div class="tw-mb-3">
+                        <!--<messages-top-section
+                            :conv_id="rightBarState.conv_id"
+                            :mini_mode="true"
+                            :class="{ 'tw-mb-3': conversationInfo.users_only }"
+                        />-->
 
-                <template v-if="!conversationInfo.users_only && conversationWithUsersInfo.length">
-                    <q-card class="tw-shadow">
-                        <q-separator />
-                        <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
-                                <q-item dense>
-                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                        <q-icon name="flag" size="xs"></q-icon>
-                                    </q-item-section>
-                                    <q-item-section>
-                                        <q-item-label>Country</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label>Not Available</q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                        <q-icon name="language" size="xs"></q-icon>
-                                    </q-item-section>
-                                    <q-item-section>
-                                        <q-item-label>Browser</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label>
-                                            {{ parsedUaString.browser.name }}
-                                            {{ parsedUaString.browser.version }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                        <q-icon name="devices" size="xs"></q-icon>
-                                    </q-item-section>
-                                    <q-item-section>
-                                        <q-item-label>OS</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label>
-                                            {{ parsedUaString.os.name }} {{ parsedUaString.os.version }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section class="tw-min-w-0 tw-w-6 tw-pr-0" avatar>
-                                        <q-icon name="dns" size="xs"></q-icon>
-                                    </q-item-section>
-                                    <q-item-section>
-                                        <q-item-label>IP</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label>
-                                            {{ conversationWithUsersInfo[0].socket_session.init_ip }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
+                        <template v-if="!conversationInfo.users_only && conversationWithUsersInfo.length">
+                            <q-list
+                                v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
+                                class="tw-px-1 tw-py-3 tw-pt-0"
+                                :class="$helpers.colors().defaultText"
+                            >
+                                <q-card class="tw-shadow-none tw-mb-3 no-border-radius">
+                                    <q-card-section
+                                        class="tw-flex tw-items-center tw-justify-between tw-py-2 tw-font-bold text-white"
+                                        :class="[`${globalBgColor}-8`]"
+                                    >
+                                        <div>Chat Preview</div>
+                                        <div>
+                                            <q-btn
+                                                @click="
+                                                    updateRightDrawerState({
+                                                        mode: 'client_info',
+                                                    })
+                                                "
+                                                label="Close"
+                                                size="sm"
+                                                color="grey-3"
+                                                text-color="black"
+                                                no-caps
+                                                no-wrap
+                                                unelevated
+                                            />
+                                        </div>
+                                    </q-card-section>
+
+                                    <q-card-section :class="`tw-px-0 tw-py-2 tw-px-2 ${globalBgColor}-1`">
+                                        <div class="tw-flex tw-gap-2">
+                                            <q-btn
+                                                @click="
+                                                    $router.push({
+                                                        name: 'chats',
+                                                        params: { conv_id: conversationInfo.id },
+                                                    })
+                                                "
+                                                icon="fullscreen"
+                                                label="Full View"
+                                                size="md"
+                                                color="white"
+                                                :text-color="$helpers.colors().defaultText"
+                                                no-caps
+                                                no-wrap
+                                                unelevated
+                                            />
+                                            <q-btn
+                                                icon="mail_outline"
+                                                label="Send Transcript"
+                                                size="md"
+                                                color="white"
+                                                :text-color="$helpers.colors().defaultText"
+                                                no-caps
+                                                no-wrap
+                                                unelevated
+                                            />
+                                        </div>
+                                    </q-card-section>
+                                </q-card>
+
+                                <customer-details-card
+                                    :conversation-with-users-info="conversationWithUsersInfo[0]"
+                                    :conversation-info="conversationInfo"
+                                    :parsed-ua-string="parsedUaString"
+                                >
+                                    <template v-slot:bottom-section>
+                                        <div v-if="!conversationShowDetail">
+                                            <q-separator />
+                                            <q-btn
+                                                @click="conversationShowDetail = !conversationShowDetail"
+                                                class="tw-w-full tw-py-2"
+                                                size="sm"
+                                                no-caps
+                                                flat
+                                            >
+                                                <q-icon name="far fa-address-card tw-mr-2"> </q-icon>
+                                                <span class="tw-text-sm">
+                                                    {{ `${conversationShowDetail ? "Hide" : "Show"} Chat Details` }}
+                                                </span>
+                                            </q-btn>
+                                        </div>
+                                    </template>
+                                </customer-details-card>
+
+                                <div v-show="conversationShowDetail" class="tw-mb-4"></div>
+
+                                <q-expansion-item
+                                    v-show="conversationShowDetail"
+                                    label="CHAT DETAILS"
+                                    dense
+                                    default-opened
+                                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                                    class="tw-shadow"
+                                    expand-icon-class="hidden"
+                                >
+                                    <q-card class="tw-shadow tw-mb-3">
+                                        <q-card-section class="tw-px-0 tw-py-2">
+                                            <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
+                                                <q-item dense>
+                                                    <q-item-section>
+                                                        <q-item-label>Connected Agents</q-item-label>
+                                                    </q-item-section>
+                                                    <q-item-section side>
+                                                        <connected-users-faces
+                                                            :users_conv_ses="conversationConnectedUsers"
+                                                            size="md"
+                                                        />
+                                                    </q-item-section>
+                                                </q-item>
+                                                <q-item dense>
+                                                    <q-item-section>
+                                                        <q-item-label>Department</q-item-label>
+                                                    </q-item-section>
+                                                    <q-item-section side>
+                                                        <q-item-label class="text-capitalize"
+                                                            >{{ conversationInfo.chat_department.tag }}
+                                                        </q-item-label>
+                                                    </q-item-section>
+                                                </q-item>
+                                                <q-item dense>
+                                                    <q-item-section>
+                                                        <q-item-label>Chat Start</q-item-label>
+                                                    </q-item-section>
+                                                    <q-item-section side>
+                                                        <q-item-label>
+                                                            {{
+                                                                $helpers.myDate(
+                                                                    conversationInfo.created_at,
+                                                                    "MMMM Do YYYY, h:mm a"
+                                                                )
+                                                            }}
+                                                        </q-item-label>
+                                                    </q-item-section>
+                                                </q-item>
+                                                <q-item dense>
+                                                    <q-item-section>
+                                                        <q-item-label>Chat Duration</q-item-label>
+                                                    </q-item-section>
+                                                    <q-item-section side>
+                                                        <q-item-label ref="chat_duration">
+                                                            <template v-if="!conversationInfo.closed_at"
+                                                                >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
+                                                            </template>
+                                                            <template v-else>
+                                                                {{
+                                                                    $helpers.preciseDiff(
+                                                                        conversationInfo.created_at,
+                                                                        conversationInfo.closed_at
+                                                                    )
+                                                                }}
+                                                            </template>
+                                                        </q-item-label>
+                                                    </q-item-section>
+                                                </q-item>
+                                                <q-item dense>
+                                                    <q-item-section>
+                                                        <q-item-label>Chat Rating</q-item-label>
+                                                    </q-item-section>
+                                                    <q-item-section side>
+                                                        <q-item-label>
+                                                            <template v-if="conversationInfo.rating">
+                                                                <span
+                                                                    :class="
+                                                                        conversationInfo.rating.rating === 5
+                                                                            ? 'green'
+                                                                            : 'orange'
+                                                                    "
+                                                                    >{{
+                                                                        conversationInfo.rating.rating === 5
+                                                                            ? "Good"
+                                                                            : "Bad"
+                                                                    }}</span
+                                                                >
+                                                            </template>
+                                                            <template v-else>Not Rated</template>
+                                                        </q-item-label>
+                                                    </q-item-section>
+                                                </q-item>
+                                            </q-list>
+                                        </q-card-section>
+                                        <div v-if="conversationShowDetail">
+                                            <q-separator />
+                                            <q-btn
+                                                @click="conversationShowDetail = !conversationShowDetail"
+                                                class="tw-w-full tw-py-2"
+                                                size="sm"
+                                                no-caps
+                                                flat
+                                            >
+                                                <q-icon name="far fa-address-card tw-mr-2"> </q-icon>
+                                                <span class="tw-text-sm">
+                                                    {{ `${conversationShowDetail ? "Hide" : "Show"} Chat Details` }}
+                                                </span>
+                                            </q-btn>
+                                        </div>
+                                    </q-card>
+                                </q-expansion-item>
                             </q-list>
-
-                            <div v-if="!conversationShowDetail" class="tw-px-2">
-                                <q-btn
-                                    @click="conversationShowDetail = !conversationShowDetail"
-                                    :color="globalColor"
-                                    :label="`${conversationShowDetail ? 'Hide' : 'Show'} Detail`"
-                                    class="tw-w-full"
-                                    size="sm"
-                                    no-caps
-                                    flat
-                                />
-                            </div>
-                        </q-card-section>
-                    </q-card>
-
-                    <q-separator v-show="conversationShowDetail" class="tw-shadow" />
-
-                    <q-card v-show="conversationShowDetail" class="tw-shadow tw-mb-3">
-                        <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
-                                <q-item dense>
-                                    <q-item-section>
-                                        <q-item-label>Connected Agents</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <connected-users-faces :users_conv_ses="conversationConnectedUsers" size="md" />
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section>
-                                        <q-item-label>Department</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label class="text-capitalize"
-                                            >{{ conversationInfo.chat_department.tag }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section>
-                                        <q-item-label>Chat Start</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label>
-                                            {{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section>
-                                        <q-item-label>Chat Duration</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label ref="chat_duration">
-                                            <template v-if="!conversationInfo.closed_at"
-                                                >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
-                                            </template>
-                                            <template v-else>
-                                                {{
-                                                    $helpers.preciseDiff(
-                                                        conversationInfo.created_at,
-                                                        conversationInfo.closed_at
-                                                    )
-                                                }}
-                                            </template>
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section>
-                                        <q-item-label>Chat Rating</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label>
-                                            <template v-if="conversationInfo.rating">
-                                                <span
-                                                    :class="conversationInfo.rating.rating === 5 ? 'green' : 'orange'"
-                                                    >{{ conversationInfo.rating.rating === 5 ? "Good" : "Bad" }}</span
-                                                >
-                                            </template>
-                                            <template v-else>Not Rated</template>
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-
-                            <div v-if="conversationShowDetail" class="tw-px-2">
-                                <q-btn
-                                    @click="conversationShowDetail = !conversationShowDetail"
-                                    :color="globalColor"
-                                    :label="`${conversationShowDetail ? 'Hide' : 'Show'} Detail`"
-                                    class="tw-w-full"
-                                    size="sm"
-                                    no-caps
-                                    flat
-                                />
-                            </div>
-                        </q-card-section>
-                    </q-card>
+                        </template>
+                    </div>
                 </template>
-            </div>
-
-            <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true"></message>
+            </message>
         </template>
 
+        <!--client info / full view-->
         <q-scroll-area
             v-else-if="rightBarState.mode === 'client_info' && !conversationInfo.users_only"
             class="fit"
@@ -191,104 +239,14 @@
             <!-- at first conversationWithUsersInfo can be empty. show loader -->
             <q-list
                 v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
-                class="tw-pl-1 tw-pr-2 tw-py-3"
+                class="tw-px-1 tw-py-3"
                 :class="$helpers.colors().defaultText"
             >
-                <q-expansion-item
-                    label="CUSTOMER"
-                    dense
-                    default-opened
-                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
-                    class="tw-shadow"
-                    expand-icon-class="hidden"
-                >
-                    <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
-                                <q-item dense>
-                                    <q-item-section class="tw-w-full">
-                                        <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-my-1">
-                                            <ec-avatar
-                                                size="xl"
-                                                :image_src="null"
-                                                :name="conversationWithUsersInfo[0].socket_session.init_name"
-                                                :email="conversationWithUsersInfo[0].socket_session.init_email"
-                                            ></ec-avatar>
-                                            <div class="tw-flex tw-flex-col tw-justify-center">
-                                                <q-item-label class="text-weight-bold text-right tw-text-sm">
-                                                    {{
-                                                        $_.upperFirst(
-                                                            conversationWithUsersInfo[0].socket_session.init_name
-                                                        )
-                                                    }}
-                                                </q-item-label>
-                                                <q-item-label class="text-right text-blue-7" caption
-                                                    >{{ conversationWithUsersInfo[0].socket_session.init_email }}
-                                                </q-item-label>
-                                                <q-item-label class="text-right" ref="connectedForTimer" caption
-                                                    >Connectd for
-                                                    <b>{{
-                                                        $helpers.preciseDiff(
-                                                            conversationWithUsersInfo[0].socket_session.created_at,
-                                                            conversationInfo.closed_at
-                                                        )
-                                                    }}</b>
-                                                </q-item-label>
-                                            </div>
-                                        </div>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item class="tw-flex" dense>
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="flag" size="xs"></q-icon>
-                                        <div>Not Available</div>
-                                    </div>
-                                    <q-space />
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="language" size="xs"></q-icon>
-                                        <div>
-                                            {{ parsedUaString.browser.name }} {{ parsedUaString.browser.version }}
-                                        </div>
-                                    </div>
-                                </q-item>
-                                <q-item class="tw-flex" dense>
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="devices" size="xs"></q-icon>
-                                        <div>{{ parsedUaString.os.name }} {{ parsedUaString.os.version }}</div>
-                                    </div>
-                                    <q-space />
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="dns" size="xs"></q-icon>
-                                        <div>
-                                            {{ conversationWithUsersInfo[0].socket_session.init_ip }}
-                                        </div>
-                                    </div>
-                                </q-item>
-
-                                <q-item dense>
-                                    <q-item-section>
-                                        <q-item-label>Department</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label class="text-capitalize"
-                                            >{{ conversationInfo.chat_department.tag }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                                <q-item dense>
-                                    <q-item-section>
-                                        <q-item-label>Chat Start</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label>
-                                            {{ $helpers.myDate(conversationInfo.created_at, "MMMM Do YYYY, h:mm a") }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-card-section>
-                    </q-card>
-                </q-expansion-item>
+                <customer-details-card
+                    :conversation-with-users-info="conversationWithUsersInfo[0]"
+                    :conversation-info="conversationInfo"
+                    :parsed-ua-string="parsedUaString"
+                />
 
                 <div class="tw-mb-4"></div>
 
@@ -303,7 +261,7 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list>
+                            <q-list v-if="conversationConnectedUsers.length">
                                 <q-item v-for="agent of conversationConnectedUsers" :key="agent.id" dense>
                                     <q-item-section class="tw-w-full">
                                         <div class="tw-flex tw-w-full tw-my-1 tw-gap-4">
@@ -327,6 +285,7 @@
                                     </q-item-section>
                                 </q-item>
                             </q-list>
+                            <div v-else class="text-center tw-py-2 text-grey-7">No agent found</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -468,19 +427,27 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 import Message from "components/common/Message.vue";
-import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vue";
+// import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vue";
 import EcAvatar from "src/components/common/EcAvatar.vue";
 
 import UAParser from "ua-parser-js";
 import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
 import ConnectedUsersFaces from "components/subscriber/chat/ConnectedUsersFaces.vue";
+import CustomerDetailsCard from "components/common/RightbarCards/CustomerDetailsCard.vue";
 
 export default defineComponent({
     name: "RightBar",
-    components: { ConnectedUsersFaces, TicketDetail, MessagesTopSection, Message, EcAvatar },
+    components: {
+        CustomerDetailsCard,
+        ConnectedUsersFaces,
+        TicketDetail,
+        // MessagesTopSection,
+        Message,
+        EcAvatar,
+    },
     setup() {
         return {};
     },
@@ -549,6 +516,10 @@ export default defineComponent({
 
             return UAParser(uaString);
         },
+    },
+
+    methods: {
+        ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
     },
 
     mounted() {

@@ -34,38 +34,81 @@
                             <!--                                <q-tooltip :offset="[10, 10]">Interactions</q-tooltip>-->
                             <!--                            </q-btn>-->
 
-                            <q-btn icon="question_answer" :to="{ name: 'chat-interaction' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Interactions</q-tooltip>
+                            <q-btn
+                                :class="{ 'active-btn': $route.name === 'chat-interaction' }"
+                                icon="question_answer"
+                                :to="{ name: 'chat-interaction' }"
+                                flat
+                                size="18px"
+                            >
+                                <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                    Interactions {{ $route.name }}
+                                </q-tooltip>
                             </q-btn>
 
-                            <q-btn icon="dynamic_feed" :to="{ name: 'visitors' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Visitors</q-tooltip>
+                            <q-btn
+                                :class="{ 'active-btn': $route.name === 'visitors' }"
+                                icon="dynamic_feed"
+                                :to="{ name: 'visitors' }"
+                                flat
+                                size="18px"
+                            >
+                                <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                    Visitors
+                                </q-tooltip>
                             </q-btn>
 
-                            <q-btn icon="history" :to="{ name: 'chat-history' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Chat History</q-tooltip>
+                            <q-btn
+                                :class="{ 'active-btn': $route.name === 'chat-history' }"
+                                icon="history"
+                                :to="{ name: 'chat-history' }"
+                                flat
+                                size="18px"
+                            >
+                                <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                    Chat History
+                                </q-tooltip>
                             </q-btn>
 
-                            <q-btn icon="3p" :to="{ name: 'offline-chat-req' }" flat size="18px">
-                                <q-tooltip :offset="[10, 10]">Offline Chat Requests</q-tooltip>
+                            <q-btn
+                                :class="{ 'active-btn': $route.name === 'offline-chat-req' }"
+                                icon="3p"
+                                :to="{ name: 'offline-chat-req' }"
+                                flat
+                                size="18px"
+                            >
+                                <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                    Offline Chat Requests
+                                </q-tooltip>
                             </q-btn>
                         </div>
 
                         <div class="tw-flex tw-gap-1 tw-flex-col tw-items-center">
                             <q-btn icon="info" flat>
-                                <q-tooltip :offset="[10, 10]">Developer debug</q-tooltip>
+                                <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                    Developer debug
+                                </q-tooltip>
 
                                 <q-menu class="tw-p-2" style="min-width: 350px">
                                     <store-debug></store-debug>
                                 </q-menu>
                             </q-btn>
 
-                            <q-btn icon="settings" :to="{ name: 'settings' }" flat>
-                                <q-tooltip :offset="[10, 10]">Ui settings</q-tooltip>
+                            <q-btn
+                                :class="{ 'active-btn': $route.name === 'settings' }"
+                                icon="settings"
+                                :to="{ name: 'settings' }"
+                                flat
+                            >
+                                <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                    Ui settings
+                                </q-tooltip>
                             </q-btn>
 
                             <q-btn icon="logout" @click="logout" flat>
-                                <q-tooltip :offset="[10, 10]">Log Out</q-tooltip>
+                                <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                                    Log Out
+                                </q-tooltip>
                             </q-btn>
                         </div>
                     </div>
@@ -813,7 +856,8 @@ export default defineComponent({
                 setTimeout(() => {
                     console.log("init client logged in id");
 
-                    window.exonChat.whmcs_info = { clientId: "7", clientEmail: "abdullah.ssc13@gmail.com" };
+                    // window.exonChat.whmcs_info = { clientId: "7", clientEmail: "abdullah.ssc13@gmail.com" };
+                    window.exonChat.whmcs_info = { clientId: "", clientEmail: "" };
                 }, 20000);
 
                 window.exonChat = {};
@@ -970,5 +1014,9 @@ export default defineComponent({
             box-shadow: 0 1px 0 -1px rgb(0 0 0 / 20%), 0 1px 0 rgb(0 0 0 / 14%), 0 1px 5px rgb(0 0 0 / 12%);
         }
     }
+}
+
+.active-btn {
+    background: #5f7079 !important;
 }
 </style>
