@@ -150,33 +150,33 @@
                         ></q-btn>
                     </div>
 
-                <div v-show="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col">
-                    <div class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5">
-                        <q-card class="shadow-0">
-                            <q-card-section>
-                                <div class="tw-text-md tw-text-center">Are you sure you want to end this chat?</div>
-                            </q-card-section>
-                            <q-card-actions align="center">
-                                <q-btn
-                                    @click="closeChat"
-                                    :color="globalColor"
-                                    label="Yes"
-                                    style="width: 70px"
-                                    no-caps
-                                    unelevated
-                                />
-                                <q-btn
-                                    @click="closeChatModal = false"
-                                    :color="globalColor"
-                                    label="No"
-                                    style="width: 70px"
-                                    no-caps
-                                    unelevated
-                                />
-                            </q-card-actions>
-                        </q-card>
+                    <div v-show="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col">
+                        <div class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5">
+                            <q-card class="shadow-0">
+                                <q-card-section>
+                                    <div class="tw-text-md tw-text-center">Are you sure you want to end this chat?</div>
+                                </q-card-section>
+                                <q-card-actions align="center">
+                                    <q-btn
+                                        @click="closeChat"
+                                        :color="globalColor"
+                                        label="Yes"
+                                        style="width: 70px"
+                                        no-caps
+                                        unelevated
+                                    />
+                                    <q-btn
+                                        @click="closeChatModal = false"
+                                        :color="globalColor"
+                                        label="No"
+                                        style="width: 70px"
+                                        no-caps
+                                        unelevated
+                                    />
+                                </q-card-actions>
+                            </q-card>
+                        </div>
                     </div>
-                </div>
 
                     <div v-show="!closeChatModal" class="tw-flex-grow tw-flex tw-flex-col">
                         <div
