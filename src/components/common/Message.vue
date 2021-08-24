@@ -127,7 +127,7 @@
                                     <ec-avatar
                                         :image_src="speakingWithUser.user.user_meta.src"
                                         :name="speakingWithUser.user.user_meta.display_name"
-                                        :email="speakingWithUser.email"
+                                        :email="speakingWithUser.user.email"
                                     >
                                     </ec-avatar>
                                     <div class="tw-mt-2 tw-text-sm" :class="$helpers.colors().defaultText">
@@ -140,7 +140,8 @@
                             <!--                            message-->
                             <q-card
                                 v-if="message.message_type === 'message'"
-                                class="tw-pb-0 tw-my-4 tw-shadow-sm"
+                                class="tw-pb-0 tw-my-4"
+                                :class="[mini_mode ? 'tw-shadow-none' : 'tw-shadow-sm']"
                                 :style="
                                     checkOwnMessage(message)
                                         ? `background-color: ${
@@ -552,17 +553,32 @@
         v-if="chatPanelType === 'user' && !showSendMessageInput && conversationInfo.id && !mini_mode"
         class="text-center tw-pt-3"
     >
-        <q-btn
-            @click="
-                $router.push({
-                    name: 'chat-interaction',
-                })
-            "
-            label="Close Chat"
-            :color="globalColor"
-            unelevated
-            no-caps
-        />
+        <div class="tw-flex tw-justify-center tw-gap-2">
+            <q-btn
+                @click="acceptChat(conversationInfo.id)"
+                v-if="
+                    !conversationInfo.users_only &&
+                    !conversationInfo.closed_at &&
+                    (!conversationStatusForMe || conversationStatusForMe !== 'joined')
+                "
+                label="Accept Chat"
+                :color="globalColor"
+                unelevated
+                no-caps
+            />
+
+            <q-btn
+                @click="
+                    $router.push({
+                        name: 'chat-interaction',
+                    })
+                "
+                label="Close Chat"
+                :color="globalColor"
+                unelevated
+                no-caps
+            />
+        </div>
     </div>
 </template>
 
@@ -831,7 +847,6 @@ export default defineComponent({
                     )[0];
 
                     if (sessionInfo && firstJoin && sessionInfo.socket_session.id === firstJoin.socket_session_id) {
-                        console.log({ opopopo: { user: sessionInfo.socket_session.user, msg: firstJoin } });
                         return { user: sessionInfo.socket_session.user, msg: firstJoin };
                     }
                 }
@@ -1496,6 +1511,16 @@ export default defineComponent({
 
         getDateTime(date: any) {
             return this.$helpers.myDate(date, `${this.isAgentChatPanel ? "MMM DD, Y" : ""} h:mm a`);
+        },
+
+        acceptChat(convId: any) {
+            this.$socket.emit("ec_join_conversation", {
+                conv_id: convId,
+            });
+
+            // check chat conversation id
+
+            this.$router.push({ name: "chats", params: { conv_id: convId } });
         },
     },
 

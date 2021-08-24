@@ -7,21 +7,21 @@
             </div>
         </div>-->
 
-        <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+        <div class="tw-py-3 tw-flex tw-justify-between">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
                 <div>CHATS IN QUEUE: {{ chatsInQueue.length }}</div>
             </div>
         </div>
 
         <div class="tw-mb-5">
-            <div class="tw-shadow tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white">
                 <ec-table
                     :columns="typeOneColumns"
                     :rows="filteredChats('chatsInQueue')"
                     @rowClick="rowClickHandle"
                     hide-search
                 >
-                    <template v-slot:filter>
+                    <!--<template v-slot:filter>
                         <q-select
                             v-model="departmentFilters.chatsInQueue"
                             label="Choose Department"
@@ -34,7 +34,7 @@
                                 <q-icon name="groups" :color="globalColor" />
                             </template>
                         </q-select>
-                    </template>
+                    </template>-->
 
                     <template v-slot:cell-client="slotProps">
                         <div class="">
@@ -68,21 +68,21 @@
             </div>
         </div>
 
-        <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+        <div class="tw-py-3 tw-flex tw-justify-between">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
                 <div>MY CHATS: {{ myRunningChats.length }}</div>
             </div>
         </div>
 
         <div class="tw-mb-5">
-            <div class="tw-shadow tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white">
                 <ec-table
                     :columns="typeTwoColumns"
                     :rows="filteredChats('myRunningChats')"
                     @rowClick="rowClickHandle"
                     hide-search
                 >
-                    <template v-slot:filter>
+                    <!--<template v-slot:filter>
                         <q-select
                             v-model="departmentFilters.myRunningChats"
                             label="Choose Department"
@@ -95,7 +95,7 @@
                                 <q-icon name="groups" :color="globalColor" />
                             </template>
                         </q-select>
-                    </template>
+                    </template>-->
 
                     <template v-slot:cell-client="slotProps">
                         <div class="">
@@ -129,21 +129,21 @@
             </div>
         </div>
 
-        <div class="tw-p-4 tw-py-3 tw-flex tw-justify-between tw-mb-3">
+        <div class="tw-py-3 tw-flex tw-justify-between">
             <div class="tw-font-bold tw-text-gray-700 tw-text-lg tw-flex tw-items-center">
                 <div>ACTIVE OTHER CHATS: {{ ongoingOtherChats.length }}</div>
             </div>
         </div>
 
         <div class="">
-            <div class="tw-shadow tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white">
                 <ec-table
                     :columns="typeThreeColumns"
                     :rows="filteredChats('ongoingOtherChats')"
                     @rowClick="rowClickHandle"
                     hide-search
                 >
-                    <template v-slot:filter>
+                    <!--<template v-slot:filter>
                         <q-select
                             v-model="departmentFilters.ongoingOtherChats"
                             label="Choose Department"
@@ -156,7 +156,7 @@
                                 <q-icon name="groups" :color="globalColor" />
                             </template>
                         </q-select>
-                    </template>
+                    </template>-->
 
                     <template v-slot:cell-client="slotProps">
                         <div class="">

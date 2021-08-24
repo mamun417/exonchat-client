@@ -42,7 +42,7 @@
                                 size="18px"
                             >
                                 <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
-                                    Interactions {{ $route.name }}
+                                    Interactions
                                 </q-tooltip>
                             </q-btn>
 
@@ -646,6 +646,11 @@ export default defineComponent({
                 const convSesInfo = res.data.conv_ses_data;
 
                 this.$store.dispatch("chat/updateConvState", convSesInfo);
+
+                // hide init chat notification when this chat has been accepted
+                if (this.newConversationInfo.id === res.data.conv_ses_data.conversation_id) {
+                    this.newConversationInfo = {};
+                }
 
                 console.log("from ec_is_joined_from_conversation", convSesInfo);
             });

@@ -145,7 +145,7 @@
                     ></q-btn>
                 </div>
 
-                <div v-show="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+                <div v-show="closeChatModal" class="tw-flex-grow tw-flex tw-flex-col">
                     <div class="tw-flex-grow tw-flex tw-items-center tw-justify-center tw-px-5">
                         <q-card class="shadow-0">
                             <q-card-section>
@@ -173,7 +173,7 @@
                     </div>
                 </div>
 
-                <div v-show="!closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-p-1">
+                <div v-show="!closeChatModal" class="tw-flex-grow tw-flex tw-flex-col">
                     <div
                         v-if="clientInitiateConvInfo.conv_id"
                         id="webchat-container"
@@ -493,6 +493,7 @@ import Message from "components/common/Message.vue";
 import ChatRatingForm from "components/common/ChatRatingForm.vue";
 import moment from "moment";
 import OfflineMessage from "components/common/OfflineMessage.vue";
+import * as _l from "lodash";
 
 declare global {
     interface Window {
@@ -785,7 +786,7 @@ export default defineComponent({
                     action: "ec_maximize_panel",
                     param: {
                         height: "560px",
-                        width: "420px",
+                        width: "375px",
                         display: "block",
                         "box-shadow": "rgb(0 0 0 / 30%) 0px 4px 12px",
                         "border-radius": "8px",
@@ -997,6 +998,15 @@ export default defineComponent({
                 if (res.status === "success") {
                     // we don't care now if it's re updating storage
                     await this.$store.dispatch("chat/storeClientInitiateConvInfo", res);
+
+                    // chat initiate message send to agent
+                    if (this.convInitFields.message) {
+                        this.socket.emit("ec_msg_from_client", {
+                            temp_id: this.$helpers.getTempId(),
+                            msg: this.convInitFields.message.trim(),
+                            init_message_from_client: true,
+                        });
+                    }
                 }
             });
 
@@ -1058,18 +1068,6 @@ export default defineComponent({
             this.socket.emit("ec_init_conv_from_client", { ...this.convInitFields });
 
             this.getQueueCountNumber();
-
-            // chat initiate message send to agent
-            this.sendChatInitiateMsgInterval = setInterval(() => {
-                if (this.$refs.message) {
-                    console.log("hit send message");
-
-                    this.$refs.message.msg = this.convInitFields.message;
-                    this.$refs.message.sendMessage();
-
-                    clearInterval(this.sendChatInitiateMsgInterval);
-                }
-            }, 500);
         },
         getQueueCountNumber() {
             this.socket.emit("ec_conv_queue_position", { conv_id: this.clientInitiateConvInfo.conv_id });

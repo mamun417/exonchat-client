@@ -310,7 +310,11 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 }
             }
 
-            if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_client") {
+            if (
+                messageRes.hasOwnProperty("socket_event") &&
+                messageRes.socket_event === "ec_msg_from_client" &&
+                !messageRes.init_message_from_client
+            ) {
                 helpers.notifications().replyTwo.play();
             }
 

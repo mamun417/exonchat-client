@@ -18,6 +18,7 @@
     <!--check email-->
     <q-avatar v-else-if="email && foundAvatar && !local_preview_src" :size="size">
         <q-img :src="this.avatarUrl" alt="" @error="foundAvatar = false" />
+        <slot name="default"></slot>
     </q-avatar>
 
     <q-icon v-else :size="size" name="fa fa-user-circle" :class="`${icon_color}`">

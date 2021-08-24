@@ -96,8 +96,7 @@
         </template>
 
         <template v-slot:no-data>
-            <div class="full-width row flex-center text-red q-gutter-sm">
-                <q-icon size="2em" name="sentiment_dissatisfied" />
+            <div class="full-width row flex-center q-gutter-sm">
                 <span> {{ noDataMsg }} </span>
             </div>
             <q-inner-loading :showing="loading" color="green"></q-inner-loading>
@@ -119,7 +118,7 @@ export default defineComponent({
         searchValue: { type: String, default: "" },
         rows: [],
         columns: [],
-        noDataMsg: { type: String, default: "Well this is sad... No data found" },
+        noDataMsg: { type: String, default: "No data found" },
         urlPath: { type: String, default: "" },
         hideSearch: { type: Boolean, default: false },
         statusColumnName: { type: String, default: "status" },
@@ -170,3 +169,11 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="scss">
+.q-table__container {
+    .q-table__top {
+        padding: 0 !important;
+    }
+}
+</style>
