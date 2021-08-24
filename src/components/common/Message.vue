@@ -219,7 +219,11 @@
                                             >
                                                 <div>
                                                     <div class="tw-text-sm tw-my-2">
-                                                        <pre>{{ msgItem.msg }}</pre>
+                                                        <pre
+                                                            class="tw-whitespace-normal"
+                                                            style="font-family: inherit"
+                                                            >{{ msgItem.msg }}</pre
+                                                        >
                                                     </div>
 
                                                     <!--attachment-->
@@ -261,7 +265,7 @@
                                                         [$helpers.colors().dateTimeText]: true,
                                                     }"
                                                 >
-                                                    {{ getDateTime(message.created_at) }}
+                                                    {{ getDateTime(msgItem.created_at) }}
                                                 </div>
                                             </div>
                                         </div>

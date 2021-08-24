@@ -27,7 +27,7 @@ let ecChatContainer = document.getElementById("exhonchat-chat-box-container");
 let ecChatHelperContainer = document.getElementById("exhonchat-chat-box-helper-container");
 
 ecChatContainer.style =
-    "display: none; background:white; transition: all 300ms ease 0s; position: fixed; bottom: 15px; right: 15px; z-index: 9999999; overflow: hidden";
+    "display: none; background:transparent; position: fixed; bottom: 15px; right: 15px; z-index: 9999999; overflow: hidden";
 
 ecChatHelperContainer.style = "";
 
@@ -88,7 +88,7 @@ function ec_show_chat_helper_container(domObj = {}) {
     });
 
     let ecChatHelperContainerCloseBtn = document.createElement("div");
-    ecChatHelperContainerCloseBtn.style = "position:absolute;top:-20px;width:15px;right: 0; cursor:pointer";
+    ecChatHelperContainerCloseBtn.style = "position:absolute;top:-25px;width:15px;right:0;cursor:pointer";
     ecChatHelperContainerCloseBtn.innerHTML =
         "<svg\n" +
         '            aria-hidden="true"\n' +
