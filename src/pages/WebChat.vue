@@ -786,7 +786,8 @@ export default defineComponent({
                     action: "ec_maximize_panel",
                     param: {
                         height: "560px",
-                        width: "375px",
+                        "max-width": "375px",
+                        width: "100%",
                         display: "block",
                         "box-shadow": "rgb(0 0 0 / 30%) 0px 4px 12px",
                         "border-radius": "8px",
