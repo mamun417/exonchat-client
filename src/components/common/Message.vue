@@ -5,16 +5,15 @@
         class="tw-px-0 tw-flex-grow tw-text-xs"
         style="height: 1px"
         :bar-style="{
-            background: '#60A5FA',
-            width: '4px',
-            opacity: 0.2,
-            borderRadius: '10px',
+            background: 'grey',
+            width: '8px',
+            borderRadius: '5px',
             zIndex: 99999,
         }"
         :thumb-style="{
-            borderRadius: '9px',
-            backgroundColor: '#60A5FA',
-            width: '4px',
+            borderRadius: '5px',
+            backgroundColor: '#bec3cd',
+            width: '8px',
             opacity: 0.7,
             zIndex: 99999,
         }"
@@ -130,7 +129,7 @@
                                         :email="speakingWithUser.user.email"
                                     >
                                     </ec-avatar>
-                                    <div class="tw-mt-2 tw-text-sm" :class="$helpers.colors().defaultText">
+                                    <div class="tw-mt-2 tw-text-sm tw-mb-4" :class="$helpers.colors().defaultText">
                                         You are currently speaking to
                                         {{ $_.upperFirst(speakingWithUser.user.user_meta.display_name) }}
                                     </div>
