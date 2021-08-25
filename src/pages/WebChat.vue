@@ -677,39 +677,6 @@ export default defineComponent({
     },
 
     methods: {
-        onResizeMiniMode(size: any) {
-            return;
-            // call this function one time for get height & width
-            if (this.panelVisibleStatus) return;
-
-            // size.width is unstable
-
-            // if (size.width < 160) {
-            //     size.width = 160;
-            // }
-
-            let width = 190;
-            let height = size.height;
-
-            if (this.onlineChatDepartments.length && !this.showNeedHelpText) {
-                width = 100;
-                height = 70;
-            }
-
-            window.parent.postMessage(
-                {
-                    action: "ec_minimize_panel",
-                    param: {
-                        height: `${height}px`,
-                        width: `${width}px`,
-                        display: "block",
-                        "box-shadow": "unset",
-                    },
-                },
-                "*"
-            );
-        },
-
         getChatWidgetDesign() {
             // get design.
             // update chatWidgetMiniWidth variable. call onResizeMiniMode or trigger that
@@ -1069,7 +1036,7 @@ export default defineComponent({
 
             this.socket.on("ec_departments_online_status_res", (res: any) => {
                 if (!this.panelVisibleStatus) {
-                    if (!res.departments.length && this.onlineChatDepartments.length) {
+                    if (!res.departments.length && this.onlineChatDepartments && this.onlineChatDepartments.length) {
                         this.panelReady = false;
                     }
 
