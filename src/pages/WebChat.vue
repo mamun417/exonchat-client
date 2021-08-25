@@ -43,7 +43,7 @@
                                             : "Chat is Offline"
                                     }}
                                 </div>
-                                <div style="font-size: 16px; font-weight: 500; line-height: 20px">
+                                <div style="font-size: 16px; line-height: 20px; font-family: inherit">
                                     {{
                                         !onlineChatDepartments || onlineChatDepartments.length
                                             ? "Click here and start chatting with us!"
@@ -749,8 +749,6 @@ export default defineComponent({
                         {
                             action: "ec_show_chat_helper_container",
                             param: {
-                                header_text: "Need Help?",
-                                content: "Click here and start chatting with us!",
                                 icon: true,
                                 style: {
                                     display: "block",
@@ -758,7 +756,7 @@ export default defineComponent({
                                     position: "fixed",
                                     right: "15px",
                                     height: "110px",
-                                    width: "260px",
+                                    width: "290px",
                                     background: "#fff",
                                     padding: "20px",
                                     "box-shadow": "rgb(0 0 0 / 30%) 0px 0px 2px",
