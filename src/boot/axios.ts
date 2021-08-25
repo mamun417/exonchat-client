@@ -117,7 +117,7 @@ export const socketSessionApi = function (router: any) {
             // ec_client_socket_token is from local cz now we are supporting cient can resume after restarting browser
             const token =
                 router.currentRoute._value.path === "/web-chat"
-                    ? sessionStorage.getItem("ec_client_socket_token")
+                    ? localStorage.getItem("ec_client_socket_token")
                     : sessionStorage.getItem("ec_user_socket_token");
 
             if (token) {
