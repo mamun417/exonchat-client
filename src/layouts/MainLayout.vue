@@ -816,6 +816,11 @@ export default defineComponent({
                 console.log("from ec_updated_socket_room_info_res", data);
             });
 
+            this.socket.on("ec_chat_transfer_res", (data: any) => {
+                this.$helpers.showSuccessNotification(this, "Chat transfer success");
+                this.$emitter.emit(`ec_chat_transfer_res${data.conv_id}`, data);
+            });
+
             this.socket.on("ec_error", (data: any) => {
                 console.log("from ec_error", data);
 

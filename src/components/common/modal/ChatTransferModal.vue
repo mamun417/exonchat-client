@@ -46,6 +46,41 @@
                         <q-icon name="group_add" :color="globalColor" />
                     </template>
 
+                    <template v-slot:selected v-if="transferChatFormData.agent">
+                        <q-chip dense square color="white" class="q-my-none q-mr-none tw-ml-0">
+                            <div class="tw-flex tw-items-center">
+                                <div class="tw-mr-1">
+                                    {{ transferChatFormData.agent.email }}
+                                </div>
+
+                                <div
+                                    v-if="!isSelectedAgentIsOnlineNow()"
+                                    class="tw-text-xxs bg-orange-3 tw-rounded-lg tw-p-1"
+                                    style="font-size: 0.60rem;line-height: .60rem;}"
+                                >
+                                    Offline
+                                </div>
+                            </div>
+                        </q-chip>
+                    </template>
+
+                    <template v-slot:option="{ itemProps, opt }">
+                        <q-item v-bind="itemProps">
+                            <q-item-section>
+                                <q-item-label v-html="opt.email"></q-item-label>
+                            </q-item-section>
+
+                            <q-item-section side>
+                                <q-badge
+                                    :color="opt.online_status === 'online' ? 'green' : 'grey'"
+                                    class="tw-px-2 tw-py-1"
+                                >
+                                    {{ opt.online_status === "online" ? "Online" : "Offline" }}
+                                </q-badge>
+                            </q-item-section>
+                        </q-item>
+                    </template>
+
                     <template v-slot:no-option>
                         <q-item>
                             <q-item-section class="text-grey"> No agent</q-item-section>
@@ -123,10 +158,32 @@ export default defineComponent({
             // filter only online users
             return chatUsers.filter((user: any) => user.online_status === "online");
         },
+
+        // chatDepartmentsWithOnlineStatus() {
+        //     if (this.chatDepartments) {
+        //         let chatUsers = this.$_.cloneDeep(this.$store.getters["chat/chatUsers"]);
+        //
+        //         this.chatDepartments.map((department: any) => {
+        //             const departmentUserIds = department.users.map((user: any) => user.id);
+        //
+        //             chatUsers = chatUsers.filter((user: any) => departmentUserIds.includes(user.id));
+        //
+        //             department.online_status = chatUsers.filter((user: any) => user.online_status === "online").length;
+        //
+        //             return department;
+        //         });
+        //     }
+        //
+        //     return [];
+        // },
     },
 
     mounted() {
         this.getChatDepartments();
+
+        this.$emitter.on(`ec_chat_transfer_res${this.conv_id}`, () => {
+            this.$emit("transferChat");
+        });
     },
 
     methods: {
@@ -159,15 +216,22 @@ export default defineComponent({
                 return;
             }
 
+            if (!this.isSelectedAgentIsOnlineNow) {
+                this.$helpers.showWarningNotification(this, "Chat transfer not possible");
+                return;
+            }
+
             this.$socket.emit("ec_chat_transfer", {
                 conv_id: this.conv_id,
                 notify_to_dep: this.transferChatFormData.chat_department.tag,
                 notify_to: this.transferChatFormData.agent ? this.transferChatFormData.agent.socket_session.id : "",
                 agent_info: this.profile,
             });
+        },
 
-            this.$emit("transferChat");
-            this.$helpers.showSuccessNotification(this, "Chat transfer success");
+        isSelectedAgentIsOnlineNow() {
+            return this.onlineUsers.filter((onlineUser: any) => onlineUser.id === this.transferChatFormData.agent.id)
+                .length;
         },
     },
 });

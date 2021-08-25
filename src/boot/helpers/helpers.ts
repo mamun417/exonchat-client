@@ -47,6 +47,15 @@ const helpers = {
         });
     },
 
+    showWarningNotification(vm: any, message: any, color = "warning", textColor = "black") {
+        vm.$q.notify({
+            color: color,
+            textColor: textColor,
+            message: message,
+            position: "top",
+        });
+    },
+
     showSuccessNotification(vm: any, message: any) {
         vm.$q.notify({
             color: "positive",

@@ -220,7 +220,7 @@
                                                     <div class="tw-text-sm tw-my-2">
                                                         <pre
                                                             class="tw-whitespace-normal"
-                                                            style="font-family: inherit"
+                                                            style="font-family: inherit; word-break: break-word"
                                                             >{{ msgItem.msg }}</pre
                                                         >
                                                     </div>
@@ -298,7 +298,7 @@
                                     <span>is typing</span>
                                 </div>
                                 <div :class="$helpers.colors().defaultText">
-                                    <div class="tw-text-sm">
+                                    <div class="tw-text-sm" style="word-break: break-word">
                                         {{ typing.msg }}
                                     </div>
                                 </div>
@@ -329,7 +329,9 @@
                             Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
                             {{ getDateTime(conversationInfo.rating.created_at) }}
                         </div>
-                        <div v-if="conversationInfo.rating.comment">“{{ conversationInfo.rating.comment }}”</div>
+                        <div v-if="conversationInfo.rating.comment" style="word-break: break-word">
+                            “{{ conversationInfo.rating.comment }}”
+                        </div>
                         <div class="tw-mt-2">
                             <div>Chat rating</div>
                             <div>

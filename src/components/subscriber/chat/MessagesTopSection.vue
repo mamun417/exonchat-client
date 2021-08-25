@@ -281,6 +281,7 @@
             v-if="showChatTransferModal"
             @transferChat="showChatTransferModal = false"
             :conv_id="conv_id"
+            @hide="showChatTransferModal = false"
         />
     </q-card>
 </template>
