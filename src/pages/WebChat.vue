@@ -579,7 +579,7 @@ export default defineComponent({
             pageVisitingHandler: null,
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
-            successSubmitOfflineChatReq: sessionStorage.getItem("success_submit_offline_chat_req") || false,
+            successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
 
             chatWidgetMiniWidth: 250,
             queuePosition: 1,
@@ -654,10 +654,6 @@ export default defineComponent({
 
         // send mounted to parent so that it can send infos
         window.parent.postMessage({ action: "ec_mounted" }, "*");
-
-        // await this.initializeSocket();
-
-        // this.showNeedHelpTexSection();
     },
 
     computed: {
@@ -677,39 +673,6 @@ export default defineComponent({
     },
 
     methods: {
-        onResizeMiniMode(size: any) {
-            return;
-            // call this function one time for get height & width
-            if (this.panelVisibleStatus) return;
-
-            // size.width is unstable
-
-            // if (size.width < 160) {
-            //     size.width = 160;
-            // }
-
-            let width = 190;
-            let height = size.height;
-
-            if (this.onlineChatDepartments.length && !this.showNeedHelpText) {
-                width = 100;
-                height = 70;
-            }
-
-            window.parent.postMessage(
-                {
-                    action: "ec_minimize_panel",
-                    param: {
-                        height: `${height}px`,
-                        width: `${width}px`,
-                        display: "block",
-                        "box-shadow": "unset",
-                    },
-                },
-                "*"
-            );
-        },
-
         getChatWidgetDesign() {
             // get design.
             // update chatWidgetMiniWidth variable. call onResizeMiniMode or trigger that
@@ -831,12 +794,12 @@ export default defineComponent({
             // handle actual close by emitting
             this.socket.close();
 
-            sessionStorage.removeItem("clientInitiateConvInfo");
-            sessionStorage.removeItem("ec_client_socket_token");
-            sessionStorage.removeItem("ec_client_socket_ses_id");
-            sessionStorage.removeItem("showRatingForm");
-            sessionStorage.removeItem("ec_intvl_ct");
-            sessionStorage.removeItem("success_submit_offline_chat_req");
+            localStorage.removeItem("clientInitiateConvInfo");
+            localStorage.removeItem("ec_client_socket_token");
+            localStorage.removeItem("ec_client_socket_ses_id");
+            localStorage.removeItem("showRatingForm");
+            localStorage.removeItem("ec_intvl_ct");
+            localStorage.removeItem("success_submit_offline_chat_req");
 
             this.resetConvInitForm();
 
@@ -887,12 +850,12 @@ export default defineComponent({
             if (!this.api_key) return;
 
             // get conversation information
-            const clientInitiateConvInfo: any = sessionStorage.getItem("clientInitiateConvInfo");
+            const clientInitiateConvInfo: any = localStorage.getItem("clientInitiateConvInfo");
             this.clientInitiateConvInfo = clientInitiateConvInfo ? JSON.parse(clientInitiateConvInfo) : {};
 
             // we are now supporting client chat after browser restart
-            this.sesId = sessionStorage.getItem("ec_client_socket_ses_id");
-            this.socketToken = sessionStorage.getItem("ec_client_socket_token");
+            this.sesId = localStorage.getItem("ec_client_socket_ses_id");
+            this.socketToken = localStorage.getItem("ec_client_socket_token");
 
             if (!this.sesId || !this.socketToken) {
                 await window.api
@@ -906,8 +869,8 @@ export default defineComponent({
                         this.sesId = res.data.data.socket_session.id;
                         this.socketToken = res.data.bearerToken;
 
-                        sessionStorage.setItem("ec_client_socket_ses_id", this.sesId);
-                        sessionStorage.setItem("ec_client_socket_token", this.socketToken);
+                        localStorage.setItem("ec_client_socket_ses_id", this.sesId);
+                        localStorage.setItem("ec_client_socket_token", this.socketToken);
                     })
                     .catch((err: any) => {
                         console.log("from web chat error", err.response);
@@ -1067,7 +1030,7 @@ export default defineComponent({
 
             this.socket.on("ec_departments_online_status_res", (res: any) => {
                 if (!this.panelVisibleStatus) {
-                    if (!res.departments.length && this.onlineChatDepartments.length) {
+                    if (!res.departments.length && this.onlineChatDepartments && this.onlineChatDepartments.length) {
                         this.panelReady = false;
                     }
 
@@ -1075,7 +1038,7 @@ export default defineComponent({
                 }
 
                 this.onlineChatDepartments = res.departments;
-                console.log("from ec_departments_online_status_res", res);
+                // console.log("from ec_departments_online_status_res", res);
             });
 
             this.socket.on("ec_error", (res: any) => {
@@ -1162,7 +1125,7 @@ export default defineComponent({
                 if (event.oldValue !== event.newValue) {
                     if (event.key === `ec_update_storage_ec_whmcs_info_${this.api_key}` && event.newValue) {
                         // later handle whmcs logout
-                        sessionStorage.removeItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`);
+                        localStorage.removeItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`);
 
                         sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, event.newValue);
                     }
@@ -1240,7 +1203,7 @@ export default defineComponent({
                 .then((res: any) => {
                     // console.log(res.data);
                     this.successSubmitOfflineChatReq = true;
-                    sessionStorage.setItem("success_submit_offline_chat_req", "true");
+                    localStorage.setItem("success_submit_offline_chat_req", "true");
                     this.resetConvInitForm();
                 })
                 .catch((err: any) => {
@@ -1279,7 +1242,7 @@ export default defineComponent({
                 });
 
                 // for preventing infinity chat transfer
-                sessionStorage.setItem("ec_intvl_ct", "true");
+                localStorage.setItem("ec_intvl_ct", "true");
 
                 clearInterval(this.activityInterval.threeMinAgent.interval);
             }, this.activityInterval.threeMinAgent.time);
@@ -1344,7 +1307,7 @@ export default defineComponent({
                             if (!this.activityInterval[interval].interval) {
                                 if (
                                     interval !== "threeMinAgent" ||
-                                    (interval === "threeMinAgent" && sessionStorage.getItem("ec_intvl_ct") !== "true")
+                                    (interval === "threeMinAgent" && localStorage.getItem("ec_intvl_ct") !== "true")
                                 )
                                     this.activityInterval[interval].time = this.getRestOfDurationOfInterval(
                                         type,
@@ -1436,7 +1399,7 @@ export default defineComponent({
 
                     sessionStorage.setItem(`ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
-                    sessionStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
+                    localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
                     this.whmcsInfoAssigned = true;
                 })

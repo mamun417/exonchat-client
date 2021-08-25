@@ -92,7 +92,7 @@ export default defineComponent({
             this.$forceUpdate();
         }, 30000);
 
-        this.conv_id = JSON.parse(sessionStorage.getItem("clientInitiateConvInfo") || "").conv_id;
+        this.conv_id = JSON.parse(localStorage.getItem("clientInitiateConvInfo") || "").conv_id;
     },
 
     computed: {
