@@ -813,6 +813,8 @@ export default defineComponent({
                     { online_status: data.data.online_status, ses_id: data.ses_id, db_change: true },
                 ]);
 
+                this.$store.dispatch("auth/updateAuthInfo");
+
                 this.socket.emit("ec_get_logged_users", {});
                 console.log("from ec_updated_socket_room_info_res", data);
             });
@@ -849,6 +851,19 @@ export default defineComponent({
             clearTimeout(this.newChatTimeout);
 
             this.newConversationInfo = {};
+
+            // check already another agent join this chat
+            // const conversation = this.$store.getters["chat/conversationInfo"](convData.id);
+            //
+            // const anotherJoinedAgent = conversation.sessions.filter((convSes: any) => convSes.socket_session.user);
+            //
+            // console.log({ anotherJoinedAgent });
+            //
+            // if (anotherJoinedAgent.length) {
+            //     console.log({ conversation });
+            // } else {
+            //     console.log({ anotherJoinedAgent: "kew join kore nai" });
+            // }
 
             window.socketInstance.emit("ec_join_conversation", {
                 conv_id: convData.id,

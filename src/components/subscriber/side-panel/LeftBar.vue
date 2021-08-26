@@ -561,12 +561,11 @@ export default defineComponent({
                 },
             });
 
-            await this.$store.dispatch("auth/updateAuthInfo");
-
             this.$socket.emit("ec_updated_socket_room_info", {
                 online_status: status,
                 status_for: "user",
             });
+
             // } catch (err) {
             //     this.updateOnlineStatusErrorHandle(err);
             // }
