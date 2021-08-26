@@ -710,6 +710,7 @@ export default defineComponent({
                         message: res.msg,
                         color: "orange",
                         timeout: 5000,
+                        badgeClass: "hidden",
                     });
 
                     setTimeout(() => {
@@ -830,6 +831,7 @@ export default defineComponent({
                         textColor: "black",
                         message: data.reason.message ? data.reason.message : data.reason,
                         position: "top",
+                        badgeClass: "hidden",
                     });
                 }
 
@@ -897,6 +899,7 @@ export default defineComponent({
                         color: "positive",
                         message: "Logout Successful",
                         position: "top",
+                        badgeClass: "hidden",
                     });
 
                     if (this.socket) {

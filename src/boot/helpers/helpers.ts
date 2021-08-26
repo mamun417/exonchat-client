@@ -44,6 +44,7 @@ const helpers = {
             textColor: textColor,
             message: message,
             position: "top",
+            badgeClass: "hidden",
         });
     },
 
@@ -53,6 +54,7 @@ const helpers = {
             textColor: textColor,
             message: message,
             position: "top",
+            badgeClass: "hidden",
         });
     },
 
@@ -61,6 +63,7 @@ const helpers = {
             color: "positive",
             message: message,
             position: "top",
+            badgeClass: "hidden",
         });
     },
 

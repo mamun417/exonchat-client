@@ -2,20 +2,24 @@
     <q-dialog :model-value="true" persistent>
         <q-card style="min-width: 350px">
             <q-card-section class="row items-center">
-                <span class="q-ml-sm">
-                    Are you sure to {{ convStateButtonInfo.name.toLowerCase() }} this conversation ?
-                </span>
+                <slot name="content">
+                    <span class="q-ml-sm">
+                        Are you sure to {{ convStateButtonInfo.name.toLowerCase() }} this conversation ?
+                    </span>
+                </slot>
             </q-card-section>
 
             <q-card-actions align="right">
-                <q-btn flat label="Cancel" color="primary" v-close-popup />
-                <q-btn
-                    @click="$emit('convStateHandle', convStateButtonInfo.action)"
-                    label="Yes"
-                    color="primary"
-                    v-close-popup
-                    flat
-                />
+                <slot name="action">
+                    <q-btn flat label="Cancel" color="primary" v-close-popup />
+                    <q-btn
+                        @click="$emit('convStateHandle', convStateButtonInfo.action)"
+                        label="Yes"
+                        color="primary"
+                        v-close-popup
+                        flat
+                    />
+                </slot>
             </q-card-actions>
         </q-card>
     </q-dialog>

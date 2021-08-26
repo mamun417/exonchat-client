@@ -1427,6 +1427,7 @@ export default defineComponent({
                     type: "warning",
                     position: "bottom",
                     progress: true,
+                    badgeClass: "hidden",
                     message: res.reason.message ? res.reason.message : res.reason,
                 });
             }

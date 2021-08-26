@@ -227,7 +227,7 @@
                                     </q-item>
 
                                     <q-item
-                                        v-if="['joined', 'left'].includes(conversationStatusForMe)"
+                                        v-if="['joined', 'left'].includes(conversationStatusForMe) && canClose"
                                         clickable
                                         v-close-popup
                                     >
@@ -275,7 +275,17 @@
             :conv-state-button-info="{ name: modalForState }"
             @convStateHandle="convStateHandle($event)"
             @hide="confirmModal = false"
-        />
+        >
+            <template v-if="needTransfer" v-slot:content>
+                <div>Only you are left in this chat</div>
+            </template>
+
+            <template v-if="needTransfer" v-slot:action>
+                <q-btn flat label="Transfer Chat" color="green-5" @click="showChatTransferModal = true" v-close-popup />
+                <q-btn flat label="Leave" color="orange-5" @click="convStateHandle('leave')" v-close-popup />
+                <q-btn flat label="Cancel" color="primary" v-close-popup />
+            </template>
+        </conversation-state-confirm-modal>
 
         <chat-transfer-modal
             v-if="showChatTransferModal"
@@ -294,6 +304,8 @@ import EcAvatar from "src/components/common/EcAvatar.vue";
 
 import ChatTransferModal from "components/common/modal/ChatTransferModal.vue";
 import ConversationStateConfirmModal from "components/common/modal/ConversationStateConfirmModal.vue";
+import * as _l from "lodash";
+import moment from "moment";
 
 export default defineComponent({
     name: "MessagesTopSection",
@@ -371,6 +383,27 @@ export default defineComponent({
 
         conversationStatusForMe(): any {
             return this.$store.getters["chat/conversationStatusForMe"](this.conv_id, this.profile?.socket_session?.id);
+        },
+
+        needTransfer(): any {
+            // not checking me. cz its before my leave
+            return (
+                this.conversationConnectedUsers.filter(
+                    (conversationConnectedUser: any) => conversationConnectedUser.left_at
+                ).length ===
+                this.conversationConnectedUsers.length - 1
+            );
+        },
+
+        canClose(): any {
+            const sortedAgents = _l.sortBy(
+                this.conversationConnectedUsers.filter(
+                    (conversationConnectedUser: any) => !conversationConnectedUser.left_at
+                ),
+                (convSes: any) => moment(convSes.joined_at).format("x")
+            );
+
+            return !!(sortedAgents.length && sortedAgents[0].socket_session_id === this.profile?.socket_session?.id);
         },
 
         conversationWithUsersInfo(): any {
