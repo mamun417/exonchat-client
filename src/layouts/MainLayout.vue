@@ -850,6 +850,19 @@ export default defineComponent({
 
             this.newConversationInfo = {};
 
+            // check already another agent join this chat
+            // const conversation = this.$store.getters["chat/conversationInfo"](convData.id);
+            //
+            // const anotherJoinedAgent = conversation.sessions.filter((convSes: any) => convSes.socket_session.user);
+            //
+            // console.log({ anotherJoinedAgent });
+            //
+            // if (anotherJoinedAgent.length) {
+            //     console.log({ conversation });
+            // } else {
+            //     console.log({ anotherJoinedAgent: "kew join kore nai" });
+            // }
+
             window.socketInstance.emit("ec_join_conversation", {
                 conv_id: convData.id,
             });
