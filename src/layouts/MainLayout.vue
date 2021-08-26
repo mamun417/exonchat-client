@@ -812,6 +812,8 @@ export default defineComponent({
                     { online_status: data.data.online_status, ses_id: data.ses_id, db_change: true },
                 ]);
 
+                this.$store.dispatch("auth/updateAuthInfo");
+
                 this.socket.emit("ec_get_logged_users", {});
                 console.log("from ec_updated_socket_room_info_res", data);
             });

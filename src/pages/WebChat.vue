@@ -809,6 +809,7 @@ export default defineComponent({
         changeDepartment(event: any) {
             this.convInitFields.department_tag = this.$_.find(this.chatDepartments, ["id", event]).tag;
             this.convInitFieldsErrors.chat_department_id = "";
+            this.convInitFieldsErrors.department = "";
             this.departmentAgentsOffline = !this.onlineChatDepartments.includes(this.convInitFields.department_tag);
         },
 
@@ -1353,13 +1354,16 @@ export default defineComponent({
         },
 
         getClientWhmcsInfo(whmcsCredential: any) {
-            // check chat already initiated
-            if (this.clientInitiateConvInfo.conv_id) return;
+            // check already fill up name or email
+            const isTypedNameOrEmail = !!this.convInitFields.name || !!this.convInitFields.email;
+
+            // check chat already initiated || isTypedNameOrEmail
+            if (this.clientInitiateConvInfo.conv_id || isTypedNameOrEmail) return;
 
             let whmcsInfo: any = sessionStorage.getItem(`ec_whmcs_info_${this.api_key}`);
 
             // this.whmcsInfoAssigned will check for first assigned otherwise every 3sec will update form
-            // if client type, in the middle of typing will reset to these info
+            // if client type, in the middle of typing will not reset to these info
             if (whmcsInfo && !this.whmcsInfoAssigned) {
                 whmcsInfo = JSON.parse(whmcsInfo);
 
@@ -1410,7 +1414,7 @@ export default defineComponent({
         },
 
         errorHandleEcInitConvFromClient(res: any) {
-            if (res.cause === "required_field") {
+            if (res.cause === "required_field" || res.cause === "socket_error_ec_init_conv_from_client") {
                 this.submitOfflineChatReqErrorHandle({
                     response: {
                         data: {
