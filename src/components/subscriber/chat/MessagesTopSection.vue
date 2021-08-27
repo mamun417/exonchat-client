@@ -460,26 +460,6 @@ export default defineComponent({
                 });
         },
 
-        transferChat(agent: any) {
-            if (agent.online_status !== "online") {
-                this.$helpers.showErrorNotification(
-                    this,
-                    "Transfer chat not possible. Agent is not online",
-                    "warning",
-                    "black"
-                );
-                return;
-            }
-
-            console.log("transferchat => ", agent);
-
-            this.$socket.emit("ec_chat_transfer", {
-                conv_id: this.conv_id,
-                notify_to: agent.socket_session.id,
-                agent_info: agent,
-            });
-        },
-
         joinConversation(conv_id: any) {
             console.log(conv_id);
 

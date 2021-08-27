@@ -53,13 +53,13 @@
                                     {{ transferChatFormData.agent.email }}
                                 </div>
 
-                                <div
+                                <!--<div
                                     v-if="!isSelectedAgentIsOnlineNow()"
                                     class="tw-text-xxs bg-orange-3 tw-rounded-lg tw-p-1"
                                     style="font-size: 0.60rem;line-height: .60rem;}"
                                 >
                                     Offline
-                                </div>
+                                </div>-->
                             </div>
                         </q-chip>
                     </template>
@@ -72,10 +72,16 @@
 
                             <q-item-section side>
                                 <q-badge
-                                    :color="opt.online_status === 'online' ? 'green' : 'grey'"
+                                    :color="
+                                        opt.online_status === 'online'
+                                            ? 'green'
+                                            : opt.online_status === 'offline'
+                                            ? 'red'
+                                            : 'grey'
+                                    "
                                     class="tw-px-2 tw-py-1"
                                 >
-                                    {{ opt.online_status === "online" ? "Online" : "Offline" }}
+                                    {{ $_.upperFirst(opt.online_status) }}
                                 </q-badge>
                             </q-item-section>
                         </q-item>
@@ -156,7 +162,9 @@ export default defineComponent({
             }
 
             // filter only online users
-            return chatUsers.filter((user: any) => user.online_status === "online");
+            // return chatUsers.filter((user: any) => user.online_status === "online");
+
+            return chatUsers;
         },
 
         // chatDepartmentsWithOnlineStatus() {
