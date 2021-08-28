@@ -52,14 +52,6 @@
                                 <div class="tw-mr-1">
                                     {{ transferChatFormData.agent.email }}
                                 </div>
-
-                                <!--<div
-                                    v-if="!isSelectedAgentIsOnlineNow()"
-                                    class="tw-text-xxs bg-orange-3 tw-rounded-lg tw-p-1"
-                                    style="font-size: 0.60rem;line-height: .60rem;}"
-                                >
-                                    Offline
-                                </div>-->
                             </div>
                         </q-chip>
                     </template>
@@ -191,6 +183,8 @@ export default defineComponent({
 
         this.$emitter.on(`ec_chat_transfer_res${this.conv_id}`, () => {
             this.$emit("transferChat");
+
+            this.$router.push({ name: "chat-interaction" });
         });
     },
 
@@ -224,22 +218,12 @@ export default defineComponent({
                 return;
             }
 
-            if (!this.isSelectedAgentIsOnlineNow) {
-                this.$helpers.showWarningNotification(this, "Chat transfer not possible");
-                return;
-            }
-
             this.$socket.emit("ec_chat_transfer", {
                 conv_id: this.conv_id,
                 notify_to_dep: this.transferChatFormData.chat_department.tag,
                 notify_to: this.transferChatFormData.agent ? this.transferChatFormData.agent.socket_session.id : "",
                 agent_info: this.profile,
             });
-        },
-
-        isSelectedAgentIsOnlineNow() {
-            return this.onlineUsers.filter((onlineUser: any) => onlineUser.id === this.transferChatFormData.agent.id)
-                .length;
         },
     },
 });
