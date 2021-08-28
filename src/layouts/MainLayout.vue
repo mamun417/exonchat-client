@@ -144,12 +144,16 @@
                             <div class="tw-whitespace-nowrap">New Chat</div>
                         </div>
                         <div :class="`tw-opacity-95 tw-p-4 tw-flex tw-flex-grow tw-justify-between ${globalBgColor}-8`">
-                            <div class="text-white">
+                            <div class="text-white tw-flex tw-flex-col tw-justify-between">
                                 <div class="tw-flex tw-items-center tw-gap-4">
-                                    <q-badge :label="newConversationInfo.chat_department?.tag" color="blue-grey-10" />
-                                    <div class="tw-font-bold tw-text-base">
+                                    <q-badge
+                                        :label="newConversationInfo.chat_department?.tag"
+                                        class="tw-capitalize"
+                                        color="blue-grey-10"
+                                    />
+                                    <span class="tw-font-bold tw-text-base tw-capitalize">
                                         {{ newConversationInfo.conversation_sessions[0].socket_session.init_name }}
-                                    </div>
+                                    </span>
                                 </div>
                                 <div class="tw-flex tw-gap-6">
                                     <div>
@@ -169,8 +173,36 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tw-flex tw-items-center">
+                            <div class="tw-flex tw-items-center tw-mr-4">
+                                <div
+                                    v-if="conversationConnectedUsers.length"
+                                    class="tw-flex tw-flex-col tw-items-center"
+                                >
+                                    <div class="text-white tw-mb-2">Someone already accepted this conversation</div>
+                                    <div class="tw-flex tw-gap-3">
+                                        <q-btn
+                                            @click="superviseChat(newConversationInfo.id)"
+                                            label="Supervise"
+                                            color="white"
+                                            text-color="black"
+                                            size="md"
+                                            no-caps
+                                            unelevated
+                                        />
+                                        <q-btn
+                                            @click="newConversationInfo = {}"
+                                            label="Cancel"
+                                            color="white"
+                                            text-color="black"
+                                            size="md"
+                                            no-caps
+                                            unelevated
+                                        />
+                                    </div>
+                                </div>
+
                                 <q-btn
+                                    v-else
                                     @click="takeThisChat(newConversationInfo)"
                                     label="Take This Chat"
                                     color="white"
@@ -446,6 +478,14 @@ export default defineComponent({
             }
 
             return false;
+        },
+
+        conversationConnectedUsers(): any {
+            if (this.newConversationInfo) {
+                return this.$store.getters["chat/conversationConnectedUsers"](this.newConversationInfo.id);
+            }
+
+            return [];
         },
     },
 
@@ -923,6 +963,12 @@ export default defineComponent({
                 .catch((err: any) => {
                     console.log(err);
                 });
+        },
+
+        superviseChat(convId: any) {
+            this.$router.push(`/chats/${convId}`);
+
+            this.newConversationInfo = {};
         },
     },
 
