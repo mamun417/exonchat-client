@@ -962,7 +962,7 @@ export default defineComponent({
                 this.activityInterval.tenMinClient.time = this.activityInterval.tenMinClient.initTime;
                 this.activityInterval.thirteenMinClient.time = this.activityInterval.thirteenMinClient.initTime;
 
-                this.tenMinClientInterval();
+                // this.tenMinClientInterval();
                 this.thirteenMinClientInterval();
 
                 this.chatActiveStatus = true;
