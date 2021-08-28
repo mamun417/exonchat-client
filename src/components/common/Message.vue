@@ -566,7 +566,7 @@
                     !conversationInfo.closed_at &&
                     (!conversationStatusForMe || conversationStatusForMe !== 'joined')
                 "
-                label="Accept Chat"
+                :label="conversationConnectedUsers.length ? 'Join Chat' : 'Accept Chat'"
                 :color="globalColor"
                 unelevated
                 no-caps

@@ -386,11 +386,12 @@ export default defineComponent({
         },
 
         needTransfer(): any {
-            // check is joined at least one agent without me
-            return this.conversationConnectedUsers.find(
-                (conversationConnectedUser: any) =>
-                    conversationConnectedUser.joined_at &&
-                    this.profile.socket_session.id !== conversationConnectedUser.socket_session_id
+            // not checking me. cz its before my leave
+            return (
+                this.conversationConnectedUsers.filter(
+                    (conversationConnectedUser: any) => conversationConnectedUser.left_at
+                ).length ===
+                this.conversationConnectedUsers.length - 1
             );
         },
 

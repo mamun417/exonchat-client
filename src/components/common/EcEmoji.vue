@@ -125,13 +125,7 @@ export default defineComponent({
     },
 
     mounted() {
-        // setInterval(() => {
-        //     this.$refs.emojiMenu.$forceUpdate();
-        // }, 3000);
-
         this.emojis = emojiJson.filter((emoji: any) => emoji.codes.split(" ").length < 3);
-
-        console.log({ em: this.emojis });
 
         this.emojis.forEach((emoji: any) => {
             if (
