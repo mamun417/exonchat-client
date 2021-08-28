@@ -71,6 +71,12 @@
                                             </span>
                                         </template>
 
+                                        <template v-if="message.msg === 'chat_inactive'">
+                                            <span :class="`tw-mr-1 tw-break-none ${$helpers.colors().defaultText}`">
+                                                Chat is idle due to inactivity
+                                            </span>
+                                        </template>
+
                                         <template v-else>
                                             <span
                                                 v-if="
@@ -116,7 +122,7 @@
                                 v-if="
                                     message.message_type === 'log' &&
                                     this.chatPanelType === 'client' &&
-                                    message.session.user &&
+                                    message.session?.user &&
                                     message.msg === 'joined' &&
                                     speakingWithUser.msg.id === message.id
                                 "
@@ -349,16 +355,6 @@
                         <!--<pre>{{ conversationWithUsersInfo[0].socket_session }}</pre>-->
                     </div>
                 </div>
-
-                <slot name="scroll-area-last-section">
-                    <div
-                        class="text-center tw-text-sm tw-my-4"
-                        :class="$helpers.colors().defaultText"
-                        v-if="!conversationInfo.closed_at && !conversationInfo.users_only && !chatActiveStatus"
-                    >
-                        Chat is idle due to 10 minutes of inactivity
-                    </div>
-                </slot>
             </template>
 
             <!--            <template v-slot:loading>-->
@@ -899,8 +895,6 @@ export default defineComponent({
         fireSocketListeners() {
             if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
                 this.$socket.on("ec_get_client_ses_id_status_res", (res: any) => {
-                    this.chatActiveStatus = res.status === "active";
-
                     // custom event fire for messageTopSection
                     this.$emitter.emit("ec_get_client_ses_id_status_res", res);
 
