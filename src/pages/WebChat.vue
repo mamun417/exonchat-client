@@ -224,7 +224,6 @@
                                     >
                                         Chat is idle due to 10 minutes of inactivity
                                     </div>
-
                                     <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-mb-4">
                                         <chat-rating-form />
                                     </div>

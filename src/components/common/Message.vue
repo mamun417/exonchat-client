@@ -355,6 +355,8 @@
                         <!--<pre>{{ conversationWithUsersInfo[0].socket_session }}</pre>-->
                     </div>
                 </div>
+
+                <slot name="scroll-area-last-section"> </slot>
             </template>
 
             <!--            <template v-slot:loading>-->
@@ -574,7 +576,7 @@
                         name: 'chat-interaction',
                     })
                 "
-                label="Close Chat"
+                label="Close Panel"
                 :color="globalColor"
                 unelevated
                 no-caps
