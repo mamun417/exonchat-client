@@ -276,11 +276,11 @@
             @convStateHandle="convStateHandle($event)"
             @hide="confirmModal = false"
         >
-            <template v-if="needTransfer" v-slot:content>
+            <template v-if="needTransfer && modalForState !== 'close'" v-slot:content>
                 <div>Only you are left in this chat</div>
             </template>
 
-            <template v-if="needTransfer" v-slot:action>
+            <template v-if="needTransfer && modalForState !== 'close'" v-slot:action>
                 <q-btn flat label="Transfer Chat" color="green-5" @click="showChatTransferModal = true" v-close-popup />
                 <q-btn flat label="Leave" color="orange-5" @click="convStateHandle('leave')" v-close-popup />
                 <q-btn flat label="Cancel" color="primary" v-close-popup />
@@ -386,12 +386,11 @@ export default defineComponent({
         },
 
         needTransfer(): any {
-            // not checking me. cz its before my leave
-            return (
-                this.conversationConnectedUsers.filter(
-                    (conversationConnectedUser: any) => conversationConnectedUser.left_at
-                ).length ===
-                this.conversationConnectedUsers.length - 1
+            // check is joined at least one agent without me
+            return this.conversationConnectedUsers.find(
+                (conversationConnectedUser: any) =>
+                    conversationConnectedUser.joined_at &&
+                    this.profile.socket_session.id !== conversationConnectedUser.socket_session_id
             );
         },
 

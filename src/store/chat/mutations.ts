@@ -157,9 +157,8 @@ const mutation: MutationTree<ChatStateInterface> = {
 
                 if (foundSes) {
                     // this check will try to update latest. cz if left_at then its always latest
-                    if (convSession.left_at) {
-                        foundSes.left_at = convSession.left_at;
-                    }
+                    foundSes.left_at = convSession.left_at;
+                    foundSes.joined_at = convSession.joined_at;
 
                     // add other check & add for socket_session name update etc
                 } else {

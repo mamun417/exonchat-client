@@ -647,11 +647,6 @@ export default defineComponent({
 
                 this.$store.dispatch("chat/updateConvState", convSesInfo);
 
-                // hide init chat notification when this chat has been accepted
-                if (this.newConversationInfo.id === res.data.conv_ses_data.conversation_id) {
-                    this.newConversationInfo = {};
-                }
-
                 console.log("from ec_is_joined_from_conversation", convSesInfo);
             });
 
