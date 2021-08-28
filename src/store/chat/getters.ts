@@ -174,7 +174,9 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 return (
                     !conv.users_only &&
                     !conv.closed_at &&
-                    (agentsLength.length > 1 || (agentsLength.length === 1 && !sesInfo))
+                    (agentsLength.length > 1 ||
+                        (agentsLength.length === 1 && !sesInfo) ||
+                        (agentsLength.length === 1 && sesInfo.left_at))
                 );
             })
             .map((conv: any) => {

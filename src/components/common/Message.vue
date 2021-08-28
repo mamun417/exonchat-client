@@ -71,9 +71,15 @@
                                             </span>
                                         </template>
 
-                                        <template v-if="message.msg === 'chat_inactive'">
+                                        <template v-else-if="message.msg === 'chat_inactive'">
                                             <span :class="`tw-mr-1 tw-break-none ${$helpers.colors().defaultText}`">
                                                 Chat is idle due to inactivity
+                                            </span>
+                                        </template>
+
+                                        <template v-else-if="message.msg && message.msg.split('_')[0] === 'transfer'">
+                                            <span :class="`tw-mr-1 tw-break-none ${$helpers.colors().defaultText}`">
+                                                {{ transferMsgMaker(message) }}
                                             </span>
                                         </template>
 
@@ -1104,6 +1110,18 @@ export default defineComponent({
             // chat ended by you. client widget. by client
 
             // return `${name} ${message.state} the chat ${message.state !== "joined" ? time : ""} ${endMaker}`;
+        },
+
+        transferMsgMaker(msg: any) {
+            const fallbackName = msg.msg.split("_")[2];
+
+            const transferredTo = this.conversationConnectedUsers.find(
+                (convSes: any) => convSes.socket_session_id === msg.msg.split("_")[1]
+            );
+
+            return `${msg.session?.user?.user_meta?.display_name} transferred the chat to ${
+                transferredTo?.socket_session?.user?.user_meta?.display_name || fallbackName
+            }`;
         },
 
         inputFocusHandle() {
