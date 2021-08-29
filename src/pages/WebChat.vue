@@ -925,6 +925,8 @@ export default defineComponent({
                 console.log(`Your Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
                 this.socketId = this.socket.id;
+
+                this.socket.emit("test_test", {});
             });
 
             this.socket.on("disconnect", () => {

@@ -220,10 +220,11 @@ export default defineComponent({
 
             this.$socket.emit("ec_chat_transfer", {
                 conv_id: this.conv_id,
-                notify_to_dep: this.transferChatFormData.chat_department.tag,
+                notify_to_dep: this.transferChatFormData.chat_department?.tag,
                 notify_to: this.transferChatFormData.agent ? this.transferChatFormData.agent.socket_session.id : "",
                 notify_to_info: this.transferChatFormData.agent || {}, // user info not socket info
                 agent_info: this.profile,
+                action: "send",
             });
         },
     },

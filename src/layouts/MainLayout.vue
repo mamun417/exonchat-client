@@ -797,6 +797,10 @@ export default defineComponent({
             });
 
             this.socket.on("ec_chat_transfer", (data: any) => {
+                if (data.from === "own" && data.status === "success") {
+                    return;
+                }
+
                 helpers.notifications().reqOne.play();
 
                 let actions = [
@@ -840,6 +844,13 @@ export default defineComponent({
                     actions,
                 });
 
+                this.$store.dispatch("chat/updateConvSesInfo", {
+                    payload_type: "conversation_session",
+                    type: "chat_transfer",
+                    conv_id: data.conv_id,
+                    conv_ses_obj: data.conv_ses_obj,
+                });
+
                 console.log("from ec_chat_transfer_from_user", data);
             });
 
@@ -862,7 +873,7 @@ export default defineComponent({
             this.socket.on("ec_error", (data: any) => {
                 console.log("from ec_error", data);
 
-                if (data.step === "ec_chat_transfer_from_user") {
+                if (data.step === "ec_chat_transfer") {
                     this.$q.notify({
                         color: "warning",
                         textColor: "black",

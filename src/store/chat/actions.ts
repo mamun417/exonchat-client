@@ -53,6 +53,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         }
     },
 
+    updateConvSesInfo(context, data) {
+        context.commit("updateConvSesInfo", data);
+    },
+
     updateConvState(context, convSesInfo) {
         context.commit("updateConversation", {
             conv_id: convSesInfo.conversation_id,
