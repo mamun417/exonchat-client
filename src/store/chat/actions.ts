@@ -108,7 +108,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             }
 
             callerApi
-                .get(`conversations/${conversationInfo.current_loading_conv_info.conv_id}/messages`, {
+                .get(`conversations/${payload.convId}/messages`, {
                     params: {
                         p: current_page + 1,
                         pp: 3,
