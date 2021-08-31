@@ -49,7 +49,7 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log("msg top section initiated");
+        // console.log("msg top section initiated");
     },
 
     computed: {},

@@ -340,7 +340,7 @@ export default defineComponent({
                 this.addEditChatTemplateFormData.intent_id = this.chosenIntent.value;
             }
 
-            console.log(this.addEditChatTemplateFormData);
+            // console.log(this.addEditChatTemplateFormData);
 
             this.$store
                 .dispatch("chat_template/updateChatTemplate", {

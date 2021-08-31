@@ -181,7 +181,7 @@ export default defineComponent({
     mounted() {
         this.getChatDepartments();
 
-        this.$emitter.on(`ec_chat_transfer_res${this.conv_id}`, () => {
+        this.$emitter.on(`ec_chat_transfer_res_${this.conv_id}`, () => {
             this.$emit("transferChat");
 
             this.$router.push({ name: "chat-interaction" });

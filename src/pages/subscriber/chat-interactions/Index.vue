@@ -324,7 +324,6 @@ export default defineComponent({
             ongoingOtherChats: "chat/ongoingOtherChats",
             visitors: "visitor/visitors",
             globalColor: "setting_ui/globalColor",
-            myChatTransferRequests: "chat/myChatTransferRequests",
         }),
 
         filteredChats: (app) => (chatType: any) => {

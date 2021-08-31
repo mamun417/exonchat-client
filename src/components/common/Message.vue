@@ -1115,15 +1115,11 @@ export default defineComponent({
         },
 
         transferMsgMaker(msg: any) {
-            const fallbackName = msg.msg.split("_")[2];
-
             const transferredTo = this.conversationConnectedUsers.find(
                 (convSes: any) => convSes.socket_session_id === msg.msg.split("_")[1]
             );
 
-            return `${msg.session?.user?.user_meta?.display_name} transferred the chat to ${
-                transferredTo?.socket_session?.user?.user_meta?.display_name || fallbackName
-            }`;
+            return `${msg.session?.user?.user_meta?.display_name} transferred the chat to ${transferredTo?.socket_session?.user?.user_meta?.display_name}`;
         },
 
         inputFocusHandle() {

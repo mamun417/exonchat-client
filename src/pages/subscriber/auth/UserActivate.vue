@@ -195,7 +195,7 @@ export default defineComponent({
                     inputs: this.formData,
                 })
                 .then((res: any) => {
-                    console.log(res.data);
+                    // console.log(res.data);
 
                     this.$helpers.showSuccessNotification(
                         this,

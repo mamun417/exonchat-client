@@ -329,7 +329,7 @@ export default defineComponent({
     },
 
     async mounted() {
-        console.log("left bar initiated");
+        // console.log("left bar initiated");
         await this.getChatRequest();
         await this.getOtherJoinedChats();
         await this.getJoinedChatsWithMe();
@@ -584,7 +584,7 @@ export default defineComponent({
         // if you need to load avatars everywhere then watch conversation n use same way in the layout template
         chatUsers: {
             handler: async function () {
-                console.log("chatUsers watcher started");
+                // console.log("chatUsers watcher started");
                 if (this.chatUsersAvatarLoading) return;
 
                 this.chatUsersAvatarLoading = true;

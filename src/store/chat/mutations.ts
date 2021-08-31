@@ -199,12 +199,20 @@ const mutation: MutationTree<ChatStateInterface> = {
         const conv = state.conversations[convId];
 
         if (conv) {
-            if (data.payload_type === "conversation_session" && data.type === "chat_transfer") {
-                const convSession = data.conv_ses_obj;
+            if (data.payload_type === "conversation_session") {
+                if (data.action === "chat_transfer_sent") {
+                    const convSession = data.conv_ses_obj;
 
-                _l.remove(conv.sessions, (convSes: any) => convSes.id === convSession.id);
+                    // remove then assign full conversation session object for safe update
+                    _l.remove(conv.sessions, (convSes: any) => convSes.id === convSession.id);
 
-                conv.sessions.push(convSession);
+                    conv.sessions.push(convSession);
+                } else if (data.action === "chat_transfer_rejected") {
+                    const convSession = data.conv_ses_obj;
+
+                    // remove then assign full conversation session object for safe update
+                    _l.remove(conv.sessions, (convSes: any) => convSes.id === convSession.id);
+                }
             }
         }
     },

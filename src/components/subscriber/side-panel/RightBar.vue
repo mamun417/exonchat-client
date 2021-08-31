@@ -521,7 +521,7 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log("right bar initiated");
+        // console.log("right bar initiated");
 
         setInterval(() => {
             if (
@@ -546,7 +546,7 @@ export default defineComponent({
     watch: {
         conversationWithUsersInfo: {
             handler: function (newVal, oldVal) {
-                console.log(newVal, oldVal);
+                // console.log(newVal, oldVal);
 
                 if (
                     !this.conversationInfo.users_only &&

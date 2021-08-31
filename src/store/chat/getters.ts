@@ -266,17 +266,32 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     myChatTransferRequests(state, getters, rootState, rootGetters) {
-        const myTransferRequest = Object.values(state.conversations).filter((conv: any) => {
-            const sesInfo = _l.find(conv.sessions, [
-                "socket_session_id",
-                rootGetters["auth/profile"]?.socket_session?.id,
-            ]);
+        const myTransferRequest = Object.values(state.conversations)
+            .filter((conv: any) => {
+                const sesInfo = _l.find(conv.sessions, [
+                    "socket_session_id",
+                    rootGetters["auth/profile"]?.socket_session?.id,
+                ]);
 
-            // Object.keys(conv.messages).length check for safe
-            return (
-                !conv.users_only && !conv.closed_at && sesInfo && !sesInfo.joined_at && sesInfo.type === "chat_transfer"
-            );
-        });
+                // Object.keys(conv.messages).length check for safe
+                // omitting left_at null check for now. if need null check modify event api also
+                return (
+                    !conv.users_only &&
+                    !conv.closed_at &&
+                    sesInfo &&
+                    !sesInfo.joined_at &&
+                    sesInfo.type === "chat_transfer"
+                );
+            })
+            .map((conv: any) => {
+                // it holds transfer info in the info object
+                const sesInfo = _l.find(conv.sessions, [
+                    "socket_session_id",
+                    rootGetters["auth/profile"]?.socket_session?.id,
+                ]);
+
+                return { ...conv, transfer_request_info: sesInfo };
+            });
 
         return _l.sortBy(myTransferRequest, (conv: any) => moment(conv.updated_at).format("x"));
     },

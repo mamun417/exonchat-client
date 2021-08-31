@@ -71,7 +71,7 @@ export default defineComponent({
         return {};
     },
     mounted() {
-        console.log("main left bar initiated");
+        // console.log("main left bar initiated");
     },
     methods: {},
 });
