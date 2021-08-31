@@ -5,12 +5,6 @@ import { ChatStateInterface } from "./state";
 import * as _l from "lodash";
 import helpers from "boot/helpers/helpers";
 
-declare global {
-    interface Window {
-        conversationId: any;
-    }
-}
-
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
         context.commit("storeClientInitiateConvInfo", payload);
@@ -105,20 +99,16 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve, reject) => {
             const callerApi = payload.client_page ? window.socketSessionApi : window.api;
 
-            const conversationId = window.conversationId;
-
-            console.log(conversationId);
-
             let current_page = 0;
 
-            const conversationInfo = context.getters["conversationInfo"](conversationId || payload.convId);
+            const conversationInfo = context.getters["conversationInfo"](payload.convId);
 
             if (conversationInfo && conversationInfo.pagination_meta) {
                 current_page = conversationInfo.pagination_meta.current_page;
             }
 
             callerApi
-                .get(`conversations/${payload.convId}/messages`, {
+                .get(`conversations/${conversationInfo.current_loading_conv_info.conv_id}/messages`, {
                     params: {
                         p: current_page + 1,
                         pp: 3,
@@ -131,8 +121,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     if (!conv.messages.length) {
                         pagination.current_page = current_page; // reset to the previous pagination so that +1 turns valid
                     }
-
-                    window.conversationId = conv.id;
 
                     // conv.current_page = payload.page || 1; // now only for temp & test
 

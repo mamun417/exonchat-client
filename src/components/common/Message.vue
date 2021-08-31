@@ -1561,6 +1561,23 @@ export default defineComponent({
 
         loadPreviousChat() {
             console.log("load previous conversation");
+
+            this.canCallMessageApi = true;
+
+            const conversationInfo = context.getters["conversationInfo"](this.conv_id);
+
+            const current_loading_conv_id = conversationInfo.current_loading_conv_info
+                ? conversationInfo.current_loading_conv_info.conv_id
+                : this.conv_id;
+
+            // get previous conversation id
+            console.log(this.clientPreviousChats);
+
+            this.$store.commit("updateConversation", {
+                conv_id: this.conv_id,
+                current_loading_conv_info: { conv_id: "previous_conv_id" },
+            });
+
             this.getNewMessages();
         },
     },

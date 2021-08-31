@@ -191,6 +191,10 @@ const mutation: MutationTree<ChatStateInterface> = {
                     convSession.last_msg_seen_time = convData.last_msg_seen_time;
                 }
             }
+
+            if (convData.hasOwnProperty("current_loading_conv_info")) {
+                state.conversations[convId].current_loading_conv_info = convData.current_loading_conv_info;
+            }
         }
     },
 
