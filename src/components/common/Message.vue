@@ -29,6 +29,22 @@
             reverse
         >
             <template v-slot:default>
+                <!--!canCallMessageApi &&-->
+                <div
+                    class="tw-text-center"
+                    v-if="
+                        Object.keys(clientPreviousChats).length &&
+                        !mini_mode &&
+                        isAgentChatPanel &&
+                        !conversationInfo.users_only
+                    "
+                >
+                    <q-btn @click="loadPreviousChat" class="bg-blue-grey tw-text-white" size="sm" no-caps unelevated>
+                        Load Previous Chat
+                        <q-icon name="history" class="tw-ml-1" />
+                    </q-btn>
+                </div>
+
                 <slot name="scroll-area-top-section"></slot>
 
                 <div v-if="gettingNewMessages" class="tw-text-center" :class="$helpers.colors().defaultText">
@@ -708,6 +724,7 @@ export default defineComponent({
             globalBgColor: "setting_ui/globalBgColor",
             globalColor: "setting_ui/globalColor",
             profile: "auth/profile",
+            clientPreviousChats: "chat/previousConversations",
         }),
 
         chatPanelType(): any {
@@ -1541,6 +1558,11 @@ export default defineComponent({
 
             this.$router.push({ name: "chats", params: { conv_id: convId } });
         },
+
+        loadPreviousChat() {
+            console.log("load previous conversation");
+            this.getNewMessages();
+        },
     },
 
     watch: {
@@ -1563,6 +1585,13 @@ export default defineComponent({
                     this.scrollToPosition();
 
                     if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
+                }
+
+                // if need remove mini mode check
+                if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
+                    this.$store.dispatch("chat/getPreviousConversations", {
+                        before_conversation: this.conv_id,
+                    });
                 }
             },
             immediate: true,

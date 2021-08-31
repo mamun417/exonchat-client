@@ -258,6 +258,14 @@ const mutation: MutationTree<ChatStateInterface> = {
         localStorage.setItem("showRatingForm", ratingFormState);
         state.clientInitiateConvInfo.showRatingForm = ratingFormState;
     },
+
+    storePreviousConversations(state: ChatStateInterface, previousConversations: any) {
+        state.previousConversations = {};
+
+        previousConversations.forEach((previousConv: any) => {
+            state.previousConversations[previousConv.id] = previousConv;
+        });
+    },
 };
 
 export default mutation;

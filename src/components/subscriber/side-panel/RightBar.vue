@@ -339,20 +339,23 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list v-if="clientPreviousChats.length" class="tw-break-all">
+                            <q-list v-if="Object.keys(clientPreviousChats).length" class="tw-break-all">
                                 <q-item
                                     v-for="(conv, key) of clientPreviousChats"
+                                    :to="{ name: 'chats', params: { conv_id: conv.id } }"
                                     :key="key"
                                     clickable
                                     dense
-                                    class="tw-text-xs"
+                                    class="tw-text-xs tw-py-2"
                                 >
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                                         <q-icon name="chat_bubble_outline" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label>{{ conv.messages[0].msg }}</q-item-label>
-                                        <q-item-label caption>{{ $helpers.myDate(conv.created_at) }}</q-item-label>
+                                        <q-item-label caption>{{
+                                            $helpers.myDate(conv.created_at, "MMM DD, Y, h:mm a")
+                                        }}</q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -454,7 +457,6 @@ export default defineComponent({
             sesId: "",
             confirm: false,
 
-            clientPreviousChats: [],
             clientTickets: [],
 
             ticketSelected: null,
@@ -472,6 +474,7 @@ export default defineComponent({
             profile: "auth/profile",
             globalBgColor: "setting_ui/globalBgColor",
             globalColor: "setting_ui/globalColor",
+            clientPreviousChats: "chat/previousConversations",
         }),
 
         conversationInfo(): any {
@@ -553,19 +556,9 @@ export default defineComponent({
                     newVal?.length &&
                     (!oldVal?.length || newVal[0].conversation_id !== oldVal[0].conversation_id)
                 ) {
-                    window.api
-                        .get(
-                            `/conversations/client-previous-conversations?email=${this.conversationWithUsersInfo[0].socket_session.init_email}`
-                        )
-                        .then((res: any) => {
-                            // console.log(res.data);
-                            this.clientPreviousChats = res.data.filter((conv: any) => {
-                                return conv.id !== newVal[0].conversation_id;
-                            });
-                        })
-                        .catch((e: any) => {
-                            e;
-                        });
+                    // this.$store.dispatch("chat/getPreviousConversations", {
+                    //     before_conversation: newVal[0].conversation_id,
+                    // });
 
                     window.api
                         .get(`/apps/whmcs/tickets?email=${this.conversationWithUsersInfo[0].socket_session.init_email}`)

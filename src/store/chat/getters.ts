@@ -297,6 +297,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
     },
+
+    previousConversations(state) {
+        return state.previousConversations;
+    },
 };
 
 export default getters;

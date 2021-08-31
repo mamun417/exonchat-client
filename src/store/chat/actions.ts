@@ -5,6 +5,12 @@ import { ChatStateInterface } from "./state";
 import * as _l from "lodash";
 import helpers from "boot/helpers/helpers";
 
+declare global {
+    interface Window {
+        conversationId: any;
+    }
+}
+
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
         context.commit("storeClientInitiateConvInfo", payload);
@@ -99,9 +105,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve, reject) => {
             const callerApi = payload.client_page ? window.socketSessionApi : window.api;
 
+            const conversationId = window.conversationId;
+
+            console.log(conversationId);
+
             let current_page = 0;
 
-            const conversationInfo = context.getters["conversationInfo"](payload.convId);
+            const conversationInfo = context.getters["conversationInfo"](conversationId || payload.convId);
 
             if (conversationInfo && conversationInfo.pagination_meta) {
                 current_page = conversationInfo.pagination_meta.current_page;
@@ -111,7 +121,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 .get(`conversations/${payload.convId}/messages`, {
                     params: {
                         p: current_page + 1,
-                        pp: 25,
+                        pp: 3,
                     },
                 })
                 .then((res: any) => {
@@ -121,6 +131,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     if (!conv.messages.length) {
                         pagination.current_page = current_page; // reset to the previous pagination so that +1 turns valid
                     }
+
+                    window.conversationId = conv.id;
 
                     // conv.current_page = payload.page || 1; // now only for temp & test
 
@@ -447,6 +459,25 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 caller: "updateConvMessagesAutoScrollToBottom",
             });
             resolve(true);
+        });
+    },
+
+    getPreviousConversations(context, payload: any) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(
+                    `/conversations/client-previous-conversations?before_conversation=${
+                        payload.before_conversation || ""
+                    }`
+                )
+                .then((res: any) => {
+                    context.commit("storePreviousConversations", res.data);
+
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
         });
     },
 };
