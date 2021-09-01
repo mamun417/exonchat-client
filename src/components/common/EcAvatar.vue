@@ -17,7 +17,7 @@
 
     <!--check email-->
     <q-avatar v-else-if="email && foundAvatar && !local_preview_src" :size="size">
-        <q-img :src="this.avatarUrl" alt="" @error="foundAvatar = false" />
+        <q-img ref="avatar" :src="avatarUrl" alt="" @error="foundAvatar = false" />
         <slot name="default"></slot>
     </q-avatar>
 
@@ -70,22 +70,20 @@ export default defineComponent({
         };
     },
 
-    mounted() {
-        this.loadAvatar();
-    },
-
     computed: {
         ...mapGetters({
             globalBgColor: "setting_ui/globalBgColor",
         }),
     },
 
-    methods: {
-        loadAvatar() {
-            if (this.email) {
-                const hash = CryptoJS.MD5(this.email.trim());
+    watch: {
+        email: {
+            handler: function (email) {
+                const hash = CryptoJS.MD5(email.trim());
                 this.avatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404`;
-            }
+            },
+            deep: true,
+            immediate: true,
         },
     },
 });
