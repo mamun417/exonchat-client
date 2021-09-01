@@ -30,16 +30,22 @@
         >
             <template v-slot:default>
                 <!--!canCallMessageApi &&-->
-                <div
-                    class="tw-text-center"
-                    v-if="
-                        Object.keys(clientPreviousChats).length &&
-                        !mini_mode &&
-                        isAgentChatPanel &&
-                        !conversationInfo.users_only
-                    "
-                >
-                    <q-btn @click="loadPreviousChat" class="bg-blue-grey tw-text-white" size="sm" no-caps unelevated>
+                <div class="tw-text-center">
+                    <q-btn
+                        v-if="
+                            Object.keys(clientPreviousChats).length &&
+                            !canCallMessageApi &&
+                            !gettingNewMessages &&
+                            !mini_mode &&
+                            isAgentChatPanel &&
+                            !conversationInfo.users_only
+                        "
+                        @click="loadPreviousChat"
+                        class="bg-blue-grey tw-text-white"
+                        size="sm"
+                        no-caps
+                        flat
+                    >
                         Load Previous Chat
                         <q-icon name="history" class="tw-ml-1" />
                     </q-btn>
@@ -47,8 +53,9 @@
 
                 <slot name="scroll-area-top-section"></slot>
 
-                <div v-if="gettingNewMessages" class="tw-text-center" :class="$helpers.colors().defaultText">
-                    Loading History...
+                <div v-if="gettingNewMessages" class="tw-flex tw-justify-center tw-items-center tw-my-3 tw-gap-2">
+                    <q-spinner-hourglass size="xs" color="blue-grey" />
+                    <div class="tw-text-sm" :class="`text-${globalColor}-6`">Loading History...</div>
                 </div>
 
                 <div class="tw-relative tw-z-10">
