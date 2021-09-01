@@ -820,6 +820,10 @@ export default defineComponent({
                 }, 2 * 60 * 1000);
             }
 
+            if (!fromChatTransferRequest) {
+                this.newConversationInfo = {};
+            }
+
             window.socketInstance.emit("ec_join_conversation", {
                 conv_id: convData.id,
                 chat_transfer_request_from: fromChatTransferRequest
