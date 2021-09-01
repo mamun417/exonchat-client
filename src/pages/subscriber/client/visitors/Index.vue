@@ -13,7 +13,7 @@
                             <!-- <pre>{{ slotProps.row }}</pre> -->
                             {{
                                 sessionInfo(slotProps.row.session_id)?.init_name ||
-                                `Visitor#${slotProps.row.session_id.slice(0, 6)}`
+                                `Visitor#${slotProps.row.session_id.slice(-8)}`
                             }}
                         </div>
                     </template>
