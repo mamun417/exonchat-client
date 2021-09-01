@@ -130,7 +130,7 @@
                                     this.chatPanelType === 'client' &&
                                     message.session?.user &&
                                     message.msg === 'joined' &&
-                                    speakingWithUser.msg.id === message.id
+                                    speakingWithUser?.msg?.id === message.id
                                 "
                                 class="tw-flex tw-items-center tw-justify-center tw--mt-2"
                             >

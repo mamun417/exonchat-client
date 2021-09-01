@@ -308,20 +308,25 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve) => {
             context.commit("updateConversation", obj);
 
-            console.log({ messageRes });
+            const conversationStatusForMe = context.getters["conversationStatusForMe"](
+                messageRes.conversation_id,
+                helpers.getMySocketSessionId()
+            );
 
-            if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
-                // if (messageRes.hasOwnProperty("caller_page") && messageRes.caller_page === "web-chat") {
-                helpers.notifications().replyOne.play();
-                // }
-            }
+            const profile = context.rootGetters["auth/profile"];
 
-            if (
-                messageRes.hasOwnProperty("socket_event") &&
-                messageRes.socket_event === "ec_msg_from_client" &&
-                !messageRes.init_message_from_client
-            ) {
-                helpers.notifications().replyTwo.play();
+            if (profile.online_status === "online" && conversationStatusForMe === "joined") {
+                if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
+                    helpers.notifications().replyOne.play();
+                }
+
+                if (
+                    messageRes.hasOwnProperty("socket_event") &&
+                    messageRes.socket_event === "ec_msg_from_client" &&
+                    !messageRes.init_message_from_client
+                ) {
+                    helpers.notifications().replyTwo.play();
+                }
             }
 
             resolve(true);
