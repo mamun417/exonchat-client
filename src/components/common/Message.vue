@@ -235,6 +235,13 @@
                                                             style="font-family: inherit; word-break: break-word"
                                                             >{{ msgItem.msg }}</pre
                                                         >
+                                                        <!--<div-->
+                                                        <!--    v-html="-->
+                                                        <!--        $helpers.testLink(-->
+                                                        <!--            'sdfds ffds https://www.youtube.com/ '-->
+                                                        <!--        )-->
+                                                        <!--    "-->
+                                                        <!--&gt;</div>-->
                                                     </div>
 
                                                     <!--attachment-->
