@@ -994,7 +994,7 @@ export default defineComponent({
                 this.gettingNewMessages = true;
 
                 const current_loading_conv_id = this.conversationInfo.current_loading_conv_info
-                    ? conversationInfo.current_loading_conv_info.conv_id
+                    ? this.conversationInfo.current_loading_conv_info.conv_id
                     : this.conv_id;
 
                 this.$store
@@ -1564,24 +1564,21 @@ export default defineComponent({
         },
 
         loadPreviousChat() {
-            console.log("load previous conversation");
-
             this.canCallMessageApi = true;
 
             const current_loading_conv_id = this.conversationInfo.current_loading_conv_info
-                ? conversationInfo.current_loading_conv_info.conv_id
+                ? this.conversationInfo.current_loading_conv_info.conv_id
                 : this.conv_id;
 
-            // get previous conversation id
-            console.log(this.clientPreviousChats);
-            this.$_.findIndex(this.clientPreviousChats);
+            const previousConvIdsArray = Object.keys(this.clientPreviousChats);
 
-            this.$store.commit("updateConversation", {
+            this.$store.commit("chat/updateConversation", {
                 conv_id: this.conv_id,
-                current_loading_conv_info: { conv_id: "previous_conv_id" },
+                current_loading_conv_info: { conv_id: previousConvIdsArray[0] },
+                prev_loaded_ids: [previousConvIdsArray[0]],
             });
 
-            this.getNewMessages("previous_conv_id");
+            this.getNewMessages();
         },
     },
 

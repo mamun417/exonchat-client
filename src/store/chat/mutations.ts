@@ -195,6 +195,10 @@ const mutation: MutationTree<ChatStateInterface> = {
             if (convData.hasOwnProperty("current_loading_conv_info")) {
                 state.conversations[convId].current_loading_conv_info = convData.current_loading_conv_info;
             }
+
+            if (convData.hasOwnProperty("prev_loaded_ids")) {
+                state.conversations[convId].prev_loaded_ids = convData.prev_loaded_ids;
+            }
         }
     },
 
