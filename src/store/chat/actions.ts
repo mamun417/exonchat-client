@@ -308,10 +308,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve) => {
             context.commit("updateConversation", obj);
 
+            console.log({ messageRes });
+
             if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
-                if (messageRes.hasOwnProperty("caller_page") && messageRes.caller_page === "web-chat") {
-                    helpers.notifications().replyOne.play();
-                }
+                // if (messageRes.hasOwnProperty("caller_page") && messageRes.caller_page === "web-chat") {
+                helpers.notifications().replyOne.play();
+                // }
             }
 
             if (
