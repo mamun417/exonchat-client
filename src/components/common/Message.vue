@@ -232,7 +232,11 @@
                                                     <div class="tw-text-sm tw-my-2">
                                                         <pre
                                                             class="tw-whitespace-normal"
-                                                            style="font-family: inherit; word-break: break-word"
+                                                            style="
+                                                                font-family: inherit;
+                                                                word-break: break-word;
+                                                                white-space: break-spaces;
+                                                            "
                                                             >{{ msgItem.msg }}</pre
                                                         >
                                                     </div>
