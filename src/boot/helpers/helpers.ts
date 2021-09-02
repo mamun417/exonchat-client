@@ -1,6 +1,7 @@
 import moment from "moment";
 import * as _l from "lodash";
 import "moment-precise-range-plugin";
+import linkifyStr from "linkifyjs/string";
 
 const notifications = {
     reqOne: new Audio("assets/sound/notification/notification-request-001.mp3"),
@@ -91,6 +92,14 @@ const helpers = {
             defaultText: "text-grey-7",
             dateTimeText: "text-grey-6",
         };
+    },
+
+    makeCLickAbleLink(content: any, defaultProtocol = "https") {
+        return linkifyStr(content, {
+            defaultProtocol,
+            target: "_blank",
+            className: "tw-underline text-blue-7",
+        });
     },
 };
 

@@ -231,14 +231,14 @@
                                                 <div>
                                                     <div class="tw-text-sm tw-my-2">
                                                         <pre
+                                                            v-html="$helpers.makeCLickAbleLink(msgItem.msg)"
                                                             class="tw-whitespace-normal"
                                                             style="
                                                                 font-family: inherit;
                                                                 word-break: break-word;
                                                                 white-space: break-spaces;
                                                             "
-                                                            >{{ msgItem.msg }}</pre
-                                                        >
+                                                        ></pre>
                                                     </div>
 
                                                     <!--attachment-->
