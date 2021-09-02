@@ -174,7 +174,7 @@
                                     dense
                                 >
                                     <q-item-section>
-                                        <q-item-label class="tw-text-xs text-weight-medium tw-uppercase"
+                                        <q-item-label class="tw-text-sm text-weight-medium tw-uppercase"
                                             >All
                                         </q-item-label>
                                     </q-item-section>
@@ -203,7 +203,7 @@
                                     dense
                                 >
                                     <q-item-section>
-                                        <q-item-label class="tw-text-xs text-weight-medium tw-uppercase"
+                                        <q-item-label class="tw-text-sm text-weight-medium tw-uppercase"
                                             >{{ department.tag }}
                                         </q-item-label>
                                     </q-item-section>
@@ -259,7 +259,7 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-medium tw-text-xs tw-capitalize">
+                                        <q-item-label class="text-weight-medium tw-text-sm tw-capitalize">
                                             {{ user.user_meta.display_name }}
                                         </q-item-label>
 
