@@ -151,12 +151,11 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log("ec table mounted");
+        // console.log("ec table mounted");
     },
 
     methods: {
         rowClickHandle(row: any) {
-            console.log(row, "aaa");
             this.$emit("rowClick", row);
         },
         handlePipeline($event: any) {

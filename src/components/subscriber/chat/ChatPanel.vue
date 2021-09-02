@@ -123,8 +123,6 @@ export default defineComponent({
         },
 
         joinConversation(conv_id: any) {
-            console.log(conv_id);
-
             this.$socket.emit("ec_join_conversation", {
                 conv_id: conv_id,
             });
@@ -137,8 +135,6 @@ export default defineComponent({
         },
 
         closeConversation(conv_id: any) {
-            console.log("from close");
-
             this.$socket.emit("ec_close_conversation", {
                 conv_id: conv_id,
             });

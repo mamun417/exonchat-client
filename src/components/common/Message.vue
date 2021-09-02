@@ -153,7 +153,7 @@
                                     this.chatPanelType === 'client' &&
                                     message.session?.user &&
                                     message.msg === 'joined' &&
-                                    speakingWithUser.msg.id === message.id
+                                    speakingWithUser?.msg?.id === message.id
                                 "
                                 class="tw-flex tw-items-center tw-justify-center tw--mt-2"
                             >
@@ -1143,15 +1143,11 @@ export default defineComponent({
         },
 
         transferMsgMaker(msg: any) {
-            const fallbackName = msg.msg.split("_")[2];
-
             const transferredTo = this.conversationConnectedUsers.find(
                 (convSes: any) => convSes.socket_session_id === msg.msg.split("_")[1]
             );
 
-            return `${msg.session?.user?.user_meta?.display_name} transferred the chat to ${
-                transferredTo?.socket_session?.user?.user_meta?.display_name || fallbackName
-            }`;
+            return `${msg.session?.user?.user_meta?.display_name} transferred the chat to ${transferredTo?.socket_session?.user?.user_meta?.display_name}`;
         },
 
         inputFocusHandle() {

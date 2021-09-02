@@ -185,7 +185,9 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                     rootGetters["auth/profile"]?.socket_session?.id,
                 ]);
 
-                const agentsLength = conv.sessions.filter((convSes: any) => convSes.socket_session.user);
+                const agentsLength = conv.sessions.filter(
+                    (convSes: any) => convSes.socket_session.user && convSes.joined_at
+                );
 
                 return (
                     !conv.users_only &&
@@ -214,7 +216,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                     !conv.users_only &&
                     !conv.closed_at &&
                     _l.find(rootGetters["auth/profile"].chat_departments, ["tag", conv?.chat_department?.tag]) &&
-                    conv.sessions.length === 1
+                    conv.sessions.length === 1 // assume only client is connected
                 );
             })
             .map((conv: any) => {
@@ -235,7 +237,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                 ]);
 
                 // Object.keys(conv.messages).length check for safe
-                return !conv.users_only && !conv.closed_at && sesInfo && !sesInfo.left_at;
+                return !conv.users_only && !conv.closed_at && sesInfo && !sesInfo.left_at && sesInfo.joined_at;
             })
             .map((conv: any) => {
                 const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
@@ -277,6 +279,37 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             });
 
         return _l.sortBy(myOngoingChats, (conv: any) => moment(conv.created_at).format("x")).reverse();
+    },
+
+    myChatTransferRequests(state, getters, rootState, rootGetters) {
+        const myTransferRequest = Object.values(state.conversations)
+            .filter((conv: any) => {
+                const sesInfo = _l.find(conv.sessions, [
+                    "socket_session_id",
+                    rootGetters["auth/profile"]?.socket_session?.id,
+                ]);
+
+                // Object.keys(conv.messages).length check for safe
+                // omitting left_at null check for now. if need null check modify event api also
+                return (
+                    !conv.users_only &&
+                    !conv.closed_at &&
+                    sesInfo &&
+                    !sesInfo.joined_at &&
+                    sesInfo.type === "chat_transfer"
+                );
+            })
+            .map((conv: any) => {
+                // it holds transfer info in the info object
+                const sesInfo = _l.find(conv.sessions, [
+                    "socket_session_id",
+                    rootGetters["auth/profile"]?.socket_session?.id,
+                ]);
+
+                return { ...conv, transfer_request_info: sesInfo };
+            });
+
+        return _l.sortBy(myTransferRequest, (conv: any) => moment(conv.updated_at).format("x"));
     },
 
     // departmental chat requests count => for left bar

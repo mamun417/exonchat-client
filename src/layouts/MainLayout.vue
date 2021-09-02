@@ -132,11 +132,70 @@
 
             <q-page-container>
                 <q-card
-                    v-show="newConversationInfo.id"
+                    v-show="myChatTransferRequest.id"
                     :class="`tw-fixed tw-top-0 tw-shadow-lg tw-rounded-none tw-bg-transparent`"
                     :style="{ width: `${qPageSize.width}px`, zIndex: 9999 }"
                 >
-                    <q-card-section v-if="newConversationInfo.id" class="tw-flex tw-flex-grow tw-p-0">
+                    <q-card-section v-if="myChatTransferRequest.id" class="tw-flex tw-flex-grow tw-p-0">
+                        <div
+                            :class="`tw-flex tw-flex-col text-white tw-justify-center tw-items-center tw-p-4 ${globalBgColor}-9`"
+                        >
+                            <q-icon name="chat" size="md" />
+                            <div class="tw-whitespace-nowrap">Transfer Request</div>
+                        </div>
+
+                        <div :class="`tw-opacity-95 tw-p-4 tw-flex tw-flex-grow tw-justify-between ${globalBgColor}-8`">
+                            <div class="text-white tw-flex tw-flex-col tw-justify-around">
+                                <span class="tw-font-bold tw-text-base tw-capitalize">
+                                    Chat transfer request from
+                                    {{
+                                        myChatTransferRequest.transfer_request_info?.info?.transfer_from?.user_meta
+                                            ?.display_name
+                                    }}</span
+                                >
+                                <div class="tw-flex tw-mt-4">
+                                    <q-badge
+                                        class="tw-capitalize"
+                                        color="blue-grey-10"
+                                        :label="myChatTransferRequest.chat_department?.tag"
+                                    />
+                                </div>
+                            </div>
+                            <div class="tw-flex tw-items-center tw-mr-4">
+                                <div class="tw-flex tw-gap-3">
+                                    <q-btn
+                                        label="Accept"
+                                        color="green-2"
+                                        text-color="black"
+                                        size="md"
+                                        @click="takeThisChat(myChatTransferRequest, true)"
+                                        no-caps
+                                        unelevated
+                                    />
+                                    <q-btn
+                                        label="Reject"
+                                        color="orange-2"
+                                        text-color="black"
+                                        size="md"
+                                        @click="rejectChatRequest(myChatTransferRequest)"
+                                        no-caps
+                                        unelevated
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <!--                        <div class='tw-flex tw-gap-2 tw-mb-2 text-white tw-text-base'><div>younus</div><div>|</div><div class='tw-px-2 bg-blue-grey-6 tw-rounded-md'>technical</div></div>-->
+                    </q-card-section>
+                </q-card>
+                <q-card
+                    v-show="newConversationInfo.id && !myChatTransferRequests.length"
+                    :class="`tw-fixed tw-top-0 tw-shadow-lg tw-rounded-none tw-bg-transparent`"
+                    :style="{ width: `${qPageSize.width}px`, zIndex: 9999 }"
+                >
+                    <q-card-section
+                        v-if="newConversationInfo.id && !myChatTransferRequests.length"
+                        class="tw-flex tw-flex-grow tw-p-0"
+                    >
                         <div
                             :class="`tw-flex tw-flex-col text-white tw-justify-center tw-items-center tw-p-4 ${globalBgColor}-9`"
                         >
@@ -252,115 +311,12 @@
             <q-spinner-facebook size="50px" :color="globalBgColor" />
         </q-inner-loading>
 
-        <!--        don't remove these blocks-->
-        <div v-if="false">
-            <!--            &lt;!&ndash; add style pointer event none for accessing the underlying parent elements &ndash;&gt;-->
-            <!--            &lt;!&ndash; and also add opacity if user moved to parent &ndash;&gt;-->
-            <!--            <div class="tw-fixed tw-bottom-0" style="z-index: 99999; right: 75px">-->
-            <!--                <q-card-->
-            <!--                    class="bg-white shadow-5 tw-flex tw-flex-col"-->
-            <!--                    style="width: 300px"-->
-            <!--                    :style="{ height: '!mini' ? '450px' : 'auto' }"-->
-            <!--                >-->
-            <!--                    &lt;!&ndash; change bg color by status &ndash;&gt;-->
-            <!--                    <q-card-section class="row no-wrap bg-green items-center tw-p-0">-->
-            <!--                        <q-item class="">-->
-            <!--                            <q-item-section avatar>-->
-            <!--                                <q-avatar size="lg">-->
-            <!--                                    <img :src="`https://cdn.quasar.dev/img/avatar1.jpg`" />-->
-
-            <!--                                    &lt;!&ndash; <q-badge label="." color="green" text-color="green" rounded floating /> &ndash;&gt;-->
-            <!--                                </q-avatar>-->
-            <!--                            </q-item-section>-->
-
-            <!--                            <q-item-section class="tw-w-full">-->
-            <!--                                <q-item-label class="text-weight-bold text-white tw-text-md">Hasan</q-item-label>-->
-            <!--                                &lt;!&ndash; <q-item-label caption>-->
-            <!--                                    <q-badge color="green" class="tw-px-2 tw-py-1">Active</q-badge>-->
-            <!--                                </q-item-label> &ndash;&gt;-->
-            <!--                            </q-item-section>-->
-            <!--                        </q-item>-->
-
-            <!--                        <q-space />-->
-
-            <!--                        <q-btn class="tw-px-2" icon="more_horiz" color="green" unelevated />-->
-            <!--                        <q-btn-->
-            <!--                            class="tw-px-2"-->
-            <!--                            :icon="!'mini' ? 'arrow_drop_up' : 'arrow_drop_down'"-->
-            <!--                            color="green"-->
-            <!--                            unelevated-->
-            <!--                        />-->
-            <!--                        &lt;!&ndash; <q-btn class="tw-mr-2 tw-px-2" icon="close" color="white" flat /> &ndash;&gt;-->
-            <!--                    </q-card-section>-->
-
-            <!--                    <q-card-section v-if="'!mini'" class="tw-p-0 tw-flex-1 tw-flex tw-flex-col">-->
-            <!--                        <q-scroll-area-->
-            <!--                            @scroll="handleScroll"-->
-            <!--                            ref="msgScrollArea"-->
-            <!--                            class="tw-flex-1 tw-px-1 tw-py-2"-->
-            <!--                            style="height: 1px"-->
-            <!--                            :bar-style="{-->
-            <!--                                background: '#60A5FA',-->
-            <!--                                width: '4px',-->
-            <!--                                opacity: 0.2,-->
-            <!--                                borderRadius: '10px',-->
-            <!--                            }"-->
-            <!--                            :thumb-style="{-->
-            <!--                                borderRadius: '9px',-->
-            <!--                                backgroundColor: '#60A5FA',-->
-            <!--                                width: '4px',-->
-            <!--                                opacity: 0.7,-->
-            <!--                            }"-->
-            <!--                            :content-style="{}"-->
-            <!--                        >-->
-            <!--                        </q-scroll-area>-->
-
-            <!--                        <div class="tw-w-full tw-flex tw-px-1 tw-self-end">-->
-            <!--                            <q-btn flat color="green" icon="attachment"></q-btn>-->
-            <!--                            <q-btn flat color="green" icon="mood"></q-btn>-->
-            <!--                            <q-input-->
-            <!--                                debounce="0"-->
-            <!--                                placeholder="Write Message..."-->
-            <!--                                color="green-8"-->
-            <!--                                class="tw-flex-auto"-->
-            <!--                                autogrow-->
-            <!--                                borderless-->
-            <!--                                dense-->
-            <!--                            ></q-input>-->
-            <!--                            <q-btn icon="send" flat color="green-8"></q-btn>-->
-            <!--                        </div>-->
-            <!--                    </q-card-section>-->
-
-            <!--                    <q-badge v-if="!'!mini'" label="5" color="orange" text-color="black" rounded floating />-->
-            <!--                </q-card>-->
-            <!--            </div>-->
-
-            <!--            <q-fab-->
-            <!--                color="green"-->
-            <!--                icon="chat"-->
-            <!--                direction="up"-->
-            <!--                class="tw-fixed tw-bottom-4"-->
-            <!--                style="z-index: 99999; right: 10px"-->
-            <!--                persistent-->
-            <!--            >-->
-            <!--                <q-fab-action-->
-            <!--                    v-for="(a, i) in [1, 2, 3]"-->
-            <!--                    :key="i"-->
-            <!--                    padding="1px"-->
-            <!--                    label="a new message"-->
-            <!--                    anchor="start"-->
-            <!--                    color="green"-->
-            <!--                >-->
-            <!--                    <q-avatar><img :src="`https://cdn.quasar.dev/img/avatar${i + 1}.jpg`" /></q-avatar>-->
-            <!--                </q-fab-action>-->
-            <!--            </q-fab>-->
-        </div>
-
         <q-dialog
             v-model="socketConnectError"
             position="top"
             class="tw-px-0"
             id="network-error-dialog"
+            style="z-index: 999999999"
             full-width
             seamless
             persistent
@@ -420,10 +376,7 @@ export default defineComponent({
             chatRequestSoundLoop: false,
 
             newChatTimeout: null,
-            newConversationInfo: {
-                chat_department: { tag: "technical" },
-                conversation_sessions: [{ socket_session: { init_name: "younus" } }],
-            },
+            newConversationInfo: {},
 
             qPageSize: {
                 width: 100,
@@ -448,7 +401,12 @@ export default defineComponent({
             conversations: "chat/conversations",
             globalBgColor: "setting_ui/globalBgColor",
             rightBarState: "setting_ui/rightBarState", // its a mistake to store & get from there
+            myChatTransferRequests: "chat/myChatTransferRequests",
         }),
+
+        myChatTransferRequest(): any {
+            return this.myChatTransferRequests?.length ? this.myChatTransferRequests[0] : {};
+        },
 
         conversationInfo(): any {
             if (this.$route.name !== "chats" || !this.$route.params.conv_id) return {};
@@ -556,7 +514,7 @@ export default defineComponent({
         async socketInitialize() {
             this.sesId = this.$helpers.getMySocketSessionId();
             this.socketToken = sessionStorage.getItem("ec_user_socket_token");
-            console.log(this.sesId);
+            // console.log(this.sesId);
 
             if (!this.sesId) {
                 try {
@@ -672,9 +630,14 @@ export default defineComponent({
 
                     this.newConversationInfo = res.data.conv_data;
 
-                    this.newChatTimeout = setTimeout(() => {
-                        this.newConversationInfo = {};
-                    }, 10000);
+                    if (!this.myChatTransferRequests?.length) {
+                        // clear before assign for safety
+                        clearTimeout(this.newChatTimeout);
+
+                        this.newChatTimeout = setTimeout(() => {
+                            this.newConversationInfo = {};
+                        }, 2 * 60 * 1000);
+                    }
 
                     helpers.notifications().reqOne.play();
                 }
@@ -797,50 +760,20 @@ export default defineComponent({
             });
 
             this.socket.on("ec_chat_transfer", (data: any) => {
-                helpers.notifications().reqOne.play();
-
-                let actions = [
-                    {
-                        icon: "send",
-                        color: "white",
-                        size: "xs",
-                        handler: () => {
-                            window.router.push(`/chats/${data.conv_id}`);
-                        },
-                    },
-                ];
-
-                if (data.from === "client") {
-                    actions.push({
-                        icon: "clear",
-                        color: "white",
-                        size: "xs",
-                        handler: () => {
-                            //
-                        },
-                    });
+                if (data.from === "own" && data.status === "success") {
+                    this.$helpers.showSuccessNotification(this, "Chat transfer request sent");
+                    this.$emitter.emit(`ec_chat_transfer_res_${data.conv_id}`, data);
+                    return;
                 }
 
-                this.$q.notify({
-                    group: `${data.conv_id}_notify`,
-                    message:
-                        data.from === "client"
-                            ? data.reason
-                            : `Chat transfer request from ${data.agent_info.user_meta.display_name}`,
-                    caption: "Click send button to open this conversation",
-                    progress: true,
-                    multiLine: true,
-                    icon: "announcement",
-                    color: "grey-8",
-                    textColor: "white",
-                    position: "top-right",
-                    classes: "tw-w-80 tw-p-2",
-                    timeout: 1000 * 60, // 1 min
-                    badgeClass: "hidden",
-                    actions,
+                this.$store.dispatch("chat/updateConvSesInfo", {
+                    payload_type: "conversation_session", // later set by action type
+                    action: data.action,
+                    conv_id: data.conv_id,
+                    conv_ses_obj: data.conv_ses_obj,
                 });
 
-                console.log("from ec_chat_transfer_from_user", data);
+                console.log("from ec_chat_transfer", data);
             });
 
             this.socket.on("ec_updated_socket_room_info_res", (data: any) => {
@@ -854,15 +787,10 @@ export default defineComponent({
                 console.log("from ec_updated_socket_room_info_res", data);
             });
 
-            this.socket.on("ec_chat_transfer_res", (data: any) => {
-                this.$helpers.showSuccessNotification(this, "Chat transfer success");
-                this.$emitter.emit(`ec_chat_transfer_res${data.conv_id}`, data);
-            });
-
             this.socket.on("ec_error", (data: any) => {
                 console.log("from ec_error", data);
 
-                if (data.step === "ec_chat_transfer_from_user") {
+                if (data.step === "ec_chat_transfer") {
                     this.$q.notify({
                         color: "warning",
                         textColor: "black",
@@ -882,29 +810,36 @@ export default defineComponent({
             });
         },
 
-        takeThisChat(convData: any) {
+        takeThisChat(convData: any, fromChatTransferRequest = false) {
+            // its for both. clear before safety
             clearTimeout(this.newChatTimeout);
 
-            this.newConversationInfo = {};
+            if (fromChatTransferRequest && this.newConversationInfo.id) {
+                this.newChatTimeout = setTimeout(() => {
+                    this.newConversationInfo = {};
+                }, 2 * 60 * 1000);
+            }
 
-            // check already another agent join this chat
-            // const conversation = this.$store.getters["chat/conversationInfo"](convData.id);
-            //
-            // const anotherJoinedAgent = conversation.sessions.filter((convSes: any) => convSes.socket_session.user);
-            //
-            // console.log({ anotherJoinedAgent });
-            //
-            // if (anotherJoinedAgent.length) {
-            //     console.log({ conversation });
-            // } else {
-            //     console.log({ anotherJoinedAgent: "kew join kore nai" });
-            // }
+            if (!fromChatTransferRequest) {
+                this.newConversationInfo = {};
+            }
 
             window.socketInstance.emit("ec_join_conversation", {
                 conv_id: convData.id,
+                chat_transfer_request_from: fromChatTransferRequest
+                    ? convData.transfer_request_info?.info?.transfer_from
+                    : null,
             });
 
             this.$router.push(`/chats/${convData.id}`);
+        },
+
+        rejectChatRequest(convData: any) {
+            console.log(convData);
+            this.$socket.emit("ec_chat_transfer", {
+                conv_id: convData.id,
+                action: "reject",
+            });
         },
 
         openChatPanelBoxForTest() {

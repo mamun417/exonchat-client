@@ -113,7 +113,7 @@ export default defineComponent({
             window.socketSessionApi
                 .post("ratings", this.ratingForm)
                 .then((res: any) => {
-                    console.log(res.data);
+                    // console.log(res.data);
                     this.$store.commit("chat/showRatingForm", false);
                 })
                 .catch((err: any) => {

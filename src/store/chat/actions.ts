@@ -53,6 +53,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         }
     },
 
+    updateConvSesInfo(context, data) {
+        context.commit("updateConvSesInfo", data);
+    },
+
     updateConvState(context, convSesInfo) {
         context.commit("updateConversation", {
             conv_id: convSesInfo.conversation_id,
@@ -304,18 +308,25 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         return new Promise((resolve) => {
             context.commit("updateConversation", obj);
 
-            if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
-                if (messageRes.hasOwnProperty("caller_page") && messageRes.caller_page === "web-chat") {
+            const conversationStatusForMe = context.getters["conversationStatusForMe"](
+                messageRes.conversation_id,
+                helpers.getMySocketSessionId()
+            );
+
+            const profile = context.rootGetters["auth/profile"];
+
+            if (profile.online_status === "online" && conversationStatusForMe === "joined") {
+                if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
                     helpers.notifications().replyOne.play();
                 }
-            }
 
-            if (
-                messageRes.hasOwnProperty("socket_event") &&
-                messageRes.socket_event === "ec_msg_from_client" &&
-                !messageRes.init_message_from_client
-            ) {
-                helpers.notifications().replyTwo.play();
+                if (
+                    messageRes.hasOwnProperty("socket_event") &&
+                    messageRes.socket_event === "ec_msg_from_client" &&
+                    !messageRes.init_message_from_client
+                ) {
+                    helpers.notifications().replyTwo.play();
+                }
             }
 
             resolve(true);
