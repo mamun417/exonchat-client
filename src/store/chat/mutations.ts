@@ -196,8 +196,21 @@ const mutation: MutationTree<ChatStateInterface> = {
                 state.conversations[convId].current_loading_conv_info = convData.current_loading_conv_info;
             }
 
-            if (convData.hasOwnProperty("prev_loaded_ids")) {
-                state.conversations[convId].prev_loaded_ids = convData.prev_loaded_ids;
+            if (convData.hasOwnProperty("prev_loaded_id")) {
+                // store current & loaded ids
+                if (!state.conversations[convId].hasOwnProperty("prev_loaded_ids")) {
+                    state.conversations[convId].prev_loaded_ids = [convData.prev_loaded_id];
+                    state.conversations[convId].current_loading_conv_info = {
+                        conv_id: convData.prev_loaded_id,
+                    };
+                } else {
+                    if (!state.conversations[convId].prev_loaded_ids.includes(convData.prev_loaded_id)) {
+                        state.conversations[convId].prev_loaded_ids.push(convData.prev_loaded_id);
+                        state.conversations[convId].current_loading_conv_info = {
+                            conv_id: convData.prev_loaded_id,
+                        };
+                    }
+                }
             }
         }
     },
@@ -291,10 +304,14 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     storePreviousConversations(state: ChatStateInterface, previousConversations: any) {
-        state.previousConversations = {};
+        if (!state.previousConversations.hasOwnProperty(previousConversations.parent_conv_id)) {
+            state.previousConversations[previousConversations.parent_conv_id] = {};
+        }
 
-        previousConversations.forEach((previousConv: any) => {
-            state.previousConversations[previousConv.id] = previousConv;
+        previousConversations.data.forEach((previousConv: any) => {
+            if (!state.previousConversations[previousConversations.parent_conv_id].hasOwnProperty(previousConv.id)) {
+                state.previousConversations[previousConversations.parent_conv_id][previousConv.id] = previousConv;
+            }
         });
     },
 };

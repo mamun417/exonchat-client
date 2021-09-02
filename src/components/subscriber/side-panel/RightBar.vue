@@ -339,9 +339,15 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list v-if="Object.keys(clientPreviousChats).length" class="tw-break-all">
+                            <q-list
+                                v-if="
+                                    clientPreviousChats[conversationInfo.id] &&
+                                    Object.keys(clientPreviousChats[conversationInfo.id]).length
+                                "
+                                class="tw-break-all"
+                            >
                                 <q-item
-                                    v-for="(conv, key) of clientPreviousChats"
+                                    v-for="(conv, key) of clientPreviousChats[conversationInfo.id]"
                                     :to="{ name: 'chats', params: { conv_id: conv.id } }"
                                     :key="key"
                                     clickable

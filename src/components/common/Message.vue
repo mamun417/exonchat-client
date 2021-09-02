@@ -29,16 +29,20 @@
             reverse
         >
             <template v-slot:default>
-                <!--!canCallMessageApi &&-->
+                <!--load prev conv btn-->
                 <div class="tw-text-center">
                     <q-btn
                         v-if="
-                            Object.keys(clientPreviousChats).length &&
+                            Object.keys(clientPreviousChats[this.conv_id] || []).length &&
+                            (!conversationInfo.prev_loaded_ids?.length ||
+                                conversationInfo.prev_loaded_ids.length !==
+                                    Object.keys(clientPreviousChats[this.conv_id]).length) &&
                             !canCallMessageApi &&
                             !gettingNewMessages &&
                             !mini_mode &&
                             isAgentChatPanel &&
-                            !conversationInfo.users_only
+                            !conversationInfo.users_only &&
+                            !conversationInfo.closed_at
                         "
                         @click="loadPreviousChat"
                         class="bg-blue-grey tw-text-white"
@@ -618,6 +622,9 @@
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 
+import Conversation from "src/store/models/Conversation";
+import ConversationSession from "src/store/models/ConversationSession";
+
 import * as _l from "lodash";
 import moment from "moment";
 import EcAvatar from "./EcAvatar.vue";
@@ -734,6 +741,14 @@ export default defineComponent({
             clientPreviousChats: "chat/previousConversations",
         }),
 
+        convTest(): any {
+            return Conversation.query().get();
+        },
+
+        convSesTest(): any {
+            return ConversationSession.all();
+        },
+
         chatPanelType(): any {
             return this.$route.name === "client-web-chat" ? "client" : "user";
         },
@@ -751,6 +766,9 @@ export default defineComponent({
         },
 
         messages(): any {
+            // note: next work
+            // loop with the current & prev_loaded ids or with the orm
+
             const stateAsMsg = this.$store.getters["chat/getConvSesStateAsMsg"](this.conv_id);
 
             const clonedMessages = _l.sortBy(Object.values(_l.cloneDeep(this.conversationMessages)), [
@@ -1000,13 +1018,9 @@ export default defineComponent({
             if (!this.gettingNewMessages) {
                 this.gettingNewMessages = true;
 
-                const current_loading_conv_id = this.conversationInfo.current_loading_conv_info
-                    ? this.conversationInfo.current_loading_conv_info.conv_id
-                    : this.conv_id;
-
                 this.$store
                     .dispatch("chat/getConvMessages", {
-                        convId: current_loading_conv_id || this.conv_id,
+                        convId: this.conv_id,
                         client_page: !this.isAgentChatPanel,
                     })
                     .then((res: any) => {
@@ -1567,21 +1581,33 @@ export default defineComponent({
         },
 
         loadPreviousChat() {
-            this.canCallMessageApi = true;
+            const prevConvsById = this.clientPreviousChats[this.conv_id];
 
-            const current_loading_conv_id = this.conversationInfo.current_loading_conv_info
-                ? this.conversationInfo.current_loading_conv_info.conv_id
-                : this.conv_id;
+            // first check if this conv has previous chats
+            // each conv can contain his prev conv.
+            // currently prev check is for closed chat
+            if (prevConvsById) {
+                // take one prev by filtering without loaded ones
+                const previousConvIdsArray: any = _l
+                    .sortBy(Object.values(prevConvsById), (conv: any) => moment(conv.created_at).format("x"))
+                    .reverse()
+                    .filter(
+                        (conv: any) =>
+                            !this.conversationInfo.prev_loaded_ids?.length ||
+                            !this.conversationInfo.prev_loaded_ids.includes(conv.id)
+                    );
 
-            const previousConvIdsArray = Object.keys(this.clientPreviousChats);
+                if (previousConvIdsArray.length) {
+                    this.canCallMessageApi = true;
 
-            this.$store.commit("chat/updateConversation", {
-                conv_id: this.conv_id,
-                current_loading_conv_info: { conv_id: previousConvIdsArray[0] },
-                prev_loaded_ids: [previousConvIdsArray[0]],
-            });
+                    this.$store.commit("chat/updateConversation", {
+                        conv_id: this.conv_id,
+                        prev_loaded_id: previousConvIdsArray[0].id, // send this one to store so that we know this was loaded
+                    });
 
-            this.getNewMessages();
+                    this.getNewMessages();
+                }
+            }
         },
     },
 
@@ -1610,7 +1636,7 @@ export default defineComponent({
                 // if need remove mini mode check
                 if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
                     this.$store.dispatch("chat/getPreviousConversations", {
-                        before_conversation: this.conv_id,
+                        before_conversation_id: this.conv_id,
                     });
                 }
             },

@@ -55,6 +55,14 @@ import { UserStateInterface } from "./user/state";
 import visitor from "./visitor";
 import { VisitorsStateInterface } from "./visitor/state";
 
+import VuexORM from "@vuex-orm/core";
+
+import Conversation from "./models/Conversation";
+import ConversationSession from "src/store/models/ConversationSession";
+import SocketSession from "src/store/models/SocketSession";
+import Message from "src/store/models/Message";
+import User from "src/store/models/User";
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -97,6 +105,16 @@ declare module "@vue/runtime-core" {
 // provide typings for `useStore` helper
 export const storeKey: InjectionKey<VuexStore<StateInterface>> = Symbol("vuex-key");
 
+// Create a new instance of Database.
+const database = new VuexORM.Database();
+
+// Register Models to Database.
+database.register(Conversation);
+database.register(ConversationSession);
+database.register(SocketSession);
+database.register(Message);
+database.register(User);
+
 export default store(function (/* { ssrContext } */) {
     const Store = createStore<StateInterface>({
         modules: {
@@ -124,6 +142,8 @@ export default store(function (/* { ssrContext } */) {
             user_invitation,
             user,
         },
+
+        plugins: [VuexORM.install(database)],
 
         // enable strict mode (adds overhead!)
         // for dev mode and --debug builds only

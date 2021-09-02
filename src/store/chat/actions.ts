@@ -5,6 +5,8 @@ import { ChatStateInterface } from "./state";
 import * as _l from "lodash";
 import helpers from "boot/helpers/helpers";
 
+import Conversation from "src/store/models/Conversation";
+
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
         context.commit("storeClientInitiateConvInfo", payload);
@@ -107,12 +109,27 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
             const conversationInfo = context.getters["conversationInfo"](payload.convId);
 
-            if (conversationInfo && conversationInfo.pagination_meta) {
-                current_page = conversationInfo.pagination_meta.current_page;
+            let callConvId = payload.convId;
+
+            // get current_loading_conv_info if has
+            if (
+                conversationInfo.hasOwnProperty("current_loading_conv_info") &&
+                conversationInfo.current_loading_conv_info
+            ) {
+                callConvId = conversationInfo.current_loading_conv_info.conv_id;
             }
 
+            // get info which one we need
+            const callConvInfo = context.getters["conversationInfo"](callConvId);
+
+            // also get the info which we need
+            if (callConvInfo && callConvInfo.pagination_meta) {
+                current_page = callConvInfo.pagination_meta.current_page;
+            }
+
+            // call next conv_id so that we can get prev data
             callerApi
-                .get(`conversations/${payload.convId}/messages`, {
+                .get(`conversations/${callConvId}/messages`, {
                     params: {
                         p: current_page + 1,
                         pp: 25,
@@ -125,6 +142,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     if (!conv.messages.length) {
                         pagination.current_page = current_page; // reset to the previous pagination so that +1 turns valid
                     }
+
+                    // vuex-orm
+                    Conversation.insert({ data: conv });
 
                     // conv.current_page = payload.page || 1; // now only for temp & test
 
@@ -466,11 +486,14 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             window.api
                 .get(
                     `/conversations/client-previous-conversations?before_conversation=${
-                        payload.before_conversation || ""
+                        payload.before_conversation_id || ""
                     }`
                 )
                 .then((res: any) => {
-                    context.commit("storePreviousConversations", res.data);
+                    context.commit("storePreviousConversations", {
+                        data: res.data,
+                        parent_conv_id: payload.before_conversation_id,
+                    });
 
                     resolve(res);
                 })
