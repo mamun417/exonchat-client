@@ -444,11 +444,21 @@ export default defineComponent({
         openTicket() {
             this.ticketSubmitLoader = true;
 
-            window.socketSessionApi
-                .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: this.ticketSubject })
+            this.$store
+                .dispatch("ticket/storeTicket", {
+                    conv_id: this.conv_id,
+                    inputs: {
+                        subject: this.ticketSubject,
+                    },
+                })
                 .then(() => {
                     this.$helpers.showSuccessNotification(this, "Ticket submitted successfully");
                     this.ticketSubject = "";
+
+                    // reload ticket list
+                    this.$store.dispatch("ticket/getTickets", {
+                        email: this.conversationWithUsersInfo[0].socket_session.init_email,
+                    });
                 })
                 .catch((e: any) => {
                     console.log(e);
@@ -458,6 +468,21 @@ export default defineComponent({
                     this.openTicketModal = false;
                     this.ticketSubmitLoader = false;
                 });
+
+            // window.socketSessionApi
+            //     .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: this.ticketSubject })
+            //     .then(() => {
+            //         this.$helpers.showSuccessNotification(this, "Ticket submitted successfully");
+            //         this.ticketSubject = "";
+            //     })
+            //     .catch((e: any) => {
+            //         console.log(e);
+            //         this.$helpers.showErrorNotification(this, e.response.data.message);
+            //     })
+            //     .finally(() => {
+            //         this.openTicketModal = false;
+            //         this.ticketSubmitLoader = false;
+            //     });
         },
 
         joinConversation(conv_id: any) {

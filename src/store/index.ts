@@ -55,6 +55,9 @@ import { UserStateInterface } from "./user/state";
 import visitor from "./visitor";
 import { VisitorsStateInterface } from "./visitor/state";
 
+import ticket from "./ticket";
+import { TicketStateInterface } from "src/store/ticket/state";
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -85,6 +88,7 @@ export interface StateInterface {
     visitor: VisitorsStateInterface;
     user_invitation: UserInvitationStateInterface;
     user: UserStateInterface;
+    ticket: TicketStateInterface;
 }
 
 // provide typings for `this.$store`
@@ -123,6 +127,7 @@ export default store(function (/* { ssrContext } */) {
 
             user_invitation,
             user,
+            ticket,
         },
 
         // enable strict mode (adds overhead!)

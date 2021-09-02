@@ -375,11 +375,11 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list v-if="clientTickets.length" class="tw-break-all">
+                            <q-list v-if="clientTickets" class="tw-break-all">
                                 <q-item
                                     v-for="(ticket, key) of clientTickets"
                                     :key="key"
-                                    class="tw-text-xs"
+                                    class="tw-text-xs tw-py-2"
                                     @click="
                                         ticketSelected = ticket;
                                         ticketDetailModal = true;
@@ -455,7 +455,6 @@ export default defineComponent({
             confirm: false,
 
             clientPreviousChats: [],
-            clientTickets: [],
 
             ticketSelected: null,
             ticketDetailModal: false,
@@ -472,6 +471,7 @@ export default defineComponent({
             profile: "auth/profile",
             globalBgColor: "setting_ui/globalBgColor",
             globalColor: "setting_ui/globalColor",
+            clientTickets: "ticket/tickets",
         }),
 
         conversationInfo(): any {
@@ -567,15 +567,10 @@ export default defineComponent({
                             e;
                         });
 
-                    window.api
-                        .get(`/apps/whmcs/tickets?email=${this.conversationWithUsersInfo[0].socket_session.init_email}`)
-                        .then((res: any) => {
-                            // console.log(res.data);
-                            this.clientTickets = res.data.tickets?.ticket || [];
-                        })
-                        .catch((e: any) => {
-                            e;
-                        });
+                    // load client tickets
+                    this.$store.dispatch("ticket/getTickets", {
+                        email: this.conversationWithUsersInfo[0].socket_session.init_email,
+                    });
                 }
             },
             immediate: true,
