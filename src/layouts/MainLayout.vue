@@ -72,7 +72,7 @@
 
                             <q-btn
                                 :class="{ 'active-btn': $route.name === 'offline-chat-req' }"
-                                icon="3p"
+                                icon="feedback"
                                 :to="{ name: 'offline-chat-req' }"
                                 flat
                                 size="18px"

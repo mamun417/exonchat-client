@@ -29,10 +29,41 @@
             reverse
         >
             <template v-slot:default>
+                <!--load prev conv btn-->
+                <div class="tw-text-center tw-pr-2 tw-mb-4" :class="{ 'tw-ml-16': mini_mode, 'tw-ml-20': !mini_mode }">
+                    <q-btn
+                        v-if="
+                            Object.keys(clientPreviousChats[this.conv_id] || []).length &&
+                            (!conversationInfo.prev_loaded_ids?.length ||
+                                conversationInfo.prev_loaded_ids.length !==
+                                    Object.keys(clientPreviousChats[this.conv_id]).length) &&
+                            !canCallMessageApi &&
+                            !gettingNewMessages &&
+                            !mini_mode &&
+                            isAgentChatPanel &&
+                            !conversationInfo.users_only &&
+                            !conversationInfo.closed_at
+                        "
+                        @click="loadPreviousChat"
+                        class="bg-blue-grey tw-text-white"
+                        size="sm"
+                        no-caps
+                        flat
+                    >
+                        Load Previous Chat
+                        <q-icon name="history" class="tw-ml-1" />
+                    </q-btn>
+                </div>
+
                 <slot name="scroll-area-top-section"></slot>
 
-                <div v-if="gettingNewMessages" class="tw-text-center" :class="$helpers.colors().defaultText">
-                    Loading History...
+                <div
+                    v-if="gettingNewMessages"
+                    class="tw-flex tw-justify-center tw-items-center tw-my-3 tw-gap-2 tw-pr-2"
+                    :class="{ 'tw-ml-16': mini_mode, 'tw-ml-20': !mini_mode }"
+                >
+                    <q-spinner-hourglass size="xs" color="blue-grey" />
+                    <div class="tw-text-sm" :class="`text-${globalColor}-6`">Loading History...</div>
                 </div>
 
                 <div class="tw-relative tw-z-10">
@@ -287,6 +318,66 @@
                                     </div>
                                 </q-card-section>
                             </q-card>
+
+                            <!-- keep this block here cz it will show after the last message-->
+                            <div
+                                v-if="
+                                    isAgentChatPanel &&
+                                    index !== 0 &&
+                                    messages.length !== index + 1 &&
+                                    message.conversation_id !== messages[index + 1].conversation_id
+                                "
+                                class="tw-flex tw-items-center tw-py-4"
+                            >
+                                <!--dot circle-->
+                                <div
+                                    class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
+                                    :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
+                                >
+                                    <i
+                                        class="fa fa-circle"
+                                        :class="`text-${globalColor}-6`"
+                                        :style="`font-size: 4px`"
+                                        aria-hidden="true"
+                                    ></i>
+                                </div>
+
+                                <!--state info-->
+                                <div
+                                    class="tw-flex tw-items-center tw-w-full"
+                                    :class="{
+                                        'tw-justify-center tw-text-sm': true,
+                                        'tw-pr-4': !mini_mode,
+                                    }"
+                                >
+                                    <div class="tw-flex tw-flex-col tw-w-full">
+                                        <q-separator class="tw-my-0" />
+                                    </div>
+                                    <div
+                                        :class="`text-center tw-mr-1 tw-break-none tw-capitalize tw-px-2 ${
+                                            $helpers.colors().defaultText
+                                        }`"
+                                    >
+                                        <div>
+                                            Previous Chat
+                                            <span
+                                                class="tw-font-medium tw-cursor-pointer"
+                                                :class="`text-${globalColor}`"
+                                                @click="
+                                                    $router.push({
+                                                        name: 'chats',
+                                                        params: { conv_id: message.conversation_id },
+                                                    })
+                                                "
+                                                >{{ message.conversation_id }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                    <div class="tw-flex tw-flex-col tw-w-full">
+                                        <q-separator class="tw-my-0" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </template>
 
@@ -599,6 +690,9 @@
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 
+import Conversation from "src/store/models/Conversation";
+import ConversationSession from "src/store/models/ConversationSession";
+
 import * as _l from "lodash";
 import moment from "moment";
 import EcAvatar from "./EcAvatar.vue";
@@ -712,7 +806,16 @@ export default defineComponent({
             globalBgColor: "setting_ui/globalBgColor",
             globalColor: "setting_ui/globalColor",
             profile: "auth/profile",
+            clientPreviousChats: "chat/previousConversations",
         }),
+
+        convTest(): any {
+            return Conversation.query().get();
+        },
+
+        convSesTest(): any {
+            return ConversationSession.all();
+        },
 
         chatPanelType(): any {
             return this.$route.name === "client-web-chat" ? "client" : "user";
@@ -731,40 +834,56 @@ export default defineComponent({
         },
 
         messages(): any {
-            const stateAsMsg = this.$store.getters["chat/getConvSesStateAsMsg"](this.conv_id);
-
-            const clonedMessages = _l.sortBy(Object.values(_l.cloneDeep(this.conversationMessages)), [
-                (msg: any) => moment(msg.created_at).format("x"),
-            ]);
+            // note: next work
+            // loop with the current & prev_loaded ids or with the orm
 
             const messages: Array<any> = [];
 
-            for (const msgObj of clonedMessages) {
-                const tempMsgObj: any = msgObj;
+            const conversationIds: any = this.conversationInfo.prev_loaded_ids
+                ? _l.cloneDeep(this.conversationInfo.prev_loaded_ids)
+                : [];
 
-                if (tempMsgObj.message_type === "log" && tempMsgObj.msg === "initiate" && !this.isAgentChatPanel) {
-                    continue;
+            conversationIds.push(this.conv_id);
+
+            conversationIds.forEach((conv: any) => {
+                const convMessages = this.$store.getters["chat/conversationMessages"](conv);
+
+                const clonedMessages = _l.sortBy(Object.values(_l.cloneDeep(convMessages)), [
+                    (msg: any) => msg.conversation_id,
+                    (msg: any) => moment(msg.created_at).format("x"),
+                ]);
+
+                for (const msgObj of clonedMessages) {
+                    const tempMsgObj: any = msgObj;
+
+                    if (tempMsgObj.message_type === "log" && tempMsgObj.msg === "initiate" && !this.isAgentChatPanel) {
+                        continue;
+                    }
+
+                    if (
+                        messages.length &&
+                        tempMsgObj.message_type === "message" &&
+                        _l.last(messages).message_type === "message" &&
+                        _l.last(messages).socket_session_id === tempMsgObj.socket_session_id
+                    ) {
+                        const lastTempMessage = _l.last(messages);
+
+                        lastTempMessage.messageArray.push(tempMsgObj);
+                    } else {
+                        tempMsgObj.messageArray = [tempMsgObj];
+
+                        messages.push(tempMsgObj);
+                    }
                 }
-
-                if (
-                    messages.length &&
-                    tempMsgObj.message_type === "message" &&
-                    _l.last(messages).message_type === "message" &&
-                    _l.last(messages).socket_session_id === tempMsgObj.socket_session_id
-                ) {
-                    const lastTempMessage = _l.last(messages);
-
-                    lastTempMessage.messageArray.push(tempMsgObj);
-                } else {
-                    tempMsgObj.messageArray = [tempMsgObj];
-
-                    messages.push(tempMsgObj);
-                }
-            }
+            });
 
             messages.map((tempMsg: any) => {
                 if (tempMsg.message_type === "log" && tempMsg.socket_session_id) {
-                    const conversation__session = this.conversationInfo.sessions.find(
+                    // conversations_sessions
+                    const convSessions =
+                        this.$store.getters["chat/conversationInfo"](tempMsg.conversation_id)?.sessions || [];
+                    // note
+                    const conversation__session = convSessions.find(
                         (convSes: any) => convSes.socket_session_id === tempMsg.socket_session_id
                     );
 
@@ -776,7 +895,13 @@ export default defineComponent({
                 }
             });
 
-            return messages;
+            // first sort_by conversation id so that partial same time conversations msg can't overlap with each other.
+            // its nearly not possible cz client normally wont chat from different browser at the same time
+            // but what if client email temp emails and they are same
+            return _l.sortBy(messages, [
+                (msg: any) => msg.conversation_id,
+                (msg: any) => moment(msg.created_at).format("x"),
+            ]);
         },
 
         typingState(): any {
@@ -1046,7 +1171,11 @@ export default defineComponent({
                 };
             }
 
-            const findSes = _l.find(this.conversationInfo.sessions, ["socket_session_id", msg.socket_session_id]);
+            // conversations_sessions. its costly now. orm needed
+            // its for load previous data
+            const convSessions = this.$store.getters["chat/conversationInfo"](msg.conversation_id)?.sessions || [];
+
+            const findSes = _l.find(convSessions, ["socket_session_id", msg.socket_session_id]);
 
             const isMyMsg =
                 (this.chatPanelType !== "user" && !findSes.socket_session.user) ||
@@ -1091,9 +1220,11 @@ export default defineComponent({
             //     name = 'Client';
             // }
 
-            const convSes = this.conversationInfo.sessions.find(
-                (convSes: any) => convSes.socket_session_id === message.session.id
-            );
+            // conversations_sessions. its costly now. orm needed
+            // its for load previous data
+            const convSessions = this.$store.getters["chat/conversationInfo"](message.conversation_id)?.sessions || [];
+
+            const convSes = convSessions.find((convSes: any) => convSes.socket_session_id === message.session.id);
 
             const endMaker =
                 message.msg === "closed"
@@ -1541,6 +1672,36 @@ export default defineComponent({
 
             this.$router.push({ name: "chats", params: { conv_id: convId } });
         },
+
+        loadPreviousChat() {
+            const prevConvsById = this.clientPreviousChats[this.conv_id];
+
+            // first check if this conv has previous chats
+            // each conv can contain his prev conv.
+            // currently prev check is for closed chat
+            if (prevConvsById) {
+                // take one prev by filtering without loaded ones
+                const previousConvIdsArray: any = _l
+                    .sortBy(Object.values(prevConvsById), (conv: any) => moment(conv.created_at).format("x"))
+                    .reverse()
+                    .filter(
+                        (conv: any) =>
+                            !this.conversationInfo.prev_loaded_ids?.length ||
+                            !this.conversationInfo.prev_loaded_ids.includes(conv.id)
+                    );
+
+                if (previousConvIdsArray.length) {
+                    this.canCallMessageApi = true;
+
+                    this.$store.commit("chat/updateConversation", {
+                        conv_id: this.conv_id,
+                        prev_loaded_id: previousConvIdsArray[0].id, // send this one to store so that we know this was loaded
+                    });
+
+                    this.getNewMessages();
+                }
+            }
+        },
     },
 
     watch: {
@@ -1563,6 +1724,13 @@ export default defineComponent({
                     this.scrollToPosition();
 
                     if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
+                }
+
+                // if need remove mini mode check
+                if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
+                    this.$store.dispatch("chat/getPreviousConversations", {
+                        before_conversation_id: this.conv_id,
+                    });
                 }
             },
             immediate: true,

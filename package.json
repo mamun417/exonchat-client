@@ -12,6 +12,7 @@
     "dependencies": {
         "@quasar/extras": "^1.0.0",
         "@types/crypto-js": "^4.0.2",
+        "@vuex-orm/core": "^0.36.4",
         "axios": "^0.21.1",
         "colors": "^0.6.2",
         "core-js": "^3.6.5",

@@ -1177,7 +1177,7 @@ export default defineComponent({
 
             window.socketSessionApi
                 .post("offline-chat-requests", this.convInitFields)
-                .then((res: any) => {
+                .then((/*res: any*/) => {
                     // console.log(res.data);
                     this.successSubmitOfflineChatReq = true;
                     localStorage.setItem("success_submit_offline_chat_req", "true");
