@@ -81,23 +81,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     conversationMessages: (state) => (convId: any) => {
-        const messages = _l.cloneDeep(state.conversations[convId]?.messages) || {};
-
-        // if (state.conversations[convId]?.prev_loaded_ids) {
-        //     const pli = state.conversations[convId].prev_loaded_ids;
-        //
-        //     pli.forEach((p: any) => {
-        //         if (state.conversations.hasOwnProperty(p)) {
-        //             Object.keys(state.conversations[p].messages).forEach((mk: any) => {
-        //                 if (!_l.find(state.conversations[convId].messages, (m: any) => m.id === mk)) {
-        //                     messages[mk] = state.conversations[p].messages[mk];
-        //                 }
-        //             });
-        //         }
-        //     });
-        // }
-
-        return messages;
+        return state.conversations[convId]?.messages || {};
     },
 
     typingState: (state) => (convId: any) => {

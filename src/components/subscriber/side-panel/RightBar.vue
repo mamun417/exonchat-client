@@ -462,8 +462,6 @@ export default defineComponent({
         return {
             sesId: "",
             confirm: false,
-
-            clientPreviousChats: [],
             clientTickets: [],
 
             ticketSelected: null,

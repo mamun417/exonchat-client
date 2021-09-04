@@ -687,7 +687,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import Vue, { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 
 import Conversation from "src/store/models/Conversation";
@@ -1598,8 +1598,6 @@ export default defineComponent({
         },
 
         async handleAttachmentLoading() {
-            // console.log('called handle attch loader');
-
             if (!Object.keys(this.conversationMessages).length) return;
 
             // if it does not reflect change to store then handle attachment mutation here
@@ -1623,6 +1621,7 @@ export default defineComponent({
                                 attch.loaded = false;
                                 console.log(e);
                             }
+                            console.log(msg);
                         }
                     }
                 }
