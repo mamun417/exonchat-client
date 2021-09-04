@@ -30,26 +30,23 @@
         >
             <template v-slot:default>
                 <!--load prev conv btn-->
-                <div class="tw-text-center tw-pr-2 tw-mb-4" :class="{ 'tw-ml-16': mini_mode, 'tw-ml-20': !mini_mode }">
-                    <q-btn
-                        v-if="
-                            Object.keys(clientPreviousChats[this.conv_id] || []).length &&
-                            (!conversationInfo.prev_loaded_ids?.length ||
-                                conversationInfo.prev_loaded_ids.length !==
-                                    Object.keys(clientPreviousChats[this.conv_id]).length) &&
-                            !canCallMessageApi &&
-                            !gettingNewMessages &&
-                            !mini_mode &&
-                            isAgentChatPanel &&
-                            !conversationInfo.users_only &&
-                            !conversationInfo.closed_at
-                        "
-                        @click="loadPreviousChat"
-                        class="bg-blue-grey tw-text-white"
-                        size="sm"
-                        no-caps
-                        flat
-                    >
+                <div
+                    v-if="
+                        Object.keys(clientPreviousChats[this.conv_id] || []).length &&
+                        (!conversationInfo.prev_loaded_ids?.length ||
+                            conversationInfo.prev_loaded_ids.length !==
+                                Object.keys(clientPreviousChats[this.conv_id]).length) &&
+                        !canCallMessageApi &&
+                        !gettingNewMessages &&
+                        !mini_mode &&
+                        isAgentChatPanel &&
+                        !conversationInfo.users_only &&
+                        !conversationInfo.closed_at
+                    "
+                    class="tw-text-center tw-pr-2 tw-mb-4"
+                    :class="{ 'tw-ml-16': mini_mode, 'tw-ml-20': !mini_mode }"
+                >
+                    <q-btn @click="loadPreviousChat" class="bg-blue-grey tw-text-white" size="sm" no-caps flat>
                         Load Previous Chat
                         <q-icon name="history" class="tw-ml-1" />
                     </q-btn>
@@ -183,7 +180,10 @@
                             <q-card
                                 v-if="message.message_type === 'message'"
                                 class="tw-pb-0 tw-my-4"
-                                :class="[mini_mode ? 'tw-shadow-none' : 'tw-shadow-sm']"
+                                :class="[
+                                    mini_mode ? 'tw-shadow-none' : 'tw-shadow-sm',
+                                    isAgentChatPanel ? '' : 'ec-widget-message-card-container',
+                                ]"
                                 :style="
                                     checkOwnMessage(message)
                                         ? `background-color: ${
@@ -1795,6 +1795,14 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+.q-infinite-scroll {
+    .tw-z-10 div:first-child {
+        .ec-widget-message-card-container {
+            margin-top: 0;
+        }
+    }
+}
+
 .each-attachment {
     &:hover {
         .attachment-remove-btn {

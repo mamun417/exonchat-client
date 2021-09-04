@@ -636,7 +636,7 @@ export default defineComponent({
 
                         this.newChatTimeout = setTimeout(() => {
                             this.newConversationInfo = {};
-                        }, 2 * 60 * 1000);
+                        }, 1000 * 10);
                     }
 
                     helpers.notifications().reqOne.play();
@@ -818,7 +818,7 @@ export default defineComponent({
             if (fromChatTransferRequest && this.newConversationInfo.id) {
                 this.newChatTimeout = setTimeout(() => {
                     this.newConversationInfo = {};
-                }, 2 * 60 * 1000);
+                }, 1000 * 10);
             }
 
             if (!fromChatTransferRequest) {
