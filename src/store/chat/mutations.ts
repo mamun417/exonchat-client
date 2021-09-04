@@ -164,6 +164,13 @@ const mutation: MutationTree<ChatStateInterface> = {
                 } else {
                     conv.sessions.push(convSession);
                 }
+
+                // when transferred chat joined other agent
+                if (convData.session.hasOwnProperty("from_chat_transfer_request")) {
+                    conv.sessions.map((session: any) => {
+                        session.type = "normal";
+                    });
+                }
             }
 
             if (convData.hasOwnProperty("rating")) {

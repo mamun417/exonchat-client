@@ -375,7 +375,7 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2">
-                            <q-list v-if="clientTickets" class="tw-break-all">
+                            <q-list v-if="Object.keys(clientTickets).length" class="tw-break-all">
                                 <q-item
                                     v-for="(ticket, key) of clientTickets"
                                     :key="key"
