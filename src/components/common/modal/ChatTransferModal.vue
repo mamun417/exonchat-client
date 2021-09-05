@@ -57,9 +57,19 @@
                     </template>
 
                     <template v-slot:option="{ itemProps, opt }">
-                        <q-item v-bind="itemProps">
+                        <q-item v-bind="itemProps" style="border-top: 1px solid rgba(0, 0, 0, 0.08)">
                             <q-item-section>
-                                <q-item-label v-html="opt.email"></q-item-label>
+                                <div class="tw-flex tw-w-full tw-items-center tw-my-1 tw-gap-4">
+                                    <ec-avatar
+                                        :image_src="opt.user_meta.src"
+                                        :name="opt.user_meta.display_name"
+                                        :email="opt.email"
+                                        size="sm"
+                                    />
+                                    <div>
+                                        <q-item-label>{{ opt.user_meta.display_name }} </q-item-label>
+                                    </div>
+                                </div>
                             </q-item-section>
 
                             <q-item-section side>
@@ -110,9 +120,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
+import EcAvatar from "../../common/EcAvatar.vue";
 
 export default defineComponent({
     name: "ChatTransferModal",
+    components: { EcAvatar },
     data(): any {
         return {
             loadingChatDepartments: false,
