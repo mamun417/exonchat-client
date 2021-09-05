@@ -73,7 +73,7 @@
                             <!-- delete modal component use here and pass reloadData func -->
                             <!-- make sure reloadData func is common in parent also so that -->
                             <!-- future filter, serach, pagination n data reload can happen -->
-                            <delete-btn @click="$emit('handleDelete', props.row)" />
+                            <delete-btn v-if="!hideDeleteActionBtn" @click="$emit('handleDelete', props.row)" />
 
                             <slot name="action-at-end" :row="props.row">
                                 <!-- use btns or anything at start position -->
@@ -121,6 +121,7 @@ export default defineComponent({
         noDataMsg: { type: String, default: "No data found" },
         urlPath: { type: String, default: "" },
         hideSearch: { type: Boolean, default: false },
+        hideDeleteActionBtn: { type: Boolean, default: false },
         statusColumnName: { type: String, default: "status" },
         statusSuccessValues: { type: Array, default: () => ["active"] },
         bodyCelTemplate: {

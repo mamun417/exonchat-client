@@ -18,7 +18,7 @@
                     :columns="columns"
                     :bodyCelTemplate="bodyCelTemplate"
                     @handleEdit="showEditDepartmentModal($event)"
-                    @handleDelete="showConfirmDeleteModal($event)"
+                    hideDeleteActionBtn
                 >
                     <template v-slot:cell-assigned_agents="slotProps">
                         {{ slotProps.row.assigned_agents.length }}
@@ -71,47 +71,38 @@
             @updatedDepartment="handleUpdatedDepartment"
             @hideModal="handleHideAddEditDepartmentModal"
         />
-
-        <confirm-modal v-if="showDeleteModal" @confirmed="deleteDepartment" @hide="showDeleteModal = false" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import AddEditDepartmentForm from "pages/subscriber/departments/AddEditDepartmentForm.vue";
-import ConfirmModal from "components/common/modal/ConfirmModal.vue";
 import EcTable from "components/common/table/EcTable.vue";
 import { mapGetters } from "vuex";
 
 export default defineComponent({
-    components: { EcTable, ConfirmModal, AddEditDepartmentForm },
+    components: { EcTable, AddEditDepartmentForm },
     data(): any {
         return {
             columns: [
                 {
-                    name: "tag",
+                    name: "display_name",
                     align: "left",
                     label: "Name",
+                    field: "display_name",
+                },
+                {
+                    name: "tag",
+                    align: "left",
+                    label: "Tag",
                     field: "tag",
                 },
-                // {
-                //     name: 'description',
-                //     align: 'left',
-                //     label: 'Description',
-                //     field: 'description',
-                // },
                 {
                     name: "assigned_agents",
                     align: "center",
                     label: "Assigned Agents",
                     field: "users",
                 },
-                // {
-                //     name: 'status',
-                //     label: 'Status',
-                //     field: 'status',
-                //     align: 'center',
-                // },
                 {
                     name: "action",
                     label: "Actions",
@@ -123,8 +114,6 @@ export default defineComponent({
             showAddEditDepartmentModal: false,
             updateModal: false,
             selectedForEditData: {},
-            deleteDepartmentId: "",
-            showDeleteModal: false,
             bodyCelTemplate: {},
         };
     },
@@ -192,27 +181,6 @@ export default defineComponent({
                     this.departments[index] = res.data;
 
                     this.$helpers.showSuccessNotification(this, "Department active status change successful");
-                })
-                .catch((err: any) => {
-                    this.$helpers.showErrorNotification(this, err.response.data.message);
-                });
-        },
-
-        showConfirmDeleteModal(department: any) {
-            this.showDeleteModal = !this.showDeleteModal;
-            this.deleteDepartmentId = department.id;
-        },
-
-        deleteDepartment() {
-            this.$store
-                .dispatch("department/deleteDepartment", {
-                    id: this.deleteDepartmentId,
-                })
-                .then(() => {
-                    this.showDeleteModal = false;
-                    this.getDepartments();
-
-                    this.$helpers.showSuccessNotification(this, "Department deleted successful");
                 })
                 .catch((err: any) => {
                     this.$helpers.showErrorNotification(this, err.response.data.message);

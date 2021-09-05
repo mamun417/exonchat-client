@@ -339,7 +339,7 @@
                                                         <q-item-section>
                                                             <q-item-label v-html="opt.tag"></q-item-label>
                                                             <small
-                                                                v-if="!onlineChatDepartments.includes(opt.tag)"
+                                                                v-if="!onlineChatDepartments.includes(opt.id)"
                                                                 class="tw-text-xxs tw-mt-1 text-grey-8"
                                                             >
                                                                 Send offline message
@@ -348,14 +348,14 @@
                                                         <q-item-section side>
                                                             <q-badge
                                                                 :color="
-                                                                    onlineChatDepartments.includes(opt.tag)
+                                                                    onlineChatDepartments.includes(opt.id)
                                                                         ? 'green'
                                                                         : 'grey'
                                                                 "
                                                                 class="tw-px-2 tw-py-1"
                                                             >
                                                                 {{
-                                                                    onlineChatDepartments.includes(opt.tag)
+                                                                    onlineChatDepartments.includes(opt.id)
                                                                         ? "Online"
                                                                         : "Offline"
                                                                 }}
@@ -547,6 +547,7 @@ export default defineComponent({
                 name: "",
                 email: "",
                 department: "",
+                department_id: "",
                 department_tag: "",
                 subject: "",
                 message: "",
@@ -790,10 +791,11 @@ export default defineComponent({
         },
 
         changeDepartment(event: any) {
+            this.convInitFields.department_id = this.$_.find(this.chatDepartments, ["id", event]).id;
             this.convInitFields.department_tag = this.$_.find(this.chatDepartments, ["id", event]).tag;
             this.convInitFieldsErrors.chat_department_id = "";
             this.convInitFieldsErrors.department = "";
-            this.departmentAgentsOffline = !this.onlineChatDepartments.includes(this.convInitFields.department_tag);
+            this.departmentAgentsOffline = !this.onlineChatDepartments.includes(this.convInitFields.department_id);
         },
 
         getChatDepartments() {
@@ -1014,6 +1016,7 @@ export default defineComponent({
                     this.panelMinimize();
                 }
 
+                // handle dep ids
                 this.onlineChatDepartments = res.departments;
                 // console.log("from ec_departments_online_status_res", res);
             });

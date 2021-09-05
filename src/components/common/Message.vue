@@ -119,7 +119,7 @@
                                                         getConvStateStatusMessage(message).state === 'closed'
                                                     )
                                                 "
-                                                :class="`tw-mr-1 tw-break-none tw-font-medium tw-capitalize text-${globalColor}`"
+                                                :class="`tw-mr-1 tw-break-none tw-font-medium tw-capitalize `"
                                             >
                                                 {{ getConvStateStatusMessage(message).name }}
                                             </span>
