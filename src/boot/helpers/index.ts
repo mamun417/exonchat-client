@@ -8,11 +8,13 @@ require("colors");
 declare global {
     interface Window {
         clog: any;
+        emitter: any;
     }
 }
 
 window.clog = (text: any, type = "black") => console.log(text[type]);
 const emitter = mitt();
+window.emitter = emitter;
 
 export default boot(({ app }) => {
     app.config.globalProperties.$_ = _l;

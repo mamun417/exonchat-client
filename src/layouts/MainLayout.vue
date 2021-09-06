@@ -472,6 +472,10 @@ export default defineComponent({
                 this.$router.push({ name: "login" });
             }
         });
+
+        this.$emitter.on("user_socket_token_timeout", () => {
+            this.$store.dispatch("auth/logOut");
+        });
     },
 
     // hit update profile
@@ -801,6 +805,10 @@ export default defineComponent({
                     });
                 }
 
+                if (data.type === "auth") {
+                    this.logout();
+                }
+
                 // check if not then new event
                 this.$emitter.emit(`listen_error_${data.step}`, data);
             });
@@ -909,8 +917,6 @@ export default defineComponent({
     },
 
     beforeRouteUpdate(to, from) {
-        console.log(to, from);
-
         if (this.rightBarState?.mode || this.rightBarState.mode === "conversation") {
             this.updateRightDrawerState({ mode: "client_info", visible: true });
         }

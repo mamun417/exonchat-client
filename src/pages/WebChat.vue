@@ -638,6 +638,10 @@ export default defineComponent({
 
         // send mounted to parent so that it can send infos
         window.parent.postMessage({ action: "ec_mounted" }, "*");
+
+        this.$emitter.on("client_socket_token_timeout", () => {
+            this.clearSession();
+        });
     },
 
     computed: {
@@ -1024,6 +1028,10 @@ export default defineComponent({
             this.socket.on("ec_error", (res: any) => {
                 if (res.step === "ec_init_conv_from_client") {
                     this.errorHandleEcInitConvFromClient(res);
+                }
+
+                if (res.type === "auth") {
+                    this.clearSession();
                 }
             });
         },
