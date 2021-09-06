@@ -344,6 +344,12 @@ import * as _l from "lodash";
 import EcAvatar from "src/components/common/EcAvatar.vue";
 import StoreDebug from "src/components/debug/StoreDebug.vue";
 import helpers from "boot/helpers/helpers";
+import Conversation from "src/store/models/Conversation";
+import ConversationSession from "src/store/models/ConversationSession";
+import SocketSession from "src/store/models/SocketSession";
+import Message from "src/store/models/Message";
+import User from "src/store/models/User";
+import ChatDepartment from "src/store/models/ChatDepartment";
 
 declare global {
     interface Window {
@@ -444,6 +450,19 @@ export default defineComponent({
             }
 
             return [];
+        },
+
+        tempStore(): any {
+            return {
+                conversations: Conversation.query()
+                    .with(["conversation_sessions.*", "messages", "chat_department"])
+                    .get(),
+                conversation_sessions: ConversationSession.query().withAll().get(),
+                socket_sessions: SocketSession.query().withAll().get(),
+                chat_departments: ChatDepartment.query().withAll().get(),
+                messages: Message.query().with(["conversation", "socket_session"]).get(),
+                users: User.query().withAll().get(),
+            };
         },
     },
 

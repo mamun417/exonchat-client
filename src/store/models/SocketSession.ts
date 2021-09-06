@@ -1,5 +1,7 @@
 import { Model } from "@vuex-orm/core";
 import User from "src/store/models/User";
+import ConversationSession from "src/store/models/ConversationSession";
+import Message from "src/store/models/Message";
 
 export default class SocketSession extends Model {
     // This is the name used as module name of the Vuex Store.
@@ -17,8 +19,11 @@ export default class SocketSession extends Model {
             init_location: this.attr(null),
             init_user_agent: this.attr(null),
             use_for: this.attr(null),
+            user_id: this.attr(null),
 
-            user: this.hasOne(User, "user_id"),
+            conversation_sessions: this.hasMany(ConversationSession, "socket_session_id"),
+            user: this.belongsTo(User, "user_id"),
+            messages: this.hasMany(Message, "socket_session_id"),
 
             created_at: this.attr(null),
             updated_at: this.attr(null),

@@ -4,6 +4,7 @@ import { GetterTree } from "vuex";
 import { StateInterface } from "../index";
 import { ChatStateInterface } from "./state";
 import helpers from "boot/helpers/helpers";
+import ChatDepartment from "src/store/models/ChatDepartment";
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
@@ -297,29 +298,14 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     // departmental chat requests count => for left bar
-    departmentalChatRequestsCount(state) {
-        const departments: any = {};
+    departmentalOngoingChats() {
+        const departmentalChats = ChatDepartment.query()
+            .with("conversations", (query) => {
+                query.where("users_only", false).where("closed_at", null);
+            })
+            .get();
 
-        Object.values(state.conversations).forEach((conv: any) => {
-            if (
-                !conv.users_only &&
-                !conv.closed_at &&
-                conv.chat_department?.tag
-                // conv.sessions.length === 1 && // if wants not joined then uncomment
-            ) {
-                if (!departments.hasOwnProperty(conv.chat_department?.tag)) {
-                    departments[conv.chat_department.tag] = {};
-
-                    departments[conv.chat_department.tag].id = conv.chat_department.id;
-                    departments[conv.chat_department.tag].name = conv.chat_department.tag;
-                    departments[conv.chat_department.tag].count = 0;
-                }
-
-                departments[conv.chat_department.tag].count += 1;
-            }
-        });
-
-        return departments;
+        return _l.keyBy(departmentalChats, "id");
     },
 
     // teammates => for left bar

@@ -181,8 +181,8 @@
                                     <q-item-section>
                                         <q-item-label side class="text-right tw-text-sm text-grey-7">
                                             {{
-                                                Object.values(departmentalChatRequestsCount).reduce((acc, cur) => {
-                                                    return +acc + +cur.count;
+                                                Object.values(departmentalOngoingChats).reduce((acc, cur) => {
+                                                    return +acc + +cur.conversations.length;
                                                 }, 0)
                                             }}
                                         </q-item-label>
@@ -190,7 +190,7 @@
                                 </q-item>
 
                                 <q-item
-                                    v-for="department of chatDepartments"
+                                    v-for="department of chatDepartmentModel.get()"
                                     :key="department.id"
                                     class="tw-text-sm"
                                     @click="
@@ -209,7 +209,7 @@
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label side class="text-right tw-text-sm text-grey-7"
-                                            >{{ departmentalChatRequestsCount[department.tag]?.count || 0 }}
+                                            >{{ departmentalOngoingChats[department.id]?.conversations.length }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
@@ -303,6 +303,7 @@ import { mapGetters, mapMutations } from "vuex";
 import * as _l from "lodash";
 import moment from "moment";
 import helpers from "boot/helpers/helpers";
+import ChatDepartment from "src/store/models/ChatDepartment";
 
 export default defineComponent({
     name: "LeftBar",
@@ -340,7 +341,7 @@ export default defineComponent({
         ...mapGetters({
             incomingChatRequestsForMe: "chat/incomingChatRequestsForMe",
 
-            departmentalChatRequestsCount: "chat/departmentalChatRequestsCount",
+            departmentalOngoingChats: "chat/departmentalOngoingChats",
 
             myOngoingChats: "chat/myOngoingChats",
 
@@ -350,6 +351,10 @@ export default defineComponent({
             profile: "auth/profile",
             teamConversations: "chat/teamConversation",
         }),
+
+        chatDepartmentModel(): any {
+            return ChatDepartment.query();
+        },
 
         /*teamConversations(): any {
             const teamConversations = this.$_.cloneDeep(this.$store.getters['chat/teamConversation']);
@@ -406,6 +411,8 @@ export default defineComponent({
                 .then((res: any) => {
                     // console.log('webchat departments', res);
                     this.chatDepartments = res.data;
+
+                    ChatDepartment.insert({ data: res.data });
                 })
                 .catch((e: any) => {
                     console.log(e);
