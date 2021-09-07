@@ -42,7 +42,12 @@
                     <q-item class="tw-flex" dense>
                         <div class="tw-flex tw-gap-1 tw-items-center">
                             <q-icon name="flag" size="xs"></q-icon>
-                            <div>Not Available</div>
+                            <div>
+                                {{
+                                    conversationWithUsersInfo?.socket_session?.init_location?.country?.names?.en ||
+                                    "Not Available"
+                                }}
+                            </div>
                         </div>
                         <q-space />
                         <div class="tw-flex tw-gap-1 tw-items-center">
