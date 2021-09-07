@@ -18,8 +18,11 @@ export default class ConversationSession extends Model {
             socket_session: this.belongsTo(SocketSession, "socket_session_id"),
 
             type: this.attr(null),
+            joined_at: this.attr(null),
+            left_at: this.attr(null),
             left_reason: this.attr(null),
             closed_reason: this.attr(null),
+            last_msg_seen_time: this.attr(null),
 
             created_at: this.attr(null),
             updated_at: this.attr(null),

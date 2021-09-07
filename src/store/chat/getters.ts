@@ -5,6 +5,8 @@ import { StateInterface } from "../index";
 import { ChatStateInterface } from "./state";
 import helpers from "boot/helpers/helpers";
 import ChatDepartment from "src/store/models/ChatDepartment";
+import Conversation from "src/store/models/Conversation";
+import { Query } from "@vuex-orm/core";
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
@@ -214,6 +216,25 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     // my running chats => for left bar & interaction page
     myOngoingChats(state, getters, rootState, rootGetters) {
+        // we know if agent initiate chat on behalf of client then client session present also
+        const tc = Conversation.query()
+            .where("users_only", false)
+            .where("closed_at", null)
+            .whereHas("conversation_sessions", (query) => {
+                query
+                    .where("left_at", null)
+                    .where("socket_session_id", rootGetters["auth/profile"]?.socket_session?.id);
+            })
+            .with("conversation_sessions")
+            .get();
+
+        console.log({ tc });
+
+        tc.forEach((t: any) => {
+            // console.log(t.test);
+            console.log({ c: t.clientConversationSession, m: t.myConversationSession, msg: t.myUnseenMessageCount });
+        });
+
         const myOngoingChats = Object.values(state.conversations)
             .filter((conv: any) => {
                 const sesInfo = _l.find(conv.sessions, [
