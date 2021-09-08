@@ -346,6 +346,29 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     !messageRes.init_message_from_client
                 ) {
                     helpers.notifications().replyTwo.play();
+
+                    if (
+                        localStorage.getItem("ec_not_in_tabs") &&
+                        window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
+                    ) {
+                        const clientInfo = _l.find(obj.sessions, (convSes: any) => !convSes.socket_session.user);
+
+                        const notification = new Notification(
+                            `New message from ${clientInfo?.socket_session.init_name}`,
+                            {
+                                body: obj.message.msg,
+                            }
+                        );
+
+                        notification.onclick = function () {
+                            window.focus();
+                            window.router.push({
+                                name: "chats",
+                                params: { conv_id: obj.conv_id },
+                            });
+                            this.close();
+                        };
+                    }
                 }
             }
 

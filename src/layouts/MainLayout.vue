@@ -454,6 +454,8 @@ export default defineComponent({
             this.openChatPanelBoxForTest();
 
             await this.socketInitialize();
+
+            this.firePageVisibilityListener();
         }
 
         this.domReady = true;
@@ -913,6 +915,31 @@ export default defineComponent({
             this.$router.push(`/chats/${convId}`);
 
             this.newConversationInfo = {};
+        },
+
+        firePageVisibilityListener() {
+            // Warn if the browser doesn't support addEventListener or the Page Visibility API
+            if (typeof document.addEventListener === "undefined" || document.hidden === undefined) {
+                console.log(
+                    "This check requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API."
+                );
+            } else {
+                // Handle page visibility change
+                document.addEventListener("visibilitychange", this.handlePageVisibilityChange, false);
+
+                localStorage.setItem("ec_current_visiting_tab", this.$browser_tab_id);
+            }
+        },
+
+        handlePageVisibilityChange() {
+            if (document.visibilityState === "visible") {
+                localStorage.setItem("ec_current_visiting_tab", this.$browser_tab_id);
+                localStorage.removeItem("ec_not_in_tabs");
+            } else {
+                // ec_last_visited_tab will help for now to show notification from a tab only. not from every tab
+                localStorage.setItem("ec_last_visited_tab", this.$browser_tab_id);
+                localStorage.setItem("ec_not_in_tabs", "true");
+            }
         },
     },
 

@@ -128,6 +128,17 @@ export default defineComponent({
 
                     setTimeout(() => {
                         this.$router.push({ name: "chat-interaction" });
+
+                        if (Notification.permission === "default") {
+                            Notification.requestPermission().then(function (permission) {
+                                // If the user accepts, let's create a notification
+                                if (permission === "granted") {
+                                    new Notification("New message from ExonChat", {
+                                        body: "Nice, notifications are enabled! ",
+                                    });
+                                }
+                            });
+                        }
                     }, 1000);
                 })
                 .catch((err: any) => {
