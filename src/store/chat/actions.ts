@@ -34,7 +34,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeNewChatFromClient(context, convInfo) {
         const convData = convInfo.conv_data;
 
-        context.commit("updateConversation", {
+        const obj = {
             conv_id: convData.id,
             conversation: _l.pick(convData, [
                 "id",
@@ -48,10 +48,32 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             chat_department: convData.chat_department,
             notify_status: convInfo.notify, // of this action if notify then true
             caller: "storeNewChatFromClient",
-        });
+        };
+
+        context.commit("updateConversation", obj);
 
         if (convData.log_message) {
             context.commit("updateConversation", { conv_id: convData.id, message: convData.log_message });
+        }
+
+        if (
+            localStorage.getItem("ec_not_in_tabs") &&
+            window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
+        ) {
+            const clientInfo = _l.find(obj.sessions, (convSes: any) => !convSes.socket_session.user);
+
+            const notification = new Notification(`New chat from ${clientInfo?.socket_session.init_name}`, {
+                body: `Department : ${obj.chat_department.display_name}`,
+            });
+
+            notification.onclick = function () {
+                window.focus();
+                window.router.push({
+                    name: "chats",
+                    params: { conv_id: obj.conv_id },
+                });
+                this.close();
+            };
         }
     },
 
