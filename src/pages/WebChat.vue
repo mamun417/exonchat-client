@@ -279,6 +279,7 @@
                                                     (convInitFields.department_tag = ''),
                                                         (convInitFields.department = '')
                                                 "
+                                                @whmcsLoginSuccess="whmcsLoginSuccess"
                                             />
 
                                             <div v-else>
@@ -298,6 +299,7 @@
                                                     :color="globalColor"
                                                     class="tw-mb-3"
                                                     outlined
+                                                    :readonly="whmcsInfoAssigned"
                                                 >
                                                 </q-input>
 
@@ -313,6 +315,7 @@
                                                     label="Your Email"
                                                     type="email"
                                                     outlined
+                                                    :readonly="whmcsInfoAssigned"
                                                 >
                                                 </q-input>
 
@@ -397,21 +400,6 @@
                                                         label="Your Subject"
                                                         :color="globalColor"
                                                         class="tw-mb-3"
-                                                        outlined
-                                                    >
-                                                    </q-input>
-
-                                                    <q-input
-                                                        v-model="convInitFields.message"
-                                                        :error="!!convInitFieldsErrors.message"
-                                                        @update:model-value="convInitFieldsErrors.message = ''"
-                                                        hide-bottom-space
-                                                        dense
-                                                        no-error-icon
-                                                        label="Your Message"
-                                                        :color="globalColor"
-                                                        class="tw-mb-3"
-                                                        autogrow
                                                         outlined
                                                     >
                                                     </q-input>
@@ -657,7 +645,7 @@ export default defineComponent({
         },
 
         showWhmcsLoginForm(): any {
-            const departmentForWhmcsLogin = "support";
+            const departmentForWhmcsLogin = "technical";
 
             if (this.convInitFields.department_tag !== departmentForWhmcsLogin) {
                 return false;
@@ -671,7 +659,11 @@ export default defineComponent({
             // check is this department status online
             const checkDepartmentIsOnline = this.onlineChatDepartments.includes(departmentInfo.id);
 
-            return this.convInitFields.department_tag === departmentForWhmcsLogin && checkDepartmentIsOnline;
+            return (
+                !this.whmcsInfoAssigned &&
+                this.convInitFields.department_tag === departmentForWhmcsLogin &&
+                checkDepartmentIsOnline
+            );
         },
     },
 
@@ -815,6 +807,9 @@ export default defineComponent({
             this.convInitFieldsErrors.chat_department_id = "";
             this.convInitFieldsErrors.department = "";
             this.departmentAgentsOffline = !this.onlineChatDepartments.includes(this.convInitFields.department_id);
+
+            // check whmcs logged
+            this.whmcsInfoAssigned = false;
         },
 
         getChatDepartments() {
@@ -1318,6 +1313,20 @@ export default defineComponent({
             this.hideNeedHelpTextSection();
 
             localStorage.setItem("hide_need_help_text", "false");
+        },
+
+        whmcsLoginSuccess(userInfo: any) {
+            this.convInitFields.name = userInfo.fullname;
+            this.convInitFields.email = userInfo.email;
+
+            this.convInitFields.user_info = {
+                whmcs_info: {
+                    ...userInfo,
+                    whmcs_info: true,
+                },
+            };
+
+            this.whmcsInfoAssigned = true;
         },
     },
 

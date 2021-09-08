@@ -102,7 +102,7 @@ export default defineComponent({
             window.socketSessionApi
                 .post("apps/whmcs/login", this.whmcsLoginForm)
                 .then((res: any) => {
-                    console.log(res);
+                    this.$emit("whmcsLoginSuccess", res.data);
                 })
                 .catch((err: any) => {
                     this.loginErrorHandle(err);
