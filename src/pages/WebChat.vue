@@ -266,142 +266,106 @@
                                     </div>
                                 </div>
 
-                                <div v-else class="tw-flex tw-flex-col">
-                                    <template v-if="onlineChatDepartments && onlineChatDepartments.length">
-                                        <div class="tw-my-7">
-                                            Welcome to our LiveChat! Please fill in the form below before starting the
-                                            chat.
-                                        </div>
+                                    <div v-else class="tw-flex tw-flex-col">
+                                        <template v-if="onlineChatDepartments && onlineChatDepartments.length">
+                                            <!--for support department we need to login whmcs-->
+                                            <whmcs-login
+                                                v-if="showWhmcsLoginForm"
+                                                :chat-departments="chatDepartments"
+                                                :global-color="globalColor"
+                                                @cancelWhmcsLogin="
+                                                    (convInitFields.department_tag = ''),
+                                                        (convInitFields.department = '')
+                                                "
+                                                @whmcsLoginSuccess="whmcsLoginSuccess"
+                                            />
+                                            <template v-else>
+                                            <div class="tw-my-7">
+                                                Welcome to our LiveChat! Please fill in the form below before starting
+                                                the chat.
+                                            </div>
 
-                                        <q-input
-                                            v-model="convInitFields.name"
-                                            :error="!!convInitFieldsErrors.name"
-                                            @update:model-value="convInitFieldsErrors.name = ''"
-                                            hide-bottom-space
-                                            dense
-                                            no-error-icon
-                                            label="Your Name"
-                                            :color="globalColor"
-                                            class="tw-mb-3"
-                                            outlined
-                                        >
-                                            <!--<template v-slot:prepend>
-                                                        <q-icon name="person" size="xs"                                             :color="globalColor" />
-                                                    </template>-->
-                                        </q-input>
-
-                                        <q-input
-                                            v-model="convInitFields.email"
-                                            :error="!!convInitFieldsErrors.email"
-                                            @update:model-value="convInitFieldsErrors.email = ''"
-                                            hide-bottom-space
-                                            dense
-                                            no-error-icon
-                                            :color="globalColor"
-                                            class="tw-mb-3"
-                                            label="Your Email"
-                                            type="email"
-                                            outlined
-                                        >
-                                            <!--<template v-slot:prepend>
-                                                        <q-icon name="email" size="xs"                                             :color="globalColor" />
-                                                    </template>-->
-                                        </q-input>
-
-                                        <q-select
-                                            v-model="convInitFields.department"
-                                            :options="chatDepartments"
-                                            @update:model-value="changeDepartment($event)"
-                                            :error="
-                                                !!convInitFieldsErrors.chat_department_id ||
-                                                !!convInitFieldsErrors.department
-                                            "
-                                            hide-bottom-space
-                                            option-value="id"
-                                            option-label="tag"
-                                            label="Chat Department"
-                                            class="tw-mb-3"
-                                            :color="globalColor"
-                                            emit-value
-                                            map-options
-                                            dense
-                                            no-error-icon
-                                            outlined
-                                        >
-                                            <!--<template v-slot:prepend>
-                                                        <q-icon name="person" size="xs"                                             :color="globalColor" />
-                                                    </template>-->
-
-                                            <template v-slot:option="{ itemProps, opt }">
-                                                <q-item v-bind="itemProps">
-                                                    <q-item-section>
-                                                        <q-item-label v-html="opt.tag"></q-item-label>
-                                                        <small
-                                                            v-if="!onlineChatDepartments.includes(opt.id)"
-                                                            class="tw-text-xxs tw-mt-1 text-grey-8"
-                                                        >
-                                                            Send offline message
-                                                        </small>
-                                                    </q-item-section>
-                                                    <q-item-section side>
-                                                        <q-badge
-                                                            :color="
-                                                                onlineChatDepartments.includes(opt.id)
-                                                                    ? 'green'
-                                                                    : 'grey'
-                                                            "
-                                                            class="tw-px-2 tw-py-1"
-                                                        >
-                                                            {{
-                                                                onlineChatDepartments.includes(opt.id)
-                                                                    ? "Online"
-                                                                    : "Offline"
-                                                            }}
-                                                        </q-badge>
-                                                    </q-item-section>
-                                                </q-item>
-                                            </template>
-                                        </q-select>
-
-                                        <q-input
-                                            v-model="convInitFields.message"
-                                            :error="!!convInitFieldsErrors.message"
-                                            @update:model-value="convInitFieldsErrors.message = ''"
-                                            hide-bottom-space
-                                            dense
-                                            no-error-icon
-                                            label="Your Message"
-                                            :color="globalColor"
-                                            class="tw-mb-3"
-                                            autogrow
-                                            outlined
-                                            type="textarea"
-                                            input-style="min-height: 50px"
-                                            rows="3"
-                                        >
-                                            <!--<template v-slot:prepend>
-                                                        <q-icon name="textsms" size="xs" :color="globalColor" />
-                                                    </template>-->
-                                        </q-input>
-
-                                        <!--offline form-->
-                                        <div v-if="departmentAgentsOffline">
                                             <q-input
-                                                v-model="convInitFields.subject"
-                                                :error="!!convInitFieldsErrors.subject"
-                                                @update:model-value="convInitFieldsErrors.subject = ''"
+                                                v-model="convInitFields.name"
+                                                :error="!!convInitFieldsErrors.name"
+                                                @update:model-value="convInitFieldsErrors.name = ''"
                                                 hide-bottom-space
                                                 dense
                                                 no-error-icon
-                                                label="Your Subject"
+                                                label="Your Name"
                                                 :color="globalColor"
                                                 class="tw-mb-3"
                                                 outlined
+                                                :readonly="whmcsInfoAssigned"
                                             >
-                                                <!--<template v-slot:prepend>
-                                                            <q-icon name="subject" size="xs" :color="globalColor" />
-                                                        </template>-->
                                             </q-input>
+
+                                            <q-input
+                                                v-model="convInitFields.email"
+                                                :error="!!convInitFieldsErrors.email"
+                                                @update:model-value="convInitFieldsErrors.email = ''"
+                                                hide-bottom-space
+                                                dense
+                                                no-error-icon
+                                                :color="globalColor"
+                                                class="tw-mb-3"
+                                                label="Your Email"
+                                                type="email"
+                                                outlined
+                                                :readonly="whmcsInfoAssigned"
+                                            >
+                                            </q-input>
+
+                                            <q-select
+                                                v-model="convInitFields.department"
+                                                :options="chatDepartments"
+                                                @update:model-value="changeDepartment($event)"
+                                                :error="
+                                                    !!convInitFieldsErrors.chat_department_id ||
+                                                    !!convInitFieldsErrors.department
+                                                "
+                                                hide-bottom-space
+                                                option-value="id"
+                                                option-label="tag"
+                                                label="Chat Department"
+                                                class="tw-mb-3"
+                                                :color="globalColor"
+                                                emit-value
+                                                map-options
+                                                dense
+                                                no-error-icon
+                                                outlined
+                                            >
+                                                <template v-slot:option="{ itemProps, opt }">
+                                                    <q-item v-bind="itemProps">
+                                                        <q-item-section>
+                                                            <q-item-label v-html="opt.tag"></q-item-label>
+                                                            <small
+                                                                v-if="!onlineChatDepartments.includes(opt.id)"
+                                                                class="tw-text-xxs tw-mt-1 text-grey-8"
+                                                            >
+                                                                Send offline message
+                                                            </small>
+                                                        </q-item-section>
+                                                        <q-item-section side>
+                                                            <q-badge
+                                                                :color="
+                                                                    onlineChatDepartments.includes(opt.id)
+                                                                        ? 'green'
+                                                                        : 'grey'
+                                                                "
+                                                                class="tw-px-2 tw-py-1"
+                                                            >
+                                                                {{
+                                                                    onlineChatDepartments.includes(opt.id)
+                                                                        ? "Online"
+                                                                        : "Offline"
+                                                                }}
+                                                            </q-badge>
+                                                        </q-item-section>
+                                                    </q-item>
+                                                </template>
+                                            </q-select>
 
                                             <q-input
                                                 v-model="convInitFields.message"
@@ -415,11 +379,27 @@
                                                 class="tw-mb-3"
                                                 autogrow
                                                 outlined
+                                                type="textarea"
+                                                input-style="min-height: 50px"
+                                                rows="3"
                                             >
-                                                <!--<template v-slot:prepend>
-                                                            <q-icon name="textsms" size="xs" :color="globalColor" />
-                                                        </template>-->
                                             </q-input>
+
+                                            <!--offline form-->
+                                            <div v-if="departmentAgentsOffline">
+                                                <q-input
+                                                    v-model="convInitFields.subject"
+                                                    :error="!!convInitFieldsErrors.subject"
+                                                    @update:model-value="convInitFieldsErrors.subject = ''"
+                                                    hide-bottom-space
+                                                    dense
+                                                    no-error-icon
+                                                    label="Your Subject"
+                                                    :color="globalColor"
+                                                    class="tw-mb-3"
+                                                    outlined
+                                                >
+                                                </q-input>
 
                                             <q-btn
                                                 dense
@@ -441,8 +421,9 @@
                                             @click="chatInitialize"
                                             no-caps
                                             unelevated
-                                            >Start the chat
+                                            >Start The Chat
                                         </q-btn>
+                                        </template>
                                     </template>
 
                                     <offline-message
@@ -488,7 +469,9 @@
                 >
                     <div class="tw-text-xxs">Powered by</div>
                     <div>
-                        <q-img src="https://www.exonhost.com/img/logo.png" width="80px" />
+                        <a href="https://www.exonhost.com" target="_blank"
+                            ><q-img src="https://www.exonhost.com/img/logo.png" width="80px"
+                        /></a>
                     </div>
                 </div>
             </div>
@@ -502,9 +485,8 @@ import io from "socket.io-client";
 import { mapGetters } from "vuex";
 import Message from "components/common/Message.vue";
 import ChatRatingForm from "components/common/ChatRatingForm.vue";
-import moment from "moment";
 import OfflineMessage from "components/common/OfflineMessage.vue";
-import * as _l from "lodash";
+import WhmcsLogin from "components/common/WhmcsLogin.vue";
 
 declare global {
     interface Window {
@@ -516,7 +498,7 @@ declare global {
 
 export default defineComponent({
     name: "WebChat",
-    components: { OfflineMessage, ChatRatingForm, Message },
+    components: { WhmcsLogin, OfflineMessage, ChatRatingForm, Message },
     setup() {
         return {};
     },
@@ -548,7 +530,7 @@ export default defineComponent({
             showChatForm: false,
             userLogged: false,
             chatDepartments: [],
-            onlineChatDepartments: null,
+            onlineChatDepartments: [],
             convInitFields: {
                 name: "",
                 email: "",
@@ -666,13 +648,35 @@ export default defineComponent({
         conversationMessages(): any {
             return this.$store.getters["chat/conversationMessages"](this.clientInitiateConvInfo.conv_id);
         },
+
+        showWhmcsLoginForm(): any {
+            const departmentForWhmcsLogin = "technical";
+
+            if (this.convInitFields.department_tag !== departmentForWhmcsLogin) {
+                return false;
+            }
+
+            // get department info
+            const departmentInfo = this.chatDepartments.find(
+                (department: any) => department.tag === departmentForWhmcsLogin
+            );
+
+            // check is this department status online
+            const checkDepartmentIsOnline = this.onlineChatDepartments.includes(departmentInfo.id);
+
+            return (
+                !this.whmcsInfoAssigned &&
+                this.convInitFields.department_tag === departmentForWhmcsLogin &&
+                checkDepartmentIsOnline
+            );
+        },
     },
 
     methods: {
-        getChatWidgetDesign() {
-            // get design.
-            // update chatWidgetMiniWidth variable. call onResizeMiniMode or trigger that
-        },
+        // getChatWidgetDesign() {
+        //     // get design.
+        //     // update chatWidgetMiniWidth variable. call onResizeMiniMode or trigger that
+        // },
 
         handleChatPanelVisibility() {
             if (this.panelVisibleStatus) {
@@ -808,6 +812,9 @@ export default defineComponent({
             this.convInitFieldsErrors.chat_department_id = "";
             this.convInitFieldsErrors.department = "";
             this.departmentAgentsOffline = !this.onlineChatDepartments.includes(this.convInitFields.department_id);
+
+            // check whmcs logged
+            // this.whmcsInfoAssigned = false;
         },
 
         getChatDepartments() {
@@ -1219,6 +1226,7 @@ export default defineComponent({
         resetConvInitForm() {
             this.convInitFields = {};
             this.convInitFieldsErrors = {};
+            this.whmcsInfoAssigned = false;
         },
 
         reload() {
@@ -1314,6 +1322,20 @@ export default defineComponent({
             this.hideNeedHelpTextSection();
 
             localStorage.setItem("hide_need_help_text", "false");
+        },
+
+        whmcsLoginSuccess(userInfo: any) {
+            this.convInitFields.name = userInfo.fullname;
+            this.convInitFields.email = userInfo.email;
+
+            this.convInitFields.user_info = {
+                whmcs_info: {
+                    ...userInfo,
+                    whmcs_info: true,
+                },
+            };
+
+            this.whmcsInfoAssigned = true;
         },
     },
 
