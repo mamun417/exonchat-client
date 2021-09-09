@@ -1030,4 +1030,8 @@ export default defineComponent({
 .active-btn {
     background: #5f7079 !important;
 }
+
+.custom-border-top {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
 </style>

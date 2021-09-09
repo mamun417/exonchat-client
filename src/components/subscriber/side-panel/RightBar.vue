@@ -261,7 +261,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2">
+                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
                             <q-list v-if="conversationConnectedUsers.length">
                                 <q-item v-for="agent of conversationConnectedUsers" :key="agent.id" dense>
                                     <q-item-section class="tw-w-full">
@@ -294,7 +294,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    label="WHMCS INFO"
+                    label="RELATED SERVICES"
                     dense
                     default-opened
                     :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
@@ -302,38 +302,38 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
                             <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
-                                <q-item class="tw-flex" dense>
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="flag" size="xs"></q-icon>
-                                        <div>Not Available</div>
+                                <q-item
+                                    v-for="(service, index) in relatedServices"
+                                    :key="index"
+                                    class="tw-flex tw-items-center tw-py-2"
+                                    :class="`${index !== 0 ? 'custom-border-top' : ''}`"
+                                    dense
+                                >
+                                    <div>
+                                        <div>{{ service.name }} - {{ service.billingcycle }}</div>
+                                        <div>
+                                            <a href="https://exonhost.com" class="text-blue-5" target="_blank">
+                                                {{ service.domain }}
+                                            </a>
+                                        </div>
                                     </div>
                                     <q-space />
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="language" size="xs"></q-icon>
-                                        <div>value</div>
+                                    <div class="tw-text-right">
+                                        <div
+                                            :class="`${
+                                                service.status === 'Active'
+                                                    ? 'text-green'
+                                                    : service.status === 'Pending'
+                                                    ? 'text-red'
+                                                    : 'text-grey'
+                                            }`"
+                                        >
+                                            {{ service.status }}
+                                        </div>
+                                        <div>Due Date: {{ $helpers.myDate(service.nextduedate, "MMM Do Y") }}</div>
                                     </div>
-                                </q-item>
-                                <q-item class="tw-flex" dense>
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="devices" size="xs"></q-icon>
-                                        <div>value</div>
-                                    </div>
-                                    <q-space />
-                                    <div class="tw-flex tw-gap-1 tw-items-center">
-                                        <q-icon name="dns" size="xs"></q-icon>
-                                        <div>value</div>
-                                    </div>
-                                </q-item>
-
-                                <q-item v-if="rightBarState.mode !== 'conversation'" dense>
-                                    <q-item-section>
-                                        <q-item-label>Department</q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side>
-                                        <q-item-label class="text-capitalize">departmnet name </q-item-label>
-                                    </q-item-section>
                                 </q-item>
                             </q-list>
                         </q-card-section>
@@ -352,7 +352,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2">
+                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
                             <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
                                 <q-item v-for="(visit, key) of visits" :key="key" dense class="tw-text-xs">
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
@@ -387,7 +387,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2">
+                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
                             <q-list
                                 v-if="
                                     clientPreviousChats[conversationInfo.id] &&
@@ -432,7 +432,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2">
+                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
                             <q-list v-if="Object.keys(clientTickets).length" class="tw-break-all">
                                 <q-item
                                     v-for="(ticket, key) of clientTickets"
@@ -518,6 +518,9 @@ export default defineComponent({
             chatDuration: "",
 
             conversationShowDetail: false,
+
+            relatedServices: [],
+            cardMaxHeight: "64",
         };
     },
 
@@ -575,6 +578,26 @@ export default defineComponent({
 
     methods: {
         ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
+
+        getClientServices() {
+            const clientid = this.conversationWithUsersInfo[0].socket_session?.user_info?.whmcs_info?.id;
+
+            if (clientid) {
+                window.api
+                    .get("apps/whmcs/client-products", {
+                        params: {
+                            clientid,
+                        },
+                    })
+                    .then((res: any) => {
+                        console.log(res.data);
+                        this.relatedServices = res.data;
+                    })
+                    .catch((err: any) => {
+                        console.log(err.response);
+                    });
+            }
+        },
     },
 
     mounted() {
@@ -591,13 +614,6 @@ export default defineComponent({
                 this.$refs.connectedForTimer?.$forceUpdate();
             }
         }, 1000);
-
-        if (
-            this.$route.name === "chats" &&
-            this.rightBarState.mode === "client_info" &&
-            this.conversationWithUsersInfo?.length
-        ) {
-        }
     },
 
     watch: {
@@ -618,6 +634,8 @@ export default defineComponent({
                     this.$store.dispatch("ticket/getTickets", {
                         email: this.conversationWithUsersInfo[0].socket_session.init_email,
                     });
+
+                    this.getClientServices();
                 }
             },
             immediate: true,

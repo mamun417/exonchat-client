@@ -62,7 +62,8 @@
             no-caps
             unelevated
         >
-            Login
+            <q-icon v-if="loginSuccess" name="check"></q-icon>
+            <div v-else>Login</div>
         </q-btn>
     </div>
 </template>
@@ -75,6 +76,7 @@ export default defineComponent({
     data(): any {
         return {
             loadingLogin: false,
+            loginSuccess: false,
             isPwd: true,
             whmcsLoginForm: {
                 email: "",
@@ -102,7 +104,11 @@ export default defineComponent({
             window.socketSessionApi
                 .post("apps/whmcs/login", this.whmcsLoginForm)
                 .then((res: any) => {
-                    this.$emit("whmcsLoginSuccess", res.data);
+                    this.loginSuccess = true;
+
+                    setTimeout(() => {
+                        this.$emit("whmcsLoginSuccess", res.data);
+                    }, 500);
                 })
                 .catch((err: any) => {
                     this.loginErrorHandle(err);

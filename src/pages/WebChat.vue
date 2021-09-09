@@ -284,8 +284,38 @@
 
                                             <div v-else>
                                                 <div class="tw-my-7">
-                                                    Welcome to our LiveChat! Please fill in the form below before
-                                                    starting the chat.
+                                                    <div>
+                                                        Welcome to our LiveChat! Please fill in the form below before
+                                                        starting the chat.
+                                                    </div>
+
+                                                    <!--<div v-if="whmcsInfoAssigned" class="tw-my-2 text-green">
+                                                        You are currently logged in as WHMCS client. Continue as a guest
+                                                        ?
+                                                        <span
+                                                            @click="resetConvInitForm"
+                                                            class="text-weight-bold tw-cursor-pointer"
+                                                            >Yes</span
+                                                        >
+                                                    </div>-->
+
+                                                    <div
+                                                        v-if="whmcsInfoAssigned"
+                                                        class="tw-my-2 tw-shadow-none tw-font-medium tw-flex tw-items-center tw-justify-between tw--mb-4"
+                                                    >
+                                                        <div class="text-green-8">
+                                                            You are currently logged in dashboard.
+                                                        </div>
+                                                        <q-btn
+                                                            @click="resetConvInitForm"
+                                                            size="xs"
+                                                            color="orange-8"
+                                                            class="tw-px-3"
+                                                            label="Log Out"
+                                                            no-caps
+                                                            unelevated
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 <q-input
@@ -426,7 +456,7 @@
                                                     @click="chatInitialize"
                                                     no-caps
                                                     unelevated
-                                                    >Start the chat
+                                                    >Start The Chat
                                                 </q-btn>
                                             </div>
                                         </template>
@@ -809,7 +839,7 @@ export default defineComponent({
             this.departmentAgentsOffline = !this.onlineChatDepartments.includes(this.convInitFields.department_id);
 
             // check whmcs logged
-            this.whmcsInfoAssigned = false;
+            // this.whmcsInfoAssigned = false;
         },
 
         getChatDepartments() {
@@ -1218,6 +1248,7 @@ export default defineComponent({
         resetConvInitForm() {
             this.convInitFields = {};
             this.convInitFieldsErrors = {};
+            this.whmcsInfoAssigned = false;
         },
 
         reload() {
