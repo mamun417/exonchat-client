@@ -669,7 +669,7 @@ export default defineComponent({
         },
 
         showWhmcsLoginForm(): any {
-            const departmentForWhmcsLogin = "technical";
+            const departmentForWhmcsLogin = "support";
 
             if (this.convInitFields.department_tag !== departmentForWhmcsLogin) {
                 return false;
