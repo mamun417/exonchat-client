@@ -280,8 +280,28 @@
                                         />
                                         <template v-else>
                                             <div class="tw-my-7">
-                                                Welcome to our LiveChat! Please fill in the form below before starting
-                                                the chat.
+                                                <div>
+                                                    Welcome to our LiveChat! Please fill in the form below before
+                                                    starting the chat.
+                                                </div>
+
+                                                <div
+                                                    v-if="whmcsInfoAssigned"
+                                                    class="tw-my-2 tw-shadow-none tw-font-medium tw-flex tw-items-center tw-justify-between tw--mb-4"
+                                                >
+                                                    <div class="text-green-8">
+                                                        You are currently logged in dashboard.
+                                                    </div>
+                                                    <q-btn
+                                                        @click="resetConvInitForm"
+                                                        size="xs"
+                                                        color="orange-8"
+                                                        class="tw-px-3"
+                                                        label="Log Out"
+                                                        no-caps
+                                                        unelevated
+                                                    />
+                                                </div>
                                             </div>
 
                                             <q-input

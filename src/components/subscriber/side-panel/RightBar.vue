@@ -303,7 +303,11 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
-                            <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
+                            <q-list
+                                v-if="relatedServices.length"
+                                :class="$helpers.colors().defaultText"
+                                class="tw-text-xs"
+                            >
                                 <q-item
                                     v-for="(service, index) in relatedServices"
                                     :key="index"
@@ -336,6 +340,7 @@
                                     </div>
                                 </q-item>
                             </q-list>
+                            <div v-else class="text-center tw-py-2 text-grey-7">No service found</div>
                         </q-card-section>
                     </q-card>
                 </q-expansion-item>
@@ -590,7 +595,6 @@ export default defineComponent({
                         },
                     })
                     .then((res: any) => {
-                        console.log(res.data);
                         this.relatedServices = res.data;
                     })
                     .catch((err: any) => {

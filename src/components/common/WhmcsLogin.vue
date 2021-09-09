@@ -1,7 +1,6 @@
 <template>
     <div class="tw-my-7">
-        Welcome to our LiveChat! Please fill in the form below before starting the chat. Need more text about WHMCS
-        login ................
+        Welcome to our LiveChat! Please login to your ExonHost account before starting the chat with Support Team.
     </div>
 
     <q-input
