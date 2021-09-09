@@ -111,6 +111,18 @@
                                             </span>
                                         </template>
 
+                                        <template
+                                            v-else-if="
+                                                message.msg === 'closed' &&
+                                                conversationInfo.closed_reason &&
+                                                !conversationInfo.closed_by_id
+                                            "
+                                        >
+                                            <span :class="`tw-mr-1 tw-break-none ${$helpers.colors().defaultText}`">
+                                                {{ conversationInfo.closed_reason }}
+                                            </span>
+                                        </template>
+
                                         <template v-else>
                                             <span
                                                 v-if="
@@ -1202,7 +1214,11 @@ export default defineComponent({
         },
 
         getConvStateStatusMessage(message: any) {
-            let name = message.session?.user ? message.session.user.user_meta?.display_name : message.session.init_name;
+            if (!message.session) return {};
+
+            let name = message.session?.user
+                ? message.session.user.user_meta?.display_name
+                : message.session?.init_name;
 
             let isOwn = false;
 

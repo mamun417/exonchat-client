@@ -129,6 +129,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             // not destructuring convInfo. decision for later
             closed_at: convInfo.closed_at,
             closed_by_id: convInfo.closed_by_id,
+            closed_reason: convInfo.closed_reason,
             sessions: convInfo.conversation_sessions, // not sending now
             caller: "updateConvStateToClosed",
         });
@@ -204,6 +205,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             "users_only",
                             "type",
                             "closed_at",
+                            "closed_reason",
                             "created_by_id",
                             // 'closed_by_id',
                             "current_page",
@@ -217,6 +219,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         ai_is_replying: conv.ai_is_replying,
                         closed_by: conv.closed_by,
                         closed_at: conv.closed_at,
+                        closed_reason: conv.closed_reason,
                         rating: conv.conversation_rating,
                         pagination_meta: pagination,
                         caller: "getConvMessages",
