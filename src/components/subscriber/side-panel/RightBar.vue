@@ -566,10 +566,12 @@ export default defineComponent({
                     //     before_conversation: newVal[0].conversation_id,
                     // });
 
-                    // load client tickets
-                    this.$store.dispatch("ticket/getTickets", {
-                        email: this.conversationWithUsersInfo[0].socket_session.init_email,
-                    });
+                    if (!this.conversationInfo.closed_at) {
+                        // load client tickets
+                        this.$store.dispatch("ticket/getTickets", {
+                            email: this.conversationWithUsersInfo[0].socket_session.init_email,
+                        });
+                    }
                 }
             },
             immediate: true,

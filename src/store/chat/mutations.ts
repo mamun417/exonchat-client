@@ -78,6 +78,10 @@ const mutation: MutationTree<ChatStateInterface> = {
             const conv = state.conversations[convId];
 
             if (!state.conversations[convId]?.id) {
+                if (!convData.conversation) {
+                    convData.conversation = {};
+                }
+
                 state.conversations[convId] = {
                     ...convData.conversation,
                     messages: {},
@@ -86,8 +90,15 @@ const mutation: MutationTree<ChatStateInterface> = {
                 };
             }
 
-            if (convData.closed_by) {
+            // closed_reason & closed_at will not null one time only so we can check that
+            if (convData.closed_reason) {
+                state.conversations[convId].closed_reason = convData.closed_reason;
+            }
+            if (convData.closed_at) {
                 state.conversations[convId].closed_at = convData.closed_at;
+            }
+
+            if (convData.closed_by) {
                 state.conversations[convId].closed_by_id = convData.closed_by.id;
                 state.conversations[convId].closed_by = convData.closed_by;
             }
