@@ -778,6 +778,7 @@ export default defineComponent({
                     action: data.action,
                     conv_id: data.conv_id,
                     conv_ses_obj: data.conv_ses_obj,
+                    original_payload: data,
                 });
 
                 console.log("from ec_chat_transfer", data);
