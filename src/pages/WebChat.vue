@@ -266,20 +266,19 @@
                                     </div>
                                 </div>
 
-                                    <div v-else class="tw-flex tw-flex-col">
-                                        <template v-if="onlineChatDepartments && onlineChatDepartments.length">
-                                            <!--for support department we need to login whmcs-->
-                                            <whmcs-login
-                                                v-if="showWhmcsLoginForm"
-                                                :chat-departments="chatDepartments"
-                                                :global-color="globalColor"
-                                                @cancelWhmcsLogin="
-                                                    (convInitFields.department_tag = ''),
-                                                        (convInitFields.department = '')
-                                                "
-                                                @whmcsLoginSuccess="whmcsLoginSuccess"
-                                            />
-                                            <template v-else>
+                                <div v-else class="tw-flex tw-flex-col">
+                                    <template v-if="onlineChatDepartments && onlineChatDepartments.length">
+                                        <!--for support department we need to login whmcs-->
+                                        <whmcs-login
+                                            v-if="showWhmcsLoginForm"
+                                            :chat-departments="chatDepartments"
+                                            :global-color="globalColor"
+                                            @cancelWhmcsLogin="
+                                                (convInitFields.department_tag = ''), (convInitFields.department = '')
+                                            "
+                                            @whmcsLoginSuccess="whmcsLoginSuccess"
+                                        />
+                                        <template v-else>
                                             <div class="tw-my-7">
                                                 Welcome to our LiveChat! Please fill in the form below before starting
                                                 the chat.
@@ -401,28 +400,28 @@
                                                 >
                                                 </q-input>
 
+                                                <q-btn
+                                                    dense
+                                                    :color="globalColor"
+                                                    class="full-width tw-mt-2"
+                                                    @click="submitOfflineChatReq"
+                                                    no-caps
+                                                    >Submit Ticket
+                                                </q-btn>
+                                                <div class="tw-text-xxs tw-mt-1">
+                                                    <div>Our agents will resolve your issue when they are online.</div>
+                                                </div>
+                                            </div>
+
                                             <q-btn
-                                                dense
+                                                v-else
                                                 :color="globalColor"
                                                 class="full-width tw-mt-2"
-                                                @click="submitOfflineChatReq"
+                                                @click="chatInitialize"
                                                 no-caps
-                                                >Submit Ticket
+                                                unelevated
+                                                >Start The Chat
                                             </q-btn>
-                                            <div class="tw-text-xxs tw-mt-1">
-                                                <div>Our agents will resolve your issue when they are online.</div>
-                                            </div>
-                                        </div>
-
-                                        <q-btn
-                                            v-else
-                                            :color="globalColor"
-                                            class="full-width tw-mt-2"
-                                            @click="chatInitialize"
-                                            no-caps
-                                            unelevated
-                                            >Start The Chat
-                                        </q-btn>
                                         </template>
                                     </template>
 

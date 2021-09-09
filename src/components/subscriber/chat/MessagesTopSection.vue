@@ -144,7 +144,11 @@
                                         </q-item-section>
                                     </q-item>
 
-                                    <q-item v-if="['joined'].includes(conversationStatusForMe)" clickable v-close-popup>
+                                    <q-item
+                                        v-if="['joined'].includes(conversationStatusForMe) && canTransfer"
+                                        clickable
+                                        v-close-popup
+                                    >
                                         <!--                                        <q-item-section class="tw-w-8 tw-min-w-0" avatar>-->
                                         <!--                                            <q-icon name="shortcut" />-->
                                         <!--                                        </q-item-section>-->
@@ -404,6 +408,10 @@ export default defineComponent({
             );
 
             return !!(sortedAgents.length && sortedAgents[0].socket_session_id === this.profile?.socket_session?.id);
+        },
+
+        canTransfer(): any {
+            return this.canClose;
         },
 
         conversationWithUsersInfo(): any {
