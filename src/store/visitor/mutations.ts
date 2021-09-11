@@ -15,6 +15,7 @@ const mutation: MutationTree<VisitorsStateInterface> = {
 
             state.visitors[visitorInfo.ses_id] = {
                 session_id: visitorInfo.ses_id,
+                session_info: visitorInfo.ses_info,
                 referrer: referrer,
                 visits: [
                     {

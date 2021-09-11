@@ -635,7 +635,9 @@ export default defineComponent({
                 if (this.incomingChatRequestsForMe.length) {
                     if (!this.chatRequestSoundLoop) {
                         this.chatRequestSoundLoop = setInterval(() => {
-                            helpers.notifications().reqOne.play();
+                            if (this.$browser_tab_id === localStorage.getItem("ec_current_visiting_tab")) {
+                                helpers.notifications().reqOne.play();
+                            }
                         }, 10000);
                     }
                 } else {

@@ -35,7 +35,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeNewChatFromClient(context, convInfo) {
         const convData = convInfo.conv_data;
 
-        context.commit("updateConversation", {
+        const obj = {
             conv_id: convData.id,
             conversation: _l.pick(convData, [
                 "id",
@@ -49,15 +49,64 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             chat_department: convData.chat_department,
             notify_status: convInfo.notify, // of this action if notify then true
             caller: "storeNewChatFromClient",
-        });
+        };
+
+        context.commit("updateConversation", obj);
 
         if (convData.log_message) {
             context.commit("updateConversation", { conv_id: convData.id, message: convData.log_message });
+        }
+
+        if (
+            localStorage.getItem("ec_not_in_tabs") &&
+            window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
+        ) {
+            const clientInfo = _l.find(obj.sessions, (convSes: any) => !convSes.socket_session.user);
+
+            const notification = new Notification(`New chat from ${clientInfo?.socket_session.init_name}`, {
+                body: `Department : ${obj.chat_department.display_name}`,
+            });
+
+            notification.onclick = function () {
+                window.focus();
+                window.router.push({
+                    name: "chats",
+                    params: { conv_id: obj.conv_id },
+                });
+                this.close();
+            };
         }
     },
 
     updateConvSesInfo(context, data) {
         context.commit("updateConvSesInfo", data);
+
+        if (data.action === "chat_transfer_sent") {
+            if (
+                localStorage.getItem("ec_not_in_tabs") &&
+                window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
+            ) {
+                const convObj = context.getters["conversationInfo"](data.conv_id);
+
+                helpers.notifications().reqOne.play().then();
+
+                const notification = new Notification(
+                    `Chat transfer request from ${data.original_payload?.agent_info?.user_meta?.display_name}`,
+                    {
+                        body: `Department : ${convObj.chat_department.display_name}`,
+                    }
+                );
+
+                notification.onclick = function () {
+                    window.focus();
+                    window.router.push({
+                        name: "chats",
+                        params: { conv_id: data.conv_id },
+                    });
+                    this.close();
+                };
+            }
+        }
     },
 
     updateConvState(context, convSesInfo) {
@@ -81,6 +130,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             // not destructuring convInfo. decision for later
             closed_at: convInfo.closed_at,
             closed_by_id: convInfo.closed_by_id,
+            closed_reason: convInfo.closed_reason,
             sessions: convInfo.conversation_sessions, // not sending now
             caller: "updateConvStateToClosed",
         });
@@ -156,6 +206,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                             "users_only",
                             "type",
                             "closed_at",
+                            "closed_reason",
                             "created_by_id",
                             // 'closed_by_id',
                             "current_page",
@@ -169,6 +220,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         ai_is_replying: conv.ai_is_replying,
                         closed_by: conv.closed_by,
                         closed_at: conv.closed_at,
+                        closed_reason: conv.closed_reason,
                         rating: conv.conversation_rating,
                         pagination_meta: pagination,
                         caller: "getConvMessages",
@@ -356,6 +408,29 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     !messageRes.init_message_from_client
                 ) {
                     helpers.notifications().replyTwo.play();
+
+                    if (
+                        localStorage.getItem("ec_not_in_tabs") &&
+                        window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
+                    ) {
+                        const clientInfo = _l.find(obj.sessions, (convSes: any) => !convSes.socket_session.user);
+
+                        const notification = new Notification(
+                            `New message from ${clientInfo?.socket_session.init_name}`,
+                            {
+                                body: obj.message.msg,
+                            }
+                        );
+
+                        notification.onclick = function () {
+                            window.focus();
+                            window.router.push({
+                                name: "chats",
+                                params: { conv_id: obj.conv_id },
+                            });
+                            this.close();
+                        };
+                    }
                 }
             }
 

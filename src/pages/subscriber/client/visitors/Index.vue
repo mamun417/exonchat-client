@@ -18,7 +18,9 @@
                         </div>
                     </template>
 
-                    <template v-slot:cell-location="slotProps"> {{ slotProps.row.location || "Unknown" }}</template>
+                    <template v-slot:cell-location="slotProps">
+                        {{ slotProps.row.session_info?.init_location?.country?.names?.en || "Unknown" }}</template
+                    >
 
                     <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }}</template>
 

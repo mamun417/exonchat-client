@@ -5,7 +5,7 @@ export interface TicketStateInterface {
 
 function state(): TicketStateInterface {
     return {
-        tickets: {},
+        tickets: [],
     };
 }
 

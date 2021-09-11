@@ -136,6 +136,16 @@ export const socketSessionApi = function (router: any) {
             return res;
         },
         (err) => {
+            const errCode = err.response.status;
+
+            if (errCode === 401) {
+                if (router.currentRoute._value.path === "/web-chat") {
+                    window.emitter.emit("client_socket_token_timeout");
+                } else {
+                    window.emitter.emit("user_socket_token_timeout");
+                }
+            }
+
             if (_.isArray(err.response.data.message)) {
                 const msgObj: any = {};
 

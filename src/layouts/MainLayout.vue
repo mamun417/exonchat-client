@@ -473,6 +473,8 @@ export default defineComponent({
             this.openChatPanelBoxForTest();
 
             await this.socketInitialize();
+
+            this.firePageVisibilityListener();
         }
 
         this.domReady = true;
@@ -490,6 +492,10 @@ export default defineComponent({
                 this.mutateAuthToLogout(); // it's also for update state
                 this.$router.push({ name: "login" });
             }
+        });
+
+        this.$emitter.on("user_socket_token_timeout", () => {
+            this.$store.dispatch("auth/logOut");
         });
     },
 
@@ -791,6 +797,7 @@ export default defineComponent({
                     action: data.action,
                     conv_id: data.conv_id,
                     conv_ses_obj: data.conv_ses_obj,
+                    original_payload: data,
                 });
 
                 console.log("from ec_chat_transfer", data);
@@ -818,6 +825,10 @@ export default defineComponent({
                         position: "top",
                         badgeClass: "hidden",
                     });
+                }
+
+                if (data.type === "auth") {
+                    this.logout();
                 }
 
                 // check if not then new event
@@ -925,11 +936,34 @@ export default defineComponent({
 
             this.newConversationInfo = {};
         },
+
+        firePageVisibilityListener() {
+            // Warn if the browser doesn't support addEventListener or the Page Visibility API
+            if (typeof document.addEventListener === "undefined" || document.hidden === undefined) {
+                console.log(
+                    "This check requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API."
+                );
+            } else {
+                // Handle page visibility change
+                document.addEventListener("visibilitychange", this.handlePageVisibilityChange, false);
+
+                localStorage.setItem("ec_current_visiting_tab", this.$browser_tab_id);
+            }
+        },
+
+        handlePageVisibilityChange() {
+            if (document.visibilityState === "visible") {
+                localStorage.setItem("ec_current_visiting_tab", this.$browser_tab_id);
+                localStorage.removeItem("ec_not_in_tabs");
+            } else {
+                // ec_last_visited_tab will help for now to show notification from a tab only. not from every tab
+                localStorage.setItem("ec_last_visited_tab", this.$browser_tab_id);
+                localStorage.setItem("ec_not_in_tabs", "true");
+            }
+        },
     },
 
     beforeRouteUpdate(to, from) {
-        console.log(to, from);
-
         if (this.rightBarState?.mode || this.rightBarState.mode === "conversation") {
             this.updateRightDrawerState({ mode: "client_info", visible: true });
         }
@@ -1042,5 +1076,9 @@ export default defineComponent({
 
 .active-btn {
     background: #5f7079 !important;
+}
+
+.custom-border-top {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 </style>
