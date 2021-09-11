@@ -358,7 +358,7 @@
                                                 <template v-slot:option="{ itemProps, opt }">
                                                     <q-item v-bind="itemProps">
                                                         <q-item-section>
-                                                            <q-item-label v-html="opt.tag"></q-item-label>
+                                                            <q-item-label v-html="opt.display_name"></q-item-label>
                                                             <small
                                                                 v-if="!onlineChatDepartments.includes(opt.id)"
                                                                 class="tw-text-xxs tw-mt-1 text-grey-8"
