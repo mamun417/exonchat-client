@@ -23,7 +23,22 @@
         <q-card class="tw-shadow">
             <q-card-section>
                 <div class="tw-mb-4 tw-border-b-1">
-                    <div class="tw-font-medium">WHMCS Api Manager</div>
+                    <div class="tw-font-medium tw-pb-2">WHMCS API Manager</div>
+                </div>
+
+                <div class="tw-mb-6">
+                    <div>API URL</div>
+                    <q-input
+                        v-model="formInputs.apps_whmcs_api_url"
+                        label="https://dev.exonhost.com/includes/api.php"
+                        type="input"
+                        bg-color="white"
+                        class="tw-mb-2 tw-shadow tw-px-2"
+                        hide-bottom-space
+                        standout
+                        borderless
+                        dense
+                    />
                 </div>
 
                 <div class="tw-mb-6">
@@ -135,6 +150,7 @@ export default defineComponent({
                 secret: true,
             },
             formInputs: {
+                apps_whmcs_api_url: "",
                 apps_whmcs_identifier_key: "",
                 apps_whmcs_secret_key: "",
                 apps_whmcs_enable: true,

@@ -63,6 +63,7 @@
                                                 unelevated
                                             />
                                             <q-btn
+                                                @click="sendTranscript"
                                                 icon="mail_outline"
                                                 label="Send Transcript"
                                                 size="md"
