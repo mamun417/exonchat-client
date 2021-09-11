@@ -290,7 +290,6 @@
                                                             "
                                                         ></pre>
                                                     </div>
-                                                    {{ msgItem.attachments }}
 
                                                     <!--attachment-->
                                                     <div
@@ -303,7 +302,6 @@
                                                             style="width: 200px; max-height: 200px"
                                                             class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
                                                         >
-                                                            {{ attachment.src }}
                                                             <q-img
                                                                 fit="cover"
                                                                 spinner-color="green"
@@ -862,10 +860,12 @@ export default defineComponent({
             conversationIds.forEach((conv: any) => {
                 const tempConv: any = Conversation.query()
                     .where("id", conv)
-                    .with("messages.socket_session.user.user_meta")
+                    .with("messages", (messageQuery: any) => {
+                        messageQuery.with(["socket_session.user.user_meta", "attachments"]).orderBy("created_at");
+                    })
                     .first();
 
-                if (tempConv?.messages.length) {
+                if (tempConv?.$toJson().messages.length) {
                     for (const msgObj of tempConv.messages) {
                         const tempMsgObj: any = msgObj;
 
@@ -1550,40 +1550,6 @@ export default defineComponent({
             });
         },
 
-        async handleAttachmentLoading() {
-            if (!this.messages?.length) return;
-
-            for (const msg of this.messages) {
-                console.log(msg);
-                for (const nestedMsg of msg.messageArray) {
-                    if (nestedMsg.attachments && nestedMsg.attachments.length) {
-                        if (msg.attachments && msg.attachments.length) {
-                            for (const attch of msg.attachments) {
-                                console.log(attch);
-                                if (!attch.loaded && !attch.src) {
-                                    attch.loaded = true;
-
-                                    try {
-                                        const imgRes = await this.$socketSessionApi.get(`attachments/${attch.id}`, {
-                                            responseType: "arraybuffer",
-                                        });
-
-                                        attch.src = URL.createObjectURL(
-                                            new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-                                        );
-                                    } catch (e) {
-                                        attch.loaded = false;
-                                        console.log(e);
-                                    }
-                                    console.log(attch);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-
         async updateLastMsgSeenTime() {
             // urgent check needed
             // must check if seen need to update or not
@@ -1700,8 +1666,6 @@ export default defineComponent({
                 if (!this.scrollCheckInterval) {
                     this.scrollCheckInterval = setInterval(() => this.handleScroll(), 300);
                 }
-
-                this.handleAttachmentLoading();
             },
             deep: true,
             immediate: true,

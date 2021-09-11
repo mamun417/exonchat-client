@@ -194,9 +194,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         pagination.current_page = current_page; // reset to the previous pagination so that +1 turns valid
                     }
 
-                    // vuex-orm
-                    Conversation.insert({ data: conv });
-
                     // conv.current_page = payload.page || 1; // now only for temp & test
 
                     context.commit("updateConversation", {
@@ -224,6 +221,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         rating: conv.conversation_rating,
                         pagination_meta: pagination,
                         caller: "getConvMessages",
+                        original_data: { conversation: conv },
                     });
 
                     resolve(res);

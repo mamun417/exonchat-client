@@ -3,34 +3,16 @@ import * as _l from "lodash";
 import { GetterTree } from "vuex";
 import { StateInterface } from "../index";
 import { ChatStateInterface } from "./state";
-import helpers from "boot/helpers/helpers";
+
 import ChatDepartment from "src/store/models/ChatDepartment";
 import Conversation from "src/store/models/Conversation";
-import { Query } from "@vuex-orm/core";
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
         return state.clientInitiateConvInfo;
     },
 
-    clientsConversation: (state, getters, rootState, rootGetters) => {
-        // const tc = Conversation.query()
-        //     .where("users_only", false)
-        //     .whereHas("conversation_sessions", (query) => {
-        //         query
-        //             .where("left_at", null)
-        //             .where("socket_session_id", rootGetters["auth/profile"]?.socket_session?.id);
-        //     })
-        //     .with("conversation_sessions")
-        //     .get();
-        //
-        // console.log({ tc });
-        //
-        // tc.forEach((t: any) => {
-        //     // console.log(t.test);
-        //     console.log({ c: t.clientConversationSession, m: t.myConversationSession, msg: t.myUnseenMessageCount });
-        // });
-
+    clientsConversation: (state) => {
         return Object.values(state.conversations).filter((conv: any) => !conv.users_only);
     },
 

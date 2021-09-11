@@ -24,13 +24,16 @@ export default class Message extends Model {
             message_type: this.attr(null),
             sender_type: this.attr(null),
             info: this.attr(null),
-            attachments: this.attr([]),
+
+            attachment_ids: this.attr([]),
 
             created_at: this.attr(null),
             updated_at: this.attr(null),
 
             conversation: this.belongsTo(Conversation, "conversation_id"),
             socket_session: this.belongsTo(SocketSession, "socket_session_id"),
+
+            attachments: this.hasManyBy(MessageAttachment, "attachment_ids"),
         };
     }
 

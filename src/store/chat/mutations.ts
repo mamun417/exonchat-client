@@ -1,6 +1,7 @@
 import { MutationTree } from "vuex";
 import { ChatStateInterface } from "./state";
 import * as _l from "lodash";
+import Conversation from "src/store/models/Conversation";
 
 const mutation: MutationTree<ChatStateInterface> = {
     storeClientInitiateConvInfo(state: ChatStateInterface, payload: any) {
@@ -229,6 +230,18 @@ const mutation: MutationTree<ChatStateInterface> = {
                         };
                     }
                 }
+            }
+        }
+
+        if (convData.hasOwnProperty("original_data")) {
+            if (convData.original_data.hasOwnProperty("conversation")) {
+                if (convData.original_data.conversation.hasOwnProperty("messages")) {
+                    convData.original_data.conversation.messages.map((msg: any) => {
+                        msg.attachment_ids = _l.map(msg.attachments, "id");
+                    });
+                }
+
+                Conversation.insert({ data: convData.original_data.conversation });
             }
         }
     },

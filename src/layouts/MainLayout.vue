@@ -351,6 +351,8 @@ import SocketSession from "src/store/models/SocketSession";
 import Message from "src/store/models/Message";
 import User from "src/store/models/User";
 import ChatDepartment from "src/store/models/ChatDepartment";
+import { Query } from "@vuex-orm/core";
+import MessageAttachment from "src/store/models/MessageAttachment";
 
 declare global {
     interface Window {
@@ -497,6 +499,33 @@ export default defineComponent({
 
         this.$emitter.on("user_socket_token_timeout", () => {
             this.$store.dispatch("auth/logOut");
+        });
+
+        Query.on("afterCreate", (model: any) => {
+            if (model instanceof MessageAttachment) {
+                if (!model.loaded && !model.src) {
+                    MessageAttachment.update({
+                        where: model.id,
+                        data: { loaded: true },
+                    });
+
+                    window.socketSessionApi
+                        .get(`attachments/${model.id}`, {
+                            responseType: "arraybuffer",
+                        })
+                        .then((imgRes: any) => {
+                            const src = URL.createObjectURL(
+                                new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                            );
+
+                            MessageAttachment.update({
+                                where: model.id,
+                                data: { src: src },
+                            });
+                        })
+                        .catch();
+                }
+            }
         });
     },
 
@@ -964,7 +993,7 @@ export default defineComponent({
         },
     },
 
-    beforeRouteUpdate(to, from) {
+    beforeRouteUpdate(to) {
         if (this.rightBarState?.mode || this.rightBarState.mode === "conversation") {
             this.updateRightDrawerState({ mode: "client_info", visible: true });
         }
