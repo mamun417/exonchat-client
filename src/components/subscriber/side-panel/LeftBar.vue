@@ -132,22 +132,25 @@
                                 >
                                     <q-item-section class="tw-min-w-0" avatar>
                                         <ec-avatar
-                                            :image_src="senderInfo(ongoingChat).src || null"
-                                            :name="senderInfo(ongoingChat).img_alt_name"
-                                            :email="senderInfo(ongoingChat).email"
+                                            :name="ongoingChat.clientSocketSession.init_name"
+                                            :email="ongoingChat.clientSocketSession.init_email"
                                             size="23px"
                                         ></ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
                                         <q-item-label class="tw-text-sm" style="word-break: break-all">
-                                            {{ senderInfo(ongoingChat).display_name }}
+                                            {{ ongoingChat.clientSocketSession.init_name }}
                                         </q-item-label>
                                     </q-item-section>
 
-                                    <q-item-section v-if="ongoingChat.count_unseen_msg" side>
+                                    <q-item-section v-if="ongoingChat.myUnseenMessageCount" side>
                                         <q-badge color="orange">
-                                            {{ ongoingChat.count_unseen_msg > 9 ? "9+" : ongoingChat.count_unseen_msg }}
+                                            {{
+                                                ongoingChat.myUnseenMessageCount > 9
+                                                    ? "9+"
+                                                    : ongoingChat.myUnseenMessageCount
+                                            }}
                                         </q-badge>
                                     </q-item-section>
                                 </q-item>

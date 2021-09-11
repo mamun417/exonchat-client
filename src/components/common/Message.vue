@@ -90,7 +90,7 @@
                                         'tw-pr-4': !mini_mode,
                                     }"
                                 >
-                                    <div class="text-center">
+                                    <div class="text-center tw-cursor-default">
                                         <template v-if="message.msg === 'initiate'">
                                             <span
                                                 :class="`tw-mr-1 tw-break-none tw-font-medium tw-capitalize text-${globalColor}`"
@@ -167,23 +167,30 @@
                             <div
                                 v-if="
                                     message.message_type === 'log' &&
-                                    this.chatPanelType === 'client' &&
-                                    message.session?.user &&
+                                    chatPanelType === 'client' &&
+                                    message.socket_session?.user &&
                                     message.msg === 'joined' &&
-                                    speakingWithUser?.msg?.id === message.id
+                                    speakingWithMessage?.id === message.id
                                 "
                                 class="tw-flex tw-items-center tw-justify-center tw--mt-2"
                             >
                                 <div class="tw-text-center tw-mt-4">
                                     <ec-avatar
-                                        :image_src="speakingWithUser.user.user_meta.src"
-                                        :name="speakingWithUser.user.user_meta.display_name"
-                                        :email="speakingWithUser.user.email"
+                                        :image_src="speakingWithMessage.socket_session?.user.user_meta.src"
+                                        :name="speakingWithMessage.socket_session?.user.user_meta.display_name"
+                                        :email="speakingWithMessage.socket_session?.user.email"
                                     >
                                     </ec-avatar>
-                                    <div class="tw-mt-2 tw-text-sm tw-mb-4" :class="$helpers.colors().defaultText">
+                                    <div
+                                        class="tw-mt-2 tw-text-sm tw-mb-4 tw-cursor-default"
+                                        :class="$helpers.colors().defaultText"
+                                    >
                                         You are currently speaking to
-                                        {{ $_.upperFirst(speakingWithUser.user.user_meta.display_name) }}
+                                        {{
+                                            $_.upperFirst(
+                                                speakingWithMessage.socket_session?.user.user_meta.display_name
+                                            )
+                                        }}
                                     </div>
                                 </div>
                             </div>
@@ -283,6 +290,7 @@
                                                             "
                                                         ></pre>
                                                     </div>
+                                                    {{ msgItem.attachments }}
 
                                                     <!--attachment-->
                                                     <div
@@ -295,6 +303,7 @@
                                                             style="width: 200px; max-height: 200px"
                                                             class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
                                                         >
+                                                            {{ attachment.src }}
                                                             <q-img
                                                                 fit="cover"
                                                                 spinner-color="green"
@@ -699,16 +708,17 @@
 </template>
 
 <script lang="ts">
-import Vue, { defineComponent } from "vue";
+import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 
 import Conversation from "src/store/models/Conversation";
-import ConversationSession from "src/store/models/ConversationSession";
 
 import * as _l from "lodash";
 import moment from "moment";
 import EcAvatar from "./EcAvatar.vue";
 import EcEmoji from "components/common/EcEmoji.vue";
+import SocketSession from "src/store/models/SocketSession";
+import Message from "src/store/models/Message";
 
 export default defineComponent({
     name: "Message",
@@ -821,14 +831,6 @@ export default defineComponent({
             clientPreviousChats: "chat/previousConversations",
         }),
 
-        convTest(): any {
-            return Conversation.query().get();
-        },
-
-        convSesTest(): any {
-            return ConversationSession.all();
-        },
-
         chatPanelType(): any {
             return this.$route.name === "client-web-chat" ? "client" : "user";
         },
@@ -858,51 +860,37 @@ export default defineComponent({
             conversationIds.push(this.conv_id);
 
             conversationIds.forEach((conv: any) => {
-                const convMessages = this.$store.getters["chat/conversationMessages"](conv);
+                const tempConv: any = Conversation.query()
+                    .where("id", conv)
+                    .with("messages.socket_session.user.user_meta")
+                    .first();
 
-                const clonedMessages = _l.sortBy(Object.values(_l.cloneDeep(convMessages)), [
-                    (msg: any) => msg.conversation_id,
-                    (msg: any) => moment(msg.created_at).format("x"),
-                ]);
+                if (tempConv?.messages.length) {
+                    for (const msgObj of tempConv.messages) {
+                        const tempMsgObj: any = msgObj;
 
-                for (const msgObj of clonedMessages) {
-                    const tempMsgObj: any = msgObj;
+                        if (
+                            tempMsgObj.message_type === "log" &&
+                            tempMsgObj.msg === "initiate" &&
+                            !this.isAgentChatPanel
+                        ) {
+                            continue;
+                        }
 
-                    if (tempMsgObj.message_type === "log" && tempMsgObj.msg === "initiate" && !this.isAgentChatPanel) {
-                        continue;
-                    }
+                        if (
+                            messages.length &&
+                            tempMsgObj.message_type === "message" &&
+                            _l.last(messages).message_type === "message" &&
+                            _l.last(messages).socket_session_id === tempMsgObj.socket_session_id
+                        ) {
+                            const lastTempMessage = _l.last(messages);
 
-                    if (
-                        messages.length &&
-                        tempMsgObj.message_type === "message" &&
-                        _l.last(messages).message_type === "message" &&
-                        _l.last(messages).socket_session_id === tempMsgObj.socket_session_id
-                    ) {
-                        const lastTempMessage = _l.last(messages);
+                            lastTempMessage.messageArray.push(tempMsgObj);
+                        } else {
+                            tempMsgObj.messageArray = [tempMsgObj];
 
-                        lastTempMessage.messageArray.push(tempMsgObj);
-                    } else {
-                        tempMsgObj.messageArray = [tempMsgObj];
-
-                        messages.push(tempMsgObj);
-                    }
-                }
-            });
-
-            messages.map((tempMsg: any) => {
-                if (tempMsg.message_type === "log" && tempMsg.socket_session_id) {
-                    // conversations_sessions
-                    const convSessions =
-                        this.$store.getters["chat/conversationInfo"](tempMsg.conversation_id)?.sessions || [];
-                    // note
-                    const conversation__session = convSessions.find(
-                        (convSes: any) => convSes.socket_session_id === tempMsg.socket_session_id
-                    );
-
-                    if (conversation__session) {
-                        tempMsg.session = conversation__session.socket_session;
-                    } else {
-                        // check y cz it's impossible
+                            messages.push(tempMsgObj);
+                        }
                     }
                 }
             });
@@ -980,26 +968,12 @@ export default defineComponent({
         },
 
         // return user who first join the conversation
-        speakingWithUser(): any {
+        speakingWithMessage(): any {
             if (this.conversationInfo.id) {
-                const sessions = this.conversationInfo.sessions;
-
-                if (sessions.length) {
-                    const firstJoin = _l.find(
-                        this.messages || [],
-                        (msg: any) => msg.message_type === "log" && msg.msg === "joined" && msg.session.user
-                    );
-
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-                    const sessionInfo = this.$_.sortBy(
-                        sessions.filter((ses: any) => ses.socket_session.user),
-                        [(convSes: any) => moment(convSes.created_at).format("x")]
-                    )[0];
-
-                    if (sessionInfo && firstJoin && sessionInfo.socket_session.id === firstJoin.socket_session_id) {
-                        return { user: sessionInfo.socket_session.user, msg: firstJoin };
-                    }
-                }
+                return _l.find(
+                    this.messages || [],
+                    (msg: any) => msg.message_type === "log" && msg.msg === "joined" && msg.socket_session.user
+                );
             }
 
             return {};
@@ -1152,27 +1126,8 @@ export default defineComponent({
         checkOwnMessage(message: any) {
             return message.socket_session_id === this.ses_id;
         },
-        msgForRightSide(message: any) {
-            if (this.checkOwnMessage(message)) {
-                return true;
-            } else {
-                if (this.$route.name !== "client-web-chat") {
-                    if (!message.socket_session_id) {
-                        return true;
-                    }
 
-                    const findSes = _l.find(this.conversationInfo.sessions, [
-                        "socket_session_id",
-                        message.socket_session_id,
-                    ]);
-
-                    return !!findSes.socket_session.user;
-                }
-            }
-
-            return false;
-        },
-        msgSenderInfo(msg: any, index: any) {
+        msgSenderInfo(msg: any) {
             // const prevMsg = this.messages[index - 1];
 
             if (!msg.socket_session_id) {
@@ -1183,94 +1138,76 @@ export default defineComponent({
                 };
             }
 
-            // conversations_sessions. its costly now. orm needed
-            // its for load previous data
-            const convSessions = this.$store.getters["chat/conversationInfo"](msg.conversation_id)?.sessions || [];
-
-            const findSes = _l.find(convSessions, ["socket_session_id", msg.socket_session_id]);
-
             const isMyMsg =
-                (this.chatPanelType !== "user" && !findSes.socket_session.user) ||
-                (this.chatPanelType === "user" &&
-                    findSes.socket_session.user &&
-                    findSes.socket_session.user.id === this.profile.id);
+                (this.chatPanelType !== "user" && !msg.socket_session.user) ||
+                (this.chatPanelType === "user" && msg.isMyMsg); // msg.isMyMsg only for agent panel
 
-            if (findSes.socket_session.user) {
+            if (msg.socket_session.user) {
                 return {
-                    display_name: isMyMsg ? "You" : findSes.socket_session.user.user_meta.display_name,
-                    img_alt_name: findSes.socket_session.user.user_meta.display_name,
-                    email: findSes.socket_session.user.email,
-                    src: findSes.socket_session.user.user_meta.src || null,
+                    display_name: isMyMsg ? "You" : msg.socket_session.user.user_meta.display_name,
+                    img_alt_name: msg.socket_session.user.user_meta.display_name,
+                    email: msg.socket_session.user.email,
+                    src: msg.socket_session.user.user_meta.src || null,
                     type: "agent",
                 };
             }
 
             return {
-                display_name: isMyMsg ? "You" : findSes.socket_session.init_name,
-                img_alt_name: findSes.socket_session.init_name,
-                email: findSes.socket_session.init_email,
+                display_name: isMyMsg ? "You" : msg.socket_session.init_name,
+                img_alt_name: msg.socket_session.init_name,
+                email: msg.socket_session.init_email,
                 type: "client",
             };
         },
 
         getConvStateStatusMessage(message: any) {
-            if (!message.session) return {};
+            if (!message.socket_session) return {};
 
-            let name = message.session?.user
-                ? message.session.user.user_meta?.display_name
-                : message.session?.init_name;
+            let name = message.socket_session?.user
+                ? message.socket_session.user.user_meta?.display_name
+                : message.socket_session?.init_name;
 
             let isOwn = false;
 
-            if (this.chatPanelType === "user" && message.session.user && message.session.user.id === this.profile.id) {
+            if (
+                this.chatPanelType === "user" &&
+                message.socket_session.user &&
+                message.socket_session.user.id === this.profile.id
+            ) {
                 name = "You";
                 isOwn = true;
             }
 
-            if (this.chatPanelType === "client" && !message.session.user) {
+            if (this.chatPanelType === "client" && !message.socket_session.user) {
                 name = "You";
                 isOwn = true;
             }
-            //
-            // if (this.chatPanelType === 'user' && !message.session.user) {
-            //     name = 'Client';
-            // }
-
-            // conversations_sessions. its costly now. orm needed
-            // its for load previous data
-            const convSessions = this.$store.getters["chat/conversationInfo"](message.conversation_id)?.sessions || [];
-
-            const convSes = convSessions.find((convSes: any) => convSes.socket_session_id === message.session.id);
 
             const endMaker =
                 message.msg === "closed"
-                    ? `| ${message.session.user ? "Agent" : "Client"} Ended chat ${convSes.closed_reason || ""}`
+                    ? `| ${message.socket_session.user ? "Agent" : "Client"} Ended chat ${
+                          message.conversationSession.closed_reason || ""
+                      }`
                     : "";
 
-            // const time = `at ${this.getDateTime(message.created_at)}`;
-
-            // if (this.chatPanelType === "user") {
             return {
                 name: name,
                 state: message.msg,
                 state_message: `${message.msg} the chat`,
                 end_message: !isOwn ? endMaker : "",
-                user_type: message.session.user ? "agent" : "client",
+                user_type: message.socket_session.user ? "agent" : "client",
             };
-            // }
-
-            //chat ended by mohammed younus. client widget
-            // chat ended by you. client widget. by client
-
-            // return `${name} ${message.state} the chat ${message.state !== "joined" ? time : ""} ${endMaker}`;
         },
 
         transferMsgMaker(msg: any) {
-            const transferredTo = this.conversationConnectedUsers.find(
-                (convSes: any) => convSes.socket_session_id === msg.msg.split("_")[1]
-            );
+            const transferToSocketSessionId = msg.msg.split("_")[1];
 
-            return `${msg.session?.user?.user_meta?.display_name} transferred the chat to ${transferredTo?.socket_session?.user?.user_meta?.display_name}`;
+            const transferToSocketSession: any = SocketSession.query()
+                .where("id", transferToSocketSessionId)
+                .with("user")
+                .first();
+
+            return `${msg.socket_session?.user?.user_meta?.display_name} transferred the chat to ${transferToSocketSession?.user?.user_meta?.display_name}`;
         },
 
         inputFocusHandle() {
@@ -1614,30 +1551,33 @@ export default defineComponent({
         },
 
         async handleAttachmentLoading() {
-            if (!Object.keys(this.conversationMessages).length) return;
+            if (!this.messages?.length) return;
 
-            // if it does not reflect change to store then handle attachment mutation here
-            for (const message of Object.values(this.conversationMessages)) {
-                const msg: any = message; // its only for now. otherwise type error msg
+            for (const msg of this.messages) {
+                console.log(msg);
+                for (const nestedMsg of msg.messageArray) {
+                    if (nestedMsg.attachments && nestedMsg.attachments.length) {
+                        if (msg.attachments && msg.attachments.length) {
+                            for (const attch of msg.attachments) {
+                                console.log(attch);
+                                if (!attch.loaded && !attch.src) {
+                                    attch.loaded = true;
 
-                if (msg.attachments && msg.attachments.length) {
-                    for (const attch of msg.attachments) {
-                        if (!attch.loaded && !attch.src) {
-                            try {
-                                const imgRes = await this.$socketSessionApi.get(`attachments/${attch.id}`, {
-                                    responseType: "arraybuffer",
-                                });
+                                    try {
+                                        const imgRes = await this.$socketSessionApi.get(`attachments/${attch.id}`, {
+                                            responseType: "arraybuffer",
+                                        });
 
-                                attch.src = URL.createObjectURL(
-                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-                                );
-
-                                attch.loaded = true;
-                            } catch (e) {
-                                attch.loaded = false;
-                                console.log(e);
+                                        attch.src = URL.createObjectURL(
+                                            new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                                        );
+                                    } catch (e) {
+                                        attch.loaded = false;
+                                        console.log(e);
+                                    }
+                                    console.log(attch);
+                                }
                             }
-                            console.log(msg);
                         }
                     }
                 }
@@ -1751,8 +1691,9 @@ export default defineComponent({
             immediate: true,
         },
 
-        conversationMessages: {
-            handler: function () {
+        messages: {
+            handler: function (newVal, oldVal) {
+                if (!newVal || !oldVal || newVal.length === oldVal.length) return;
                 // in the future, we can fine tune this by checking old & new val
                 this.newMessagesMayBeLoaded = true;
 

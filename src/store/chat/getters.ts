@@ -13,7 +13,24 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return state.clientInitiateConvInfo;
     },
 
-    clientsConversation: (state) => {
+    clientsConversation: (state, getters, rootState, rootGetters) => {
+        // const tc = Conversation.query()
+        //     .where("users_only", false)
+        //     .whereHas("conversation_sessions", (query) => {
+        //         query
+        //             .where("left_at", null)
+        //             .where("socket_session_id", rootGetters["auth/profile"]?.socket_session?.id);
+        //     })
+        //     .with("conversation_sessions")
+        //     .get();
+        //
+        // console.log({ tc });
+        //
+        // tc.forEach((t: any) => {
+        //     // console.log(t.test);
+        //     console.log({ c: t.clientConversationSession, m: t.myConversationSession, msg: t.myUnseenMessageCount });
+        // });
+
         return Object.values(state.conversations).filter((conv: any) => !conv.users_only);
     },
 
@@ -196,95 +213,43 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     // chat requests for me => for left bar & interaction page
-    incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
-        const chats = Object.values(state.conversations)
-            .filter((conv: any) => {
-                return (
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    _l.find(rootGetters["auth/profile"].chat_departments, ["tag", conv?.chat_department?.tag]) &&
-                    conv.sessions.length === 1 // assume only client is connected
-                );
+    incomingChatRequests() {
+        return Conversation.query()
+            .where("users_only", false)
+            .where("closed_at", null)
+            .whereHasNot("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery.whereHasNot("socket_session", (socketSessionQuery) => {
+                    socketSessionQuery.where("user_id", null);
+                });
             })
-            .map((conv: any) => {
-                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
-                return { ...conv, client_info };
-            });
+            .with("chat_department")
+            .get();
+    },
 
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format("x"));
+    incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
+        return getters.incomingChatRequests.filter((conv: any) =>
+            _l.find(rootGetters["auth/profile"].chat_departments, ["tag", conv?.chat_department?.tag])
+        );
     },
 
     // my running chats => for left bar & interaction page
     myOngoingChats(state, getters, rootState, rootGetters) {
-        // we know if agent initiate chat on behalf of client then client session present also
-        const tc = Conversation.query()
+        return Conversation.query()
             .where("users_only", false)
             .where("closed_at", null)
-            .whereHas("conversation_sessions", (query) => {
-                query
+            .whereHas("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery
+                    .where("joined_at", (value: any) => value)
                     .where("left_at", null)
-                    .where("socket_session_id", rootGetters["auth/profile"]?.socket_session?.id);
+                    .whereHas("socket_session", (socketSessionQuery) => {
+                        socketSessionQuery
+                            .where("user_id", (value: any) => value)
+                            .where("id", rootGetters["auth/profile"]?.socket_session?.id);
+                    });
             })
-            .with("conversation_sessions")
+            .with("chat_department")
+            .orderBy("created_at")
             .get();
-
-        console.log({ tc });
-
-        tc.forEach((t: any) => {
-            // console.log(t.test);
-            console.log({ c: t.clientConversationSession, m: t.myConversationSession, msg: t.myUnseenMessageCount });
-        });
-
-        const myOngoingChats = Object.values(state.conversations)
-            .filter((conv: any) => {
-                const sesInfo = _l.find(conv.sessions, [
-                    "socket_session_id",
-                    rootGetters["auth/profile"]?.socket_session?.id,
-                ]);
-
-                // Object.keys(conv.messages).length check for safe
-                return !conv.users_only && !conv.closed_at && sesInfo && !sesInfo.left_at && sesInfo.joined_at;
-            })
-            .map((conv: any) => {
-                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
-
-                // get my last msg seen time
-                const self_info = _l.find(
-                    conv.sessions,
-                    (convSes: any) => convSes.socket_session_id === helpers.getMySocketSessionId()
-                );
-
-                const myLastMsgSeenTime = self_info.last_msg_seen_time;
-
-                let countUnSeenMsg = 0;
-
-                const convMessages = Object.values(conv.messages).filter((message: any) => {
-                    return message.socket_session_id !== helpers.getMySocketSessionId();
-                });
-
-                if (!myLastMsgSeenTime) {
-                    countUnSeenMsg = convMessages.length;
-                } else {
-                    for (const message of convMessages) {
-                        if (countUnSeenMsg > 9) break;
-
-                        const msg: any = message;
-
-                        moment(msg.created_at).isAfter(myLastMsgSeenTime) && countUnSeenMsg++;
-                    }
-                }
-
-                const count_unseen_msg = countUnSeenMsg;
-
-                return {
-                    conversation_session: _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user),
-                    ...conv,
-                    client_info,
-                    count_unseen_msg,
-                }; // conv.sessions[0] cz we are already filtering length 1
-            });
-
-        return _l.sortBy(myOngoingChats, (conv: any) => moment(conv.created_at).format("x")).reverse();
     },
 
     myChatTransferRequests(state, getters, rootState, rootGetters) {

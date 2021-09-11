@@ -131,6 +131,7 @@
             </q-drawer>
 
             <q-page-container>
+                <!--<pre>{{ tempStore }}</pre>-->
                 <q-card
                     v-show="myChatTransferRequest.id"
                     :class="`tw-fixed tw-top-0 tw-shadow-lg tw-rounded-none tw-bg-transparent`"

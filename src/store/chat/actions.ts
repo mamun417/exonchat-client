@@ -244,7 +244,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     // console.log('chat requests', chatRequests);
 
                     chatRequests.forEach((request: any) => {
-                        console.log(request);
                         Conversation.insert({ data: request }).then((c) => c);
 
                         context.commit("updateConversation", {

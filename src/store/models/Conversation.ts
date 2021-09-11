@@ -1,4 +1,4 @@
-import Fields, { Model } from "@vuex-orm/core";
+import { Model } from "@vuex-orm/core";
 import ConversationSession from "src/store/models/ConversationSession";
 import Message from "src/store/models/Message";
 import ChatDepartment from "src/store/models/ChatDepartment";
@@ -21,6 +21,8 @@ export default class Conversation extends Model {
 
             created_at: this.attr(null),
             closed_at: this.attr(null),
+            closed_by: this.attr(null),
+            closed_reason: this.attr(null),
 
             chat_department: this.belongsTo(ChatDepartment, "chat_department_id"),
 
@@ -29,10 +31,7 @@ export default class Conversation extends Model {
         };
     }
 
-    get test() {
-        return { a: this };
-    }
-
+    // client's conversation + socket_session = postgres_table(conversation_session)
     get clientConversationSession() {
         const conversation: any = this.$query()
             .where("id", this.id)
@@ -46,6 +45,11 @@ export default class Conversation extends Model {
             .first();
 
         return conversation?.conversation_sessions.length ? conversation.conversation_sessions[0] : {};
+    }
+
+    // client's socket_session
+    get clientSocketSession() {
+        return this.clientConversationSession.socket_session;
     }
 
     get myConversationSession() {
@@ -73,7 +77,9 @@ export default class Conversation extends Model {
                     )
                     .where(
                         "created_at",
-                        (value: any) => new Date(value).getTime() > this.myConversationSession.last_msg_seen_time
+                        (value: any) =>
+                            new Date(value).getTime() >
+                            new Date(this.myConversationSession.last_msg_seen_time).getTime()
                     )
                     .with("socket_session");
             })
