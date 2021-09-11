@@ -603,6 +603,11 @@ export default defineComponent({
                     });
             }
         },
+
+        sendTranscript() {
+            // call send transcript api
+            console.log("send transcript");
+        },
     },
 
     mounted() {
