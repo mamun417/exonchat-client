@@ -38,7 +38,7 @@
 
                     <template v-slot:cell-client="slotProps">
                         <div class="">
-                            {{ slotProps.row.client_info.socket_session.init_name }}
+                            {{ slotProps.row.clientSocketSession.init_name }}
                         </div>
                     </template>
 
@@ -46,8 +46,10 @@
                         <div class="text-xss">
                             {{
                                 $_.last(
-                                    $_.find(visitors, ["session_id", slotProps.row.client_info.socket_session_id])
-                                        ?.visits
+                                    $_.find(visitors, [
+                                        "session_id",
+                                        slotProps.row.clientConversationSession.socket_session_id,
+                                    ])?.visits
                                 )?.url
                             }}
                         </div>
@@ -55,7 +57,7 @@
 
                     <template v-slot:cell-department="slotProps">
                         <div class="text-xss">
-                            {{ slotProps.row.chat_department.tag }}
+                            {{ slotProps.row.chat_department.display_name }}
                         </div>
                     </template>
 
@@ -99,7 +101,7 @@
 
                     <template v-slot:cell-client="slotProps">
                         <div class="">
-                            {{ slotProps.row.client_info.socket_session.init_name }}
+                            {{ slotProps.row.clientSocketSession.init_name }}
                         </div>
                     </template>
 
@@ -107,8 +109,10 @@
                         <div class="text-xss">
                             {{
                                 $_.last(
-                                    $_.find(visitors, ["session_id", slotProps.row.client_info.socket_session_id])
-                                        ?.visits
+                                    $_.find(visitors, [
+                                        "session_id",
+                                        slotProps.row.clientConversationSession.socket_session_id,
+                                    ])?.visits
                                 )?.url
                             }}
                         </div>
@@ -319,7 +323,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            chatsInQueue: "chat/incomingChatRequestsForMe",
+            chatsInQueue: "chat/incomingChatRequests",
             myRunningChats: "chat/myOngoingChats",
             ongoingOtherChats: "chat/ongoingOtherChats",
             visitors: "visitor/visitors",

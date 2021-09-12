@@ -131,6 +131,7 @@
             </q-drawer>
 
             <q-page-container>
+                <!--<pre>{{ tempStore }}</pre>-->
                 <q-card
                     v-show="myChatTransferRequest.id"
                     :class="`tw-fixed tw-top-0 tw-shadow-lg tw-rounded-none tw-bg-transparent`"
@@ -344,6 +345,14 @@ import * as _l from "lodash";
 import EcAvatar from "src/components/common/EcAvatar.vue";
 import StoreDebug from "src/components/debug/StoreDebug.vue";
 import helpers from "boot/helpers/helpers";
+import Conversation from "src/store/models/Conversation";
+import ConversationSession from "src/store/models/ConversationSession";
+import SocketSession from "src/store/models/SocketSession";
+import Message from "src/store/models/Message";
+import User from "src/store/models/User";
+import ChatDepartment from "src/store/models/ChatDepartment";
+import { Query } from "@vuex-orm/core";
+import MessageAttachment from "src/store/models/MessageAttachment";
 
 declare global {
     interface Window {
@@ -444,6 +453,19 @@ export default defineComponent({
             }
 
             return [];
+        },
+
+        tempStore(): any {
+            return {
+                conversations: Conversation.query()
+                    .with(["conversation_sessions.*", "messages", "chat_department"])
+                    .get(),
+                conversation_sessions: ConversationSession.query().withAll().get(),
+                socket_sessions: SocketSession.query().withAll().get(),
+                chat_departments: ChatDepartment.query().withAll().get(),
+                messages: Message.query().with(["conversation", "socket_session"]).get(),
+                users: User.query().withAll().get(),
+            };
         },
     },
 
@@ -552,6 +574,7 @@ export default defineComponent({
             this.getUsers();
             this.fireSocketListeners();
             this.reloadForProfileImageLoad();
+            this.vuexOrmMutationListener();
             this.$socket.emit("ec_get_logged_users", {});
 
             // in future handle interval for page visiting update. check visiting time & mutate visiting value
@@ -942,9 +965,38 @@ export default defineComponent({
                 localStorage.setItem("ec_not_in_tabs", "true");
             }
         },
+
+        vuexOrmMutationListener() {
+            Query.on("afterCreate", (model: any) => {
+                if (model instanceof MessageAttachment) {
+                    if (!model.loaded && !model.src) {
+                        MessageAttachment.update({
+                            where: model.id,
+                            data: { loaded: true },
+                        });
+
+                        window.socketSessionApi
+                            .get(`attachments/${model.id}`, {
+                                responseType: "arraybuffer",
+                            })
+                            .then((imgRes: any) => {
+                                const src = URL.createObjectURL(
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                                );
+
+                                MessageAttachment.update({
+                                    where: model.id,
+                                    data: { src: src },
+                                });
+                            })
+                            .catch();
+                    }
+                }
+            });
+        },
     },
 
-    beforeRouteUpdate(to, from) {
+    beforeRouteUpdate(to) {
         if (this.rightBarState?.mode || this.rightBarState.mode === "conversation") {
             this.updateRightDrawerState({ mode: "client_info", visible: true });
         }

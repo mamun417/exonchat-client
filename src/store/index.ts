@@ -65,6 +65,8 @@ import ConversationSession from "src/store/models/ConversationSession";
 import SocketSession from "src/store/models/SocketSession";
 import Message from "src/store/models/Message";
 import User from "src/store/models/User";
+import ChatDepartment from "src/store/models/ChatDepartment";
+import MessageAttachment from "src/store/models/MessageAttachment";
 
 /*
  * If not building with SSR mode, you can
@@ -116,7 +118,9 @@ const database = new VuexORM.Database();
 database.register(Conversation);
 database.register(ConversationSession);
 database.register(SocketSession);
+database.register(ChatDepartment);
 database.register(Message);
+database.register(MessageAttachment);
 database.register(User);
 
 export default store(function (/* { ssrContext } */) {

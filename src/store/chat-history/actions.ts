@@ -2,6 +2,7 @@ import { ActionTree } from "vuex";
 import { StateInterface } from "../index";
 import { ChatHistoryStateInterface } from "./state";
 import * as _l from "lodash";
+import Conversation from "src/store/models/Conversation";
 
 const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
     getChatHistories(context) {
@@ -24,6 +25,8 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                     );
 
                     chatHistories.forEach((conv: any) => {
+                        Conversation.insert({ data: conv });
+
                         context.commit(
                             "chat/updateConversation",
                             {

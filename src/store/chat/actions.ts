@@ -6,6 +6,7 @@ import * as _l from "lodash";
 import helpers from "boot/helpers/helpers";
 
 import Conversation from "src/store/models/Conversation";
+import Message from "src/store/models/Message";
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -193,9 +194,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         pagination.current_page = current_page; // reset to the previous pagination so that +1 turns valid
                     }
 
-                    // vuex-orm
-                    Conversation.insert({ data: conv });
-
                     // conv.current_page = payload.page || 1; // now only for temp & test
 
                     context.commit("updateConversation", {
@@ -223,6 +221,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         rating: conv.conversation_rating,
                         pagination_meta: pagination,
                         caller: "getConvMessages",
+                        original_data: { conversation: conv },
                     });
 
                     resolve(res);
@@ -243,6 +242,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     // console.log('chat requests', chatRequests);
 
                     chatRequests.forEach((request: any) => {
+                        Conversation.insert({ data: request }).then((c) => c);
+
                         context.commit("updateConversation", {
                             conv_id: request.id,
                             conversation: _l.pick(request, [
@@ -283,6 +284,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     // console.log('other joined chats', convs);
 
                     convs.forEach((conv: any) => {
+                        Conversation.insert({ data: conv });
+
                         context.commit("updateConversation", {
                             conv_id: conv.id,
                             conversation: _l.pick(conv, [
@@ -323,6 +326,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     // console.log('my joined chats', convs);
 
                     convs.forEach((request: any) => {
+                        Conversation.insert({ data: request }).then((c) => c);
+
                         context.commit("updateConversation", {
                             conv_id: request.id,
                             conversation: _l.pick(request, [
@@ -356,6 +361,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     // store message which came from socket events
     storeMessage(context, messageRes) {
         const tempConv = messageRes.conversation;
+
+        Message.insert({ data: messageRes });
 
         const obj = {
             conv_id: tempConv.id,
@@ -444,6 +451,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             Promise.all([getMyConvWithUsers, getUsers]).then(async ([myConvWithUsers, users]) => {
                 // collect convSessions array
                 myConvWithUsers.data.forEach((conv: any) => {
+                    Conversation.insert({ data: conv });
+
                     context.commit("updateConversation", {
                         conv_id: conv.id,
                         conversation: _l.pick(conv, [
