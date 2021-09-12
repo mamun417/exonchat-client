@@ -1,6 +1,24 @@
 <template>
     <q-layout view="hHh LpR fff" class="bg-white">
         <template v-if="domReady">
+            <q-header v-model="notificationDisabledWarning"
+                ><q-toolbar class="bg-yellow-2 text-blue-grey-8 tw-px-16"
+                    ><div>
+                        We suggest you to
+                        <span @click="requestNotificationPermission" class="tw-font-bold text-blue-10 tw-cursor-pointer"
+                            >enable desktop notification</span
+                        >
+                    </div>
+                    <q-space />
+                    <q-btn
+                        @click="hideNotificationDisabledWarning"
+                        label="Close"
+                        color="white"
+                        text-color="blue-grey-8"
+                        no-caps
+                        unelevated /></q-toolbar
+            ></q-header>
+
             <q-drawer
                 :model-value="true"
                 class="tw-shadow"
@@ -393,6 +411,8 @@ export default defineComponent({
             },
 
             socketConnectError: false,
+
+            notificationDisabledWarning: false,
         };
     },
 
@@ -500,6 +520,10 @@ export default defineComponent({
         this.$emitter.on("user_socket_token_timeout", () => {
             this.$store.dispatch("auth/logOut");
         });
+
+        if (Notification.permission === "default" && !localStorage.getItem("ec_notification_hide_warning")) {
+            this.notificationDisabledWarning = true;
+        }
     },
 
     // hit update profile
@@ -993,6 +1017,26 @@ export default defineComponent({
                     }
                 }
             });
+        },
+
+        requestNotificationPermission() {
+            if (Notification.permission === "default") {
+                Notification.requestPermission().then((permission) => {
+                    // If the user accepts, let's create a notification
+                    if (permission === "granted") {
+                        new Notification("New message from ExonChat", {
+                            body: "Nice, notifications are enabled! ",
+                        });
+                    }
+
+                    this.hideNotificationDisabledWarning();
+                });
+            }
+        },
+        hideNotificationDisabledWarning() {
+            this.notificationDisabledWarning = false;
+
+            localStorage.setItem("ec_notification_hide_warning", "true");
         },
     },
 

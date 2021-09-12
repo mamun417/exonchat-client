@@ -52,7 +52,7 @@ export default class Message extends Model {
     get isMyMsg() {
         const message: any = this.$query()
             .where("id", this.id)
-            .where("socket_session_id", this.$store().getters["auth/profile"].socket_session.id)
+            .where("socket_session_id", this.$store().getters["auth/profile"]?.socket_session?.id)
             .first();
 
         return !!message?.id;

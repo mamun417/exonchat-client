@@ -75,7 +75,7 @@ export default class Conversation extends Model {
             .where("id", this.id)
             .with("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery
-                    .where("socket_session_id", this.$store().getters["auth/profile"].socket_session.id)
+                    .where("socket_session_id", this.$store().getters["auth/profile"]?.socket_session?.id)
                     .with("socket_session.user");
             })
             .first();
@@ -92,7 +92,7 @@ export default class Conversation extends Model {
                     .where("message_type", "message")
                     .where(
                         "socket_session_id",
-                        (value: any) => value !== this.$store().getters["auth/profile"].socket_session.id
+                        (value: any) => value !== this.$store().getters["auth/profile"]?.socket_session?.id
                     )
                     .where(
                         "created_at",
