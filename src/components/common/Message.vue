@@ -681,6 +681,8 @@
                 no-caps
             />
 
+            <send-transcript :conv_id="conv_id" />
+
             <q-btn
                 @click="
                     $router.push({
@@ -706,11 +708,12 @@ import * as _l from "lodash";
 import moment from "moment";
 import EcAvatar from "./EcAvatar.vue";
 import EcEmoji from "components/common/EcEmoji.vue";
+import SendTranscript from "components/common/SendTranscript.vue";
 import SocketSession from "src/store/models/SocketSession";
 
 export default defineComponent({
     name: "Message",
-    components: { EcEmoji, EcAvatar },
+    components: { SendTranscript, EcEmoji, EcAvatar },
     props: {
         conv_id: {
             type: String,

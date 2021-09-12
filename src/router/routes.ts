@@ -128,6 +128,12 @@ const routes: RouteRecordRaw[] = [
                 name: "access-denied",
                 component: () => import("pages/Error403.vue"),
             },
+
+            {
+                path: "/send-transcript",
+                name: "send-transcript",
+                component: () => import("pages/Sendtranscript.vue"),
+            },
         ],
     },
 

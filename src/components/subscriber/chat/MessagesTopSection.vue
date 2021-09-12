@@ -162,7 +162,7 @@
 
                                     <q-item
                                         v-if="
-                                            ['technical', 'Technical'].includes(conversationInfo.chat_department.tag) &&
+                                            ['support', 'Support'].includes(conversationInfo.chat_department.tag) &&
                                             conversationStatusForMe === 'joined'
                                         "
                                         clickable
