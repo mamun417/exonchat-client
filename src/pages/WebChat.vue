@@ -506,6 +506,8 @@ import Message from "components/common/Message.vue";
 import ChatRatingForm from "components/common/ChatRatingForm.vue";
 import OfflineMessage from "components/common/OfflineMessage.vue";
 import WhmcsLogin from "components/common/WhmcsLogin.vue";
+import { Query } from "@vuex-orm/core";
+import MessageAttachment from "src/store/models/MessageAttachment";
 
 declare global {
     interface Window {
@@ -937,6 +939,7 @@ export default defineComponent({
                 this.getOnlineChatDepartments();
 
                 this.fireOtherEvents();
+                this.vuexOrmMutationListener();
             }
 
             this.allCheck = true;
@@ -1355,6 +1358,35 @@ export default defineComponent({
             };
 
             this.whmcsInfoAssigned = true;
+        },
+
+        vuexOrmMutationListener() {
+            Query.on("afterCreate", (model: any) => {
+                if (model instanceof MessageAttachment) {
+                    if (!model.loaded && !model.src) {
+                        MessageAttachment.update({
+                            where: model.id,
+                            data: { loaded: true },
+                        });
+
+                        window.socketSessionApi
+                            .get(`attachments/${model.id}`, {
+                                responseType: "arraybuffer",
+                            })
+                            .then((imgRes: any) => {
+                                const src = URL.createObjectURL(
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                                );
+
+                                MessageAttachment.update({
+                                    where: model.id,
+                                    data: { src: src },
+                                });
+                            })
+                            .catch();
+                    }
+                }
+            });
         },
     },
 

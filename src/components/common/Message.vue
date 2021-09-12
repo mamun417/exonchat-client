@@ -40,8 +40,8 @@
                         !gettingNewMessages &&
                         !mini_mode &&
                         isAgentChatPanel &&
-                        !conversationInfo.users_only &&
-                        !conversationInfo.closed_at
+                        !conversationData.users_only &&
+                        !conversationData.closed_at
                     "
                     class="tw-text-center tw-pr-2 tw-mb-4"
                     :class="{ 'tw-ml-16': mini_mode, 'tw-ml-20': !mini_mode }"
@@ -114,12 +114,12 @@
                                         <template
                                             v-else-if="
                                                 message.msg === 'closed' &&
-                                                conversationInfo.closed_reason &&
-                                                !conversationInfo.closed_by_id
+                                                message.conversationData.closed_reason &&
+                                                !message.conversationData.closed_by_id
                                             "
                                         >
                                             <span :class="`tw-mr-1 tw-break-none ${$helpers.colors().defaultText}`">
-                                                {{ conversationInfo.closed_reason }}
+                                                {{ message.conversationData.closed_reason }}
                                             </span>
                                         </template>
 
@@ -446,50 +446,41 @@
                 </div>
 
                 <div
-                    v-if="conversationInfo.rating && chatPanelType === 'user'"
+                    v-if="conversationData.conversation_rating && chatPanelType === 'user'"
                     class="text-center tw-py-2"
                     :class="$helpers.colors().defaultText"
                 >
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
-                            Chat rated by {{ conversationWithUsersInfo[0].socket_session.init_name }}
-                            {{ getDateTime(conversationInfo.rating.created_at) }}
+                            Chat rated by {{ conversationData.clientSocketSession.init_name }}
+                            {{ getDateTime(conversationData.conversation_rating.created_at) }}
                         </div>
-                        <div v-if="conversationInfo.rating.comment" style="word-break: break-word">
-                            “{{ conversationInfo.rating.comment }}”
+                        <div v-if="conversationData.conversation_rating.comment" style="word-break: break-word">
+                            “{{ conversationData.conversation_rating.comment }}”
                         </div>
                         <div class="tw-mt-2">
                             <div>Chat rating</div>
                             <div>
                                 <q-btn
                                     size="sm"
-                                    :color="conversationInfo.rating.rating === 5 ? 'green' : 'red'"
-                                    :icon="conversationInfo.rating.rating === 5 ? 'thumb_up' : 'thumb_down'"
-                                    :label="conversationInfo.rating.rating === 5 ? 'Good' : 'Bad'"
+                                    :color="conversationData.conversation_rating.rating === 5 ? 'green' : 'red'"
+                                    :icon="
+                                        conversationData.conversation_rating.rating === 5 ? 'thumb_up' : 'thumb_down'
+                                    "
+                                    :label="conversationData.conversation_rating.rating === 5 ? 'Good' : 'Bad'"
                                     outline
                                     class="tw-mt-1"
                                 />
                             </div>
                         </div>
-                        <!--<pre>{{ conversationInfo.rating }}</pre>-->
-                        <!--<pre>{{ conversationWithUsersInfo[0].socket_session }}</pre>-->
                     </div>
                 </div>
 
                 <slot name="scroll-area-last-section"> </slot>
             </template>
-
-            <!--            <template v-slot:loading>-->
-            <!--                <div class="row justify-center q-my-md">-->
-            <!--                    <q-spinner-dots color="green" size="40px" />-->
-            <!--                </div>-->
-            <!--            </template>-->
         </q-infinite-scroll>
-        <q-scroll-observer :debounce="200" @scroll="scrollObserverHandle" />
 
-        <!--<q-inner-loading :showing="!firstTimeMessageLoaded">
-            <q-spinner-dots size="50px" :color="globalColor" />
-        </q-inner-loading>-->
+        <q-scroll-observer :debounce="200" @scroll="scrollObserverHandle" />
     </q-scroll-area>
 
     <div
@@ -673,18 +664,18 @@
     </div>
 
     <div
-        v-if="chatPanelType === 'user' && !showSendMessageInput && conversationInfo.id && !mini_mode"
+        v-if="chatPanelType === 'user' && !showSendMessageInput && conversationData.id && !mini_mode"
         class="text-center tw-pt-3"
     >
         <div class="tw-flex tw-justify-center tw-gap-2">
             <q-btn
-                @click="acceptChat(conversationInfo.id)"
+                @click="acceptChat(conversationData.id)"
                 v-if="
-                    !conversationInfo.users_only &&
-                    !conversationInfo.closed_at &&
+                    !conversationData.users_only &&
+                    !conversationData.closed_at &&
                     (!conversationStatusForMe || conversationStatusForMe !== 'joined')
                 "
-                :label="conversationConnectedUsers.length ? 'Join Chat' : 'Accept Chat'"
+                :label="conversationData.connectedUsers.length ? 'Join Chat' : 'Accept Chat'"
                 :color="globalColor"
                 unelevated
                 no-caps
@@ -716,7 +707,6 @@ import moment from "moment";
 import EcAvatar from "./EcAvatar.vue";
 import EcEmoji from "components/common/EcEmoji.vue";
 import SocketSession from "src/store/models/SocketSession";
-import Message from "src/store/models/Message";
 
 export default defineComponent({
     name: "Message",
@@ -775,7 +765,6 @@ export default defineComponent({
 
             attachments: [],
             finalAttachments: [],
-            conversationInfoLocal: null,
 
             attachmentPreview: null,
             attachmentPreviewModal: false,
@@ -813,7 +802,7 @@ export default defineComponent({
     beforeUnmount() {
         clearInterval(this.ecGetClientSesIdStatusInterval);
 
-        if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
+        if (this.chatPanelType === "user" && !this.conversationData.users_only) {
             this.$socket.removeEventListener("ec_get_client_ses_id_status_res");
         }
 
@@ -833,6 +822,15 @@ export default defineComponent({
             return this.$route.name === "client-web-chat" ? "client" : "user";
         },
 
+        conversationModel(): any {
+            return Conversation.query().where("id", this.conv_id);
+        },
+
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.first() || {};
+        },
+
         conversationInfo(): any {
             return this.$store.getters["chat/conversationInfo"](this.conv_id);
         },
@@ -841,8 +839,8 @@ export default defineComponent({
             return this.$store.getters["chat/conversationStatusForMe"](this.conv_id, this.ses_id);
         },
 
-        conversationMessages(): any {
-            return this.$store.getters["chat/conversationMessages"](this.conv_id);
+        myConversationSession(): any {
+            return this.$store.getters["chat/myConversationSession"](this.conv_id, this.ses_id);
         },
 
         messages(): any {
@@ -865,7 +863,7 @@ export default defineComponent({
                     })
                     .first();
 
-                if (tempConv?.$toJson().messages.length) {
+                if (tempConv?.messages.length) {
                     for (const msgObj of tempConv.messages) {
                         const tempMsgObj: any = msgObj;
 
@@ -917,12 +915,10 @@ export default defineComponent({
         },
 
         isAgentToAgentConversation(): any {
-            return this.conversationInfo.users_only;
+            return this.conversationData.users_only;
         },
 
         showSendMessageInput(): any {
-            // console.log(this.conversationStatusForMe);
-
             return this.conversationStatusForMe === "joined" || this.isAgentToAgentConversation;
         },
 
@@ -956,20 +952,9 @@ export default defineComponent({
             return mappedChatTemplates;
         },
 
-        conversationWithUsersInfo(): any {
-            return this.$store.getters["chat/conversationWithUsersInfo"](
-                this.conv_id,
-                this.profile?.socket_session?.id
-            );
-        },
-
-        conversationConnectedUsers(): any {
-            return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
-        },
-
         // return user who first join the conversation
         speakingWithMessage(): any {
-            if (this.conversationInfo.id) {
+            if (this.conversationData.id) {
                 return _l.find(
                     this.messages || [],
                     (msg: any) => msg.message_type === "log" && msg.msg === "joined" && msg.socket_session.user
@@ -980,7 +965,7 @@ export default defineComponent({
         },
 
         ecGetClientSesIdStatusWatch(): any {
-            return [this.conv_id, this.conversationWithUsersInfo];
+            return [this.conv_id, this.conversationData.clientConversationSession];
         },
 
         canGoToBottom(): any {
@@ -1016,7 +1001,7 @@ export default defineComponent({
         },
 
         fireSocketListeners() {
-            if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
+            if (this.chatPanelType === "user" && !this.conversationData.users_only) {
                 this.$socket.on("ec_get_client_ses_id_status_res", (res: any) => {
                     // custom event fire for messageTopSection
                     this.$emitter.emit("ec_get_client_ses_id_status_res", res);
@@ -1026,7 +1011,7 @@ export default defineComponent({
             }
 
             this.$emitter.on(`new_message_from_client_${this.conv_id}`, () => {
-                if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
+                if (this.chatPanelType === "user" && !this.conversationData.users_only) {
                     this.emitEcGetClientSesIdStatus();
                 }
 
@@ -1054,7 +1039,7 @@ export default defineComponent({
         },
 
         ecGetClientSesIdStatusEvent() {
-            if (this.chatPanelType === "user" && !this.conversationInfo.users_only) {
+            if (this.chatPanelType === "user" && !this.conversationData.users_only) {
                 this.emitEcGetClientSesIdStatus();
 
                 this.ecGetClientSesIdStatusInterval = setInterval(() => {
@@ -1065,7 +1050,7 @@ export default defineComponent({
 
         emitEcGetClientSesIdStatus() {
             this.$socket.emit("ec_get_client_ses_id_status", {
-                client_ses_id: this.conversationWithUsersInfo[0].socket_session.id,
+                client_ses_id: this.conversationData.clientSocketSession.id,
             });
         },
 
@@ -1558,25 +1543,23 @@ export default defineComponent({
             const mySocketSesId = this.$helpers.getMySocketSessionId();
 
             // check for undefined issue
-            if (this.conversationConnectedUsers.length) {
+            if (
+                this.myConversationSession &&
+                this.myConversationSession.joined_at &&
+                !this.myConversationSession.left_at
+            ) {
                 this.$store.commit("chat/updateConversation", {
                     conv_id: this.conv_id,
                     last_msg_seen_time: lastMsgSeenTime,
                     socket_session_id: mySocketSesId,
                 });
 
-                const selfSession = this.conversationConnectedUsers.find(
-                    (convConnectedUser: any) => convConnectedUser.socket_session_id === mySocketSesId
+                await window.api.post(
+                    `conversations/update-last-message-seen-time/conversation-session/${this.myConversationSession.id}`,
+                    {
+                        last_msg_seen_time: lastMsgSeenTime,
+                    }
                 );
-
-                if (selfSession) {
-                    await window.api.post(
-                        `conversations/update-last-message-seen-time/conversation-session/${selfSession.id}`,
-                        {
-                            last_msg_seen_time: lastMsgSeenTime,
-                        }
-                    );
-                }
             }
         },
 
@@ -1626,10 +1609,10 @@ export default defineComponent({
     },
 
     watch: {
-        conversationInfo: {
+        conversationData: {
             handler: function () {
-                // console.log('conversationInfo watcher started');
-                if (this.conversationInfo.id && this.conversationInfo.closed_at) {
+                // console.log('conversationData watcher started');
+                if (this.conversationData.id && this.conversationData.closed_at) {
                     clearInterval(this.ecGetClientSesIdStatusInterval);
                 }
             },
@@ -1689,9 +1672,10 @@ export default defineComponent({
         ecGetClientSesIdStatusWatch: {
             handler: function () {
                 if (
-                    this.conversationInfo?.id &&
-                    !this.conversationInfo.closed_at &&
-                    this.conversationWithUsersInfo.length &&
+                    this.conversationData?.id &&
+                    !this.conversationData.closed_at &&
+                    !this.conversationData.users_only &&
+                    this.conversationData.clientSocketSession.id &&
                     !this.ecGetClientSesIdStatusInterval
                 ) {
                     this.ecGetClientSesIdStatusEvent();

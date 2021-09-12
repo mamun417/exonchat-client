@@ -500,33 +500,6 @@ export default defineComponent({
         this.$emitter.on("user_socket_token_timeout", () => {
             this.$store.dispatch("auth/logOut");
         });
-
-        Query.on("afterCreate", (model: any) => {
-            if (model instanceof MessageAttachment) {
-                if (!model.loaded && !model.src) {
-                    MessageAttachment.update({
-                        where: model.id,
-                        data: { loaded: true },
-                    });
-
-                    window.socketSessionApi
-                        .get(`attachments/${model.id}`, {
-                            responseType: "arraybuffer",
-                        })
-                        .then((imgRes: any) => {
-                            const src = URL.createObjectURL(
-                                new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-                            );
-
-                            MessageAttachment.update({
-                                where: model.id,
-                                data: { src: src },
-                            });
-                        })
-                        .catch();
-                }
-            }
-        });
     },
 
     // hit update profile
@@ -601,6 +574,7 @@ export default defineComponent({
             this.getUsers();
             this.fireSocketListeners();
             this.reloadForProfileImageLoad();
+            this.vuexOrmMutationListener();
             this.$socket.emit("ec_get_logged_users", {});
 
             // in future handle interval for page visiting update. check visiting time & mutate visiting value
@@ -990,6 +964,35 @@ export default defineComponent({
                 localStorage.setItem("ec_last_visited_tab", this.$browser_tab_id);
                 localStorage.setItem("ec_not_in_tabs", "true");
             }
+        },
+
+        vuexOrmMutationListener() {
+            Query.on("afterCreate", (model: any) => {
+                if (model instanceof MessageAttachment) {
+                    if (!model.loaded && !model.src) {
+                        MessageAttachment.update({
+                            where: model.id,
+                            data: { loaded: true },
+                        });
+
+                        window.socketSessionApi
+                            .get(`attachments/${model.id}`, {
+                                responseType: "arraybuffer",
+                            })
+                            .then((imgRes: any) => {
+                                const src = URL.createObjectURL(
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                                );
+
+                                MessageAttachment.update({
+                                    where: model.id,
+                                    data: { src: src },
+                                });
+                            })
+                            .catch();
+                    }
+                }
+            });
         },
     },
 

@@ -24,6 +24,8 @@ export default class Conversation extends Model {
             closed_by: this.attr(null),
             closed_reason: this.attr(null),
 
+            conversation_rating: this.attr(null),
+
             chat_department: this.belongsTo(ChatDepartment, "chat_department_id"),
 
             conversation_sessions: this.hasMany(ConversationSession, "conversation_id"),
@@ -52,6 +54,22 @@ export default class Conversation extends Model {
         return this.clientConversationSession.socket_session;
     }
 
+    get connectedUsers() {
+        const conversation: any = this.$query()
+            .where("id", this.id)
+            .with("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery
+                    .whereHas("socket_session", (socketSessionQuery) => {
+                        socketSessionQuery.where("user_id", (value: any) => !!value);
+                    })
+                    .with("socket_session.user");
+            })
+            .first();
+
+        return conversation?.conversation_sessions.length ? conversation.conversation_sessions : [];
+    }
+
+    // use only in agent panel
     get myConversationSession() {
         const conversation: any = this.$query()
             .where("id", this.id)
@@ -65,6 +83,7 @@ export default class Conversation extends Model {
         return conversation?.conversation_sessions.length ? conversation.conversation_sessions[0] : {};
     }
 
+    // only use in agent panel
     get myUnseenMessageCount() {
         const conversation: any = this.$query()
             .where("id", this.id)

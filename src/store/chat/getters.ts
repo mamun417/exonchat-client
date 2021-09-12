@@ -32,21 +32,32 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return {};
     },
 
-    conversationStatusForMe: (state) => (convId: any, mySesId: any) => {
-        const conv = state.conversations[convId];
+    myConversationSession: () => (convId: any, mySesId: any) => {
+        const conv: any = Conversation.query().where("id", convId).with("conversation_sessions").first();
+
+        if (!conv) return {};
+
+        return (
+            _l.find(
+                conv.conversation_sessions,
+                (conversationSession: any) => conversationSession.socket_session_id === mySesId
+            ) || {}
+        );
+    },
+
+    conversationStatusForMe: () => (convId: any, mySesId: any) => {
+        const conv: any = Conversation.query().where("id", convId).with("conversation_sessions").first();
 
         if (!conv) return null;
         if (conv.closed_at) return "closed";
 
-        let convState = null;
+        const conversationSession =
+            _l.find(
+                conv.conversation_sessions,
+                (conversationSession: any) => conversationSession.socket_session_id === mySesId
+            ) || {};
 
-        conv.sessions.forEach((ses: any) => {
-            if (ses.socket_session_id === mySesId) {
-                convState = ses.left_at ? "left" : ses.joined_at ? "joined" : null;
-            }
-        });
-
-        return convState;
+        return conversationSession.left_at ? "left" : conversationSession.joined_at ? "joined" : null;
     },
 
     conversationWithUsersInfo: (state) => (convId: any, mySesId: any) => {

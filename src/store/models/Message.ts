@@ -62,6 +62,10 @@ export default class Message extends Model {
         return !this.isClientMsg;
     }
 
+    get conversationData() {
+        return Conversation.find(this.conversation_id);
+    }
+
     get conversationSession() {
         return ConversationSession.query().where("conversation_id", this.conversation_id).first();
     }
