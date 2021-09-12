@@ -234,19 +234,14 @@
                                 </message>
 
                                 <div
+                                    v-if="conversationInfo.closed_at"
                                     class="tw-px-5 full-width tw-flex tw-justify-between tw-items-center tw-gap-4 tw-py-2"
                                 >
                                     <send-transcript :conv_id="conversationInfo.id" :color="globalColor" />
 
                                     <div>OR</div>
 
-                                    <q-btn
-                                        v-if="conversationInfo.closed_at"
-                                        @click="clearSession"
-                                        :color="globalColor"
-                                        no-caps
-                                        unelevated
-                                    >
+                                    <q-btn @click="clearSession" :color="globalColor" no-caps unelevated>
                                         Start New Chat
                                     </q-btn>
                                 </div>

@@ -681,7 +681,7 @@
                 no-caps
             />
 
-            <send-transcript :conv_id="conv_id" />
+            <send-transcript v-if="conversationStatusForMe === 'joined'" :conv_id="conv_id" />
 
             <q-btn
                 @click="
