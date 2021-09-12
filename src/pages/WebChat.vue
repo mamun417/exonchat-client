@@ -233,12 +233,17 @@
                                     </template>
                                 </message>
 
-                                <div class="tw-px-5 full-width">
+                                <div
+                                    class="tw-px-5 full-width tw-flex tw-justify-between tw-items-center tw-gap-4 tw-py-2"
+                                >
+                                    <send-transcript :conv_id="conversationInfo.id" :color="globalColor" />
+
+                                    <div>OR</div>
+
                                     <q-btn
                                         v-if="conversationInfo.closed_at"
                                         @click="clearSession"
                                         :color="globalColor"
-                                        class="full-width tw-mb-2"
                                         no-caps
                                         unelevated
                                     >
@@ -506,6 +511,7 @@ import Message from "components/common/Message.vue";
 import ChatRatingForm from "components/common/ChatRatingForm.vue";
 import OfflineMessage from "components/common/OfflineMessage.vue";
 import WhmcsLogin from "components/common/WhmcsLogin.vue";
+import SendTranscript from "components/common/SendTranscript.vue";
 
 declare global {
     interface Window {
@@ -517,7 +523,7 @@ declare global {
 
 export default defineComponent({
     name: "WebChat",
-    components: { WhmcsLogin, OfflineMessage, ChatRatingForm, Message },
+    components: { SendTranscript, WhmcsLogin, OfflineMessage, ChatRatingForm, Message },
     setup() {
         return {};
     },

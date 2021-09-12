@@ -62,17 +62,8 @@
                                                 no-wrap
                                                 unelevated
                                             />
-                                            <q-btn
-                                                @click="sendTranscript"
-                                                icon="mail_outline"
-                                                label="Send Transcript"
-                                                size="md"
-                                                color="white"
-                                                :text-color="$helpers.colors().defaultText"
-                                                no-caps
-                                                no-wrap
-                                                unelevated
-                                            />
+
+                                            <send-transcript :conv_id="rightBarState.conv_id" />
                                         </div>
                                     </q-card-section>
                                 </q-card>
@@ -360,7 +351,13 @@
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
                             <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
-                                <q-item v-for="(visit, key) of visits" :key="key" dense class="tw-text-xs">
+                                <q-item
+                                    v-for="(visit, key) of visits"
+                                    :key="key"
+                                    dense
+                                    class="tw-text-xs"
+                                    :class="`${key !== 0 ? 'custom-border-top' : ''}`"
+                                >
                                     <q-item-section class="tw-min-w-0 tw-w-8 tw-pr-0" avatar>
                                         <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"></q-icon>
                                     </q-item-section>
@@ -404,6 +401,7 @@
                                 <q-item
                                     v-for="(conv, key) of clientPreviousChats[conversationInfo.id]"
                                     :to="{ name: 'chats', params: { conv_id: conv.id } }"
+                                    :class="`${key !== 0 ? 'custom-border-top' : ''}`"
                                     :key="key"
                                     clickable
                                     dense
@@ -444,6 +442,7 @@
                                     v-for="(ticket, key) of clientTickets"
                                     :key="key"
                                     class="tw-text-xs tw-py-2"
+                                    :class="`${key !== 0 ? 'custom-border-top' : ''}`"
                                     @click="
                                         ticketSelected = ticket;
                                         ticketDetailModal = true;
@@ -499,10 +498,12 @@ import UAParser from "ua-parser-js";
 import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
 import ConnectedUsersFaces from "components/subscriber/chat/ConnectedUsersFaces.vue";
 import CustomerDetailsCard from "components/common/RightbarCards/CustomerDetailsCard.vue";
+import SendTranscript from "components/common/SendTranscript.vue";
 
 export default defineComponent({
     name: "RightBar",
     components: {
+        SendTranscript,
         CustomerDetailsCard,
         ConnectedUsersFaces,
         TicketDetail,
@@ -585,28 +586,19 @@ export default defineComponent({
     methods: {
         ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
-        getClientServices() {
-            const clientid = this.conversationWithUsersInfo[0].socket_session?.user_info?.whmcs_info?.id;
-
-            if (clientid) {
-                window.api
-                    .get("apps/whmcs/client-products", {
-                        params: {
-                            clientid,
-                        },
-                    })
-                    .then((res: any) => {
-                        this.relatedServices = res.data;
-                    })
-                    .catch((err: any) => {
-                        console.log(err.response);
-                    });
-            }
-        },
-
-        sendTranscript() {
-            // call send transcript api
-            console.log("send transcript");
+        getClientServices(clientEmail: string) {
+            window.api
+                .get("apps/whmcs/client-products", {
+                    params: {
+                        email: clientEmail,
+                    },
+                })
+                .then((res: any) => {
+                    this.relatedServices = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
         },
     },
 
@@ -640,13 +632,15 @@ export default defineComponent({
                     //     before_conversation: newVal[0].conversation_id,
                     // });
 
+                    const clientEmail = this.conversationWithUsersInfo[0].socket_session.init_email;
+
                     if (!this.conversationInfo.closed_at) {
                         // load client tickets
                         this.$store.dispatch("ticket/getTickets", {
-                            email: this.conversationWithUsersInfo[0].socket_session.init_email,
+                            email: clientEmail,
                         });
 
-                        this.getClientServices();
+                        this.getClientServices(clientEmail);
                     }
                 }
             },
