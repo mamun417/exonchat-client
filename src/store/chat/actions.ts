@@ -394,6 +394,14 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
             const profile = context.rootGetters["auth/profile"];
 
+            if (
+                messageRes.hasOwnProperty("socket_event") &&
+                messageRes.socket_event === "ec_msg_from_user" &&
+                messageRes.caller_page === "web-chat"
+            ) {
+                helpers.notifications().replyOne.play();
+            }
+
             if (profile.online_status === "online" && conversationStatusForMe === "joined") {
                 if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
                     helpers.notifications().replyOne.play();
