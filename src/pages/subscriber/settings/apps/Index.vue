@@ -14,120 +14,129 @@
                 align="left"
                 narrow-indicator
             >
-                <q-tab name="own" label="Own" />
-                <q-tab name="third-party" label="Third Party" />
+                <!--<q-tab name="own" label="Own" />-->
+                <q-tab name="whmcs" label="WHMCS" />
+                <q-tab name="facebook" label="Facebook" />
             </q-tabs>
         </q-card>
 
         <!-- these will come from api (which apps, their inputs, input types) -->
         <q-card class="tw-shadow">
-            <q-card-section>
-                <div class="tw-mb-4 tw-border-b-1">
-                    <div class="tw-font-medium tw-pb-2">WHMCS API Manager</div>
-                </div>
+            <q-tab-panels v-model="currentTab" animated>
+                <q-tab-panel name="whmcs">
+                    <q-card-section>
+                        <div class="tw-border-b-1">
+                            <div class="tw-font-medium tw-pb-2">WHMCS API Manager</div>
+                        </div>
+                    </q-card-section>
 
-                <div class="tw-mb-6">
-                    <div>API URL</div>
-                    <q-input
-                        v-model="formInputs.apps_whmcs_api_url"
-                        label="https://dev.exonhost.com/includes/api.php"
-                        type="input"
-                        bg-color="white"
-                        class="tw-mb-2 tw-shadow tw-px-2"
-                        hide-bottom-space
-                        standout
-                        borderless
-                        dense
-                    />
-                </div>
+                    <q-card-section>
+                        <div class="tw-mb-6">
+                            <div>API URL</div>
+                            <q-input
+                                v-model="formInputs.apps_whmcs_api_url"
+                                label="https://dev.exonhost.com/includes/api.php"
+                                type="input"
+                                bg-color="white"
+                                class="tw-mb-2 tw-shadow tw-px-2"
+                                hide-bottom-space
+                                standout
+                                borderless
+                                dense
+                            />
+                        </div>
 
-                <div class="tw-mb-6">
-                    <div>Identifier Key</div>
-                    <q-input
-                        v-model="formInputs.apps_whmcs_identifier_key"
-                        :type="isPwdWhmcs.identifier ? 'password' : 'text'"
-                        bg-color="white"
-                        class="tw-mb-2 tw-shadow tw-px-2"
-                        hide-bottom-space
-                        standout
-                        borderless
-                        dense
-                    />
-                </div>
+                        <div class="tw-mb-6">
+                            <div>Identifier Key</div>
+                            <q-input
+                                v-model="formInputs.apps_whmcs_identifier_key"
+                                :type="isPwdWhmcs.identifier ? 'password' : 'text'"
+                                bg-color="white"
+                                class="tw-mb-2 tw-shadow tw-px-2"
+                                hide-bottom-space
+                                standout
+                                borderless
+                                dense
+                            />
+                        </div>
 
-                <div class="tw-mb-6">
-                    <div>Secret Key</div>
-                    <q-input
-                        v-model="formInputs.apps_whmcs_secret_key"
-                        :type="isPwdWhmcs.secret ? 'password' : 'text'"
-                        bg-color="white"
-                        class="tw-mb-2 tw-shadow tw-px-2"
-                        hide-bottom-space
-                        standout
-                        borderless
-                        dense
-                    />
-                </div>
+                        <div class="tw-mb-6">
+                            <div>Secret Key</div>
+                            <q-input
+                                v-model="formInputs.apps_whmcs_secret_key"
+                                :type="isPwdWhmcs.secret ? 'password' : 'text'"
+                                bg-color="white"
+                                class="tw-mb-2 tw-shadow tw-px-2"
+                                hide-bottom-space
+                                standout
+                                borderless
+                                dense
+                            />
+                        </div>
 
-                <div class="tw-flex tw-items-center tw-my-4">
-                    <div>
-                        Api connection is :
-                        <span
-                            class="tw-font-medium tw-mr-2"
-                            :class="[formInputs.apps_whmcs_enable ? 'text-green' : 'text-orange']"
-                            >{{ formInputs.apps_whmcs_enable ? "Enabled" : "Disabled" }}</span
+                        <div class="tw-flex tw-items-center tw-my-4">
+                            <div>
+                                Api connection is :
+                                <span
+                                    class="tw-font-medium tw-mr-2"
+                                    :class="[formInputs.apps_whmcs_enable ? 'text-green' : 'text-orange']"
+                                    >{{ formInputs.apps_whmcs_enable ? "Enabled" : "Disabled" }}</span
+                                >
+                            </div>
+                            <!-- handle click api -->
+                            <q-btn
+                                :label="`${formInputs.apps_whmcs_enable ? 'Disable' : 'Enable'} Connection`"
+                                :color="formInputs.apps_whmcs_enable ? 'orange' : 'green'"
+                                size="sm"
+                                @click="updateAppSetting(true)"
+                                no-caps
+                                unelevated
+                                :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
+                            />
+                        </div>
+
+                        <div v-if="formInputs.apps_whmcs_enable">
+                            <div class="tw-mb-2 tw-font-medium">Enable/Disable these services</div>
+                            <q-checkbox
+                                v-model="formInputs.apps_whmcs_ticket_notification"
+                                label="Ticket notification"
+                                color="green"
+                                class="tw-mb-2 tw-mr-2"
+                                dense
+                            />
+                            <q-checkbox
+                                v-model="formInputs.apps_whmcs_ticket_manage"
+                                label="Ticket manager"
+                                color="green"
+                                class="tw-mb-2 tw-mr-2"
+                                dense
+                            />
+                            <q-checkbox
+                                v-model="formInputs.apps_whmcs_ticket_submit_from_chat"
+                                label="Ticket submit from chat"
+                                color="green"
+                                class="tw-mb-2 tw-mr-2"
+                                dense
+                            />
+                        </div>
+                    </q-card-section>
+
+                    <q-card-actions class="tw-px-4">
+                        <q-btn
+                            type="submit"
+                            @click="updateAppSetting(false)"
+                            :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
+                            color="green"
+                            size="sm"
+                            unelevated
                         >
-                    </div>
-                    <!-- handle click api -->
-                    <q-btn
-                        :label="`${formInputs.apps_whmcs_enable ? 'Disable' : 'Enable'} Connection`"
-                        :color="formInputs.apps_whmcs_enable ? 'orange' : 'green'"
-                        size="sm"
-                        @click="updateAppSetting(true)"
-                        no-caps
-                        unelevated
-                        :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
-                    />
-                </div>
+                            Update App Setting
+                        </q-btn>
+                    </q-card-actions>
+                </q-tab-panel>
 
-                <div v-if="formInputs.apps_whmcs_enable">
-                    <div class="tw-mb-2 tw-font-medium">Enable/Disable these services</div>
-                    <q-checkbox
-                        v-model="formInputs.apps_whmcs_ticket_notification"
-                        label="Ticket notification"
-                        color="green"
-                        class="tw-mb-2 tw-mr-2"
-                        dense
-                    />
-                    <q-checkbox
-                        v-model="formInputs.apps_whmcs_ticket_manage"
-                        label="Ticket manager"
-                        color="green"
-                        class="tw-mb-2 tw-mr-2"
-                        dense
-                    />
-                    <q-checkbox
-                        v-model="formInputs.apps_whmcs_ticket_submit_from_chat"
-                        label="Ticket submit from chat"
-                        color="green"
-                        class="tw-mb-2 tw-mr-2"
-                        dense
-                    />
-                </div>
-            </q-card-section>
-
-            <q-card-actions class="tw-px-4">
-                <q-btn
-                    type="submit"
-                    @click="updateAppSetting(false)"
-                    :disable="!formInputs.apps_whmcs_identifier_key || !formInputs.apps_whmcs_secret_key"
-                    color="green"
-                    size="sm"
-                    unelevated
-                >
-                    Update App Setting
-                </q-btn>
-            </q-card-actions>
+                <facebook-tab-panel name="facebook" />
+            </q-tab-panels>
         </q-card>
     </div>
 </template>
@@ -135,14 +144,16 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
+import FacebookTabPanel from "pages/subscriber/settings/apps/facebook/FacebookTabPanel.vue";
 
 export default defineComponent({
     name: "",
+    components: { FacebookTabPanel },
     props: {},
 
     data(): any {
         return {
-            currentTab: "third-party",
+            currentTab: "facebook",
 
             appSetting: {},
             isPwdWhmcs: {
