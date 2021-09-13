@@ -1,6 +1,9 @@
 import { MutationTree } from "vuex";
 import { ChatStateInterface } from "./state";
 import * as _l from "lodash";
+import Conversation from "src/store/models/Conversation";
+import Message from "src/store/models/Message";
+import ConversationSession from "src/store/models/ConversationSession";
 
 const mutation: MutationTree<ChatStateInterface> = {
     storeClientInitiateConvInfo(state: ChatStateInterface, payload: any) {
@@ -112,6 +115,8 @@ const mutation: MutationTree<ChatStateInterface> = {
             }
 
             if (convData.hasOwnProperty("message") && convData.message) {
+                Message.insert({ data: convData.message });
+
                 if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
                     // console.log(convData.message);
 
@@ -122,6 +127,8 @@ const mutation: MutationTree<ChatStateInterface> = {
             }
 
             if (convData.hasOwnProperty("messages") && convData.messages.length) {
+                Message.insert({ data: convData.messages });
+
                 convData.messages.forEach((message: any) => {
                     if (!state.conversations[convId].messages.hasOwnProperty(message.id)) {
                         // console.log(convData.message);
@@ -135,6 +142,8 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             // here sessions means [conversation_session...]
             if (convData.hasOwnProperty("sessions") && convData.sessions.length) {
+                ConversationSession.insert({ data: convData.sessions });
+
                 if (state.conversations[convId].sessions.length) {
                     // later
                     convData.sessions.forEach((session: any) => {
@@ -162,6 +171,8 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             // here session means conversation_session
             if (convData.hasOwnProperty("session")) {
+                ConversationSession.insert({ data: convData.session });
+
                 const convSession = convData.session;
 
                 const foundSes = _l.find(conv.sessions, ["id", convSession.id]);
@@ -185,6 +196,13 @@ const mutation: MutationTree<ChatStateInterface> = {
             }
 
             if (convData.hasOwnProperty("rating")) {
+                Conversation.update({
+                    where: convId,
+                    data: {
+                        conversation_rating: convData.rating,
+                    },
+                });
+
                 state.conversations[convId].rating = convData.rating;
             }
 
@@ -229,6 +247,18 @@ const mutation: MutationTree<ChatStateInterface> = {
                         };
                     }
                 }
+            }
+        }
+
+        if (convData.hasOwnProperty("original_data")) {
+            if (convData.original_data.hasOwnProperty("conversation")) {
+                if (convData.original_data.conversation.hasOwnProperty("messages")) {
+                    convData.original_data.conversation.messages.map((msg: any) => {
+                        msg.attachment_ids = _l.map(msg.attachments, "id");
+                    });
+                }
+
+                Conversation.insert({ data: convData.original_data.conversation });
             }
         }
     },

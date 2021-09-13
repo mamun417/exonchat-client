@@ -3,7 +3,9 @@ import * as _l from "lodash";
 import { GetterTree } from "vuex";
 import { StateInterface } from "../index";
 import { ChatStateInterface } from "./state";
-import helpers from "boot/helpers/helpers";
+
+import ChatDepartment from "src/store/models/ChatDepartment";
+import Conversation from "src/store/models/Conversation";
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
@@ -30,21 +32,32 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return {};
     },
 
-    conversationStatusForMe: (state) => (convId: any, mySesId: any) => {
-        const conv = state.conversations[convId];
+    myConversationSession: () => (convId: any, mySesId: any) => {
+        const conv: any = Conversation.query().where("id", convId).with("conversation_sessions").first();
+
+        if (!conv) return {};
+
+        return (
+            _l.find(
+                conv.conversation_sessions,
+                (conversationSession: any) => conversationSession.socket_session_id === mySesId
+            ) || {}
+        );
+    },
+
+    conversationStatusForMe: () => (convId: any, mySesId: any) => {
+        const conv: any = Conversation.query().where("id", convId).with("conversation_sessions").first();
 
         if (!conv) return null;
         if (conv.closed_at) return "closed";
 
-        let convState = null;
+        const conversationSession =
+            _l.find(
+                conv.conversation_sessions,
+                (conversationSession: any) => conversationSession.socket_session_id === mySesId
+            ) || {};
 
-        conv.sessions.forEach((ses: any) => {
-            if (ses.socket_session_id === mySesId) {
-                convState = ses.left_at ? "left" : ses.joined_at ? "joined" : null;
-            }
-        });
-
-        return convState;
+        return conversationSession.left_at ? "left" : conversationSession.joined_at ? "joined" : null;
     },
 
     conversationWithUsersInfo: (state) => (convId: any, mySesId: any) => {
@@ -193,76 +206,43 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     // chat requests for me => for left bar & interaction page
-    incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
-        const chats = Object.values(state.conversations)
-            .filter((conv: any) => {
-                return (
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    _l.find(rootGetters["auth/profile"].chat_departments, ["tag", conv?.chat_department?.tag]) &&
-                    conv.sessions.length === 1 // assume only client is connected
-                );
+    incomingChatRequests() {
+        return Conversation.query()
+            .where("users_only", false)
+            .where("closed_at", null)
+            .whereHasNot("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery.whereHasNot("socket_session", (socketSessionQuery) => {
+                    socketSessionQuery.where("user_id", null);
+                });
             })
-            .map((conv: any) => {
-                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
-                return { ...conv, client_info };
-            });
+            .with("chat_department")
+            .get();
+    },
 
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format("x"));
+    incomingChatRequestsForMe(state, getters, rootState, rootGetters) {
+        return getters.incomingChatRequests.filter((conv: any) =>
+            _l.find(rootGetters["auth/profile"].chat_departments, ["tag", conv?.chat_department?.tag])
+        );
     },
 
     // my running chats => for left bar & interaction page
     myOngoingChats(state, getters, rootState, rootGetters) {
-        const myOngoingChats = Object.values(state.conversations)
-            .filter((conv: any) => {
-                const sesInfo = _l.find(conv.sessions, [
-                    "socket_session_id",
-                    rootGetters["auth/profile"]?.socket_session?.id,
-                ]);
-
-                // Object.keys(conv.messages).length check for safe
-                return !conv.users_only && !conv.closed_at && sesInfo && !sesInfo.left_at && sesInfo.joined_at;
+        return Conversation.query()
+            .where("users_only", false)
+            .where("closed_at", null)
+            .whereHas("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery
+                    .where("joined_at", (value: any) => value)
+                    .where("left_at", null)
+                    .whereHas("socket_session", (socketSessionQuery) => {
+                        socketSessionQuery
+                            .where("user_id", (value: any) => value)
+                            .where("id", rootGetters["auth/profile"]?.socket_session?.id);
+                    });
             })
-            .map((conv: any) => {
-                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
-
-                // get my last msg seen time
-                const self_info = _l.find(
-                    conv.sessions,
-                    (convSes: any) => convSes.socket_session_id === helpers.getMySocketSessionId()
-                );
-
-                const myLastMsgSeenTime = self_info.last_msg_seen_time;
-
-                let countUnSeenMsg = 0;
-
-                const convMessages = Object.values(conv.messages).filter((message: any) => {
-                    return message.socket_session_id !== helpers.getMySocketSessionId();
-                });
-
-                if (!myLastMsgSeenTime) {
-                    countUnSeenMsg = convMessages.length;
-                } else {
-                    for (const message of convMessages) {
-                        if (countUnSeenMsg > 9) break;
-
-                        const msg: any = message;
-
-                        moment(msg.created_at).isAfter(myLastMsgSeenTime) && countUnSeenMsg++;
-                    }
-                }
-
-                const count_unseen_msg = countUnSeenMsg;
-
-                return {
-                    conversation_session: _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user),
-                    ...conv,
-                    client_info,
-                    count_unseen_msg,
-                }; // conv.sessions[0] cz we are already filtering length 1
-            });
-
-        return _l.sortBy(myOngoingChats, (conv: any) => moment(conv.created_at).format("x")).reverse();
+            .with("chat_department")
+            .orderBy("created_at")
+            .get();
     },
 
     myChatTransferRequests(state, getters, rootState, rootGetters) {
@@ -297,29 +277,14 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     // departmental chat requests count => for left bar
-    departmentalChatRequestsCount(state) {
-        const departments: any = {};
+    departmentalOngoingChats() {
+        const departmentalChats = ChatDepartment.query()
+            .with("conversations", (query) => {
+                query.where("users_only", false).where("closed_at", null);
+            })
+            .get();
 
-        Object.values(state.conversations).forEach((conv: any) => {
-            if (
-                !conv.users_only &&
-                !conv.closed_at &&
-                conv.chat_department?.tag
-                // conv.sessions.length === 1 && // if wants not joined then uncomment
-            ) {
-                if (!departments.hasOwnProperty(conv.chat_department?.tag)) {
-                    departments[conv.chat_department.tag] = {};
-
-                    departments[conv.chat_department.tag].id = conv.chat_department.id;
-                    departments[conv.chat_department.tag].name = conv.chat_department.tag;
-                    departments[conv.chat_department.tag].count = 0;
-                }
-
-                departments[conv.chat_department.tag].count += 1;
-            }
-        });
-
-        return departments;
+        return _l.keyBy(departmentalChats, "id");
     },
 
     // teammates => for left bar
