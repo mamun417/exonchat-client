@@ -123,35 +123,46 @@
                         :class="`bg-${globalColor}`"
                         style="border-radius: 8px 8px 0 0"
                     >
-                        <q-btn
-                            v-if="conversationInfo.id && !conversationInfo.closed_at"
-                            @click="closeChatModal = true"
-                            icon="more_horiz"
-                            flat
-                            dense
-                        >
-                            <q-menu anchor="bottom right" self="top end" class="tw-mt-8">
+                        <q-btn icon="more_horiz" flat dense>
+                            <q-menu anchor="bottom right" self="top end" :class="$helpers.colors().defaultText">
                                 <q-list separator style="min-width: 200px">
-                                    <q-item clickable v-ripple :active="active">
-                                        <q-item-section avatar class="tw-pr-2 tw-min-w-0">
-                                            <q-icon name="signal_wifi_off" />
-                                        </q-item-section>
-                                        <q-item-section>Send Transcript</q-item-section>
+                                    <q-item clickable>
+                                        <send-transcript
+                                            :conv_id="conversationInfo.id"
+                                            @sendingTranscript="sendingTranscript = $event"
+                                        >
+                                            <template v-slot:custom-content>
+                                                <template v-if="sendingTranscript">
+                                                    <q-spinner-hourglass class="on-left" size="2em" /> Sending...
+                                                </template>
+
+                                                <template v-else>
+                                                    <q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                                        <q-icon name="mail_outline" />
+                                                    </q-item-section>
+                                                    <q-item-section>Send Transcript</q-item-section>
+                                                </template>
+                                            </template>
+                                        </send-transcript>
                                     </q-item>
 
-                                    <q-item clickable v-ripple :active="active">
+                                    <q-item
+                                        v-if="conversationInfo.id && !conversationInfo.closed_at"
+                                        @click="closeChatModal = true"
+                                        clickable
+                                    >
                                         <q-item-section avatar class="tw-pr-2 tw-min-w-0">
-                                            <q-icon name="signal_wifi_off" />
+                                            <q-icon name="clear" />
                                         </q-item-section>
-                                        <q-item-section>Active</q-item-section>
+                                        <q-item-section>Close Chat</q-item-section>
                                     </q-item>
 
-                                    <q-item clickable v-ripple :active="active">
+                                    <!--<q-item clickable v-ripple :active="active">
                                         <q-item-section avatar class="tw-pr-2 tw-min-w-0">
-                                            <q-icon name="signal_wifi_off" />
+                                            <q-icon name="volume_off" />
                                         </q-item-section>
-                                        <q-item-section>Active</q-item-section>
-                                    </q-item>
+                                        <q-item-section>Mute</q-item-section>
+                                    </q-item>-->
                                 </q-list>
                             </q-menu>
                         </q-btn>
@@ -164,14 +175,6 @@
                             }}
                             <q-btn v-if="develop" @click="reload" icon="refresh" flat dense />
                         </div>
-
-                        <!--<q-btn-->
-                        <!--    v-if="conversationInfo.id && !conversationInfo.closed_at"-->
-                        <!--    @click="closeChatModal = true"-->
-                        <!--    icon="clear"-->
-                        <!--    flat-->
-                        <!--    dense-->
-                        <!--/>-->
 
                         <q-btn
                             :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
@@ -618,6 +621,7 @@ export default defineComponent({
             sendChatInitiateMsgInterval: "",
 
             socketConnectError: false,
+            sendingTranscript: false,
         };
     },
 

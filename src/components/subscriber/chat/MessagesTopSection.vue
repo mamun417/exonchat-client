@@ -128,7 +128,7 @@
                             no-caps
                             unelevated
                         >
-                            <q-menu anchor="bottom right" self="top end">
+                            <q-menu anchor="bottom right" self="top end" :class="$helpers.colors().defaultText">
                                 <q-list separator style="min-width: 200px">
                                     <q-item
                                         @click="convStateHandle('join')"
@@ -139,7 +139,7 @@
                                         <!--                                        <q-item-section class="tw-w-8 tw-min-w-0" avatar>-->
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
-                                        <q-item-section :class="$helpers.colors().defaultText">
+                                        <q-item-section>
                                             {{ conversationConnectedUsers.length ? "Join Chat" : "Accept Chat" }}
                                         </q-item-section>
                                     </q-item>
@@ -230,6 +230,26 @@
                                         </q-item-section>
                                     </q-item>
 
+                                    <q-item clickable>
+                                        <send-transcript
+                                            :conv_id="conversationInfo.id"
+                                            @sendingTranscript="sendingTranscript = $event"
+                                        >
+                                            <template v-slot:custom-content>
+                                                <template v-if="sendingTranscript">
+                                                    <q-spinner-hourglass class="on-left" size="2em" /> Sending...
+                                                </template>
+
+                                                <template v-else>
+                                                    <!--<q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                                        <q-icon name="mail_outline" />
+                                                    </q-item-section>-->
+                                                    <q-item-section>Send Transcript</q-item-section>
+                                                </template>
+                                            </template>
+                                        </send-transcript>
+                                    </q-item>
+
                                     <q-item
                                         v-if="['joined', 'left'].includes(conversationStatusForMe) && canClose"
                                         clickable
@@ -310,10 +330,11 @@ import ChatTransferModal from "components/common/modal/ChatTransferModal.vue";
 import ConversationStateConfirmModal from "components/common/modal/ConversationStateConfirmModal.vue";
 import * as _l from "lodash";
 import moment from "moment";
+import SendTranscript from "components/common/SendTranscript.vue";
 
 export default defineComponent({
     name: "MessagesTopSection",
-    components: { ChatTransferModal, ConversationStateConfirmModal, EcAvatar },
+    components: { SendTranscript, ChatTransferModal, ConversationStateConfirmModal, EcAvatar },
     props: {
         conv_id: {
             type: String,
@@ -345,6 +366,7 @@ export default defineComponent({
             showChatTransferModal: false,
             transferChatToExpand: false,
             transferChatToFilter: "",
+            sendingTranscript: false,
         };
     },
 

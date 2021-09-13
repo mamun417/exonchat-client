@@ -681,7 +681,10 @@
                 no-caps
             />
 
-            <send-transcript v-if="conversationConnectedUsers.length" :conv_id="conv_id" />
+            <send-transcript
+                v-if="conversationConnectedUsers.length || conversationData.closed_at"
+                :conv_id="conv_id"
+            />
 
             <q-btn
                 @click="
@@ -981,6 +984,10 @@ export default defineComponent({
 
         isAgentChatPanel(): any {
             return this.chatPanelType === "user";
+        },
+
+        conversationConnectedUsers(): any {
+            return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
         },
     },
 

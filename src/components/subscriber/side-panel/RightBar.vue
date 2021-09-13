@@ -67,7 +67,7 @@
                                                 icon="mail_outline"
                                                 :conv_id="rightBarState.conv_id"
                                                 color="white"
-                                                :text-color="$helpers.colors().defaultText"
+                                                :text_color="$helpers.colors().defaultText"
                                             />
                                         </div>
                                     </q-card-section>
