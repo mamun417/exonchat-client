@@ -129,7 +129,7 @@
                             unelevated
                         >
                             <q-menu anchor="bottom right" self="top end">
-                                <q-list style="min-width: 200px">
+                                <q-list separator style="min-width: 200px">
                                     <q-item
                                         @click="convStateHandle('join')"
                                         v-if="!conversationStatusForMe || conversationStatusForMe !== 'joined'"
@@ -140,7 +140,7 @@
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
                                         <q-item-section :class="$helpers.colors().defaultText">
-                                            Join Chat
+                                            {{ conversationConnectedUsers.length ? "Join Chat" : "Accept Chat" }}
                                         </q-item-section>
                                     </q-item>
 

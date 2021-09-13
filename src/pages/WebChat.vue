@@ -119,28 +119,59 @@
             >
                 <template v-if="hasApiKey">
                     <div
-                        class="tw-text-gray-50 tw-px-4 tw-py-1 tw-flex tw-items-center"
+                        class="tw-text-gray-50 tw-px-2 tw-py-1 tw-flex tw-items-center tw-justify-between"
                         :class="`bg-${globalColor}`"
                         style="border-radius: 8px 8px 0 0"
                     >
-                        <div class="tw-text-base">
+                        <q-btn
+                            v-if="conversationInfo.id && !conversationInfo.closed_at"
+                            @click="closeChatModal = true"
+                            icon="more_horiz"
+                            flat
+                            dense
+                        >
+                            <q-menu anchor="bottom right" self="top end" class="tw-mt-8">
+                                <q-list separator style="min-width: 200px">
+                                    <q-item clickable v-ripple :active="active">
+                                        <q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                            <q-icon name="signal_wifi_off" />
+                                        </q-item-section>
+                                        <q-item-section>Send Transcript</q-item-section>
+                                    </q-item>
+
+                                    <q-item clickable v-ripple :active="active">
+                                        <q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                            <q-icon name="signal_wifi_off" />
+                                        </q-item-section>
+                                        <q-item-section>Active</q-item-section>
+                                    </q-item>
+
+                                    <q-item clickable v-ripple :active="active">
+                                        <q-item-section avatar class="tw-pr-2 tw-min-w-0">
+                                            <q-icon name="signal_wifi_off" />
+                                        </q-item-section>
+                                        <q-item-section>Active</q-item-section>
+                                    </q-item>
+                                </q-list>
+                            </q-menu>
+                        </q-btn>
+
+                        <div class="tw-text-base tw-flex tw-items-center">
                             {{
                                 conversationInfo.id || !onlineChatDepartments || onlineChatDepartments.length
                                     ? "Online - Chat with us"
                                     : "Offline - Send offline message"
                             }}
-                            <q-btn v-if="develop" @click="reload" icon="refresh" class="tw-mr-1" flat dense />
+                            <q-btn v-if="develop" @click="reload" icon="refresh" flat dense />
                         </div>
-                        <q-space></q-space>
 
-                        <q-btn
-                            v-if="conversationInfo.id && !conversationInfo.closed_at"
-                            @click="closeChatModal = true"
-                            icon="clear"
-                            class="tw-mr-1"
-                            flat
-                            dense
-                        />
+                        <!--<q-btn-->
+                        <!--    v-if="conversationInfo.id && !conversationInfo.closed_at"-->
+                        <!--    @click="closeChatModal = true"-->
+                        <!--    icon="clear"-->
+                        <!--    flat-->
+                        <!--    dense-->
+                        <!--/>-->
 
                         <q-btn
                             :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
@@ -234,19 +265,14 @@
                                 </message>
 
                                 <div
+                                    v-if="conversationInfo.closed_at"
                                     class="tw-px-5 full-width tw-flex tw-justify-between tw-items-center tw-gap-4 tw-py-2"
                                 >
                                     <send-transcript :conv_id="conversationInfo.id" :color="globalColor" />
 
                                     <div>OR</div>
 
-                                    <q-btn
-                                        v-if="conversationInfo.closed_at"
-                                        @click="clearSession"
-                                        :color="globalColor"
-                                        no-caps
-                                        unelevated
-                                    >
+                                    <q-btn @click="clearSession" :color="globalColor" no-caps unelevated>
                                         Start New Chat
                                     </q-btn>
                                 </div>
