@@ -13,10 +13,12 @@
             </div>
 
             <div>
-                <q-btn label="Facebook Login" :color="globalColor" flat @click="fbLoginHandle" />
+                <q-btn label="Facebook Login" :color="globalColor" unelevated no-wrap no-caps @click="fbLoginHandle" />
                 <q-btn label="logout" @click="fbLogoutHandle" />
             </div>
         </q-card-section>
+
+        <q-inner-loading />
     </q-tab-panel>
 </template>
 
@@ -48,6 +50,11 @@ export default defineComponent({
                 graphDomain: "facebook",
                 data_access_expiration_time: 1639309592,
             },
+            facebookDataForSubmit: {
+                auth_response: {},
+                user_response: {},
+            },
+            facebookLoginWorking: false,
         };
     },
 
@@ -59,42 +66,6 @@ export default defineComponent({
                     xfbml: true,
                     version: "v11.0",
                 });
-
-                FB.getLoginStatus(function (response) {
-                    if (response.status === "connected") {
-                        console.log(response);
-                    }
-                });
-
-                this.FB = FB;
-
-                FB.api(
-                    `/${this.ao.userID}/accounts`,
-                    {
-                        access_token: this.ao.accessToken,
-                    },
-                    (res: any) => {
-                        console.log(res);
-                    }
-                );
-                FB.api(
-                    "/me",
-                    {
-                        access_token: this.ao.accessToken,
-                    },
-                    function (response: any) {
-                        console.log(response);
-                    }
-                );
-                FB.api(
-                    `/${this.ao.userID}`,
-                    {
-                        access_token: this.ao.accessToken,
-                    },
-                    function (response: any) {
-                        console.log(response);
-                    }
-                );
 
                 console.log("FB SDK was initialized as mixin");
             };
@@ -119,27 +90,58 @@ export default defineComponent({
 
     methods: {
         fbLoginHandle() {
-            FB.login(
-                function (response: any) {
-                    if (response.authResponse) {
-                        console.log("Welcome!  Fetching your information.... ");
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const self = this;
+            self.facebookLoginWorking = true;
 
-                        FB.getLoginStatus(function (response) {
-                            if (response.status === "connected") {
-                                console.log(response);
+            // loginRes.{
+            //     "response": {
+            //         "authResponse": {
+            //                 "accessToken": "ppbn1ll2OJS2ZCOYdtkZCtwTZC6w04K0TAwWDfybHSH0MEhiql5UW95",
+            //                 "userID": "305893527",
+            //                 "expiresIn": 4118,
+            //                 "signedRequest": "mDPzc3VlZF9hdCI6MTYzMTYwOTQ4Mn0",
+            //                 "graphDomain": "facebook",
+            //                 "data_access_expiration_time": 1639385482
+            //         },
+            //         "status": "connected"
+            //     }
+            // }
+            FB.login(
+                function (authResponse: any) {
+                    console.log({ authResponse });
+                    if (authResponse.status === "connected") {
+                        // me call response
+                        // meRes.{
+                        //     "name": "Mohammed Younus",
+                        //     "id": "1893527"
+                        // }
+                        FB.api("/me", function (userResponse: any) {
+                            if (!userResponse.error) {
+                                console.log({ userResponse });
+
+                                self.facebookDataForSubmit.auth_response = authResponse.authResponse;
+                                self.facebookDataForSubmit.user_response = userResponse;
+
+                                self.$api
+                                    .post("/apps/facebook/connect", self.facebookDataForSubmit)
+                                    .then((res: any) => {
+                                        console.log({ res });
+                                    })
+                                    .catch((e: any) => {
+                                        console.log(e);
+                                    })
+                                    .finally(() => {
+                                        self.facebookLoginWorking = false;
+                                    });
+                            } else {
+                                console.log("something went wrong");
+                                self.facebookLoginWorking = false;
                             }
                         });
-                        FB.api(
-                            `/${this.ao.userID}/accounts`,
-                            {
-                                access_token: this.ao.accessToken,
-                            },
-                            (res: any) => {
-                                console.log(res);
-                            }
-                        );
                     } else {
                         console.log("User cancelled login or did not fully authorize.");
+                        self.facebookLoginWorking = false;
                     }
                 },
                 { scope: "email,pages_show_list", auth_type: "reauthorize" } //reauthorize need for update access_token
