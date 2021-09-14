@@ -262,7 +262,10 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label class="text-weight-medium tw-text-sm tw-capitalize">
+                                        <q-item-label
+                                            class="text-weight-medium tw-text-sm tw-capitalize"
+                                            :class="{ 'text-grey': user.online_status === 'invisible' }"
+                                        >
                                             {{ user.user_meta.display_name }}
                                         </q-item-label>
 
@@ -638,7 +641,11 @@ export default defineComponent({
                 if (this.incomingChatRequestsForMe.length) {
                     if (!this.chatRequestSoundLoop) {
                         this.chatRequestSoundLoop = setInterval(() => {
-                            if (this.$browser_tab_id === localStorage.getItem("ec_current_visiting_tab")) {
+                            if (
+                                this.$browser_tab_id === localStorage.getItem("ec_current_visiting_tab") &&
+                                this.incomingChatRequestsForMe.length &&
+                                this.profile.online_status === "online"
+                            ) {
                                 helpers.notifications().reqOne.play();
                             }
                         }, 10000);

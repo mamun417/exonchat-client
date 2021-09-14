@@ -692,7 +692,9 @@ export default defineComponent({
                         }, 1000 * 5);
                     }
 
-                    helpers.notifications().reqOne.play();
+                    if (this.profile.online_status === "online") {
+                        helpers.notifications().reqOne.play();
+                    }
                 }
 
                 this.$store.dispatch("chat/storeNewChatFromClient", res.data);

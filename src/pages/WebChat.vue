@@ -126,7 +126,7 @@
                         <q-btn icon="more_horiz" flat dense>
                             <q-menu anchor="bottom right" self="top end" :class="$helpers.colors().defaultText">
                                 <q-list separator style="min-width: 200px">
-                                    <q-item clickable>
+                                    <q-item clickable v-if="conversationInfo.id">
                                         <send-transcript
                                             :conv_id="conversationInfo.id"
                                             @sendingTranscript="sendingTranscript = $event"
@@ -149,6 +149,7 @@
                                     <q-item
                                         v-if="conversationInfo.id && !conversationInfo.closed_at"
                                         @click="closeChatModal = true"
+                                        v-close-popup
                                         clickable
                                     >
                                         <q-item-section avatar class="tw-pr-2 tw-min-w-0">

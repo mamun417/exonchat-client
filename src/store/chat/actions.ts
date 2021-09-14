@@ -81,14 +81,18 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     updateConvSesInfo(context, data) {
         context.commit("updateConvSesInfo", data);
 
-        if (data.action === "chat_transfer_sent") {
+        const profile = context.rootGetters["auth/profile"];
+
+        if (data.action === "chat_transfer_sent" && profile.online_status === "online") {
+            if (window.$browser_tab_id === localStorage.getItem("ec_current_visiting_tab")) {
+                helpers.notifications().reqOne.play().then();
+            }
+
             if (
                 localStorage.getItem("ec_not_in_tabs") &&
                 window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
             ) {
                 const convObj = context.getters["conversationInfo"](data.conv_id);
-
-                helpers.notifications().reqOne.play().then();
 
                 const notification = new Notification(
                     `Chat transfer request from ${data.original_payload?.agent_info?.user_meta?.display_name}`,
