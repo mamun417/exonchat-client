@@ -5,7 +5,7 @@
         </div>
 
         <div class="tw-flex-grow">
-            <div class="tw-shadow tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white">
                 <ec-table
                     @handlePipeline="handlePipeline({ s: $event })"
                     :search-value="chatHistoryPipeline.s"
@@ -13,12 +13,13 @@
                     :columns="columns"
                     @rowClick="rowClickHandle"
                 >
+                    <template v-slot:filter>
+                        <chat-history-filter />
+                    </template>
+
                     <template v-slot:cell-msg="slotProps">
-                        <div v-if="!slotProps.row.connected_agents.length" class="">
-                            <q-badge color="primary">MISSED CHAT</q-badge>
-                            {{ slotProps.row.message?.msg }}
-                        </div>
-                        <div v-else class="">
+                        <div class="tw-max-w-xxs tw-overflow-hidden tw-whitespace-nowrap tw-overflow-ellipsis">
+                            <q-badge v-if="!slotProps.row.connected_agents.length" color="primary">MISSED</q-badge>
                             {{ slotProps.row.message?.msg }}
                         </div>
                     </template>
@@ -57,7 +58,7 @@
 
                     <template v-slot:cell-last_sent="slotProps">
                         <div class="tw-text-xss">
-                            {{ $helpers.myDate(slotProps.row.created_at, "MMMM Do YYYY, h:mm a") }}
+                            {{ $helpers.myDate(slotProps.row.created_at, "MMM Do YYYY, h:mm a") }}
                         </div>
                     </template>
 
@@ -109,7 +110,7 @@
                     </template>
                 </ec-table>
 
-                <div v-if="chatHistoryPaginationMeta.total_page > 1" class="tw-mt-10 flex flex-center">
+                <div v-if="chatHistoryPaginationMeta.total_page > 1" class="tw-py-5 flex flex-center">
                     <pagination
                         :current_page="chatHistoryPaginationMeta.current_page"
                         :last_page="chatHistoryPaginationMeta.total_page"
@@ -140,6 +141,7 @@ import ConnectedUsersFaces from "src/components/subscriber/chat/ConnectedUsersFa
 import * as _l from "lodash";
 import moment from "moment";
 import Pagination from "components/common/Pagination.vue";
+import ChatHistoryFilter from "pages/subscriber/chat-history/ChatHistoryFilter.vue";
 
 const columns = [
     {
@@ -203,6 +205,7 @@ const columns = [
 
 export default defineComponent({
     components: {
+        ChatHistoryFilter,
         Pagination,
         ConversationStateConfirmModal,
         ViewConversationBtn,

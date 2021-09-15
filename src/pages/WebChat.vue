@@ -380,7 +380,7 @@
                                                 "
                                                 hide-bottom-space
                                                 option-value="id"
-                                                option-label="tag"
+                                                option-label="display_name"
                                                 label="Chat Department"
                                                 class="tw-mb-3"
                                                 :color="globalColor"

@@ -1,5 +1,13 @@
 <template>
-    <q-table :rows="rows" :columns="columns" row-key="name" :pagination="{ rowsPerPage: 0 }" hide-pagination flat>
+    <q-table
+        :rows="rows"
+        :columns="columns"
+        row-key="name"
+        :pagination="{ rowsPerPage: 0 }"
+        class="tw-p-4 tw-py-0"
+        hide-pagination
+        flat
+    >
         <template v-if="!hideSearch" v-slot:top-left>
             <q-input
                 @update:model-value="handlePipeline"
