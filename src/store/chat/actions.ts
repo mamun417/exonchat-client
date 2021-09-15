@@ -57,7 +57,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             context.commit("updateConversation", { conv_id: convData.id, message: convData.log_message });
         }
 
+        const profile = context.rootGetters["auth/profile"];
+
         if (
+            profile.online_status === "online" &&
             localStorage.getItem("ec_not_in_tabs") &&
             window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
         ) {
@@ -136,6 +139,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             closed_by_id: convInfo.closed_by_id,
             closed_reason: convInfo.closed_reason,
             sessions: convInfo.conversation_sessions, // not sending now
+            original_data: { conversation: convInfo },
             caller: "updateConvStateToClosed",
         });
 
