@@ -2,19 +2,163 @@
     <q-tab-panel name="facebook">
         <q-card-section>
             <div class="tw-mb-4 tw-border-b-1">
-                <div class="tw-font-medium tw-pb-2" @click="fbLoginHandle">Facebook API Manager</div>
+                <div class="tw-font-medium tw-pb-2" :class="$helpers.colors().defaultText">
+                    Facebook Account Manager
+                </div>
             </div>
         </q-card-section>
 
-        <q-card-section class="tw-flex tw-items-center tw-justify-between tw-gap-4">
-            <div>
-                <div>To add Pages, please log in to Facebook</div>
-                <div>You are currently connect as <span>Mohammed Younus</span></div>
-            </div>
+        <template v-if="accounts.length">
+            <q-card-section v-for="account of accounts" :key="account.id" class="tw-py-0">
+                <div class="bg-grey-3 tw-rounded-sm tw-p-6 tw-flex tw-items-center tw-justify-between tw-gap-4">
+                    <div class="tw-font-medium" :class="$helpers.colors().defaultText">
+                        You are currently connected as
+                        <span :class="`text-${globalColor}`" class="tw-font-bold">Mohammed Younus</span>
+                    </div>
+                    <q-btn label="Disconnect" text-color="orange-8" @click="fbLogoutHandle" flat />
+                </div>
 
-            <div>
-                <q-btn label="Facebook Login" :color="globalColor" unelevated no-wrap no-caps @click="fbLoginHandle" />
-                <q-btn label="logout" @click="fbLogoutHandle" />
+                <div class="tw-my-6">
+                    <div class="tw-mb-4 tw-font-medium" :class="$helpers.colors().defaultText">
+                        Select a page to connect to ExonChat
+                    </div>
+
+                    <q-list class="tw-mb-4">
+                        <q-item class="custom-border-top custom-border-bottom">
+                            <q-item-section :class="$helpers.colors().defaultText">Page Name</q-item-section>
+                            <q-item-section side>Assign To</q-item-section>
+                        </q-item>
+
+                        <template
+                            v-if="
+                                account.facebook_pages?.length &&
+                                account.facebook_pages.filter((page) => !page.active).length
+                            "
+                        >
+                            <q-item
+                                v-for="page of account.facebook_pages.filter((page) => !page.active)"
+                                :key="page.id"
+                            >
+                                <q-item-section :class="`text-${globalColor}`" class="tw-font-medium">{{
+                                    page.page_name
+                                }}</q-item-section>
+                                <q-item-section class="tw-flex tw-gap-6 tw-items-center" side>
+                                    <q-select
+                                        v-model="page.chat_department_ids"
+                                        :options="chatDepartments"
+                                        hide-bottom-space
+                                        option-value="id"
+                                        option-label="display_name"
+                                        label="Select Chat Department"
+                                        class="tw-mb-3 tw-w-48"
+                                        :color="globalColor"
+                                        use-chips
+                                        multiple
+                                        emit-value
+                                        map-options
+                                        dense
+                                    />
+                                </q-item-section>
+                                <q-item-section side>
+                                    <q-btn
+                                        :color="globalColor"
+                                        label="Connect"
+                                        :disable="!page.chat_department_ids?.length"
+                                        @click="updatePageConnection(page.id, page.chat_department_ids)"
+                                        unelevated
+                                    />
+                                </q-item-section>
+                            </q-item>
+                        </template>
+
+                        <q-item v-else>
+                            <q-item-section class="text-center" :class="$helpers.colors().defaultText"
+                                >No pages to connect</q-item-section
+                            >
+                        </q-item>
+                    </q-list>
+                </div>
+
+                <div class="tw-my-6">
+                    <div class="tw-mb-4 tw-font-medium" :class="$helpers.colors().defaultText">Connected Pages</div>
+
+                    <q-list>
+                        <q-item class="custom-border-top custom-border-bottom">
+                            <q-item-section :class="$helpers.colors().defaultText">Page Name</q-item-section>
+                            <q-item-section side>Assigned To</q-item-section>
+                        </q-item>
+
+                        <template
+                            v-if="
+                                account.facebook_pages?.length &&
+                                account.facebook_pages.filter((page) => page.active).length
+                            "
+                        >
+                            <q-item v-for="page of account.facebook_pages.filter((page) => page.active)" :key="page.id">
+                                <q-item-section :class="`text-${globalColor}`" class="tw-font-medium">{{
+                                    page.page_name
+                                }}</q-item-section>
+
+                                <q-item-section class="tw-flex tw-items-center" side>
+                                    <q-select
+                                        v-model="page.chat_department_ids"
+                                        :options="chatDepartments"
+                                        hide-bottom-space
+                                        option-value="id"
+                                        option-label="display_name"
+                                        label="Select Chat Department"
+                                        class="tw-mb-3 tw-w-48"
+                                        :color="globalColor"
+                                        use-chips
+                                        multiple
+                                        emit-value
+                                        map-options
+                                        dense
+                                    />
+                                </q-item-section>
+                                <q-item-section side>
+                                    <q-btn
+                                        :color="globalColor"
+                                        label="Update"
+                                        :disable="!page.chat_department_ids?.length"
+                                        @click="updatePageConnection(page.id, page.chat_department_ids)"
+                                        unelevated
+                                    />
+                                </q-item-section>
+                                <q-item-section side>
+                                    <q-btn
+                                        label="Disconnect"
+                                        text-color="orange-8"
+                                        @click="disconnectPage(page.id)"
+                                        flat
+                                    />
+                                </q-item-section>
+                            </q-item>
+                        </template>
+                        <q-item v-else>
+                            <q-item-section class="text-center" :class="$helpers.colors().defaultText"
+                                >You have no connected pages yet</q-item-section
+                            >
+                        </q-item>
+                    </q-list>
+                </div>
+            </q-card-section>
+        </template>
+
+        <q-card-section v-else class="tw-py-0">
+            <div class="bg-grey-3 tw-rounded-sm tw-p-6 tw-flex tw-items-center tw-justify-between tw-gap-4">
+                <div class="tw-font-medium" :class="$helpers.colors().defaultText">
+                    To add Pages, please log in to Facebook
+                </div>
+                <q-btn
+                    label="Facebook Login"
+                    :color="globalColor"
+                    :loading="facebookLoginWorking"
+                    unelevated
+                    no-wrap
+                    no-caps
+                    @click="fbLoginHandle"
+                />
             </div>
         </q-card-section>
 
@@ -25,6 +169,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
+
+import * as _l from "lodash";
 
 declare global {
     interface Window {
@@ -39,17 +185,8 @@ export default defineComponent({
 
     data(): any {
         return {
-            FB: {},
-            ao: {
-                accessToken:
-                    "EAAI84REZBiiUBALY1T5jFM6p9i1LH3ZCUMnZAggT7w8ZCe8nOAdfwPjhMcAl5m31Q8IsH8feCl3cBX0QCakS0651PbadoX5KaZBerKV04CeVrCi1zGX7iMUBhLOQiZC9CgXCaM88gFbZALbwbFmbsDJ8JXqx3p7lTsoQVecohEXxR3nxNZAuXN27xzv8RjqQYhL371EUc8ls3YkzZCbqlAe51",
-                userID: "3050567211893527",
-                expiresIn: 4408,
-                signedRequest:
-                    "AyyveD28sWQY8nyPomvE4H-2i6vCFgdm2GdADG-1Z0A.eyJ1c2VyX2lkIjoiMzA1MDU2NzIxMTg5MzUyNyIsImNvZGUiOiJBUUJjd0RidUJCUFMyai1URHc2VmlJOHJQUjlvXy1QMVhtTFBtS0t5anJ3UlRMaU9GOFF6N2NTTjc0S0phUTdwWmRzc0Q4RXFpaFBEWTJ0Y0duZ0dFMmxaNEFaR3ljTWhRaGhwR0I4TXBrNDhxTkF6UGpHMzlwZzJTRzBPWU5YNDZNNGtZaFU2ZkNZUWVCUUI4cmh6aGFxSG9WU2k0enZ6anpxaU83Y2tsTFJKWFgxazBTRUhDOGttVFBMTWdwRGNDdk5VRDdjYW9HeFZkczlSODRqdWlhdDlZNEhFenlQVEpWZVhhWGV5WTFlWTlpTkxiZzZRVmRJRGhXSy1UZnl5SjFFZTZiN0JTSjJfbFFCSDcybkprdE15RUZiTE1vQ3pqdWlWUTJwM0U3SWdxZFViTUFvcEV3ZVF2VDA2REtuU1UxZGhPMzF4QVlfLTJQRHhUZWVyZ0xpdFk4bVNBaVZYZ29sb0thS25yNEVjOEEiLCJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTYzMTUzMzU5Mn0",
-                graphDomain: "facebook",
-                data_access_expiration_time: 1639309592,
-            },
+            accounts: [],
+            chatDepartments: [],
             facebookDataForSubmit: {
                 auth_response: {},
                 user_response: {},
@@ -82,6 +219,9 @@ export default defineComponent({
             js.src = "//connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         })(document, "script", "facebook-jssdk");
+
+        this.getFacebookAccounts();
+        this.getChatDepartments();
     },
 
     computed: {
@@ -89,6 +229,61 @@ export default defineComponent({
     },
 
     methods: {
+        getFacebookAccounts() {
+            this.$api.get("/apps/facebook/accounts").then((res: any) => {
+                this.accounts = res.data;
+
+                this.accounts.map((account: any) => {
+                    account.facebook_pages.map((page: any) => {
+                        page.chat_department_ids = _l.map(page.chat_departments, "id");
+                    });
+                });
+            });
+        },
+        getChatDepartments() {
+            this.loadingChatDepartments = true;
+
+            window.socketSessionApi
+                .get("/departments")
+                .then((res: any) => {
+                    // console.log('webchat departments', res);
+                    this.chatDepartments = res.data;
+                })
+                .catch((e: any) => {
+                    console.log(e);
+                })
+                .finally(() => {
+                    //
+                });
+        },
+
+        updatePageConnection(id: any, chat_department_ids: string[]) {
+            window.api
+                .post(`/apps/facebook/update-page-connection/${id}`, {
+                    chat_department_ids,
+                })
+                .then((res: any) => {
+                    this.accounts = res.data;
+
+                    this.accounts.map((account: any) => {
+                        account.facebook_pages.map((page: any) => {
+                            page.chat_department_ids = _l.map(page.chat_departments, "id");
+                        });
+                    });
+                });
+        },
+        disconnectPage(id: any) {
+            window.api.post(`/apps/facebook/page-disconnect/${id}`).then((res: any) => {
+                this.accounts = res.data;
+
+                this.accounts.map((account: any) => {
+                    account.facebook_pages.map((page: any) => {
+                        page.chat_department_ids = _l.map(page.chat_departments, "id");
+                    });
+                });
+            });
+        },
+
         fbLoginHandle() {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const self = this;
@@ -127,6 +322,13 @@ export default defineComponent({
                                     .post("/apps/facebook/connect", self.facebookDataForSubmit)
                                     .then((res: any) => {
                                         console.log({ res });
+                                        self.accounts = [res.data];
+
+                                        self.accounts.map((account: any) => {
+                                            account.facebook_pages.map((page: any) => {
+                                                page.chat_department_ids = _l.map(page.chat_departments, "id");
+                                            });
+                                        });
                                     })
                                     .catch((e: any) => {
                                         console.log(e);
@@ -151,8 +353,26 @@ export default defineComponent({
         },
 
         fbLogoutHandle() {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const self = this;
+
+            self.facebookLoginWorking = true;
+
+            self.$api
+                .post("/apps/facebook/disconnect")
+                .then(() => {
+                    console.log("logged out");
+                    self.accounts = [];
+                })
+                .catch((e: any) => {
+                    console.log(e);
+                })
+                .finally(() => {
+                    self.facebookLoginWorking = false;
+                });
+
             FB.logout(() => {
-                console.log("logged out");
+                //
             });
         },
     },

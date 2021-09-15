@@ -1158,4 +1158,8 @@ export default defineComponent({
 .custom-border-top {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+.custom-border-bottom {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
 </style>
