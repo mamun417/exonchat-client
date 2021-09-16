@@ -14,7 +14,7 @@
                     @rowClick="rowClickHandle"
                 >
                     <template v-slot:filter>
-                        <chat-history-filter />
+                        <chat-history-filter @handlePipeline="handlePipeline($event)" />
                     </template>
 
                     <template v-slot:cell-msg="slotProps">

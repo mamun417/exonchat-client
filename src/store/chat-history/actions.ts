@@ -12,6 +12,7 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                     params: {
                         p: context.state.paginationMeta.current_page,
                         s: context.state.pipeline.s,
+                        chat_department: context.state.pipeline.chat_department,
                     },
                 })
                 .then((res: any) => {

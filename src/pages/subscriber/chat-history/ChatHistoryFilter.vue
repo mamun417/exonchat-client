@@ -1,20 +1,23 @@
 <template>
     <div class="q-pa-md">
-        <div class="q-gutter-md row">
-            <q-input
-                :model-value="`${filters.date.from ? filters.date.from : ''}`"
-                label="Date"
-                placholder=""
-                :style="`width: ${filterWidth}`"
-                dense
-            >
+        <div class="tw-flex tw-gap-2 tw-items-center">
+            <q-input :model-value="filters.date.from" label="Date" placholder="" style="width: 100px" dense>
                 <q-menu>
-                    <q-date v-model="filters.date" range />
+                    <q-date v-model="filters.date.from" basic />
+                </q-menu>
+            </q-input>
+
+            <div :class="$helpers.colors().defaultText">To</div>
+
+            <q-input :model-value="filters.date.to" label="" placholder="" style="width: 100px" dense>
+                <q-menu>
+                    <q-date v-model="filters.date.to" basic />
                 </q-menu>
             </q-input>
 
             <q-select
-                v-model="filters.department"
+                @update:model-value="handlePipeline({ chat_department: $event.id })"
+                :model-value="filters.department"
                 label="Department"
                 :options="chatDepartments"
                 option-value="id"
@@ -96,7 +99,10 @@ export default defineComponent({
             chatDepartments: [],
             model: "",
             filters: {
-                date: "",
+                date: {
+                    from: "",
+                    to: "",
+                },
                 department: "",
                 agent: "",
                 rating: "",
@@ -117,7 +123,7 @@ export default defineComponent({
 
     methods: {
         getChatDepartments() {
-            window.socketSessionApi
+            window.api
                 .get("/departments")
                 .then((res: any) => {
                     this.chatDepartments = res.data;
@@ -125,6 +131,10 @@ export default defineComponent({
                 .catch((e: any) => {
                     console.log(e);
                 });
+        },
+
+        handlePipeline($event: any) {
+            this.$emit("handlePipeline", $event);
         },
     },
 });

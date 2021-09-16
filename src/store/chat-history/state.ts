@@ -14,6 +14,7 @@ function state(): ChatHistoryStateInterface {
         },
         pipeline: {
             s: "",
+            chat_department: "",
         },
         newLoadedChatHistoriesIds: [],
     };
