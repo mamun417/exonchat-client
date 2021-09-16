@@ -291,6 +291,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
+                    v-if="!conversationInfo.closed_at"
                     label="RELATED SERVICES"
                     dense
                     default-opened

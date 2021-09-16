@@ -24,33 +24,35 @@
                 </q-item-section>
 
                 <q-item-section class="tw-w-full">
-                    <q-item-label
-                        class="text-weight-bold"
-                        :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg', $helpers.colors().defaultText]"
-                    >
+                    <q-item-label :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg', $helpers.colors().defaultText]">
                         <div v-for="{ socket_session } in conversationWithUsersInfo" :key="socket_session.id">
-                            <span class="text-capitalize tw-mr-1">{{
-                                socket_session.user
-                                    ? socket_session.user.user_meta.display_name
-                                    : socket_session.init_name
-                            }}</span>
+                            <div class="text-capitalize tw-mr-1 text-weight-bold">
+                                {{
+                                    socket_session.user
+                                        ? socket_session.user.user_meta.display_name
+                                        : socket_session.init_name
+                                }}
+                            </div>
+                            <div class="tw-text-sm" v-if="conversationInfo.users_only">
+                                {{ socket_session.user ? socket_session.user.email : socket_session.init_email }}
+                            </div>
                             <!--<span class="text-caption">({{ socket_session.user ? 'agent' : 'client' }})</span>-->
                         </div>
                     </q-item-label>
                     <q-item-label caption>
-                        <q-badge
-                            v-if="conversationWithUsersInfo[0]?.socket_session.user"
-                            :color="
-                                agentOnlineStatus === 'online'
-                                    ? 'green'
-                                    : agentOnlineStatus === 'offline'
-                                    ? 'red-6'
-                                    : 'grey'
-                            "
-                            :class="{ 'tw-px-2 tw-pb-1': !mini_mode }"
-                        >
-                            {{ agentOnlineStatus }}
-                        </q-badge>
+                        <!--<q-badge-->
+                        <!--    v-if="conversationWithUsersInfo[0]?.socket_session.user"-->
+                        <!--    :color="-->
+                        <!--        agentOnlineStatus === 'online'-->
+                        <!--            ? 'green'-->
+                        <!--            : agentOnlineStatus === 'offline'-->
+                        <!--            ? 'red-6'-->
+                        <!--            : 'grey'-->
+                        <!--    "-->
+                        <!--    :class="{ 'tw-px-2 tw-pb-1': !mini_mode }"-->
+                        <!--&gt;-->
+                        <!--    {{ agentOnlineStatus }}-->
+                        <!--</q-badge>-->
 
                         <!--<q-badge
                             v-else

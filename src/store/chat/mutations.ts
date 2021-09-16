@@ -66,7 +66,7 @@ const mutation: MutationTree<ChatStateInterface> = {
                 const foundSocketUser = _l.find(socketUsers, ["ses_id", user.socket_session.id]);
 
                 if (!foundSocketUser) {
-                    user.online_status = "invisible";
+                    user.online_status = "logout";
                 } else {
                     user.online_status = foundSocketUser.online_status;
                 }

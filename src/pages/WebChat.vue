@@ -709,24 +709,21 @@ export default defineComponent({
 
         showWhmcsLoginForm(): any {
             const departmentForWhmcsLogin = "support";
+            const selectedDepartment = this.convInitFields.department_tag.toLowerCase();
 
-            if (this.convInitFields.department_tag !== departmentForWhmcsLogin) {
+            if (selectedDepartment !== departmentForWhmcsLogin) {
                 return false;
             }
 
             // get department info
             const departmentInfo = this.chatDepartments.find(
-                (department: any) => department.tag === departmentForWhmcsLogin
+                (department: any) => department.tag.toLowerCase() == departmentForWhmcsLogin
             );
 
             // check is this department status online
             const checkDepartmentIsOnline = this.onlineChatDepartments.includes(departmentInfo.id);
 
-            return (
-                !this.whmcsInfoAssigned &&
-                this.convInitFields.department_tag === departmentForWhmcsLogin &&
-                checkDepartmentIsOnline
-            );
+            return !this.whmcsInfoAssigned && selectedDepartment === departmentForWhmcsLogin && checkDepartmentIsOnline;
         },
     },
 
