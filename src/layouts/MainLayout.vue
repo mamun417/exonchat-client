@@ -1026,7 +1026,7 @@ export default defineComponent({
                 Notification.requestPermission().then((permission) => {
                     // If the user accepts, let's create a notification
                     if (permission === "granted") {
-                        new Notification("New message from ExonChat", {
+                        new Notification("New message from ExonHost Live Chat", {
                             body: "Nice, notifications are enabled! ",
                         });
                     }
@@ -1042,7 +1042,7 @@ export default defineComponent({
         },
     },
 
-    beforeRouteUpdate(to) {
+    beforeRouteUpdate() {
         if (this.rightBarState?.mode || this.rightBarState.mode === "conversation") {
             this.updateRightDrawerState({ mode: "client_info", visible: true });
         }

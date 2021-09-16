@@ -1,9 +1,9 @@
 {
     "name": "exonchat-client",
     "version": "0.0.1",
-    "description": "ExonChat",
-    "productName": "ExonChat",
-    "author": "younus <younusdev@gmail.com>",
+    "description": "ExonHost Live Chat",
+    "productName": "ExonHost Live Chat",
+    "author": "chat@exonhost.com",
     "private": true,
     "scripts": {
         "lint": "eslint --ext .js,.ts,.vue ./",

@@ -235,6 +235,7 @@
                                     @click="openUserToUserConversation(user)"
                                     :active-class="`text-grey-9 bg-${globalColor}-2`"
                                     :active="user.conversation_id && user.conversation_id === $route.params?.conv_id"
+                                    class="tw-py-2"
                                     :key="index"
                                     clickable
                                     dense
@@ -244,27 +245,42 @@
                                             :image_src="user?.user_meta?.attachment?.src"
                                             :name="user?.user_meta?.display_name"
                                             :email="user?.email"
-                                            size="23px"
+                                            size="30px"
                                         >
-                                            <q-badge
-                                                floating
-                                                rounded
-                                                :color="
-                                                    user.online_status === 'online'
-                                                        ? 'green'
-                                                        : user.online_status === 'offline'
-                                                        ? 'red'
-                                                        : 'grey'
-                                                "
-                                                style="padding: 2px 4px; min-height: 8px"
-                                            />
+                                            <q-badge floating rounded class="bg-white" style="padding: 1px">
+                                                <q-icon
+                                                    :name="`${user.online_status === 'logout' ? 'block' : 'circle'}`"
+                                                    size="12px"
+                                                    :color="
+                                                        user.online_status === 'online'
+                                                            ? 'green'
+                                                            : user.online_status === 'offline'
+                                                            ? 'red'
+                                                            : 'grey-6'
+                                                    "
+                                                    class="bg-grey-4 tw-rounded-full"
+                                                />
+                                            </q-badge>
+
+                                            <!--<q-badge-->
+                                            <!--    floating-->
+                                            <!--    rounded-->
+                                            <!--    :color="-->
+                                            <!--        user.online_status === 'online'-->
+                                            <!--            ? 'green'-->
+                                            <!--            : user.online_status === 'offline'-->
+                                            <!--            ? 'red'-->
+                                            <!--            : 'grey'-->
+                                            <!--    "-->
+                                            <!--    style="padding: 2px 4px; min-height: 8px"-->
+                                            <!--/>-->
                                         </ec-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
                                         <q-item-label
                                             class="text-weight-medium tw-text-sm tw-capitalize"
-                                            :class="{ 'text-grey': user.online_status === 'invisible' }"
+                                            :class="{ 'text-grey': user.online_status === 'logout' }"
                                         >
                                             {{ user.user_meta.display_name }}
                                         </q-item-label>

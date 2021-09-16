@@ -1,6 +1,6 @@
 <template>
     <div>
-        <q-card class="tw-shadow-none">
+        <q-card class="tw-shadow-sm">
             <q-card-section>
                 <div class="tw-text-base tw-text-center tw-font-bold text-dark" :class="$helpers.colors().defaultText">
                     <div v-if="ratingForm.ratingTempValue === ''">Rate This Chat!</div>
