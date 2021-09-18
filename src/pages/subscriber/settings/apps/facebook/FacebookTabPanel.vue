@@ -346,7 +346,7 @@ export default defineComponent({
                         self.facebookLoginWorking = false;
                     }
                 },
-                { scope: "email, pages_show_list, pages_manage_metadata, pages_messaging", auth_type: "reauthorize" } //reauthorize need for update access_token
+                { scope: "email, pages_show_list, pages_messaging", auth_type: "rerequest" } //reauthorize need for update access_token
             );
 
             // after login before final submit call check less then 1hr. cz access token time is limited to 1hr

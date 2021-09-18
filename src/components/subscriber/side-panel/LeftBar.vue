@@ -119,9 +119,9 @@
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="myOngoingChats.length">
+                            <q-list v-if="myOngoingWithFbChats.length">
                                 <q-item
-                                    v-for="ongoingChat in myOngoingChats"
+                                    v-for="ongoingChat in myOngoingWithFbChats"
                                     :to="{ name: 'chats', params: { conv_id: ongoingChat.id } }"
                                     :key="ongoingChat.id"
                                     clickable
@@ -307,6 +307,7 @@ import * as _l from "lodash";
 import moment from "moment";
 import helpers from "boot/helpers/helpers";
 import ChatDepartment from "src/store/models/ChatDepartment";
+import Conversation from "src/store/models/Conversation";
 
 export default defineComponent({
     name: "LeftBar",
@@ -357,6 +358,18 @@ export default defineComponent({
 
         chatDepartmentModel(): any {
             return ChatDepartment.query();
+        },
+
+        myOngoingWithFbChats(): any {
+            const facebookChats = Conversation.query()
+                .where("type", (value: any) => value === "facebook_chat")
+                .whereHas("conversation_sessions", (conversationSessionQuery) => {
+                    conversationSessionQuery; //
+                })
+                .orderBy("created_at")
+                .get();
+
+            return [...this.myOngoingChats, ...facebookChats];
         },
 
         /*teamConversations(): any {

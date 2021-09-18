@@ -79,6 +79,7 @@ export default defineComponent({
     watch: {
         email: {
             handler: function (email) {
+                if (!email) return;
                 const hash = CryptoJS.MD5(email.trim());
                 this.avatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404`;
             },
