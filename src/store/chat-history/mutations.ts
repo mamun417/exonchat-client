@@ -14,11 +14,6 @@ const mutation: MutationTree<ChatHistoryStateInterface> = {
     updatePipeline(state, payload) {
         state.pipeline = helpers.updatePipeline(state.pipeline, payload.pipeline);
     },
-
-    updateNewLoadedChatHistoriesIds(state, newIds) {
-        state.newLoadedChatHistoriesIds = [];
-        state.newLoadedChatHistoriesIds = newIds;
-    },
 };
 
 export default mutation;

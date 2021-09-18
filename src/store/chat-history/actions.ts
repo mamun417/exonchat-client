@@ -3,6 +3,8 @@ import { StateInterface } from "../index";
 import { ChatHistoryStateInterface } from "./state";
 import * as _l from "lodash";
 import Conversation from "src/store/models/Conversation";
+import moment from "moment";
+import helpers from "boot/helpers/helpers";
 
 const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
     getChatHistories(context) {
@@ -12,52 +14,72 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                     params: {
                         p: context.state.paginationMeta.current_page,
                         s: context.state.pipeline.s,
-                        chat_department: context.state.pipeline.chat_department,
+                        chat_department_id: context.state.pipeline.chat_department_id,
+                        agent_id: context.state.pipeline.agent_id,
+                        rating: context.state.pipeline.rating,
                     },
                 })
-                .then((res: any) => {
+                .then(async (res: any) => {
                     context.commit("updatePaginationMeta", res.data.chat_histories.pagination);
 
-                    const chatHistories = res.data.chat_histories.data || [];
+                    const chatHistoriesRes = res.data.chat_histories.data || [];
 
-                    context.commit(
-                        "updateNewLoadedChatHistoriesIds",
-                        chatHistories.map((conv: any) => conv.id)
-                    );
+                    if (!chatHistoriesRes.length) {
+                        resolve(chatHistoriesRes);
+                    }
 
-                    chatHistories.forEach((conv: any) => {
-                        Conversation.insert({ data: conv });
+                    await Conversation.insert({ data: chatHistoriesRes });
 
-                        context.commit(
-                            "chat/updateConversation",
-                            {
-                                conv_id: conv.id,
-                                conversation: _l.pick(conv, [
-                                    "id",
-                                    "users_only",
-                                    "type",
-                                    "closed_at",
-                                    "closed_reason",
-                                    "created_at",
-                                    "created_by_id",
-                                    "closed_by_id",
-                                ]),
-                                sessions: conv.conversation_sessions,
-                                chat_department: conv.chat_department,
-                                // now for sure that at least 1 msg will be available. cz ai will reply after a msg
-                                // if later we implement other way then review this
-                                message: conv.messages[0],
-                                ai_is_replying: conv.ai_is_replying,
-                                closed_by: conv.closed_by,
-                                closed_at: conv.closed_at,
-                                closed_reason: conv.closed_reason,
-                                rating: conv.conversation_rating,
-                                caller: "getClientConversations",
-                            },
-                            { root: true }
+                    const mySocketSessionId = helpers.getMySocketSessionId();
+
+                    const sortedChatHistories = _l
+                        .sortBy(chatHistoriesRes, [(clientConv: any) => moment(clientConv.created_at).format("x")])
+                        .reverse();
+
+                    const chatHistories = sortedChatHistories.map((conv: any) => {
+                        conv.client_info = conv.conversation_sessions.find((session: any) => {
+                            return !conv.users_only && !session.socket_session.user;
+                        });
+
+                        conv.message = msgMaker(conv.messages);
+
+                        conv.self_status = context.rootGetters["chat/conversationStatusForMe"](
+                            conv.id,
+                            mySocketSessionId
                         );
+
+                        conv.connected_agents = Conversation.find(conv.id)?.connectedUsers;
+
+                        return conv;
                     });
-                    resolve(res);
+
+                    function msgMaker(messagesObj: any) {
+                        if (messagesObj && Object.keys(messagesObj).length) {
+                            const messages = _l.cloneDeep(Object.values(messagesObj));
+
+                            const tempMsgObj: any = _l
+                                .sortBy(
+                                    Object.values(messages).filter(
+                                        (msg: any) =>
+                                            msg.sender_type !== "ai" ||
+                                            msg.msg ||
+                                            (msg.attachments && msg.attachments.length)
+                                    ),
+                                    [(msg: any) => moment(msg.created_at).format("x")]
+                                )
+                                .reverse()[0];
+
+                            if (!tempMsgObj.msg) {
+                                tempMsgObj.msg = "Uploaded Attachments";
+                            }
+
+                            return tempMsgObj;
+                        }
+
+                        return null;
+                    }
+
+                    resolve(chatHistories);
                 })
                 .catch((err: any) => {
                     reject(err);

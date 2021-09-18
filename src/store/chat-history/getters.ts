@@ -11,9 +11,9 @@ const getters: GetterTree<ChatHistoryStateInterface, StateInterface> = {
         return state.pipeline;
     },
 
-    newLoadedChatHistoriesIds(state) {
-        return state.newLoadedChatHistoriesIds;
-    },
+    // newLoadedChatHistoriesIds(state) {
+    //     return state.newLoadedChatHistoriesIds;
+    // },
 };
 
 export default getters;
