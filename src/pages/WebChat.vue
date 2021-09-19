@@ -617,6 +617,7 @@ export default defineComponent({
 
             whmcsInfoError: false,
             whmcsInfoAssigned: false,
+            getExonchatObjInterval: "",
             globalColor: "green-10",
             roundBtnHover: false,
             sendChatInitiateMsgInterval: "",
@@ -675,6 +676,7 @@ export default defineComponent({
                         event.data.value.whmcs_info.clientId &&
                         event.data.value.whmcs_info.clientEmail
                     ) {
+                        console.log("pppp");
                         this.getClientWhmcsInfo(event.data.value.whmcs_info);
                     }
                 }
@@ -709,7 +711,7 @@ export default defineComponent({
 
         showWhmcsLoginForm(): any {
             const departmentForWhmcsLogin = "support";
-            const selectedDepartment = this.convInitFields.department_tag.toLowerCase();
+            const selectedDepartment = this.convInitFields.department_tag?.toLowerCase();
 
             if (selectedDepartment !== departmentForWhmcsLogin) {
                 return false;
@@ -717,7 +719,7 @@ export default defineComponent({
 
             // get department info
             const departmentInfo = this.chatDepartments.find(
-                (department: any) => department.tag.toLowerCase() == departmentForWhmcsLogin
+                (department: any) => department.tag?.toLowerCase() == departmentForWhmcsLogin
             );
 
             // check is this department status online
@@ -1179,7 +1181,7 @@ export default defineComponent({
         },
 
         fireOtherEvents() {
-            setInterval(() => {
+            this.getExonchatObjInterval = setInterval(() => {
                 window.parent.postMessage({ action: "getExonchatObj" }, "*");
             }, 3000);
 
@@ -1283,6 +1285,7 @@ export default defineComponent({
             this.convInitFields = {};
             this.convInitFieldsErrors = {};
             this.whmcsInfoAssigned = false;
+            clearInterval(this.getExonchatObjInterval);
         },
 
         reload() {
@@ -1342,6 +1345,7 @@ export default defineComponent({
                     localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
                     this.whmcsInfoAssigned = true;
+                    clearInterval(this.getExonchatObjInterval);
                 })
                 .catch((err: any) => {
                     console.log(err.response);
