@@ -67,7 +67,13 @@
                             >Chat Closed
                         </q-badge>-->
 
-                        <div v-if="!conversationInfo.users_only && !conversationInfo.closed_at">
+                        <div
+                            v-if="
+                                !conversationInfo.users_only &&
+                                !conversationInfo.closed_at &&
+                                conversationInfo.type !== 'facebook_chat'
+                            "
+                        >
                             <!--                            q-card used for the ref instance-->
                             <q-card class="shadow-0" ref="chatDuration">
                                 Chat is Ongoing for <b>{{ $helpers.preciseDiff(conversationInfo.created_at) }}</b>
@@ -140,7 +146,12 @@
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
                                         <q-item-section>
-                                            {{ conversationConnectedUsers.length ? "Join Chat" : "Accept Chat" }}
+                                            {{
+                                                conversationConnectedUsers.length ||
+                                                conversationInfo.type === "facebook_chat"
+                                                    ? "Join Chat"
+                                                    : "Accept Chat"
+                                            }}
                                         </q-item-section>
                                     </q-item>
 

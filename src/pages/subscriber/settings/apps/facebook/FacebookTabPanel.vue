@@ -44,7 +44,7 @@
                                 }}</q-item-section>
                                 <q-item-section class="tw-flex tw-gap-6 tw-items-center" side>
                                     <q-select
-                                        v-model="page.chat_department_ids"
+                                        v-model="page.chat_department_id"
                                         :options="chatDepartments"
                                         hide-bottom-space
                                         option-value="id"
@@ -53,7 +53,6 @@
                                         class="tw-mb-3 tw-w-48"
                                         :color="globalColor"
                                         use-chips
-                                        multiple
                                         emit-value
                                         map-options
                                         dense
@@ -63,8 +62,8 @@
                                     <q-btn
                                         :color="globalColor"
                                         label="Connect"
-                                        :disable="!page.chat_department_ids?.length"
-                                        @click="updatePageConnection(page.id, page.chat_department_ids)"
+                                        :disable="!page.chat_department_id"
+                                        @click="updatePageConnection(page.id, page.chat_department_id)"
                                         unelevated
                                     />
                                 </q-item-section>
@@ -101,7 +100,7 @@
 
                                 <q-item-section class="tw-flex tw-items-center" side>
                                     <q-select
-                                        v-model="page.chat_department_ids"
+                                        v-model="page.chat_department_id"
                                         :options="chatDepartments"
                                         hide-bottom-space
                                         option-value="id"
@@ -110,7 +109,6 @@
                                         class="tw-mb-3 tw-w-48"
                                         :color="globalColor"
                                         use-chips
-                                        multiple
                                         emit-value
                                         map-options
                                         dense
@@ -120,8 +118,8 @@
                                     <q-btn
                                         :color="globalColor"
                                         label="Update"
-                                        :disable="!page.chat_department_ids?.length"
-                                        @click="updatePageConnection(page.id, page.chat_department_ids)"
+                                        :disable="!page.chat_department_id"
+                                        @click="updatePageConnection(page.id, page.chat_department_id)"
                                         unelevated
                                     />
                                 </q-item-section>
@@ -232,12 +230,6 @@ export default defineComponent({
         getFacebookAccounts() {
             this.$api.get("/apps/facebook/accounts").then((res: any) => {
                 this.accounts = res.data;
-
-                this.accounts.map((account: any) => {
-                    account.facebook_pages.map((page: any) => {
-                        page.chat_department_ids = _l.map(page.chat_departments, "id");
-                    });
-                });
             });
         },
         getChatDepartments() {
@@ -257,30 +249,18 @@ export default defineComponent({
                 });
         },
 
-        updatePageConnection(id: any, chat_department_ids: string[]) {
+        updatePageConnection(id: any, chat_department_id: string) {
             window.api
                 .post(`/apps/facebook/update-page-connection/${id}`, {
-                    chat_department_ids,
+                    chat_department_id,
                 })
                 .then((res: any) => {
                     this.accounts = res.data;
-
-                    this.accounts.map((account: any) => {
-                        account.facebook_pages.map((page: any) => {
-                            page.chat_department_ids = _l.map(page.chat_departments, "id");
-                        });
-                    });
                 });
         },
         disconnectPage(id: any) {
             window.api.post(`/apps/facebook/page-disconnect/${id}`).then((res: any) => {
                 this.accounts = res.data;
-
-                this.accounts.map((account: any) => {
-                    account.facebook_pages.map((page: any) => {
-                        page.chat_department_ids = _l.map(page.chat_departments, "id");
-                    });
-                });
             });
         },
 
@@ -323,12 +303,6 @@ export default defineComponent({
                                     .then((res: any) => {
                                         console.log({ res });
                                         self.accounts = [res.data];
-
-                                        self.accounts.map((account: any) => {
-                                            account.facebook_pages.map((page: any) => {
-                                                page.chat_department_ids = _l.map(page.chat_departments, "id");
-                                            });
-                                        });
                                     })
                                     .catch((e: any) => {
                                         console.log(e);
@@ -346,7 +320,7 @@ export default defineComponent({
                         self.facebookLoginWorking = false;
                     }
                 },
-                { scope: "email, pages_show_list, pages_messaging", auth_type: "rerequest" } //reauthorize need for update access_token
+                { scope: "pages_show_list, pages_messaging", auth_type: "rerequest" } //reauthorize need for update access_token
             );
 
             // after login before final submit call check less then 1hr. cz access token time is limited to 1hr

@@ -678,6 +678,8 @@ export default defineComponent({
             this.socket.on("ec_conv_initiated_from_client", (res: any) => {
                 console.log("from ec_conv_initiated_from_client", res);
 
+                // if conv type is fb then handle notification
+
                 if (res.data.notify) {
                     clearTimeout(this.newChatTimeout);
 

@@ -675,7 +675,11 @@
                     !conversationData.closed_at &&
                     (!conversationStatusForMe || conversationStatusForMe !== 'joined')
                 "
-                :label="conversationData.connectedUsers.length ? 'Join Chat' : 'Accept Chat'"
+                :label="
+                    conversationData.connectedUsers.length || conversationInfo.type === 'facebook_chat'
+                        ? 'Join Chat'
+                        : 'Accept Chat'
+                "
                 :color="globalColor"
                 unelevated
                 no-caps
