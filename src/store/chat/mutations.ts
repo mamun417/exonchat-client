@@ -226,6 +226,13 @@ const mutation: MutationTree<ChatStateInterface> = {
                 );
 
                 if (convSession) {
+                    ConversationSession.update({
+                        where: convSession.id,
+                        data: {
+                            last_msg_seen_time: convData.last_msg_seen_time,
+                        },
+                    });
+
                     convSession.last_msg_seen_time = convData.last_msg_seen_time;
                 }
             }

@@ -786,6 +786,7 @@ export default defineComponent({
 
             scrollInfo: {},
             scrollCheckInterval: null,
+            updateLastMsgSeenTimeTimer: null,
 
             scrollbarCanHandleScrollEvent: false,
 
@@ -814,6 +815,13 @@ export default defineComponent({
 
         this.$emitter.off(`new_message_from_client_${this.conv_id}`);
         this.$emitter.off(`new_message_from_user_${this.conv_id}`);
+
+        // reset for go to bottom
+        this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+            conv_id: this.conv_id,
+            auto_scroll_to_bottom: true,
+            last_position: 1,
+        });
     },
 
     computed: {
@@ -911,9 +919,7 @@ export default defineComponent({
         typingState(): any {
             const states = this.$store.getters["chat/typingState"](this.conv_id);
 
-            return states.filter((state: any) => {
-                return state.status === "typing";
-            });
+            return states.filter((state: any) => state.status === "typing");
         },
 
         getSendBtnStatus(): any {
@@ -1025,26 +1031,11 @@ export default defineComponent({
                     this.emitEcGetClientSesIdStatus();
                 }
 
-                if (this.canGoToBottom) {
-                    this.scrollToPosition();
-
-                    // move these check to the function
-                    if (this.chatPanelType === "user") {
-                        // check if user on page then update. for now do it
-                        setTimeout(() => this.updateLastMsgSeenTime(), 1200);
-                    }
-                }
+                // this.scrollToPosition();
             });
 
             this.$emitter.on(`new_message_from_user_${this.conv_id}`, () => {
-                if (this.canGoToBottom) {
-                    this.scrollToPosition();
-
-                    if (this.chatPanelType === "user") {
-                        // check if user on page then update. for now do it
-                        setTimeout(() => this.updateLastMsgSeenTime(), 1200);
-                    }
-                }
+                // this.scrollToPosition();
             });
         },
 
@@ -1099,10 +1090,8 @@ export default defineComponent({
                         }
 
                         // we can check page === 1 without checking firstTimeMessageLoaded
-                        if (!this.firstTimeMessageLoaded && this.canGoToBottom) {
-                            this.scrollToPosition(1); // y here? cz if msg comes & scrollbar appear then auto go bottom
-
-                            if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
+                        if (!this.firstTimeMessageLoaded) {
+                            this.scrollToPosition(); // y here? cz if msg comes & scrollbar appear then auto go bottom
                         }
                     })
                     .catch(() => {
@@ -1388,6 +1377,7 @@ export default defineComponent({
         },
 
         handleScroll() {
+            console.log("handle scroll");
             // if a cov has no msg then it will fire
             // that time we are loading until scrollbar appears or no more msg
             // verticalPercentage is 0 if small amount of msg
@@ -1401,68 +1391,62 @@ export default defineComponent({
                     this.$refs.myInfiniteScrollArea.trigger();
 
                     // canGoToBottom check safe side
-                    if (this.canGoToBottom) {
-                        this.scrollToPosition(1); // y here? cz if msg comes & scrollbar appear then auto go bottom
-
-                        if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
-                    }
+                    this.scrollToPosition(); // y here? cz if msg comes & scrollbar appear then auto go bottom
                 }
 
                 return;
             }
 
-            const verticalPercentage = this.scrollInfo.verticalPercentage;
-            // if it has scroll info we know it's not first time
-            if (this.conversationInfo.hasOwnProperty("scroll_info")) {
-                this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
-
-                const topScrolling = this.lastTopVerticalPosition > this.scrollInfo.verticalPosition;
-                this.lastTopVerticalPosition = this.scrollInfo.verticalPosition;
-
-                if (topScrolling && verticalPercentage < 0.25) {
-                    if (this.canCallMessageApi && !this.gettingNewMessages) {
-                        // if we can then resume and trigger which will fire the load event
-                        this.$refs.myInfiniteScrollArea.resume();
-                        this.$refs.myInfiniteScrollArea.trigger();
-                    }
-                }
-            }
-
-            if (this.newMessagesMayBeLoaded && this.canGoToBottom) {
-                this.scrollToPosition();
-
-                // it's needed for come back
-                if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
-            }
-
-            // if we scrolled to bottom but in store set to not can go then update
-            if (this.scrollInfo.verticalPercentage === 1 && !this.canGoToBottom) {
-                this.scrollToPosition();
-
-                if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
-            }
+            // const verticalPercentage = this.scrollInfo.verticalPercentage;
+            // // if it has scroll info we know it's not first time
+            // if (this.conversationInfo.hasOwnProperty("scroll_info")) {
+            //     this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
+            //
+            //     const topScrolling = this.lastTopVerticalPosition > this.scrollInfo.verticalPosition;
+            //     this.lastTopVerticalPosition = this.scrollInfo.verticalPosition;
+            //
+            //     if (topScrolling && verticalPercentage < 0.25) {
+            //         if (this.canCallMessageApi && !this.gettingNewMessages) {
+            //             // if we can then resume and trigger which will fire the load event
+            //             this.$refs.myInfiniteScrollArea.resume();
+            //             this.$refs.myInfiniteScrollArea.trigger();
+            //         }
+            //     }
+            // }
+            //
+            // // if we scrolled to bottom but in store set to not can go then update
+            // if (this.scrollInfo.verticalPercentage === 1) {
+            //     this.scrollToPosition();
+            // }
         },
 
-        scrollToPosition(position = 1) {
+        scrollToPosition(position = 1, forceBottom = false) {
+            if (!this.canGoToBottom && !forceBottom) return;
+
             const msgScrollArea = this.$refs.msgScrollArea;
 
-            if (msgScrollArea) {
-                // waiting for dom render
-                setTimeout(() => {
+            // waiting for dom render
+            setTimeout(() => {
+                if (msgScrollArea) {
                     console.log("scroll to ", position);
                     msgScrollArea.setScrollPercentage("vertical", position, 200);
-                }, 100);
-            }
 
-            this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
-                conv_id: this.conv_id,
-                auto_scroll_to_bottom: position === 1,
-                last_position: 1,
-            });
+                    this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+                        conv_id: this.conv_id,
+                        auto_scroll_to_bottom: position === 1,
+                        last_position: 1,
+                    });
 
-            if (this.newMessagesMayBeLoaded && position === 1) {
-                this.newMessagesMayBeLoaded = false;
-            }
+                    if (position === 1) {
+                        if (this.chatPanelType === "user") {
+                            clearTimeout(this.updateLastMsgSeenTimeTimer);
+
+                            // check if user on page then update. for now do it
+                            this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
+                        }
+                    }
+                }
+            }, 100);
         },
 
         attachmentUploaderHandle(val: any) {
@@ -1548,7 +1532,6 @@ export default defineComponent({
         async updateLastMsgSeenTime() {
             // urgent check needed
             // must check if seen need to update or not
-            console.log("update seen");
             const lastMsgSeenTime = moment().format();
             const mySocketSesId = this.$helpers.getMySocketSessionId();
 
@@ -1556,8 +1539,11 @@ export default defineComponent({
             if (
                 this.myConversationSession &&
                 this.myConversationSession.joined_at &&
-                !this.myConversationSession.left_at
+                !this.myConversationSession.left_at &&
+                this.conversationData.myUnseenMessageCount > 0
             ) {
+                console.log("update seen");
+
                 this.$store.commit("chat/updateConversation", {
                     conv_id: this.conv_id,
                     last_msg_seen_time: lastMsgSeenTime,
@@ -1635,9 +1621,7 @@ export default defineComponent({
                 if (this.conv_id && this.mini_mode && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
                     this.$refs.myInfiniteScrollArea.poll();
 
-                    this.scrollToPosition();
-
-                    if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
+                    this.scrollToPosition(1, true);
                 }
 
                 // if need remove mini mode check
@@ -1646,18 +1630,19 @@ export default defineComponent({
                         before_conversation_id: this.conv_id,
                     });
                 }
+
+                clearInterval(this.scrollCheckInterval);
+                this.scrollCheckInterval = setInterval(() => {
+                    this.handleScroll();
+                }, 500);
             },
             immediate: true,
         },
 
         messages: {
-            handler: function (newVal, oldVal) {
-                if (!newVal || !oldVal || newVal.length === oldVal.length) return;
-                // in the future, we can fine tune this by checking old & new val
-                this.newMessagesMayBeLoaded = true;
-
-                if (!this.scrollCheckInterval) {
-                    this.scrollCheckInterval = setInterval(() => this.handleScroll(), 300);
+            handler: function () {
+                if (this.messages) {
+                    this.scrollToPosition();
                 }
             },
             deep: true,
@@ -1665,16 +1650,8 @@ export default defineComponent({
         },
 
         typingState: {
-            handler: function (newVal, oldVal) {
-                // console.log(oldVal, newVal);
-
-                if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
-                    // I think this if not need anymore
-                    if (newVal.length > oldVal.length) {
-                        // this.scrollToPosition();
-                        this.newMessagesMayBeLoaded = true;
-                    }
-                }
+            handler: function () {
+                this.scrollToPosition();
             },
             deep: true,
         },
