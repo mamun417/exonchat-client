@@ -45,7 +45,6 @@ ecChatHelperContainer.addEventListener("click", function () {
 let getWhmcsInfoInterval = "";
 
 function getExonchatObj() {
-    console.log("get data");
     ecChatIFrame.contentWindow.postMessage({ res: "exonchat_obj", value: exonChat }, "*");
 }
 

@@ -671,14 +671,7 @@ export default defineComponent({
                 }
 
                 if (event.data.res === "exonchat_obj" && event.data.value) {
-                    if (
-                        event.data.value.hasOwnProperty("whmcs_info") &&
-                        event.data.value.whmcs_info.clientId &&
-                        event.data.value.whmcs_info.clientEmail
-                    ) {
-                        console.log("pppp");
-                        this.getClientWhmcsInfo(event.data.value.whmcs_info);
-                    }
+                    this.getClientWhmcsInfo(event.data.value.whmcs_info);
                 }
 
                 // handle other res
@@ -1311,6 +1304,8 @@ export default defineComponent({
 
                 this.whmcsInfoAssigned = true;
 
+                clearInterval(this.getExonchatObjInterval);
+
                 return;
             }
 
@@ -1345,6 +1340,7 @@ export default defineComponent({
                     localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
                     this.whmcsInfoAssigned = true;
+
                     clearInterval(this.getExonchatObjInterval);
                 })
                 .catch((err: any) => {
