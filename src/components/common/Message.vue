@@ -538,6 +538,8 @@
                 @keyup="keyUpHandle"
                 @focus="inputFocusHandle"
                 @blur="inputBlurHandle"
+                @paste.prevent="imageLoadOnPast"
+                @drop.prevent="imageLoadOnPast"
                 hide-bottom-space
                 autogrow
                 borderless
@@ -1466,6 +1468,7 @@ export default defineComponent({
         },
 
         attachmentUploaderHandle(val: any) {
+            console.log(val);
             val.forEach((img: any) => {
                 if (_l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1) {
                     this.finalAttachments.push({
@@ -1614,6 +1617,24 @@ export default defineComponent({
 
                     this.getNewMessages();
                 }
+            }
+        },
+
+        imageLoadOnPast(e: any) {
+            const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
+
+            try {
+                const items = e.clipboardData.files;
+                this.attachmentUploaderHandle([...items]);
+            } catch (err: any) {
+                //
+            }
+
+            try {
+                const items = e.dataTransfer.files;
+                this.attachmentUploaderHandle([...items]);
+            } catch (err: any) {
+                //
             }
         },
     },
