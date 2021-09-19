@@ -709,7 +709,7 @@ export default defineComponent({
 
         showWhmcsLoginForm(): any {
             const departmentForWhmcsLogin = "support";
-            const selectedDepartment = this.convInitFields.department_tag.toLowerCase();
+            const selectedDepartment = this.convInitFields.department_tag?.toLowerCase();
 
             if (selectedDepartment !== departmentForWhmcsLogin) {
                 return false;
@@ -717,7 +717,7 @@ export default defineComponent({
 
             // get department info
             const departmentInfo = this.chatDepartments.find(
-                (department: any) => department.tag.toLowerCase() == departmentForWhmcsLogin
+                (department: any) => department.tag?.toLowerCase() == departmentForWhmcsLogin
             );
 
             // check is this department status online
