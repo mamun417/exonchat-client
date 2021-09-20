@@ -232,7 +232,7 @@
                                         </q-item-section>
                                     </q-item>
 
-                                    <q-item clickable>
+                                    <q-item v-if="canSendTranscript" clickable>
                                         <send-transcript
                                             :conv_id="conversationInfo.id"
                                             @sendingTranscript="sendingTranscript = $event"
@@ -436,6 +436,10 @@ export default defineComponent({
 
         canTransfer(): any {
             return this.canClose;
+        },
+
+        canSendTranscript(): any {
+            return this.conversationStatusForMe === "joined";
         },
 
         conversationWithUsersInfo(): any {

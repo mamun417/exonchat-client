@@ -686,7 +686,7 @@
             />
 
             <send-transcript
-                v-if="conversationConnectedUsers.length || conversationData.closed_at"
+                v-if="canSendTranscript && (conversationConnectedUsers.length || conversationData.closed_at)"
                 :conv_id="conv_id"
             />
 
@@ -1003,6 +1003,17 @@ export default defineComponent({
 
         conversationConnectedUsers(): any {
             return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
+        },
+
+        canSendTranscript(): any {
+            const sortedAgents = _l.sortBy(
+                this.conversationConnectedUsers.filter(
+                    (conversationConnectedUser: any) => !conversationConnectedUser.left_at
+                ),
+                (convSes: any) => moment(convSes.joined_at).format("x")
+            );
+
+            return !!(sortedAgents.length && sortedAgents[0].socket_session_id === this.profile?.socket_session?.id);
         },
     },
 
