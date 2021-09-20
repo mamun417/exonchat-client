@@ -126,6 +126,8 @@ const mutation: MutationTree<ChatStateInterface> = {
                 } else {
                     // later check for update time & replace
                 }
+
+                window.emitter.emit("message_inserted_or_updated", { conv_id: convId });
             }
 
             if (convData.hasOwnProperty("messages") && convData.messages.length) {
@@ -140,6 +142,8 @@ const mutation: MutationTree<ChatStateInterface> = {
                         // later check for update time & replace
                     }
                 });
+
+                window.emitter.emit("message_inserted_or_updated", { conv_id: convId });
             }
 
             // here sessions means [conversation_session...]
@@ -226,6 +230,13 @@ const mutation: MutationTree<ChatStateInterface> = {
                 );
 
                 if (convSession) {
+                    ConversationSession.update({
+                        where: convSession.id,
+                        data: {
+                            last_msg_seen_time: convData.last_msg_seen_time,
+                        },
+                    });
+
                     convSession.last_msg_seen_time = convData.last_msg_seen_time;
                 }
             }
