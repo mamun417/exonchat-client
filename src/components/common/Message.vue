@@ -483,6 +483,10 @@
         <q-scroll-observer :debounce="200" @scroll="scrollObserverHandle" />
     </q-scroll-area>
 
+    <div v-if="showFileErrorMsg" class="text-orange-8 tw--mb-2 tw-mt-1 tw-text-xs">
+        Valid file type: jpg, jpeg, gif, png and File size max: 5 MB.
+    </div>
+
     <div
         style="border-top: 1px solid rgba(0, 0, 0, 0.08)"
         v-if="showSendMessageInput"
@@ -495,12 +499,10 @@
             ref="attachment_uploader"
             class="hidden"
             accept=".jpg, .jpeg, .png, .gif"
-            max-files="5"
-            :max-file-size="1024 * 1024 * 1"
+            :max-files="attachmentConfig.maxFiles"
             multiple
             append
             @update:model-value="attachmentUploaderHandle"
-            @rejected="handleAttachmentReject"
         />
 
         <div class="tw-flex tw-flex-col tw-justify-end">
@@ -538,6 +540,8 @@
                 @keyup="keyUpHandle"
                 @focus="inputFocusHandle"
                 @blur="inputBlurHandle"
+                @paste="imageLoadOnPast"
+                @drop="imageLoadOnPast"
                 hide-bottom-space
                 autogrow
                 borderless
@@ -793,6 +797,12 @@ export default defineComponent({
 
             timeToShowSpeakingInfo: false,
             clientPanelGlobalColor: "green-10",
+            showFileErrorMsg: false,
+            showFileErrorMsgInterval: "",
+            attachmentConfig: {
+                maxFileSize: 1024 * 1024 * 1, // 5 MB
+                maxFiles: 5,
+            },
         };
     },
 
@@ -1467,6 +1477,22 @@ export default defineComponent({
 
         attachmentUploaderHandle(val: any) {
             val.forEach((img: any) => {
+                const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
+
+                const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
+
+                if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
+                    clearInterval(this.showFileErrorMsgInterval);
+
+                    this.showFileErrorMsg = true;
+
+                    this.showFileErrorMsgInterval = setInterval(() => {
+                        this.showFileErrorMsg = false;
+                    }, 10000);
+
+                    return;
+                }
+
                 if (_l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1) {
                     this.finalAttachments.push({
                         temp_id: new Date().getTime(),
@@ -1515,6 +1541,8 @@ export default defineComponent({
                         .catch((e: any) => {
                             console.log(e);
                         });
+                } else {
+                    // console.log(`file ${img.name} already added`);
                 }
             });
         },
@@ -1534,15 +1562,6 @@ export default defineComponent({
             if (localCopy.id) {
                 this.$socketSessionApi.delete(`attachments/${localCopy.id}`);
             }
-        },
-        handleAttachmentReject(entries: any) {
-            // show toast
-            console.log("before upload error", entries);
-
-            entries.forEach((attachment: any) => {
-                console.log(attachment.file.name, attachment.failedPropValidation, "error");
-                this.$helpers.showErrorNotification(this, attachment.failedPropValidation);
-            });
         },
 
         async updateLastMsgSeenTime() {
@@ -1615,6 +1634,17 @@ export default defineComponent({
                     this.getNewMessages();
                 }
             }
+        },
+
+        imageLoadOnPast(e: any) {
+            const isTextPast = e.clipboardData?.getData("text") || e.dataTransfer?.getData("text");
+
+            // prevent default only for file (past/drop)
+            if (!isTextPast) e.preventDefault();
+
+            let files = e.dataTransfer?.files || e.clipboardData?.files || [];
+
+            this.attachmentUploaderHandle([...files]);
         },
     },
 
