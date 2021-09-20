@@ -1019,7 +1019,7 @@ export default defineComponent({
 
                 this.$store.dispatch("chat/storeMessage", res);
 
-                // console.log('from ec_msg_to_client', res);
+                console.log("from ec_msg_to_client", res);
             });
             // this.socket.on('ec_is_typing_to_client', (res: any) => {
             //     console.log('from ec_is_typing_to_client', res);

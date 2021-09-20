@@ -11,7 +11,7 @@ const notifications = {
 
 const helpers = {
     getTempId() {
-        return new Date().getTime();
+        return new Date().getTime() + this.getRandomIntInclusive(3, 3);
     },
 
     fromNowTime(timestamp: string, withoutSuffix = false) {
