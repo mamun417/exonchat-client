@@ -316,7 +316,7 @@
                                     <div>
                                         <div>{{ service.name }} - {{ service.billingcycle }}</div>
                                         <div>
-                                            <a href="https://exonhost.com" class="text-blue-5" target="_blank">
+                                            <a :href="`http://${service.domain}`" class="text-blue-5" target="_blank">
                                                 {{ service.domain }}
                                             </a>
                                         </div>

@@ -317,7 +317,7 @@
                                             <div class="tw-my-7">
                                                 <div>
                                                     Welcome to our LiveChat! Please fill in the form below before
-                                                    starting the chat.
+                                                    starting the chat
                                                 </div>
 
                                                 <div
@@ -325,9 +325,10 @@
                                                     class="tw-my-2 tw-shadow-none tw-font-medium tw-flex tw-items-center tw-justify-between tw--mb-4"
                                                 >
                                                     <div class="text-green-8">
-                                                        You are currently logged in dashboard.
+                                                        You are currently logged in dashboard
                                                     </div>
                                                     <q-btn
+                                                        v-if="!whmcsAutoLogin"
                                                         @click="resetConvInitForm"
                                                         size="xs"
                                                         color="orange-8"
@@ -617,6 +618,7 @@ export default defineComponent({
 
             whmcsInfoError: false,
             whmcsInfoAssigned: false,
+            whmcsAutoLogin: false,
             getExonchatObjInterval: "",
             globalColor: "green-10",
             roundBtnHover: false,
@@ -1303,6 +1305,7 @@ export default defineComponent({
                 this.convInitFields.email = whmcsInfo?.email;
 
                 this.whmcsInfoAssigned = true;
+                this.whmcsAutoLogin = true;
 
                 clearInterval(this.getExonchatObjInterval);
 
@@ -1318,7 +1321,7 @@ export default defineComponent({
             )
                 return;
 
-            window.api
+            window.socketSessionApi
                 .post("apps/whmcs/client-details", {
                     clientid: whmcsCredential?.clientId, // change key to client_id
                     email: whmcsCredential?.clientEmail,
@@ -1340,6 +1343,7 @@ export default defineComponent({
                     localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
                     this.whmcsInfoAssigned = true;
+                    this.whmcsAutoLogin = true;
 
                     clearInterval(this.getExonchatObjInterval);
                 })
