@@ -801,7 +801,7 @@ export default defineComponent({
             showFileErrorMsg: false,
             showFileErrorMsgInterval: "",
             attachmentConfig: {
-                maxFileSize: 1024 * 1024 * 1, // 5 MB
+                maxFileSize: 1024 * 1024 * 5, // 5 MB
                 maxFiles: 5,
             },
         };
