@@ -439,7 +439,7 @@ export default defineComponent({
         },
 
         canSendTranscript(): any {
-            return this.canClose;
+            return this.conversationStatusForMe === "joined";
         },
 
         conversationWithUsersInfo(): any {
