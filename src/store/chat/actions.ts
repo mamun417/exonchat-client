@@ -137,6 +137,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             closed_reason: convInfo.closed_reason,
             sessions: convInfo.conversation_sessions, // not sending now
             caller: "updateConvStateToClosed",
+            original_data: { conversation: convInfo },
         });
 
         if (convInfo.log_message) {
