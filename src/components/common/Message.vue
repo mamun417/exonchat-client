@@ -277,10 +277,10 @@
                                                 <div
                                                     v-for="(msgItem, index) of message.messageArray"
                                                     :key="index"
-                                                    class="tw-flex tw-justify-between tw-gap-2"
+                                                    class="tw-flex tw-justify-between tw-gap-2 tw-my-2"
                                                 >
                                                     <div>
-                                                        <div class="tw-text-sm tw-my-2">
+                                                        <div class="tw-text-sm">
                                                             <pre
                                                                 v-html="$helpers.makeCLickAbleLink(msgItem.msg)"
                                                                 class="tw-whitespace-normal"
@@ -323,28 +323,29 @@
                                                         </div>
                                                     </div>
 
-                                                    <div
-                                                        class="tw-whitespace-nowrap"
-                                                        :class="{
-                                                            'tw-text-xxs': mini_mode,
-                                                            'tw-text-xs': !mini_mode,
-                                                            [$helpers.colors().dateTimeText]: true,
-                                                        }"
-                                                    >
-                                                        {{ getDateTime(msgItem.created_at) }}
+                                                    <div class="tw-flex tw-items-center tw-gap-1">
+                                                        <div
+                                                            class="tw-whitespace-nowrap"
+                                                            :class="{
+                                                                'tw-text-xxs': mini_mode,
+                                                                'tw-text-xs': !mini_mode,
+                                                                [$helpers.colors().dateTimeText]: true,
+                                                            }"
+                                                        >
+                                                            {{ getDateTime(msgItem.created_at) }}
+                                                        </div>
+
+                                                        <q-icon
+                                                            :name="messageStatusIconName(msgItem)"
+                                                            :color="messageStatusIconColor(msgItem)"
+                                                            size="12px"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </q-card-section>
                                 </q-card>
-                                <div
-                                    v-if="message.id.includes('temp_msg_id_')"
-                                    class="text-right tw-text-xs tw-px-4 tw-py-1"
-                                    :class="`text-${globalColor}`"
-                                >
-                                    Sending...
-                                </div>
                             </div>
 
                             <!-- keep this block here cz it will show after the last message-->
@@ -874,7 +875,11 @@ export default defineComponent({
         },
 
         myConversationSession(): any {
-            return this.$store.getters["chat/myConversationSession"](this.conv_id, this.ses_id);
+            return this.conversationData.myConversationSession;
+        },
+
+        othersLastMessageSeenTime(): any {
+            return new Date(this.conversationData.getOthersLastMessageSeenTime).getTime();
         },
 
         messages(): any {
@@ -913,8 +918,7 @@ export default defineComponent({
                             messages.length &&
                             tempMsgObj.message_type === "message" &&
                             _l.last(messages).message_type === "message" &&
-                            _l.last(messages).socket_session_id === tempMsgObj.socket_session_id &&
-                            !tempMsgObj.id.includes("temp_msg_id_")
+                            _l.last(messages).socket_session_id === tempMsgObj.socket_session_id
                         ) {
                             const lastTempMessage = _l.last(messages);
 
@@ -1063,6 +1067,22 @@ export default defineComponent({
         },
         messageInputResizeObserver(size: any) {
             this.msgInputWidth = size.width;
+        },
+
+        messageStatusIconName(msg: any) {
+            if (msg.id.includes("temp_msg_id")) {
+                return "schedule";
+            }
+
+            return "done_all";
+        },
+
+        messageStatusIconColor(msg: any) {
+            if (this.othersLastMessageSeenTime > new Date(msg.created_at).getTime()) {
+                return "green-6";
+            }
+
+            return "grey-6";
         },
 
         emitSocketEvents() {
@@ -1429,10 +1449,14 @@ export default defineComponent({
                     msg: this.msg,
                     message_type: "message",
                     conversation_id: this.conv_id,
-                    socket_session_id: this.$helpers.getMySocketSessionId("client"),
-                    created_at: new Date(),
+                    socket_session_id: this.$helpers.getMySocketSessionId(),
+                    created_at: new Date().toISOString(),
                 },
+            }).then(() => {
+                this.scrollToPosition();
             });
+
+            console.log(this.conversationData.getOthersLastMessageSeenTime);
 
             this.msg = "";
             this.attachments = [];
@@ -1459,12 +1483,10 @@ export default defineComponent({
                     msgScrollArea.setScrollPercentage("vertical", position, 300);
 
                     if (position === 1) {
-                        if (this.chatPanelType === "user") {
-                            clearTimeout(this.updateLastMsgSeenTimeTimer);
+                        clearTimeout(this.updateLastMsgSeenTimeTimer);
 
-                            // check if user on page then update. for now do it
-                            this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
-                        }
+                        // check if user on page then update. for now do it
+                        this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
                     }
                 }
             }, 100);
@@ -1580,11 +1602,8 @@ export default defineComponent({
                     socket_session_id: mySocketSesId,
                 });
 
-                await window.api.post(
-                    `conversations/update-last-message-seen-time/conversation-session/${this.myConversationSession.id}`,
-                    {
-                        last_msg_seen_time: lastMsgSeenTime,
-                    }
+                await window.socketSessionApi.post(
+                    `conversations/update-last-message-seen-time/conversation-session/${this.myConversationSession.id}`
                 );
             }
         },

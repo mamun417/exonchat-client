@@ -32,17 +32,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return {};
     },
 
-    myConversationSession: () => (convId: any, mySesId: any) => {
-        const conv: any = Conversation.query().where("id", convId).with("conversation_sessions").first();
+    myConversationSession: () => (convId: any) => {
+        const conv: any = Conversation.query().where("id", convId).first();
 
-        if (!conv) return {};
-
-        return (
-            _l.find(
-                conv.conversation_sessions,
-                (conversationSession: any) => conversationSession.socket_session_id === mySesId
-            ) || {}
-        );
+        return conv.myConversationSession || {};
     },
 
     conversationStatusForMe: () => (convId: any, mySesId: any) => {

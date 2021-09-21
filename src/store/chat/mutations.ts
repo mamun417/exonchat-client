@@ -117,6 +117,10 @@ const mutation: MutationTree<ChatStateInterface> = {
             }
 
             if (convData.hasOwnProperty("message") && convData.message) {
+                if (convData.message.temp_id) {
+                    Message.delete(convData.message.temp_id);
+                }
+
                 Message.insert({ data: convData.message });
 
                 if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
