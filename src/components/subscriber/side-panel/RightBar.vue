@@ -309,14 +309,20 @@
                                 <q-item
                                     v-for="(service, index) in relatedServices"
                                     :key="index"
+                                    @click="gotoServiceDetails(service)"
                                     class="tw-flex tw-items-center tw-py-2"
                                     :class="`${index !== 0 ? 'custom-border-top' : ''}`"
+                                    clickable
                                     dense
                                 >
                                     <div>
                                         <div>{{ service.name }} - {{ service.billingcycle }}</div>
                                         <div>
-                                            <a :href="`http://${service.domain}`" class="text-blue-5" target="_blank">
+                                            <a
+                                                href="javascript:void(0)"
+                                                @click.stop="gotoServiceDomain(service)"
+                                                class="text-blue-5"
+                                            >
                                                 {{ service.domain }}
                                             </a>
                                         </div>
@@ -605,6 +611,18 @@ export default defineComponent({
                 .catch((err: any) => {
                     console.log(err.response);
                 });
+        },
+
+        gotoServiceDetails(service: any) {
+            const baseUrl = process.env.DEV
+                ? "https://dev.exonhost.com/backend"
+                : "https://clients.exonhost.com/obosor";
+
+            window.open(`${baseUrl}/clientsservices.php?userid=${service.clientid}&id=${service.id}`, "_blank");
+        },
+
+        gotoServiceDomain(service: any) {
+            window.open(`http://${service.domain}`, "_blank");
         },
     },
 
