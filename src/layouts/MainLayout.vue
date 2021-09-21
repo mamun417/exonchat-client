@@ -1143,6 +1143,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+body {
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
+}
+
 #network-error-dialog {
     .q-dialog__inner {
         padding: 0;
