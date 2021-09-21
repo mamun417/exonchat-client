@@ -4,17 +4,8 @@
         ref="msgScrollArea"
         class="tw-px-0 tw-flex-grow tw-text-xs"
         style="height: 1px"
-        :bar-style="{
-            background: 'grey',
-            width: '8px',
-            borderRadius: '5px',
-            zIndex: 99999,
-        }"
         :thumb-style="{
-            borderRadius: '5px',
-            backgroundColor: '#bec3cd',
-            width: '8px',
-            opacity: 0.7,
+            borderRadius: '0px',
             zIndex: 99999,
         }"
         :content-style="{}"
