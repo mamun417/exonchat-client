@@ -22,6 +22,7 @@
             <q-drawer
                 :model-value="true"
                 class="tw-shadow"
+                style="overflow: unset"
                 side="left"
                 :breakpoint="599"
                 :width="!leftDrawer ? 65 : 280"

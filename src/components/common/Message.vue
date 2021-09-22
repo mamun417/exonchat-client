@@ -4,10 +4,7 @@
         ref="msgScrollArea"
         class="tw-px-0 tw-flex-grow tw-text-xs"
         style="height: 1px"
-        :thumb-style="{
-            borderRadius: '0px',
-            zIndex: 99999,
-        }"
+        :thumb-style="$helpers.getThumbStyle()"
         :content-style="{}"
     >
         <!--        debounce is for load spam-->
