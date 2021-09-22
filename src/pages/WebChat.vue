@@ -591,13 +591,16 @@ export default defineComponent({
                 user_info: {},
             },
             convInitFieldsErrors: {},
+
             msg: "",
-            pageInFocus: false,
-            pageNotInFocusEmitted: false,
             typingHandler: {
                 typing: false,
             },
+
+            pageInFocus: false,
+            pageNotInFocusEmitted: false,
             pageVisitingHandler: null,
+
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
@@ -1066,7 +1069,7 @@ export default defineComponent({
                 // handle this emit for all conversation session update like join left etc also. life will be easier
                 this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
 
-                console.log("from ec_conversation_session_updated", res);
+                // console.log("from ec_conversation_session_updated", res);
             });
 
             this.socket.on("ec_conv_queue_position_res", (res: any) => {

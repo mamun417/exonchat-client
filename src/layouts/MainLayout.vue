@@ -729,7 +729,7 @@ export default defineComponent({
                 // handle this emit for all conversation session update like join left etc also. life will be easier
                 this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
 
-                console.log("from ec_conversation_session_updated", res);
+                // console.log("from ec_conversation_session_updated", res);
             });
 
             // emitting this socket into mount

@@ -336,6 +336,7 @@
                                                         </div>
 
                                                         <q-icon
+                                                            v-if="msgItem.isMyMsg"
                                                             :name="messageStatusIconName(msgItem)"
                                                             :color="messageStatusIconColor(msgItem)"
                                                             size="12px"
@@ -1411,7 +1412,7 @@ export default defineComponent({
         },
 
         sendMessage(): any {
-            if (!this.canSendNextMsg) return;
+            // if (!this.canSendNextMsg) return;
 
             this.msg = this.msg.trim();
 
@@ -1419,7 +1420,7 @@ export default defineComponent({
                 return false;
             }
 
-            this.canSendNextMsg = false;
+            // this.canSendNextMsg = false;
 
             // console.log('sending the msg');
 
@@ -1461,7 +1462,7 @@ export default defineComponent({
             this.msg = "";
             this.attachments = [];
             this.finalAttachments = [];
-            this.canSendNextMsg = true;
+            // this.canSendNextMsg = true;
         },
 
         scrollToPosition(position = 1, forceBottom = false) {
@@ -1602,6 +1603,7 @@ export default defineComponent({
                     socket_session_id: mySocketSesId,
                 });
 
+                // we could use conversation/:conv_id/update-last-message-seen-time
                 await window.socketSessionApi.post(
                     `conversations/update-last-message-seen-time/conversation-session/${this.myConversationSession.id}`
                 );

@@ -3,6 +3,7 @@ import Conversation from "src/store/models/Conversation";
 import SocketSession from "src/store/models/SocketSession";
 import ConversationSession from "src/store/models/ConversationSession";
 import MessageAttachment from "src/store/models/MessageAttachment";
+import helpers from "boot/helpers/helpers";
 
 export default class Message extends Model {
     // This is the name used as module name of the Vuex Store.
@@ -10,6 +11,7 @@ export default class Message extends Model {
 
     id!: string;
     conversation_id!: string;
+    socket_session_id!: string | null;
 
     // List of all fields (schema) of the post model. `this.attr` is used
     // for the generic field type. The argument is the default value.
@@ -50,12 +52,15 @@ export default class Message extends Model {
 
     // use it only on agent panel
     get isMyMsg() {
-        const message: any = this.$query()
-            .where("id", this.id)
-            .where("socket_session_id", this.$store().getters["auth/profile"]?.socket_session?.id)
-            .first();
+        // const message: any = this.$query()
+        //     .where("id", this.id)
+        //     .where("socket_session_id", this.$store().getters["auth/profile"]?.socket_session?.id)
+        //     .first();
+        //
+        // return !!message?.id;
 
-        return !!message?.id;
+        // use upper block if error happens
+        return this.socket_session_id === helpers.getMySocketSessionId();
     }
 
     get isAgentMsg() {
