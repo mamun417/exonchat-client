@@ -8,7 +8,7 @@ const actions: ActionTree<TicketStateInterface, StateInterface> = {
             window.api
                 .get(`apps/whmcs/tickets?email=${payload.email}`)
                 .then((res: any) => {
-                    context.commit("storeTickets", res.data.tickets?.ticket || []);
+                    context.commit("storeTickets", res.data);
                     resolve(res);
                 })
                 .catch((err: any) => {

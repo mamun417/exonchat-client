@@ -107,6 +107,14 @@ const helpers = {
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
+
+    getWhmcsBaseUrl() {
+        return process.env.DEV ? "https://dev.exonhost.com/backend" : "https://clients.exonhost.com/obosor";
+    },
+
+    getThumbStyle() {
+        return { borderRadius: "0px", zIndex: 99999 };
+    },
 };
 
 export default helpers;

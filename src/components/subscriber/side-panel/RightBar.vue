@@ -221,23 +221,12 @@
         <q-scroll-area
             v-else-if="rightBarState.mode === 'client_info' && !conversationInfo.users_only"
             class="fit"
-            :bar-style="{
-                background: '#60A5FA',
-                width: '4px',
-                opacity: 0.2,
-                borderRadius: '10px',
-            }"
-            :thumb-style="{
-                borderRadius: '9px',
-                backgroundColor: '#60A5FA',
-                width: '4px',
-                opacity: 0.5,
-            }"
+            :thumb-style="$helpers.getThumbStyle()"
         >
             <!-- at first conversationWithUsersInfo can be empty. show loader -->
             <q-list
                 v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
-                class="tw-px-1 tw-py-3"
+                class="tw-px-1 tw-pr-3 tw-py-3"
                 :class="$helpers.colors().defaultText"
             >
                 <customer-details-card
@@ -455,10 +444,7 @@
                                     :key="key"
                                     class="tw-text-xs tw-py-2"
                                     :class="`${key !== 0 ? 'custom-border-top' : ''}`"
-                                    @click="
-                                        ticketSelected = ticket;
-                                        ticketDetailModal = true;
-                                    "
+                                    @click="gotoTicketDetails(ticket)"
                                     dense
                                     clickable
                                 >
@@ -488,11 +474,11 @@
                 </q-expansion-item>
 
                 <!--its a modal-->
-                <ticket-detail
+                <!--<ticket-detail
                     :ticket="ticketSelected"
                     :modal_show="ticketDetailModal"
                     @modalUpdate="ticketDetailModal = $event"
-                />
+                />-->
             </q-list>
         </q-scroll-area>
     </div>
@@ -507,7 +493,7 @@ import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vu
 import EcAvatar from "src/components/common/EcAvatar.vue";
 
 import UAParser from "ua-parser-js";
-import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
+// import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
 import ConnectedUsersFaces from "components/subscriber/chat/ConnectedUsersFaces.vue";
 import CustomerDetailsCard from "components/common/RightbarCards/CustomerDetailsCard.vue";
 import SendTranscript from "components/common/SendTranscript.vue";
@@ -518,7 +504,7 @@ export default defineComponent({
         SendTranscript,
         CustomerDetailsCard,
         ConnectedUsersFaces,
-        TicketDetail,
+        // TicketDetail,
         MessagesTopSection,
         Message,
         EcAvatar,
@@ -531,8 +517,8 @@ export default defineComponent({
             sesId: "",
             confirm: false,
 
-            ticketSelected: null,
-            ticketDetailModal: false,
+            // ticketSelected: null,
+            // ticketDetailModal: false,
 
             chatDuration: "",
 
@@ -540,6 +526,7 @@ export default defineComponent({
 
             relatedServices: [],
             cardMaxHeight: "64",
+            whmcsBaseUrl: "", // load from helper, its need to direct call WHMCS api from client
         };
     },
 
@@ -614,15 +601,18 @@ export default defineComponent({
         },
 
         gotoServiceDetails(service: any) {
-            const baseUrl = process.env.DEV
-                ? "https://dev.exonhost.com/backend"
-                : "https://clients.exonhost.com/obosor";
-
-            window.open(`${baseUrl}/clientsservices.php?userid=${service.clientid}&id=${service.id}`, "_blank");
+            window.open(
+                `${this.whmcsBaseUrl}/clientsservices.php?userid=${service.clientid}&id=${service.id}`,
+                "_blank"
+            );
         },
 
         gotoServiceDomain(service: any) {
             window.open(`http://${service.domain}`, "_blank");
+        },
+
+        gotoTicketDetails(ticket: any) {
+            window.open(`${this.whmcsBaseUrl}/supporttickets.php?action=view&id=${ticket.id}`, "_blank");
         },
     },
 
@@ -640,6 +630,8 @@ export default defineComponent({
                 this.$refs.connectedForTimer?.$forceUpdate();
             }
         }, 1000);
+
+        this.whmcsBaseUrl = this.$helpers.getWhmcsBaseUrl();
     },
 
     watch: {

@@ -4,25 +4,11 @@
 
         <q-scroll-area
             class="fit"
-            :bar-style="{
-                background: '#60A5FA',
-                width: '4px',
-                opacity: 0.2,
-                borderRadius: '10px',
-            }"
             :thumb-style="{
-                borderRadius: '9px',
-                backgroundColor: '#60A5FA',
-                width: '4px',
-                opacity: 0.5,
+                marginRight: '-10px',
+                ...$helpers.getThumbStyle(),
             }"
         >
-            <!-- <div
-                        class="text-weight-bold tw-text-lg text-center tw-py-2"
-                    >
-                        Interactions
-                    </div> -->
-
             <q-list class="tw-text-gray-600">
                 <q-item>
                     <q-item-section>
