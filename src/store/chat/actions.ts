@@ -7,6 +7,7 @@ import helpers from "boot/helpers/helpers";
 
 import Conversation from "src/store/models/Conversation";
 import Message from "src/store/models/Message";
+import ConversationSession from "src/store/models/ConversationSession";
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -146,6 +147,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 message: convInfo.log_message,
             });
         }
+    },
+    updateConversationSession(context, conversationSession) {
+        ConversationSession.update({
+            where: conversationSession.id,
+            data: conversationSession,
+        });
     },
 
     // get client conversation messages from db
@@ -366,8 +373,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     // store message which came from socket events
     storeMessage(context, messageRes) {
         const tempConv = messageRes.conversation;
-
-        Message.insert({ data: messageRes });
 
         const obj = {
             conv_id: tempConv.id,

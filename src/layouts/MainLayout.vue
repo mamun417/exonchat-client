@@ -725,6 +725,13 @@ export default defineComponent({
                 console.log("from ec_is_closed_from_conversation", convInfo);
             });
 
+            this.socket.on("ec_conversation_session_updated", (res: any) => {
+                // handle this emit for all conversation session update like join left etc also. life will be easier
+                this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
+
+                // console.log("from ec_conversation_session_updated", res);
+            });
+
             // emitting this socket into mount
             // get online users list
             this.socket.on("ec_logged_users_res", (data: any) => {

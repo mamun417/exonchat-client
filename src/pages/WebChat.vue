@@ -218,7 +218,7 @@
 
                         <div v-show="!closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-relative">
                             <div
-                                v-if="clientInitiateConvInfo.conv_id"
+                                v-if="clientInitiateConvInfo.conv_id && panelReady"
                                 id="webchat-container"
                                 class="tw-flex-grow tw-flex tw-flex-col"
                             >
@@ -255,13 +255,6 @@
                                     </template>
 
                                     <template v-slot:scroll-area-last-section>
-                                        <div
-                                            class="text-center"
-                                            :class="$helpers.colors().defaultText"
-                                            v-if="!conversationInfo.closed_at && !chatActiveStatus"
-                                        >
-                                            Chat is idle due to 10 minutes of inactivity
-                                        </div>
                                         <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-mb-4">
                                             <chat-rating-form />
                                         </div>
@@ -567,8 +560,6 @@ export default defineComponent({
             showNeedHelpText: false,
             showNeedHelpTextTimeout: null,
 
-            chatActiveStatus: true,
-
             closeChatModal: false,
             allCheck: false,
 
@@ -600,13 +591,16 @@ export default defineComponent({
                 user_info: {},
             },
             convInitFieldsErrors: {},
+
             msg: "",
-            pageInFocus: false,
-            pageNotInFocusEmitted: false,
             typingHandler: {
                 typing: false,
             },
+
+            pageInFocus: false,
+            pageNotInFocusEmitted: false,
             pageVisitingHandler: null,
+
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
@@ -1015,11 +1009,9 @@ export default defineComponent({
 
             // successfully sent to user
             this.socket.on("ec_msg_to_client", (res: any) => {
-                this.chatActiveStatus = true;
-
                 this.$store.dispatch("chat/storeMessage", res);
 
-                // console.log('from ec_msg_to_client', res);
+                console.log("from ec_msg_to_client", res);
             });
             // this.socket.on('ec_is_typing_to_client', (res: any) => {
             //     console.log('from ec_is_typing_to_client', res);
@@ -1071,6 +1063,13 @@ export default defineComponent({
                 clearInterval(this.queuePositionInterval);
 
                 // console.log('from ec_is_closed_from_conversation', res);
+            });
+
+            this.socket.on("ec_conversation_session_updated", (res: any) => {
+                // handle this emit for all conversation session update like join left etc also. life will be easier
+                this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
+
+                // console.log("from ec_conversation_session_updated", res);
             });
 
             this.socket.on("ec_conv_queue_position_res", (res: any) => {
