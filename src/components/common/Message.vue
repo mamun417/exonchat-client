@@ -649,21 +649,6 @@
                 @click="sendMessage"
             ></q-btn>
         </div>
-
-        <q-dialog v-model="attachmentPreviewModal" full-width>
-            <q-responsive class="no-shadow" :ratio="1">
-                <q-img fit="contain" :src="attachmentPreview.src" spinner-color="green" class="attachment-preview">
-                    <div class="absolute-bottom text-subtitle1 text-center">
-                        {{ attachmentPreview.original_name }}
-                    </div>
-                    <q-badge class="tw-cursor-pointer" floating v-close-popup>
-                        <q-icon name="close" class="text-orange tw-text-lg" />
-                    </q-badge>
-                </q-img>
-            </q-responsive>
-
-            <q-btn class="hidden" />
-        </q-dialog>
     </div>
 
     <div
@@ -702,6 +687,12 @@
             />
         </div>
     </div>
+
+    <attachment-view-modal
+        v-if="attachmentPreviewModal"
+        :attachment-preview="attachmentPreview"
+        @hide="attachmentPreviewModal = false"
+    />
 </template>
 
 <script lang="ts">
@@ -717,10 +708,11 @@ import EcEmoji from "components/common/EcEmoji.vue";
 import SendTranscript from "components/common/SendTranscript.vue";
 import SocketSession from "src/store/models/SocketSession";
 import Message from "src/store/models/Message";
+import AttachmentViewModal from "components/subscriber/message/attachment/AttachmentViewModal.vue";
 
 export default defineComponent({
     name: "Message",
-    components: { SendTranscript, EcEmoji, EcAvatar },
+    components: { AttachmentViewModal, SendTranscript, EcEmoji, EcAvatar },
     props: {
         conv_id: {
             type: String,
@@ -1673,8 +1665,6 @@ export default defineComponent({
                     this.$refs.myInfiniteScrollArea.poll();
 
                     this.scrollToPosition(1, true);
-
-                    this.getNewMessages();
                 }
 
                 // if need remove mini mode check

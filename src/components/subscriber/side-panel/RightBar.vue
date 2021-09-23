@@ -4,7 +4,12 @@
 
         <!--right bar mini mode-->
         <template v-if="rightBarState.mode === 'conversation'">
-            <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true">
+            <message
+                :ses_id="profile.socket_session.id"
+                :conv_id="rightBarState.conv_id"
+                :mini_mode="true"
+                :key="rightBarState.conv_id || 0"
+            >
                 <template v-slot:scroll-area-top-section>
                     <div class="tw-mb-3">
                         <messages-top-section
