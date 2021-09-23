@@ -1475,6 +1475,8 @@ export default defineComponent({
         },
 
         attachmentUploaderHandle(val: any) {
+            this.$refs.messageInput.focus();
+
             val.forEach((img: any) => {
                 const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
 
