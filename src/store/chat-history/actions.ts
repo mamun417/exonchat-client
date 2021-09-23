@@ -28,6 +28,8 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                         resolve(chatHistoriesRes);
                     }
 
+                    console.log(chatHistoriesRes);
+
                     await Conversation.insert({ data: chatHistoriesRes });
 
                     const mySocketSessionId = helpers.getMySocketSessionId();

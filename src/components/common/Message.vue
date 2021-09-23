@@ -1454,6 +1454,7 @@ export default defineComponent({
         },
 
         scrollToPosition(position = 1, forceBottom = false) {
+            if (this.conversationData.closed_at) return; // no need to scroll bottom if conv is closed or chat history
             if (!this.canGoToBottom && !forceBottom) return;
 
             const msgScrollArea = this.$refs.msgScrollArea;
@@ -1672,6 +1673,8 @@ export default defineComponent({
                     this.$refs.myInfiniteScrollArea.poll();
 
                     this.scrollToPosition(1, true);
+
+                    this.getNewMessages();
                 }
 
                 // if need remove mini mode check

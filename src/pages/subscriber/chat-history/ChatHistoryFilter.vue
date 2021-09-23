@@ -46,7 +46,7 @@
                 @update:model-value="handlePipeline({ agent_id: $event?.id })"
                 :model-value="chatHistoryPipeline.agent_id"
                 label="Agent"
-                :options="chatUsers"
+                :options="allAgent"
                 option-value="id"
                 option-label="email"
                 :style="`width: ${filterWidth}`"
@@ -135,7 +135,7 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            chatUsers: "chat/chatUsers",
+            allAgent: "chat/allAgent",
             chatHistoryPipeline: "chat_history/pipeline",
         }),
     },
@@ -167,8 +167,8 @@ export default defineComponent({
         },
 
         getAgentData(agentId: string) {
-            if (this.chatUsers.length) {
-                return this.chatUsers.find((user: any) => user.id === agentId);
+            if (this.allAgent.length) {
+                return this.allAgent.find((user: any) => user.id === agentId);
             }
         },
 

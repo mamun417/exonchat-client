@@ -119,4 +119,10 @@ export default class Conversation extends Model {
             ? conversation?.conversation_sessions[0].last_msg_seen_time || 0
             : 0;
     }
+
+    get chatDepartment() {
+        const conversation: any = this.$query().where("id", this.id).with("chat_department").first();
+
+        return conversation?.chat_department || {};
+    }
 }

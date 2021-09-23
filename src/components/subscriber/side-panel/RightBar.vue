@@ -8,15 +8,15 @@
                 <template v-slot:scroll-area-top-section>
                     <div class="tw-mb-3">
                         <messages-top-section
-                            v-if="conversationInfo.users_only"
+                            v-if="conversationData.users_only"
                             :conv_id="rightBarState.conv_id"
                             :mini_mode="true"
-                            :class="{ 'tw-mb-3': conversationInfo.users_only }"
+                            :class="{ 'tw-mb-3': conversationData.users_only }"
                         />
 
-                        <template v-if="!conversationInfo.users_only && conversationWithUsersInfo.length">
+                        <template v-if="!conversationData.users_only && conversationWithUsersInfo.length">
                             <q-list
-                                v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
+                                v-if="conversationWithUsersInfo.length && !conversationData.users_only"
                                 class="tw-px-1 tw-py-3 tw-pt-0"
                                 :class="$helpers.colors().defaultText"
                             >
@@ -50,7 +50,7 @@
                                                 @click="
                                                     $router.push({
                                                         name: 'chats',
-                                                        params: { conv_id: conversationInfo.id },
+                                                        params: { conv_id: conversationData.id },
                                                     })
                                                 "
                                                 icon="fullscreen"
@@ -75,7 +75,7 @@
 
                                 <customer-details-card
                                     :conversation-with-users-info="conversationWithUsersInfo[0]"
-                                    :conversation-info="conversationInfo"
+                                    :conversation-info="conversationData"
                                     :parsed-ua-string="parsedUaString"
                                 >
                                     <template v-slot:bottom-section>
@@ -128,7 +128,7 @@
                                                     </q-item-section>
                                                     <q-item-section side>
                                                         <q-item-label class="text-capitalize"
-                                                            >{{ conversationInfo.chat_department.tag }}
+                                                            >{{ conversationData.chatDepartment?.tag }}
                                                         </q-item-label>
                                                     </q-item-section>
                                                 </q-item>
@@ -140,7 +140,7 @@
                                                         <q-item-label>
                                                             {{
                                                                 $helpers.myDate(
-                                                                    conversationInfo.created_at,
+                                                                    conversationData.created_at,
                                                                     "MMMM Do YYYY, h:mm a"
                                                                 )
                                                             }}
@@ -153,14 +153,14 @@
                                                     </q-item-section>
                                                     <q-item-section side>
                                                         <q-item-label ref="chat_duration">
-                                                            <template v-if="!conversationInfo.closed_at"
-                                                                >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
+                                                            <template v-if="!conversationData.closed_at"
+                                                                >{{ $helpers.preciseDiff(conversationData.created_at) }}
                                                             </template>
                                                             <template v-else>
                                                                 {{
                                                                     $helpers.preciseDiff(
-                                                                        conversationInfo.created_at,
-                                                                        conversationInfo.closed_at
+                                                                        conversationData.created_at,
+                                                                        conversationData.closed_at
                                                                     )
                                                                 }}
                                                             </template>
@@ -173,15 +173,17 @@
                                                     </q-item-section>
                                                     <q-item-section side>
                                                         <q-item-label>
-                                                            <template v-if="conversationInfo.rating">
+                                                            <template v-if="conversationData.conversation_rating">
                                                                 <span
                                                                     :class="
-                                                                        conversationInfo.rating.rating === 5
+                                                                        conversationData.conversation_rating.rating ===
+                                                                        5
                                                                             ? 'green'
                                                                             : 'orange'
                                                                     "
                                                                     >{{
-                                                                        conversationInfo.rating.rating === 5
+                                                                        conversationData.conversation_rating.rating ===
+                                                                        5
                                                                             ? "Good"
                                                                             : "Bad"
                                                                     }}</span
@@ -219,26 +221,26 @@
 
         <!--client info / full view-->
         <q-scroll-area
-            v-else-if="rightBarState.mode === 'client_info' && !conversationInfo.users_only"
+            v-else-if="rightBarState.mode === 'client_info' && !conversationData.users_only"
             class="fit"
             :thumb-style="$helpers.getThumbStyle()"
         >
             <!-- at first conversationWithUsersInfo can be empty. show loader -->
             <q-list
-                v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
+                v-if="conversationWithUsersInfo.length && !conversationData.users_only"
                 class="tw-px-1 tw-pr-3 tw-py-3"
                 :class="$helpers.colors().defaultText"
             >
                 <customer-details-card
                     :conversation-with-users-info="conversationWithUsersInfo[0]"
-                    :conversation-info="conversationInfo"
+                    :conversation-info="conversationData"
                     :parsed-ua-string="parsedUaString"
                 />
 
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="conversationInfo.closed_at"
+                    v-if="conversationData.closed_at"
                     label="AGENTS"
                     dense
                     default-opened
@@ -280,7 +282,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at"
+                    v-if="!conversationData.closed_at"
                     label="RELATED SERVICES"
                     dense
                     default-opened
@@ -341,7 +343,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at"
+                    v-if="!conversationData.closed_at"
                     label="CUSTOMER PAGE VISITS"
                     dense
                     default-opened
@@ -382,7 +384,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at"
+                    v-if="!conversationData.closed_at"
                     label="PREVIOUS CHATS"
                     dense
                     default-opened
@@ -394,13 +396,13 @@
                         <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
                             <q-list
                                 v-if="
-                                    clientPreviousChats[conversationInfo.id] &&
-                                    Object.keys(clientPreviousChats[conversationInfo.id]).length
+                                    clientPreviousChats[conversationData.id] &&
+                                    Object.keys(clientPreviousChats[conversationData.id]).length
                                 "
                                 class="tw-break-all"
                             >
                                 <q-item
-                                    v-for="(conv, key) of clientPreviousChats[conversationInfo.id]"
+                                    v-for="(conv, key) of clientPreviousChats[conversationData.id]"
                                     :to="{ name: 'chats', params: { conv_id: conv.id } }"
                                     :class="`${key !== 0 ? 'custom-border-top' : ''}`"
                                     :key="key"
@@ -428,7 +430,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at"
+                    v-if="!conversationData.closed_at"
                     label="TICKETS"
                     dense
                     default-opened
@@ -497,6 +499,7 @@ import UAParser from "ua-parser-js";
 import ConnectedUsersFaces from "components/subscriber/chat/ConnectedUsersFaces.vue";
 import CustomerDetailsCard from "components/common/RightbarCards/CustomerDetailsCard.vue";
 import SendTranscript from "components/common/SendTranscript.vue";
+import Conversation from "src/store/models/Conversation";
 
 export default defineComponent({
     name: "RightBar",
@@ -540,8 +543,17 @@ export default defineComponent({
             clientPreviousChats: "chat/previousConversations",
         }),
 
+        conversationModel(): any {
+            return Conversation.query().where("id", this.fullChatConvId);
+        },
+
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.first() || {};
+        },
+
         conversationInfo(): any {
-            return this.$store.getters["chat/conversationInfo"](this.fullChatConvId);
+            return this.$store.getters["chat/conversationData"](this.fullChatConvId);
         },
 
         conversationConnectedUsers(): any {
@@ -640,7 +652,7 @@ export default defineComponent({
                 // console.log(newVal, oldVal);
 
                 if (
-                    !this.conversationInfo.users_only &&
+                    !this.conversationData.users_only &&
                     newVal?.length &&
                     (!oldVal?.length || newVal[0].conversation_id !== oldVal[0].conversation_id)
                 ) {
@@ -650,7 +662,7 @@ export default defineComponent({
 
                     const clientEmail = this.conversationWithUsersInfo[0].socket_session.init_email;
 
-                    if (!this.conversationInfo.closed_at) {
+                    if (!this.conversationData.closed_at) {
                         // load client tickets
                         this.$store.dispatch("ticket/getTickets", {
                             email: clientEmail,

@@ -78,7 +78,7 @@
                         </q-item-section>
                         <q-item-section side>
                             <q-item-label class="text-capitalize"
-                                >{{ conversationInfo.chat_department.tag }}
+                                >{{ conversationInfo.chatDepartment?.tag }}
                             </q-item-label>
                         </q-item-section>
                     </q-item>
