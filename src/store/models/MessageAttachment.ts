@@ -13,12 +13,15 @@ export default class MessageAttachment extends Model {
     static fields() {
         return {
             id: this.attr(null),
+            // its for after image uploaded so that we can keep temp data for send with msg & until the msg send. after msg send remove temp ids
+            uploaded_id: this.attr(null),
 
             ext: this.attr(null),
             original_name: this.attr(null),
             size: this.attr(null),
             info: this.attr(null),
             loaded: this.attr(false),
+            status: this.attr(null),
             src: this.attr(null),
 
             created_at: this.attr(null),
