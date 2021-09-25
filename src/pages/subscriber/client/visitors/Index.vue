@@ -9,7 +9,7 @@
                 <!--                {{ visitors }}-->
                 <ec-table :rows="visitors" :columns="columns">
                     <template v-slot:cell-client="slotProps">
-                        <div class="">
+                        <div class="tw-capitalize">
                             <!-- <pre>{{ slotProps.row }}</pre> -->
                             {{
                                 sessionInfo(slotProps.row.session_id)?.init_name ||
@@ -28,17 +28,38 @@
 
                     <template v-slot:cell-url="slotProps">
                         <div class="">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
-                            {{ $_.last(slotProps.row.visits).url }}
+                            <a :href="$_.last(slotProps.row.visits).url" class="text-blue-5 tw-font-medium">{{
+                                $_.last(slotProps.row.visits).title
+                            }}</a>
                         </div>
                     </template>
 
-                    <template v-slot:cell-stay_time="slotProps">
-                        <div class="">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
-                            {{ $helpers.diffAsMinute($_.last(slotProps.row.visits).first_visit_time) }}
+                    <template v-slot:cell-activity="slotProps">
+                        <div class="tw-flex tw-items-center tw-justify-end tw-gap-2">
+                            <!--{{ $_.last(slotProps.row.visits).visiting }}-->
+                            <q-icon
+                                name="fa fa-circle"
+                                size="8px"
+                                :color="$_.last(slotProps.row.visits).visiting ? 'green-8' : 'grey-6'"
+                            />
+                            <div
+                                class="tw-font-medium"
+                                :class="{
+                                    'text-green-8': $_.last(slotProps.row.visits).visiting,
+                                    'text-grey-8': !$_.last(slotProps.row.visits).visiting,
+                                }"
+                            >
+                                {{ $_.last(slotProps.row.visits).visiting ? "Visiting" : "Not Visiting" }}
+                            </div>
                         </div>
                     </template>
+
+                    <!--<template v-slot:cell-stay_time="slotProps">-->
+                    <!--    <div class="">-->
+                    <!--        &lt;!&ndash; <pre>{{ slotProps.row }}</pre> &ndash;&gt;-->
+                    <!--        {{ $helpers.diffAsMinute($_.last(slotProps.row.visits).first_visit_time) }}-->
+                    <!--    </div>-->
+                    <!--</template>-->
                 </ec-table>
             </div>
         </div>
@@ -78,9 +99,13 @@ const columns = [
         label: "Chats",
     },
     {
-        name: "stay_time",
-        label: "Time On Site",
+        name: "activity",
+        label: "Activity",
     },
+    // {
+    //     name: "stay_time",
+    //     label: "Time On Site",
+    // },
 ];
 
 export default defineComponent({

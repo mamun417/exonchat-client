@@ -414,6 +414,8 @@ export default defineComponent({
             socketConnectError: false,
 
             notificationDisabledWarning: false,
+
+            clientsPageVisitInterval: null, // for better manage we can use this when agent is in page visitor or a conversation
         };
     },
 
@@ -598,6 +600,7 @@ export default defineComponent({
 
             this.getUsers();
             this.fireSocketListeners();
+            this.fireSocketEmitters();
             this.reloadForProfileImageLoad();
             this.vuexOrmMutationListener();
             this.$socket.emit("ec_get_logged_users", {});
@@ -783,10 +786,11 @@ export default defineComponent({
                 console.log("from ec_from_api_events1", res);
             });
 
-            this.socket.on("ec_page_visit_info_from_client", (res: any) => {
-                this.$store.dispatch("visitor/updateVisitor", res);
+            this.socket.on("ec_get_clients_page_visit_info_res", (res: any) => {
+                // res has {data: {clients_visit_data: ...}}
+                this.$store.dispatch("visitor/updateVisitor", res.data);
 
-                // console.log('from ec_page_visit_info_from_client', res);
+                // console.log("from ec_get_clients_page_visit_info_res", res.data.clients_visit_data);
             });
 
             this.socket.on("ec_apps_notification", (res: any) => {
@@ -877,6 +881,14 @@ export default defineComponent({
                 console.log(`connect_error due to ${err.message}`);
                 this.socketConnectError = true;
             });
+        },
+
+        fireSocketEmitters() {
+            if (!this.clientsPageVisitInterval) {
+                this.clientsPageVisitInterval = setInterval(() => {
+                    this.$socket.emit("ec_get_clients_page_visit_info", {});
+                }, 5000);
+            }
         },
 
         takeThisChat(convData: any, fromChatTransferRequest = false) {
@@ -1146,6 +1158,8 @@ export default defineComponent({
         }
 
         this.$emitter.all.clear();
+
+        clearInterval(this.clientsPageVisitInterval);
     },
 });
 </script>
