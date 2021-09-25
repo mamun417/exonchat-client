@@ -316,7 +316,7 @@
                                         <div>
                                             <a
                                                 href="javascript:void(0)"
-                                                @click.stop="gotoServiceDomain(service)"
+                                                @click.stop="gotoDomain(service.domain)"
                                                 class="text-blue-5"
                                             >
                                                 {{ service.domain }}
@@ -337,6 +337,58 @@
                                             {{ service.status }}
                                         </div>
                                         <div>Due Date: {{ $helpers.myDate(service.nextduedate, "MMM Do Y") }}</div>
+                                    </div>
+                                </q-item>
+                            </q-list>
+                            <div v-else class="text-center tw-py-2 text-grey-7">No service found</div>
+                        </q-card-section>
+                    </q-card>
+                </q-expansion-item>
+
+                <div class="tw-mb-4"></div>
+
+                <q-expansion-item
+                    v-if="!conversationData.closed_at"
+                    label="RELATED DOMAINS"
+                    dense
+                    default-opened
+                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow"
+                    expand-icon-class="hidden"
+                >
+                    <q-card>
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                            <q-list
+                                v-if="clientDomains.length"
+                                :class="$helpers.colors().defaultText"
+                                class="tw-text-xs"
+                            >
+                                <q-item
+                                    v-for="(domain, index) in clientDomains"
+                                    :key="index"
+                                    @click="gotoDomainDetails(domain)"
+                                    class="tw-flex tw-items-center tw-py-2"
+                                    :class="`${index !== 0 ? 'custom-border-top' : ''}`"
+                                    clickable
+                                    dense
+                                >
+                                    <div>
+                                        <div>
+                                            <a
+                                                href="javascript:void(0)"
+                                                @click.stop="gotoDomain(domain.domainname)"
+                                                class="text-blue-5"
+                                            >
+                                                {{ domain.domainname }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <q-space />
+                                    <div class="tw-text-right">
+                                        <div :class="`${domain.status === 'Active' ? 'text-green' : 'text-red'}`">
+                                            {{ domain.status }}
+                                        </div>
+                                        <div>Due Date: {{ $helpers.myDate(domain.nextduedate, "MMM Do Y") }}</div>
                                     </div>
                                 </q-item>
                             </q-list>
@@ -533,6 +585,7 @@ export default defineComponent({
             conversationShowDetail: false,
 
             relatedServices: [],
+            clientDomains: [],
             cardMaxHeight: "64",
             whmcsBaseUrl: "", // load from helper, its need to direct call WHMCS api from client
         };
@@ -617,6 +670,25 @@ export default defineComponent({
                 });
         },
 
+        getClientDomains(clientEmail: string) {
+            window.api
+                .get("apps/whmcs/client-domains", {
+                    params: {
+                        email: clientEmail,
+                    },
+                })
+                .then((res: any) => {
+                    this.clientDomains = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
+        },
+
+        gotoDomain(domain: any) {
+            window.open(`http://${domain}`, "_blank");
+        },
+
         gotoServiceDetails(service: any) {
             window.open(
                 `${this.whmcsBaseUrl}/clientsservices.php?userid=${service.clientid}&id=${service.id}`,
@@ -624,8 +696,8 @@ export default defineComponent({
             );
         },
 
-        gotoServiceDomain(service: any) {
-            window.open(`http://${service.domain}`, "_blank");
+        gotoDomainDetails(domain: any) {
+            window.open(`${this.whmcsBaseUrl}/clientsdomains.php?userid=${domain.userid}&id=${domain.id}`, "_blank");
         },
 
         gotoTicketDetails(ticket: any) {
@@ -674,6 +746,8 @@ export default defineComponent({
                         });
 
                         this.getClientServices(clientEmail);
+
+                        this.getClientDomains(clientEmail);
                     }
                 }
             },
