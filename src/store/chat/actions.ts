@@ -49,7 +49,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             sessions: convData.conversation_sessions,
             chat_department: convData.chat_department,
             notify_status: convInfo.notify, // of this action if notify then true
-            original_data: { conversation: convInfo },
+            original_data: { conversation: convInfo.conv_data },
             caller: "storeNewChatFromClient",
         };
 
