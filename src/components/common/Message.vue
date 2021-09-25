@@ -1462,7 +1462,7 @@ export default defineComponent({
                         last_position: 1,
                     });
 
-                    msgScrollArea.setScrollPercentage("vertical", position, 300);
+                    msgScrollArea.setScrollPercentage("vertical", position, 100);
 
                     if (position === 1) {
                         clearTimeout(this.updateLastMsgSeenTimeTimer);
