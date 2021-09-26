@@ -618,7 +618,7 @@ export default defineComponent({
             roundBtnHover: false,
             sendChatInitiateMsgInterval: "",
 
-            socketConnectError: false,
+            socketConnectError: null,
             sendingTranscript: false,
         };
     },
@@ -977,6 +977,10 @@ export default defineComponent({
                 console.log(`Your Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
                 this.socketId = this.socket.id;
+
+                if (this.socketConnectError === true && process.env.DEV) {
+                    location.reload();
+                }
 
                 this.socketConnectError = false;
             });
@@ -1403,7 +1407,7 @@ export default defineComponent({
                     if (!model.loaded && !model.src) {
                         MessageAttachment.update({
                             where: model.id,
-                            data: { loaded: true },
+                            data: { loaded: true, status: "done" },
                         });
 
                         window.socketSessionApi

@@ -411,7 +411,7 @@ export default defineComponent({
                 height: 100,
             },
 
-            socketConnectError: false,
+            socketConnectError: null,
 
             notificationDisabledWarning: false,
         };
@@ -610,7 +610,12 @@ export default defineComponent({
                 console.log(`Your user Connection id is ${this.socket.id}`); // x8WIv7-mJelg7on_ALbx
 
                 this.socketId = this.socket.id;
-                this.socketConnectError = false;
+
+                if (this.socketConnectError === true && process.env.DEV) {
+                    location.reload();
+                }
+
+                this.socketConnectError = null;
             });
 
             this.socket.on("disconnect", () => {
@@ -1006,7 +1011,7 @@ export default defineComponent({
                     if (!model.loaded && !model.src) {
                         MessageAttachment.update({
                             where: model.id,
-                            data: { loaded: true },
+                            data: { loaded: true, status: "done" },
                         });
 
                         window.socketSessionApi

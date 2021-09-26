@@ -206,13 +206,13 @@
                                             <ec-avatar
                                                 :size="mini_mode ? 'lg' : 'xl'"
                                                 :image_src="
-                                                    msgSenderInfo(message, index).type === 'ai'
+                                                    msgSenderInfo(message).type === 'ai'
                                                         ? 'fas fa-robot'
-                                                        : msgSenderInfo(message, index).src
+                                                        : msgSenderInfo(message).src
                                                 "
-                                                :name="msgSenderInfo(message, index).img_alt_name"
-                                                :is_icon="msgSenderInfo(message, index).type === 'ai'"
-                                                :email="msgSenderInfo(message, index).email"
+                                                :name="msgSenderInfo(message).img_alt_name"
+                                                :is_icon="msgSenderInfo(message).type === 'ai'"
+                                                :email="msgSenderInfo(message).email"
                                                 class=""
                                             >
                                                 <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
@@ -227,34 +227,34 @@
                                                     <div
                                                         :class="`tw-font-bold tw-capitalize text-${globalColor} tw-text-sm`"
                                                     >
-                                                        {{ msgSenderInfo(message, index).display_name }}
+                                                        {{ msgSenderInfo(message).display_name }}
                                                     </div>
                                                     <div v-if="!isAgentToAgentConversation && isAgentChatPanel">
                                                         <div
                                                             class="tw-rounded-sm tw-text-xxs tw-px-1 tw-uppercase"
                                                             :class="{
-                                                                '': msgSenderInfo(message, index).type === 'client',
+                                                                '': msgSenderInfo(message).type === 'client',
                                                             }"
                                                             style="border: 1px solid"
                                                             :style="{
                                                                 backgroundColor:
-                                                                    msgSenderInfo(message, index).type === 'client'
+                                                                    msgSenderInfo(message).type === 'client'
                                                                         ? '#f0f5f8'
                                                                         : '#00568b',
                                                                 borderColor:
-                                                                    msgSenderInfo(message, index).type === 'client'
+                                                                    msgSenderInfo(message).type === 'client'
                                                                         ? '#cddee8'
                                                                         : '#003658',
                                                                 color:
-                                                                    msgSenderInfo(message, index).type === 'client'
+                                                                    msgSenderInfo(message).type === 'client'
                                                                         ? '#333'
                                                                         : '#fff',
                                                             }"
                                                         >
                                                             {{
-                                                                msgSenderInfo(message, index).type === "agent"
+                                                                msgSenderInfo(message).type === "agent"
                                                                     ? "staff"
-                                                                    : msgSenderInfo(message, index).type
+                                                                    : msgSenderInfo(message).type
                                                             }}
                                                         </div>
                                                     </div>
@@ -288,10 +288,11 @@
                                                             <div
                                                                 v-for="attachment in msgItem.attachments"
                                                                 :key="attachment.id"
-                                                                style="width: 200px; max-height: 200px"
+                                                                style="height: 150px; min-width: 150px"
                                                                 class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
                                                             >
                                                                 <q-img
+                                                                    height="100%"
                                                                     fit="cover"
                                                                     spinner-color="green"
                                                                     @click="
@@ -306,6 +307,11 @@
                                                                         :offset="[10, 10]"
                                                                         >{{ attachment.original_name }}
                                                                     </q-tooltip>
+
+                                                                    <q-inner-loading
+                                                                        :showing="attachment.status !== 'done'"
+                                                                        color="white"
+                                                                    />
                                                                 </q-img>
                                                             </div>
                                                         </div>
@@ -709,6 +715,7 @@ import SendTranscript from "components/common/SendTranscript.vue";
 import SocketSession from "src/store/models/SocketSession";
 import Message from "src/store/models/Message";
 import AttachmentViewModal from "components/subscriber/message/attachment/AttachmentViewModal.vue";
+import MessageAttachment from "src/store/models/MessageAttachment";
 
 export default defineComponent({
     name: "Message",
@@ -757,6 +764,7 @@ export default defineComponent({
             convState: "",
 
             msg: "",
+            tempMsgId: "",
             typingInstance: null,
             msgInputFocused: false,
             gotoBottomBtnShow: false,
@@ -1392,22 +1400,18 @@ export default defineComponent({
         },
 
         sendMessage(): any {
-            // if (!this.canSendNextMsg) return;
-
             this.msg = this.msg.trim();
 
             if (!this.finalAttachments.length && !this.msg.length) {
                 return false;
             }
 
-            // this.canSendNextMsg = false;
-
-            // console.log('sending the msg');
-
-            const tempId = `temp_msg_id_${this.$helpers.getTempId()}`;
+            this.createTempMsgId();
 
             const dynamicBody =
-                this.chatPanelType === "user" ? { conv_id: this.conv_id, temp_id: tempId } : { temp_id: tempId };
+                this.chatPanelType === "user"
+                    ? { conv_id: this.conv_id, temp_id: this.tempMsgId }
+                    : { temp_id: this.tempMsgId };
 
             const dynamicSocket = this.socket || this.$socket;
 
@@ -1418,31 +1422,35 @@ export default defineComponent({
                 status: "not_typing",
             });
 
-            dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
-                ...dynamicBody,
-                msg: this.msg,
-                attachments: _l.map(this.finalAttachments, "id"),
-            });
-
             Message.insert({
                 data: {
-                    id: tempId,
+                    id: this.tempMsgId,
                     msg: this.msg,
                     message_type: "message",
                     conversation_id: this.conv_id,
                     socket_session_id: this.$helpers.getMySocketSessionId(),
                     created_at: new Date().toISOString(),
+                    attachments: this.finalAttachments,
                 },
             }).then(() => {
+                this.tempMsgId = null;
+
                 this.scrollToPosition();
             });
 
-            console.log(this.conversationData.getOthersLastMessageSeenTime);
+            const pendingEntry = this.finalAttachments.find((attachment: any) => attachment.status !== "done");
+
+            if (!this.finalAttachments.length || !pendingEntry) {
+                dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
+                    ...dynamicBody,
+                    msg: this.msg,
+                    attachments: _l.map(this.finalAttachments, "attachment_uploaded_id"),
+                });
+            }
 
             this.msg = "";
             this.attachments = [];
             this.finalAttachments = [];
-            // this.canSendNextMsg = true;
         },
 
         scrollToPosition(position = 1, forceBottom = false) {
@@ -1474,70 +1482,53 @@ export default defineComponent({
             }, 100);
         },
 
+        createTempMsgId() {
+            if (!this.tempMsgId) {
+                this.tempMsgId = `temp_msg_id_${this.$helpers.getTempId()}`;
+            }
+
+            return this.tempMsgId;
+        },
+
         attachmentUploaderHandle(val: any) {
             this.$refs.messageInput.focus();
 
+            const tempMsgId = this.createTempMsgId();
+
             val.forEach((img: any) => {
-                const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
-
-                const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
-
-                if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
-                    clearInterval(this.showFileErrorMsgInterval);
-
-                    this.showFileErrorMsg = true;
-
-                    this.showFileErrorMsgInterval = setInterval(() => {
-                        this.showFileErrorMsg = false;
-                    }, 10000);
-
+                if (!this.attachmentValidation(img)) {
                     return;
                 }
 
-                if (_l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1) {
-                    this.finalAttachments.push({
-                        temp_id: new Date().getTime(),
-                        original_name: img.name,
-                        size: img.size,
-                        status: "pending",
-                        src: URL.createObjectURL(img),
-                    });
+                // prevent same image load
+                const notPreviousLoaded =
+                    _l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1;
 
-                    let formData = new FormData();
-                    formData.append("attachments", img, img.name);
+                if (notPreviousLoaded) {
+                    const tempAttachmentId = `temp_attachment_id_${this.$helpers.getTempId()}`;
+
+                    this.pushToFinalAttachment(tempAttachmentId, img);
+
+                    let formData = this.makeAttachmentFormData(img, tempAttachmentId, tempMsgId);
 
                     this.$socketSessionApi
                         .post("attachments", formData)
                         .then((res: any) => {
-                            // console.log(res.data);
-                            const attachment = res.data.data[0];
+                            const attachment: any = res.data.data[0];
 
-                            const afterPushedFinalAttachmentIndex = _l.findIndex(this.finalAttachments, {
+                            const finalAttachment = _l.find(this.finalAttachments, {
                                 original_name: img.name,
                                 size: img.size,
                             });
 
-                            const finalAttachment = this.finalAttachments[afterPushedFinalAttachmentIndex];
+                            if (finalAttachment) {
+                                finalAttachment.status = "done";
+                                finalAttachment.attachment_uploaded_id = attachment.attachment_info.id;
+                            }
 
-                            finalAttachment.status = "uploading";
+                            this.updateAttachmentModelStatus(attachment, "done");
 
-                            this.$socketSessionApi
-                                .get(attachment.src, {
-                                    responseType: "arraybuffer",
-                                })
-                                .then((res: any) => {
-                                    // console.log(res);
-                                    // console.log(typeof res.data);
-
-                                    finalAttachment.id = attachment.attachment_info.id;
-                                    finalAttachment.status = "done";
-                                    finalAttachment.src = URL.createObjectURL(
-                                        new Blob([res.data], { type: res.headers["content-type"] })
-                                    ); // its giving a warning so after this line nothing will work
-                                })
-                                .catch((e: any) => {
-                                    console.log(e);
-                                });
+                            this.sendMessageAfterAllAttachmentUploaded(attachment, tempMsgId);
                         })
                         .catch((e: any) => {
                             console.log(e);
@@ -1547,6 +1538,90 @@ export default defineComponent({
                 }
             });
         },
+
+        attachmentValidation(img: any) {
+            const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
+
+            const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
+
+            if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
+                clearInterval(this.showFileErrorMsgInterval);
+
+                this.showFileErrorMsg = true;
+
+                this.showFileErrorMsgInterval = setInterval(() => {
+                    this.showFileErrorMsg = false;
+                }, 10000);
+
+                return false;
+            }
+
+            return true;
+        },
+
+        makeAttachmentFormData(img: any, tempAttachmentId: any, tempMsgId: any) {
+            let formData = new FormData();
+            formData.append("attachments", img, img.name);
+            formData.append("attachment_temp_id", tempAttachmentId);
+            formData.append("msg_temp_id", tempMsgId);
+
+            return formData;
+        },
+
+        pushToFinalAttachment(tempAttachmentId: string, img: any) {
+            this.finalAttachments.push({
+                id: tempAttachmentId,
+                temp_id: tempAttachmentId,
+                original_name: img.name,
+                size: img.size,
+                status: "pending",
+                src: URL.createObjectURL(img),
+                created_at: new Date().getTime(),
+                updated_at: new Date().getTime(),
+            });
+        },
+
+        updateAttachmentModelStatus(attachment: any, status: string) {
+            // remove this data after received the msg event. how i dont know
+            // if not remove then no worry but it will eat resource
+            if (attachment.temp_id) {
+                MessageAttachment.update({
+                    where: attachment?.temp_id,
+                    data: {
+                        attachment_uploaded_id: attachment.attachment_info.id,
+                        status,
+                    },
+                });
+            }
+        },
+
+        // when submit multiple attachment, after all attachment successfully upload emit the event (ec_msg_from_user/ec_msg_from_client)
+        // when multiple attachment with text, text will be sent after uploaded the all attachment
+        sendMessageAfterAllAttachmentUploaded(attachment: any, tempMsgId: string) {
+            if (attachment.msg_temp_id) {
+                const msgObj: any = Message.query().where("id", attachment.msg_temp_id).with("attachments").first();
+
+                if (msgObj && msgObj.attachments && msgObj.attachments.length) {
+                    const pendingEntry = msgObj.attachments.find((attachment: any) => attachment.status !== "done");
+
+                    if (!pendingEntry) {
+                        const dynamicSocket = this.socket || this.$socket;
+                        const dynamicBody =
+                            this.chatPanelType === "user"
+                                ? { conv_id: this.conv_id, temp_id: tempMsgId }
+                                : { temp_id: tempMsgId };
+
+                        // here msg will be empty so get msg from msgObj
+                        dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
+                            ...dynamicBody,
+                            msg: msgObj.msg,
+                            attachments: _l.map(msgObj.attachments, "attachment_uploaded_id"),
+                        });
+                    }
+                }
+            }
+        },
+
         attachmentRemoveHandle(attachmentObj: any) {
             const localCopy = _l.cloneDeep(attachmentObj);
 
