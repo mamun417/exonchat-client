@@ -58,18 +58,12 @@ const mutation: MutationTree<ChatStateInterface> = {
     // update online users
     updateOnlineUsers(state: ChatStateInterface, socketUsers: any) {
         Object.values(state.chatUsers).map((user: any) => {
-            if (socketUsers[0]?.db_change) {
-                if (socketUsers[0].ses_id === user.socket_session.id) {
-                    user.online_status = socketUsers[0].online_status;
-                }
-            } else {
-                const foundSocketUser = _l.find(socketUsers, ["ses_id", user.socket_session.id]);
+            const socketUser = socketUsers[user.socket_session.id];
 
-                if (!foundSocketUser) {
-                    user.online_status = "logout";
-                } else {
-                    user.online_status = foundSocketUser.online_status;
-                }
+            if (!socketUser) {
+                user.online_status = "logout";
+            } else {
+                user.online_status = socketUser.online_status;
             }
         });
     },

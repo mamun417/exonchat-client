@@ -286,7 +286,22 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         const authInfo = rootGetters["auth/profile"];
 
-        return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
+        const users = Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
+
+        return _l
+            .sortBy(users, [
+                (user: any) => user.online_status === "online",
+                (user: any) => user.online_status === "offline",
+                (user: any) => user.online_status === "invisible",
+            ])
+            .reverse();
+    },
+    meAsChatUser(state, getters, rootState, rootGetters) {
+        const allUsers = state.chatUsers;
+
+        const authInfo = rootGetters["auth/profile"];
+
+        return Object.values(allUsers).find((user: any) => authInfo.email === user.email);
     },
 
     allAgent(state) {
