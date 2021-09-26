@@ -280,21 +280,19 @@
                                                             ></pre>
                                                         </div>
 
-                                                        <!--{{ preText(msgItem) }}-->
-
                                                         <!--attachment-->
                                                         <div
                                                             v-if="msgItem.attachments && msgItem.attachments.length"
                                                             class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
                                                         >
-                                                            <pre>{{ msgItem.attachments }}</pre>
                                                             <div
                                                                 v-for="attachment in msgItem.attachments"
                                                                 :key="attachment.id"
-                                                                style="width: 200px; max-height: 200px"
+                                                                style="height: 150px; min-width: 150px"
                                                                 class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
                                                             >
                                                                 <q-img
+                                                                    height="100%"
                                                                     fit="cover"
                                                                     spinner-color="green"
                                                                     @click="
@@ -311,7 +309,7 @@
                                                                     </q-tooltip>
 
                                                                     <q-inner-loading
-                                                                        :showing="!attachment.loaded"
+                                                                        :showing="attachment.status !== 'done'"
                                                                         color="white"
                                                                     />
                                                                 </q-img>
@@ -1025,10 +1023,6 @@ export default defineComponent({
     },
 
     methods: {
-        preText(data: any) {
-            console.log(data);
-        },
-
         scrollObserverHandle(info: any) {
             // go up, assume that scroll happened manually so update
 
@@ -1406,22 +1400,13 @@ export default defineComponent({
         },
 
         sendMessage(): any {
-            // if (!this.canSendNextMsg) return;
-
             this.msg = this.msg.trim();
-
-            // console.log(this.finalAttachments);
-            // return false;
 
             if (!this.finalAttachments.length && !this.msg.length) {
                 return false;
             }
 
-            // this.canSendNextMsg = false;
-
-            // console.log('sending the msg');
-
-            this.tempMsgId = `temp_msg_id_${this.$helpers.getTempId()}`;
+            this.createTempMsgId();
 
             const dynamicBody =
                 this.chatPanelType === "user"
@@ -1436,12 +1421,6 @@ export default defineComponent({
                 msg: "",
                 status: "not_typing",
             });
-            //
-            // dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
-            //     ...dynamicBody,
-            //     msg: this.msg,
-            //     attachments: _l.map(this.finalAttachments, "uploaded_id"),
-            // });
 
             Message.insert({
                 data: {
@@ -1454,15 +1433,24 @@ export default defineComponent({
                     attachments: this.finalAttachments,
                 },
             }).then(() => {
+                this.tempMsgId = null;
+
                 this.scrollToPosition();
             });
 
-            console.log(this.conversationData.getOthersLastMessageSeenTime);
+            const pendingEntry = this.finalAttachments.find((attachment: any) => attachment.status !== "done");
+
+            if (!this.finalAttachments.length || !pendingEntry) {
+                dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
+                    ...dynamicBody,
+                    msg: this.msg,
+                    attachments: _l.map(this.finalAttachments, "attachment_uploaded_id"),
+                });
+            }
 
             this.msg = "";
             this.attachments = [];
             this.finalAttachments = [];
-            // this.canSendNextMsg = true;
         },
 
         scrollToPosition(position = 1, forceBottom = false) {
@@ -1494,107 +1482,146 @@ export default defineComponent({
             }, 100);
         },
 
+        createTempMsgId() {
+            if (!this.tempMsgId) {
+                this.tempMsgId = `temp_msg_id_${this.$helpers.getTempId()}`;
+            }
+
+            return this.tempMsgId;
+        },
+
         attachmentUploaderHandle(val: any) {
             this.$refs.messageInput.focus();
 
+            const tempMsgId = this.createTempMsgId();
+
             val.forEach((img: any) => {
-                const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
-
-                const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
-
-                if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
-                    clearInterval(this.showFileErrorMsgInterval);
-
-                    this.showFileErrorMsg = true;
-
-                    this.showFileErrorMsgInterval = setInterval(() => {
-                        this.showFileErrorMsg = false;
-                    }, 10000);
-
+                if (!this.attachmentValidation(img)) {
                     return;
                 }
 
-                if (_l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1) {
+                // prevent same image load
+                const notPreviousLoaded =
+                    _l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1;
+
+                if (notPreviousLoaded) {
                     const tempAttachmentId = `temp_attachment_id_${this.$helpers.getTempId()}`;
 
-                    this.finalAttachments.push({
-                        id: tempAttachmentId,
-                        temp_id: tempAttachmentId,
-                        original_name: img.name,
-                        size: img.size,
-                        status: "pending",
-                        src: URL.createObjectURL(img),
-                        created_at: new Date().getTime(),
-                        updated_at: new Date().getTime(),
-                    });
+                    this.pushToFinalAttachment(tempAttachmentId, img);
 
-                    setTimeout(() => {
-                        let formData = new FormData();
-                        formData.append("attachments", img, img.name);
-                        formData.append("attachment_temp_id", tempAttachmentId);
-                        formData.append("msg_temp_id", this.tempMsgId);
+                    let formData = this.makeAttachmentFormData(img, tempAttachmentId, tempMsgId);
 
-                        this.$socketSessionApi
-                            .post("attachments", formData)
-                            .then((res: any) => {
-                                console.log(res.data);
-                                const attachment: any = res.data.data[0];
+                    this.$socketSessionApi
+                        .post("attachments", formData)
+                        .then((res: any) => {
+                            const attachment: any = res.data.data[0];
 
-                                const finalAttachment = _l.find(this.finalAttachments, {
-                                    original_name: img.name,
-                                    size: img.size,
-                                });
-
-                                if (finalAttachment) {
-                                    finalAttachment.status = "uploading";
-                                    finalAttachment.uploaded_id = attachment.attachment_info.id;
-                                }
-
-                                if (attachment.temp_id) {
-                                    MessageAttachment.update({
-                                        where: attachment?.temp_id,
-                                        data: {
-                                            uploaded_id: attachment.attachment_info.id,
-                                            status: "done",
-                                        },
-                                    });
-                                }
-
-                                if (attachment.msg_temp_id) {
-                                    console.log(attachment);
-                                    const msgObj: any = Message.query()
-                                        .where("id", attachment.msg_temp_id)
-                                        .with("attachments")
-                                        .first();
-
-                                    if (msgObj && msgObj.attachments && msgObj.attachments.length) {
-                                        const notDone = msgObj.attachments.find((attc: any) => attc.status !== "done");
-
-                                        if (!notDone) {
-                                            const dynamicSocket = this.socket || this.$socket;
-                                            const dynamicBody =
-                                                this.chatPanelType === "user"
-                                                    ? { conv_id: this.conv_id, temp_id: this.tempMsgId }
-                                                    : { temp_id: this.tempMsgId };
-
-                                            dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
-                                                ...dynamicBody,
-                                                msg: this.msg,
-                                                attachments: _l.map(msgObj.attachments, "uploaded_id"),
-                                            });
-                                        }
-                                    }
-                                }
-                            })
-                            .catch((e: any) => {
-                                console.log(e);
+                            const finalAttachment = _l.find(this.finalAttachments, {
+                                original_name: img.name,
+                                size: img.size,
                             });
-                    }, 20000);
+
+                            if (finalAttachment) {
+                                finalAttachment.status = "done";
+                                finalAttachment.attachment_uploaded_id = attachment.attachment_info.id;
+                            }
+
+                            this.updateAttachmentModelStatus(attachment, "done");
+
+                            this.sendMessageAfterAllAttachmentUploaded(attachment, tempMsgId);
+                        })
+                        .catch((e: any) => {
+                            console.log(e);
+                        });
                 } else {
                     // console.log(`file ${img.name} already added`);
                 }
             });
         },
+
+        attachmentValidation(img: any) {
+            const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
+
+            const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
+
+            if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
+                clearInterval(this.showFileErrorMsgInterval);
+
+                this.showFileErrorMsg = true;
+
+                this.showFileErrorMsgInterval = setInterval(() => {
+                    this.showFileErrorMsg = false;
+                }, 10000);
+
+                return false;
+            }
+
+            return true;
+        },
+
+        makeAttachmentFormData(img: any, tempAttachmentId: any, tempMsgId: any) {
+            let formData = new FormData();
+            formData.append("attachments", img, img.name);
+            formData.append("attachment_temp_id", tempAttachmentId);
+            formData.append("msg_temp_id", tempMsgId);
+
+            return formData;
+        },
+
+        pushToFinalAttachment(tempAttachmentId: string, img: any) {
+            this.finalAttachments.push({
+                id: tempAttachmentId,
+                temp_id: tempAttachmentId,
+                original_name: img.name,
+                size: img.size,
+                status: "pending",
+                src: URL.createObjectURL(img),
+                created_at: new Date().getTime(),
+                updated_at: new Date().getTime(),
+            });
+        },
+
+        updateAttachmentModelStatus(attachment: any, status: string) {
+            // remove this data after received the msg event. how i dont know
+            // if not remove then no worry but it will eat resource
+            if (attachment.temp_id) {
+                MessageAttachment.update({
+                    where: attachment?.temp_id,
+                    data: {
+                        attachment_uploaded_id: attachment.attachment_info.id,
+                        status,
+                    },
+                });
+            }
+        },
+
+        // when submit multiple attachment, after all attachment successfully upload emit the event (ec_msg_from_user/ec_msg_from_client)
+        // when multiple attachment with text, text will be sent after uploaded the all attachment
+        sendMessageAfterAllAttachmentUploaded(attachment: any, tempMsgId: string) {
+            if (attachment.msg_temp_id) {
+                const msgObj: any = Message.query().where("id", attachment.msg_temp_id).with("attachments").first();
+
+                if (msgObj && msgObj.attachments && msgObj.attachments.length) {
+                    const pendingEntry = msgObj.attachments.find((attachment: any) => attachment.status !== "done");
+
+                    if (!pendingEntry) {
+                        const dynamicSocket = this.socket || this.$socket;
+                        const dynamicBody =
+                            this.chatPanelType === "user"
+                                ? { conv_id: this.conv_id, temp_id: tempMsgId }
+                                : { temp_id: tempMsgId };
+
+                        // here msg will be empty so get msg from msgObj
+                        dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
+                            ...dynamicBody,
+                            msg: msgObj.msg,
+                            attachments: _l.map(msgObj.attachments, "attachment_uploaded_id"),
+                        });
+                    }
+                }
+            }
+        },
+
         attachmentRemoveHandle(attachmentObj: any) {
             const localCopy = _l.cloneDeep(attachmentObj);
 

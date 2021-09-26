@@ -14,7 +14,7 @@ export default class MessageAttachment extends Model {
         return {
             id: this.attr(null),
             // its for after image uploaded so that we can keep temp data for send with msg & until the msg send. after msg send remove temp ids
-            uploaded_id: this.attr(null),
+            attachment_uploaded_id: this.attr(null),
 
             ext: this.attr(null),
             original_name: this.attr(null),
