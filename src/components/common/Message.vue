@@ -716,6 +716,8 @@ import SocketSession from "src/store/models/SocketSession";
 import Message from "src/store/models/Message";
 import AttachmentViewModal from "components/subscriber/message/attachment/AttachmentViewModal.vue";
 import MessageAttachment from "src/store/models/MessageAttachment";
+import ConversationSession from "src/store/models/ConversationSession";
+import { date } from "quasar";
 
 export default defineComponent({
     name: "Message",
@@ -809,6 +811,8 @@ export default defineComponent({
     },
 
     mounted() {
+        this.getDraft();
+
         setInterval(() => {
             this.$forceUpdate();
         }, 30000);
@@ -821,6 +825,10 @@ export default defineComponent({
                 setTimeout(() => this.scrollToPosition(), 300);
             }
         });
+
+        window.onbeforeunload = (e: any) => {
+            this.saveDraft();
+        };
     },
 
     beforeUnmount() {
@@ -1256,7 +1264,7 @@ export default defineComponent({
                 const tempMsg = this.msg;
                 const dynamicSocket = this.socket || this.$socket;
 
-                if (tempMsg.trim()) {
+                if (tempMsg?.trim()) {
                     this.notTypingEmitted = false;
 
                     dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
@@ -1462,7 +1470,7 @@ export default defineComponent({
             // waiting for dom render
             setTimeout(() => {
                 if (msgScrollArea) {
-                    console.log("scroll to ", position);
+                    // console.log("scroll to ", position);
 
                     this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                         conv_id: this.conv_id,
@@ -1722,6 +1730,43 @@ export default defineComponent({
 
             this.attachmentUploaderHandle([...files]);
         },
+
+        getDraft() {
+            window.socketSessionApi
+                .get(`conversations/get-draft/${this.conv_id}`)
+                .then((res: any) => {
+                    if (res.data.draft_message) {
+                        ConversationSession.update({ where: res.data.id, data: res.data });
+                        this.msg = res.data.draft_message;
+                    }
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
+        },
+
+        saveDraft() {
+            const msg = this.msg;
+
+            const bodyData: any = {};
+
+            // now only support for text
+            if (msg || this.finalAttachments.length) {
+                bodyData.draft_message = msg;
+            }
+
+            window.socketSessionApi
+                .post(`conversations/save-draft/${this.conv_id}`, bodyData)
+                .then((res: any) => {
+                    ConversationSession.update({ where: res.data.id, data: res.data });
+
+                    this.msg = "";
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
+        },
     },
 
     watch: {
@@ -1786,6 +1831,8 @@ export default defineComponent({
         });
 
         clearInterval(this.scrollCheckInterval);
+
+        this.saveDraft();
     },
 });
 </script>

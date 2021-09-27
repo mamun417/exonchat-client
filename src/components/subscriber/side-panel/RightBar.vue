@@ -254,7 +254,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list v-if="conversationConnectedUsers.length">
                                 <q-item v-for="agent of conversationConnectedUsers" :key="agent.id" dense>
                                     <q-item-section class="tw-w-full">
@@ -296,7 +296,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list
                                 v-if="relatedServices.length"
                                 :class="$helpers.colors().defaultText"
@@ -357,7 +357,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list
                                 v-if="clientDomains.length"
                                 :class="$helpers.colors().defaultText"
@@ -409,7 +409,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
                                 <q-item
                                     v-for="(visit, key) of visits"
@@ -450,7 +450,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list
                                 v-if="
                                     clientPreviousChats[conversationData.id] &&
@@ -496,7 +496,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list v-if="Object.keys(clientTickets).length" class="tw-break-all">
                                 <q-item
                                     v-for="(ticket, key) of clientTickets"
@@ -586,7 +586,7 @@ export default defineComponent({
 
             relatedServices: [],
             clientDomains: [],
-            cardMaxHeight: "64",
+            cardMaxHeight: "16rem",
             whmcsBaseUrl: "", // load from helper, its need to direct call WHMCS api from client
         };
     },

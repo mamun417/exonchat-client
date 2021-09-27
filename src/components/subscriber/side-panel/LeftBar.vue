@@ -107,6 +107,7 @@
                         <q-card-section class="tw-p-0">
                             <q-list v-if="myOngoingChats.length">
                                 <q-item
+                                    class="tw-pr-0"
                                     v-for="ongoingChat in myOngoingChats"
                                     :to="{ name: 'chats', params: { conv_id: ongoingChat.id } }"
                                     :key="ongoingChat.id"
@@ -131,13 +132,19 @@
                                     </q-item-section>
 
                                     <q-item-section v-if="ongoingChat.myUnseenMessageCount" side>
-                                        <q-badge color="orange">
+                                        <q-badge color="orange" class="tw-mr-2">
                                             {{
                                                 ongoingChat.myUnseenMessageCount > 9
                                                     ? "9+"
                                                     : ongoingChat.myUnseenMessageCount
                                             }}
                                         </q-badge>
+                                    </q-item-section>
+
+                                    <!--<pre>{{ ongoingChat }}</pre>-->
+
+                                    <q-item-section v-if="showDraftIcon(ongoingChat.id)" side>
+                                        <q-badge color="transparent"><i class="fa fa-pen text-grey-5"></i> </q-badge>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -221,7 +228,7 @@
                                     @click="openUserToUserConversation(user)"
                                     :active-class="`text-grey-9 bg-${globalColor}-2`"
                                     :active="user.conversation_id && user.conversation_id === $route.params?.conv_id"
-                                    class="tw-py-2"
+                                    class="tw-py-2 tw-pr-0"
                                     :key="index"
                                     clickable
                                     dense
@@ -283,7 +290,7 @@
                                         "
                                         side
                                     >
-                                        <q-badge color="orange">
+                                        <q-badge color="orange" class="tw-mr-2">
                                             {{
                                                 agentMsgInfo(user.conversation_id, user.socket_session.id)
                                                     .count_unseen_msg > 9
@@ -292,6 +299,10 @@
                                                           .count_unseen_msg
                                             }}
                                         </q-badge>
+                                    </q-item-section>
+
+                                    <q-item-section v-if="showDraftIcon(user.conversation_id)" side>
+                                        <q-badge color="transparent"><i class="fa fa-pen text-grey-5"></i> </q-badge>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -312,6 +323,7 @@ import * as _l from "lodash";
 import moment from "moment";
 import helpers from "boot/helpers/helpers";
 import ChatDepartment from "src/store/models/ChatDepartment";
+import Conversation from "src/store/models/Conversation";
 
 export default defineComponent({
     name: "LeftBar",
@@ -593,6 +605,16 @@ export default defineComponent({
         //         this.$helpers.showErrorNotification(this, err.response.data.message);
         //     }
         // },
+
+        myConversationSession(convId: any) {
+            return Conversation.find(convId)?.myConversationSession || {};
+        },
+
+        showDraftIcon(convId: any) {
+            console.log({ convId });
+
+            return this.myConversationSession(convId).draft_message && this.$route.params["conv_id"] !== convId;
+        },
     },
 
     watch: {

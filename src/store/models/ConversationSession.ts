@@ -17,6 +17,7 @@ export default class ConversationSession extends Model {
 
             socket_session: this.belongsTo(SocketSession, "socket_session_id"),
 
+            draft_message: this.attr(null),
             type: this.attr(null),
             joined_at: this.attr(null),
             left_at: this.attr(null),
