@@ -978,7 +978,7 @@ export default defineComponent({
 
                 this.socketId = this.socket.id;
 
-                if (this.socketConnectError === true && process.env.DEV) {
+                if (this.socketConnectError === true && !process.env.DEV) {
                     location.reload();
                 }
 
