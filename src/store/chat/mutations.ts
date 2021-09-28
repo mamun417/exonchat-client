@@ -110,7 +110,8 @@ const mutation: MutationTree<ChatStateInterface> = {
                 state.conversations[convId].ai_is_replying = convData.ai_is_replying;
             }
 
-            if (convData.hasOwnProperty("message") && convData.message) {
+            // keeping hasOwnProperty check for not break for other call
+            if ((convData.hasOwnProperty("message") && convData.message) || convData.message) {
                 if (convData.message.temp_id) {
                     Message.delete(convData.message.temp_id);
                 }
