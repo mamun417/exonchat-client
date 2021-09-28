@@ -238,6 +238,7 @@
                                             :image_src="user?.user_meta?.attachment?.src"
                                             :name="user?.user_meta?.display_name"
                                             :email="user?.email"
+                                            :key="user.id"
                                             size="30px"
                                         >
                                             <q-badge floating rounded class="bg-white" style="padding: 1px">
