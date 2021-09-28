@@ -112,7 +112,9 @@ export default defineComponent({
         EcTable,
     },
     data(): any {
-        return {};
+        return {
+            visitorInterval: "",
+        };
     },
 
     setup() {
@@ -144,9 +146,13 @@ export default defineComponent({
     },
 
     mounted() {
-        setInterval(() => {
+        this.visitorInterval = setInterval(() => {
             this.$forceUpdate();
         }, 10000);
+    },
+
+    beforeUnmount() {
+        clearInterval(this.visitorInterval);
     },
 });
 </script>
