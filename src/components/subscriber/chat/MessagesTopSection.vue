@@ -425,6 +425,7 @@ export default defineComponent({
             transferChatToExpand: false,
             transferChatToFilter: "",
             sendingTranscript: false,
+            chatDurationInterval: "",
         };
     },
 
@@ -433,7 +434,7 @@ export default defineComponent({
             this.clientActiveStatus = res.status === "active";
         });
 
-        setInterval(() => {
+        this.chatDurationInterval = setInterval(() => {
             if (
                 this.$route.name === "chats" &&
                 this.conversationWithUsersInfo?.length &&
@@ -445,6 +446,10 @@ export default defineComponent({
         }, 1000);
 
         console.log("msg top section initiated");
+    },
+
+    beforeUnmount() {
+        clearInterval(this.chatDurationInterval);
     },
 
     computed: {

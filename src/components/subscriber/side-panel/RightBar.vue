@@ -592,6 +592,7 @@ export default defineComponent({
             clientDomains: [],
             cardMaxHeight: "16rem",
             whmcsBaseUrl: "", // load from helper, its need to direct call WHMCS api from client
+            rightBarInterVal: "",
         };
     },
 
@@ -712,7 +713,7 @@ export default defineComponent({
     mounted() {
         // console.log("right bar initiated");
 
-        setInterval(() => {
+        this.rightBarInterVal = setInterval(() => {
             if (
                 this.$route.name === "chats" &&
                 this.rightBarState.mode === "client_info" &&
@@ -722,9 +723,13 @@ export default defineComponent({
                 this.$refs.chat_duration?.$forceUpdate();
                 this.$refs.connectedForTimer?.$forceUpdate();
             }
-        }, 1000);
+        }, 3000);
 
         this.whmcsBaseUrl = this.$helpers.getWhmcsBaseUrl();
+    },
+
+    beforeUnmount() {
+        clearInterval(this.rightBarInterVal);
     },
 
     watch: {

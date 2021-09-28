@@ -88,10 +88,6 @@ export default defineComponent({
     },
 
     mounted() {
-        setInterval(() => {
-            this.$forceUpdate();
-        }, 30000);
-
         this.conv_id = JSON.parse(localStorage.getItem("clientInitiateConvInfo") || "").conv_id;
     },
 

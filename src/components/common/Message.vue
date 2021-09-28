@@ -809,15 +809,16 @@ export default defineComponent({
                 maxFileSize: 1024 * 1024 * 5, // 5 MB
                 maxFiles: 5,
             },
+            forceUpdateInterval: "",
         };
     },
 
     mounted() {
         this.getDraft();
 
-        setInterval(() => {
+        this.forceUpdateInterval = setInterval(() => {
             this.$forceUpdate();
-        }, 30000);
+        }, 10000);
 
         this.fireSocketListeners();
         this.emitSocketEvents();
@@ -835,6 +836,7 @@ export default defineComponent({
 
     beforeUnmount() {
         clearInterval(this.ecGetClientSesIdStatusInterval);
+        clearInterval(this.forceUpdateInterval);
 
         if (this.chatPanelType === "user" && !this.conversationData.users_only) {
             this.$socket.removeEventListener("ec_get_client_ses_id_status_res");
