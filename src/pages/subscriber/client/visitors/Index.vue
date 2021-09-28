@@ -18,7 +18,9 @@
                     </template>
 
                     <template v-slot:cell-location="slotProps">
-                        {{ slotProps.row.session_info?.init_location?.country?.names?.en || "Unknown" }}</template
+                        {{
+                            sessionInfo(slotProps.row.session_id)?.init_location?.country?.names?.en || "Unknown"
+                        }}</template
                     >
 
                     <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }}</template>
@@ -26,7 +28,7 @@
                     <template v-slot:cell-chats> 0</template>
 
                     <template v-slot:cell-url="slotProps">
-                        <div class="">
+                        <div>
                             <a :href="$_.last(slotProps.row.visits).url" class="text-blue-5 tw-font-medium">{{
                                 $_.last(slotProps.row.visits).title
                             }}</a>
@@ -84,7 +86,7 @@ const columns = [
 
     {
         name: "url",
-        align: "center",
+        align: "left",
         label: "Currently On",
     },
     {

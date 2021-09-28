@@ -655,7 +655,7 @@ export default defineComponent({
             this.socket.on("ec_is_typing_from_client", (res: any) => {
                 this.$store.dispatch("chat/updateTypingState", res);
 
-                console.log("from ec_is_typing_from_client", res.msg);
+                // console.log("from ec_is_typing_from_client", res.msg);
             });
 
             this.socket.on("ec_conv_initiated_from_user", (data: any) => {

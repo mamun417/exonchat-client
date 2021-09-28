@@ -4,7 +4,7 @@ import { VisitorsStateInterface } from "./state";
 
 const getters: GetterTree<VisitorsStateInterface, StateInterface> = {
     visitors(state) {
-        return Object.values(state.visitors);
+        return Object.values(state.visitors).filter(Boolean);
     },
 
     visits: (state) => (sesId: any) => {
