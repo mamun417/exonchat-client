@@ -590,7 +590,9 @@
                             <q-item-section>
                                 <q-item-label>
                                     <div class="tw-flex tw-items-center tw-gap-3">
-                                        <div class="tw-text-sm tw-font-medium">/{{ template.tag }}</div>
+                                        <div class="tw-text-sm tw-font-medium tw-whitespace-nowrap">
+                                            /{{ template.tag }}
+                                        </div>
                                         <div
                                             class="tw-text-xs tw-overflow-hidden tw-whitespace-nowrap tw-overflow-ellipsis"
                                             :class="$helpers.colors().defaultText"
@@ -1746,6 +1748,8 @@ export default defineComponent({
         },
 
         saveDraft() {
+            if (!this.showSendMessageInput) return;
+
             const msg = this.msg;
 
             const bodyData: any = {};

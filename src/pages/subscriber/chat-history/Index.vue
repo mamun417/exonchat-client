@@ -8,7 +8,7 @@
             <div class="tw-shadow tw-bg-white">
                 <ec-table
                     @handlePipeline="handlePipeline({ s: $event })"
-                    search-placeholder="Search ( Visitor name, Visitor email )"
+                    search-placeholder="Search ( Visitor name )"
                     :search-value="chatHistoryPipeline.s"
                     :rows="chatHistories"
                     :columns="columns"
@@ -38,12 +38,6 @@
                     <template v-slot:cell-client_name="slotProps">
                         <div>
                             {{ slotProps.row.client_info.socket_session.init_name }}
-                        </div>
-                    </template>
-
-                    <template v-slot:cell-client_email="slotProps">
-                        <div class="">
-                            {{ slotProps.row.client_info.socket_session.init_email }}
                         </div>
                     </template>
 
@@ -110,12 +104,6 @@ const columns = [
         align: "left",
         label: "Visitor Name",
         field: "client_name",
-    },
-    {
-        name: "client_email",
-        align: "left",
-        label: "Visitor Email",
-        field: "client_email",
     },
     {
         name: "connected_agents",

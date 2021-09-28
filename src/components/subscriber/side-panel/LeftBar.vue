@@ -611,8 +611,6 @@ export default defineComponent({
         },
 
         showDraftIcon(convId: any) {
-            console.log({ convId });
-
             return this.myConversationSession(convId).draft_message && this.$route.params["conv_id"] !== convId;
         },
     },
