@@ -9,8 +9,7 @@
                 <!--                {{ visitors }}-->
                 <ec-table :rows="visitors" :columns="columns">
                     <template v-slot:cell-client="slotProps">
-                        <div class="tw-capitalize">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
+                        <div class="tw-uppercase">
                             {{
                                 sessionInfo(slotProps.row.session_id)?.init_name ||
                                 `Visitor#${slotProps.row.session_id.slice(-8)}`
