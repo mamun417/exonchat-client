@@ -818,7 +818,7 @@ export default defineComponent({
 
         this.forceUpdateInterval = setInterval(() => {
             this.$forceUpdate();
-        }, 10000);
+        }, 30000);
 
         this.fireSocketListeners();
         this.emitSocketEvents();
