@@ -366,6 +366,7 @@ export default defineComponent({
             myOngoingChats: "chat/myOngoingChats",
 
             chatUsers: "chat/chatUsers",
+            meAsChatUser: "chat/meAsChatUser",
             globalBgColor: "setting_ui/globalBgColor",
             globalColor: "setting_ui/globalColor",
             profile: "auth/profile",
@@ -418,7 +419,9 @@ export default defineComponent({
         },
 
         getMyOnlineStatus(): any {
-            return this.onlineStatus.find((onlineStatus: any) => onlineStatus?.status === this.profile.online_status);
+            return this.onlineStatus.find(
+                (onlineStatus: any) => this.meAsChatUser?.online_status === onlineStatus.status
+            );
         },
     },
 
@@ -568,43 +571,26 @@ export default defineComponent({
             // this.$emitter.on('listen_error_ec_init_conv_from_user', fn);
         },
 
-        senderInfo(conv: any) {
-            if (conv.conversation_session?.socket_session) {
-                return {
-                    display_name: conv.conversation_session.socket_session.init_name,
-                    img_alt_name: conv.conversation_session.socket_session.init_name,
-                    email: conv.conversation_session.socket_session.init_email,
-                };
-            }
-
-            return {};
-        },
-
-        async updateOnlineStatus(status: any) {
+        updateOnlineStatus(status: any) {
             // try {
-            await this.$store.dispatch("setting_profile/updateOnlineStatus", {
-                inputs: {
-                    online_status: status,
-                },
-            });
+            this.$store
+                .dispatch("setting_profile/updateOnlineStatus", {
+                    inputs: {
+                        online_status: status,
+                    },
+                })
+                .then(() => {
+                    this.$store.dispatch("auth/updateAuthInfo");
 
-            this.$socket.emit("ec_updated_socket_room_info", {
-                online_status: status,
-                status_for: "user",
-            });
-
-            // } catch (err) {
-            //     this.updateOnlineStatusErrorHandle(err);
-            // }
+                    this.$socket.emit("ec_updated_socket_room_info", {
+                        online_status: status,
+                        status_for: "user",
+                    });
+                })
+                .catch(() => {
+                    // this.updateOnlineStatusErrorHandle(err);
+                });
         },
-
-        // updateOnlineStatusErrorHandle(err: any) {
-        //     if (this.$_.isObject(err.response.data.message)) {
-        //         this.formDataErrors = err.response.data.message;
-        //     } else {
-        //         this.$helpers.showErrorNotification(this, err.response.data.message);
-        //     }
-        // },
 
         myConversationSession(convId: any) {
             return Conversation.find(convId)?.myConversationSession || {};

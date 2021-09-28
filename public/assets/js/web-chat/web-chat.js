@@ -75,7 +75,10 @@ function ec_minimize_panel(styleObj = {}) {
 
 function ec_page_visit_info() {
     ecChatIFrame.contentWindow.postMessage(
-        { res: "page_visit_info", value: { url: window.document.URL, referrer: window.document.referrer } },
+        {
+            res: "page_visit_info",
+            value: { url: window.document.URL, referrer: window.document.referrer, page_title: window.document.title },
+        },
         "*"
     );
 }

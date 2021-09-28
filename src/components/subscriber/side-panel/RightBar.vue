@@ -422,7 +422,11 @@
                                         <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
-                                        <q-item-label>{{ visit.url }}</q-item-label>
+                                        <q-item-label>
+                                            <a :href="visit.url" class="text-blue-5 tw-font-medium">{{
+                                                visit.title
+                                            }}</a>
+                                        </q-item-label>
                                         <q-item-label caption
                                             >{{
                                                 visit.visiting
@@ -638,7 +642,7 @@ export default defineComponent({
         visits(): any {
             if (!(this.$route.name === "chats" && this.rightBarState.mode === "client_info")) return [];
 
-            return this.$store.getters["visitor/visits"](this.conversationWithUsersInfo[0].socket_session.id);
+            return this.$store.getters["visitor/visits"](this.conversationData.clientSocketSession.id);
         },
 
         parsedUaString(): any {

@@ -537,9 +537,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     // update online users
-    updateOnlineUsers(context, onlineUsers) {
+    updateOnlineUsers(context, socketUsers) {
         return new Promise((resolve) => {
-            context.commit("updateOnlineUsers", onlineUsers);
+            context.commit("updateOnlineUsers", socketUsers);
             resolve(true);
         });
     },

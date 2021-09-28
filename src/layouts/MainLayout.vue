@@ -414,6 +414,8 @@ export default defineComponent({
             socketConnectError: null,
 
             notificationDisabledWarning: false,
+
+            clientsPageVisitInterval: null, // for better manage we can use this when agent is in page visitor or a conversation
         };
     },
 
@@ -527,12 +529,6 @@ export default defineComponent({
         }
     },
 
-    // hit update profile
-    // 160. then fire event "ec_updated_socket_room_info"
-    // listen event "ec_updated_socket_room_info_res" => {
-    // 148.emit "ec_get_logged_users"
-    //}
-
     methods: {
         ...mapMutations({
             mutateAuthToLogout: "auth/logOut",
@@ -543,25 +539,12 @@ export default defineComponent({
             this.qPageSize = size;
         },
 
-        getAllUsers() {
-            this.$store.dispatch("chat/getAllUsers");
-        },
-
-        getUsers(ses_id = null) {
-            // if ses_id => check for exist. if not then new user registered
-            if (!ses_id || !this.chatUsers?.hasOwnProperty(ses_id)) {
-                // console.log('reloading users list');
-
-                this.$store.dispatch("chat/getUsers").then(() => {
-                    // get new list first then get online
-                    this.$socket.emit("ec_get_logged_users", {});
-
-                    // load all users so that we can load user avatar
-                    // this.getAllUsers();
-                });
-            } else {
-                this.$socket.emit("ec_get_logged_users", {});
-            }
+        // get users list from db
+        getUsers() {
+            this.$store.dispatch("chat/getUsers").then(() => {
+                // get new list first then get socket status info
+                this.$socket.emit("ec_get_socket_rooms_info", {});
+            });
         },
 
         async socketInitialize() {
@@ -598,9 +581,9 @@ export default defineComponent({
 
             this.getUsers();
             this.fireSocketListeners();
+            this.fireSocketEmitters();
             this.reloadForProfileImageLoad();
             this.vuexOrmMutationListener();
-            this.$socket.emit("ec_get_logged_users", {});
 
             // in future handle interval for page visiting update. check visiting time & mutate visiting value
             // so that update reflects cz if a client's net gone or other issue happens visiting value might not change
@@ -738,28 +721,6 @@ export default defineComponent({
                 // console.log("from ec_conversation_session_updated", res);
             });
 
-            // emitting this socket into mount
-            // get online users list
-            this.socket.on("ec_logged_users_res", (data: any) => {
-                this.$store.dispatch("chat/updateOnlineUsers", data.users);
-                console.log("from ec_logged_users_res", data);
-            });
-
-            this.socket.on("ec_user_logged_in", (data: any) => {
-                // used if a new user registered but not listed yet
-                this.getUsers(data.ses_id);
-
-                console.log(`from ec_user_logged_in ${data}`);
-            });
-
-            this.socket.on("ec_user_logged_out", (data: any) => {
-                setTimeout(() => {
-                    // this.getUsers(); // currently no need cz we are getting this at first
-                    this.$socket.emit("ec_get_logged_users", {});
-                    console.log(`from ec_user_logged_out ${data}`);
-                }, 3000);
-            });
-
             this.socket.on("ec_from_api_events", (res: any) => {
                 // res = {action: [logout, others_are_coming], msg: res.msg || null, reason: res.reason || null}
                 // reason = why this type sent
@@ -788,10 +749,11 @@ export default defineComponent({
                 console.log("from ec_from_api_events1", res);
             });
 
-            this.socket.on("ec_page_visit_info_from_client", (res: any) => {
-                this.$store.dispatch("visitor/updateVisitor", res);
+            this.socket.on("ec_get_clients_page_visit_info_res", (res: any) => {
+                // res has {data: {clients_visit_data: ...}}
+                this.$store.dispatch("visitor/updateVisitor", res.data);
 
-                // console.log('from ec_page_visit_info_from_client', res);
+                // console.log("from ec_get_clients_page_visit_info_res", res.data.clients_visit_data);
             });
 
             this.socket.on("ec_apps_notification", (res: any) => {
@@ -846,15 +808,25 @@ export default defineComponent({
                 console.log("from ec_chat_transfer", data);
             });
 
-            this.socket.on("ec_updated_socket_room_info_res", (data: any) => {
-                this.$store.dispatch("chat/updateOnlineUsers", [
-                    { online_status: data.data.online_status, ses_id: data.ses_id, db_change: true },
-                ]);
+            this.socket.on("ec_socket_rooms_info_res", (res: any) => {
+                // const res = {
+                //     action: "online_status",
+                //     type: "user/client",
+                //     data: {
+                //         session_id: {
+                //             session_id: "session_id",
+                //             online_status: "offline/online/...",
+                //         },
+                //     },
+                // };
 
-                this.$store.dispatch("auth/updateAuthInfo");
+                if (res.action === "online_status") {
+                    if (res.type === "user") {
+                        this.$store.dispatch("chat/updateOnlineUsers", res.data);
+                    }
+                }
 
-                this.socket.emit("ec_get_logged_users", {});
-                console.log("from ec_updated_socket_room_info_res", data);
+                // console.log("from ec_socket_rooms_info_res", res);
             });
 
             this.socket.on("ec_error", (data: any) => {
@@ -882,6 +854,16 @@ export default defineComponent({
                 console.log(`connect_error due to ${err.message}`);
                 this.socketConnectError = true;
             });
+        },
+
+        fireSocketEmitters() {
+            this.$socket.emit("ec_get_socket_rooms_info", {});
+
+            if (!this.clientsPageVisitInterval) {
+                this.clientsPageVisitInterval = setInterval(() => {
+                    this.$socket.emit("ec_get_clients_page_visit_info", {});
+                }, 5000);
+            }
         },
 
         takeThisChat(convData: any, fromChatTransferRequest = false) {
@@ -1151,6 +1133,8 @@ export default defineComponent({
         }
 
         this.$emitter.all.clear();
+
+        clearInterval(this.clientsPageVisitInterval);
     },
 });
 </script>
