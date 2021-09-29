@@ -61,7 +61,8 @@
                                 dense
                             />
                         </div>
-                        <div>
+
+                        <div class="tw-mb-6">
                             <div>Display Name</div>
                             <q-input
                                 v-model="formData.display_name"
@@ -76,11 +77,33 @@
                                 dense
                             />
                         </div>
+
+                        <div class="tw-mb-6">
+                            <div>Email Address</div>
+                            <q-input
+                                v-model="formData.email"
+                                :error-message="formDataErrors.email"
+                                :error="!!formDataErrors.email"
+                                @update:model-value="formDataErrors.email = ''"
+                                bg-color="white"
+                                class="tw-mb-2 tw-shadow tw-px-2"
+                                hide-bottom-space
+                                standout
+                                borderless
+                                dense
+                            />
+                        </div>
                     </q-card-section>
 
-                    <q-card-actions class="tw-py-2 tw-flex tw-justify-center">
-                        <q-btn :color="globalColor" @click="updateProfile" no-caps unelevated
-                            >Update Personal Information
+                    <q-card-actions class="tw-py-2 tw-pb-4 tw-flex tw-justify-center">
+                        <q-btn
+                            :loading="updateProfileLoading"
+                            :color="globalColor"
+                            @click="updateProfile"
+                            no-caps
+                            unelevated
+                        >
+                            Update Personal Information
                         </q-btn>
                     </q-card-actions>
                 </q-card>
@@ -261,6 +284,8 @@
                 </q-card-section>
             </q-card>
         </q-dialog>
+
+        <update-email-otp-modal v-if="emailUpdateVerifyOtpModalShow" />
     </div>
 </template>
 
@@ -269,10 +294,11 @@ import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 import EcAvatar from "components/common/EcAvatar.vue";
 import * as _l from "lodash";
+import UpdateEmailOtpModal from "pages/subscriber/settings/profile/UpdateEmailOtpModal.vue";
 
 export default defineComponent({
     name: "SettingProfile",
-    components: { EcAvatar },
+    components: { UpdateEmailOtpModal, EcAvatar },
     data(): any {
         return {
             existingAvatarUrl: "",
@@ -283,6 +309,7 @@ export default defineComponent({
             formData: {
                 full_name: "",
                 display_name: "",
+                email: "",
                 phone: "",
                 address: "",
                 facebook: "",
@@ -297,6 +324,8 @@ export default defineComponent({
 
             formDataErrors: {},
             passFormDataErrors: {},
+            updateProfileLoading: false,
+            emailUpdateVerifyOtpModalShow: false,
         };
     },
 
@@ -330,7 +359,7 @@ export default defineComponent({
             try {
                 await this.$store.dispatch("setting_profile/updateAvatar", formData);
 
-                this.$store.dispatch("setting_profile/reloadProfileImage", _l.cloneDeep(this.profile));
+                await this.$store.dispatch("setting_profile/reloadProfileImage", _l.cloneDeep(this.profile));
 
                 this.updateAvatarModal = false;
                 this.$helpers.showSuccessNotification(this, "Avatar update successful");
@@ -340,14 +369,25 @@ export default defineComponent({
         },
 
         async updateProfile() {
+            this.updateProfileLoading = true;
+
             try {
-                await this.$store.dispatch("setting_profile/updateProfile", {
+                const updateProfileRes = await this.$store.dispatch("setting_profile/updateProfile", {
                     inputs: this.formData,
                 });
+
+                if (updateProfileRes.data.send_otp) {
+                    this.emailUpdateVerifyOtpModalShow = true;
+                    return;
+                }
+
                 await this.$store.dispatch("auth/updateAuthInfo");
 
                 this.$helpers.showSuccessNotification(this, "Profile update successful");
+
+                this.updateProfileLoading = false;
             } catch (err) {
+                this.updateProfileLoading = false;
                 this.updateProfileErrorHandle(err);
             }
         },
@@ -397,6 +437,7 @@ export default defineComponent({
 
                 this.formData.full_name = profile.user_meta.full_name;
                 this.formData.display_name = profile.user_meta.display_name;
+                this.formData.email = profile.email;
                 this.formData.phone = profile.user_meta.phone;
                 this.formData.address = profile.user_meta.address;
                 this.formData.facebook = profile.user_meta.facebook;
