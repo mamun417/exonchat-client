@@ -223,89 +223,80 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item
-                                    v-for="(user, index) in chatUsers"
-                                    @click="openUserToUserConversation(user)"
-                                    :active-class="`text-grey-9 bg-${globalColor}-2`"
-                                    :active="user.conversation_id && user.conversation_id === $route.params?.conv_id"
-                                    class="tw-py-2 tw-pr-0"
-                                    :key="index"
-                                    clickable
-                                    dense
-                                >
-                                    <q-item-section class="tw-min-w-0" avatar>
-                                        <ec-avatar
-                                            :image_src="user?.user_meta?.attachment?.src"
-                                            :name="user?.user_meta?.display_name"
-                                            :email="user?.email"
-                                            :key="user.id"
-                                            size="30px"
-                                        >
-                                            <q-badge floating rounded class="bg-white" style="padding: 1px">
-                                                <q-icon
-                                                    :name="`${user.online_status === 'logout' ? 'block' : 'circle'}`"
-                                                    size="12px"
-                                                    :color="
-                                                        user.online_status === 'online'
-                                                            ? 'green'
-                                                            : user.online_status === 'offline'
-                                                            ? 'red'
-                                                            : 'grey-6'
-                                                    "
-                                                    class="bg-grey-4 tw-rounded-full"
-                                                />
-                                            </q-badge>
-
-                                            <!--<q-badge-->
-                                            <!--    floating-->
-                                            <!--    rounded-->
-                                            <!--    :color="-->
-                                            <!--        user.online_status === 'online'-->
-                                            <!--            ? 'green'-->
-                                            <!--            : user.online_status === 'offline'-->
-                                            <!--            ? 'red'-->
-                                            <!--            : 'grey'-->
-                                            <!--    "-->
-                                            <!--    style="padding: 2px 4px; min-height: 8px"-->
-                                            <!--/>-->
-                                        </ec-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label
-                                            class="text-weight-medium tw-text-sm tw-capitalize"
-                                            :class="{ 'text-grey': user.online_status === 'logout' }"
-                                        >
-                                            {{ user.user_meta.display_name }}
-                                        </q-item-label>
-
-                                        <!--<q-item-label lines="2" caption>
-                                            &lt;!&ndash; {{ teamConversations }} &ndash;&gt;
-                                            {{ agentMsgInfo(user.conversation_id, user.socket_session.id) }}
-                                        </q-item-label>-->
-                                    </q-item-section>
-
-                                    <q-item-section
-                                        v-if="
-                                            agentMsgInfo(user.conversation_id, user.socket_session.id).count_unseen_msg
+                                <transition-group name="flip-list">
+                                    <q-item
+                                        v-for="user in chatUsers"
+                                        @click="openUserToUserConversation(user)"
+                                        :active-class="`text-grey-9 bg-${globalColor}-2`"
+                                        :active="
+                                            user.conversation_id && user.conversation_id === $route.params?.conv_id
                                         "
-                                        side
+                                        class="tw-py-2 tw-pr-0"
+                                        :key="user.id"
+                                        clickable
+                                        dense
                                     >
-                                        <q-badge color="orange" class="tw-mr-2">
-                                            {{
-                                                agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                    .count_unseen_msg > 9
-                                                    ? "9+"
-                                                    : agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                          .count_unseen_msg
-                                            }}
-                                        </q-badge>
-                                    </q-item-section>
+                                        <q-item-section class="tw-min-w-0" avatar>
+                                            <ec-avatar
+                                                :image_src="user?.user_meta?.attachment?.src"
+                                                :name="user?.user_meta?.display_name"
+                                                :email="user?.email"
+                                                :key="user.id"
+                                                size="30px"
+                                            >
+                                                <q-badge floating rounded class="bg-white" style="padding: 1px">
+                                                    <q-icon
+                                                        :name="`${
+                                                            user.online_status === 'logout' ? 'block' : 'circle'
+                                                        }`"
+                                                        size="12px"
+                                                        :color="
+                                                            user.online_status === 'online'
+                                                                ? 'green'
+                                                                : user.online_status === 'offline'
+                                                                ? 'red'
+                                                                : 'grey-6'
+                                                        "
+                                                        class="bg-grey-4 tw-rounded-full"
+                                                    />
+                                                </q-badge>
+                                            </ec-avatar>
+                                        </q-item-section>
 
-                                    <q-item-section v-if="showDraftIcon(user.conversation_id)" side>
-                                        <q-badge color="transparent"><i class="fa fa-pen text-grey-5"></i> </q-badge>
-                                    </q-item-section>
-                                </q-item>
+                                        <q-item-section>
+                                            <q-item-label
+                                                class="text-weight-medium tw-text-sm tw-capitalize"
+                                                :class="{ 'text-grey': user.online_status === 'logout' }"
+                                            >
+                                                {{ user.user_meta.display_name }}
+                                            </q-item-label>
+                                        </q-item-section>
+
+                                        <q-item-section
+                                            v-if="
+                                                agentMsgInfo(user.conversation_id, user.socket_session.id)
+                                                    .count_unseen_msg
+                                            "
+                                            side
+                                        >
+                                            <q-badge color="orange" class="tw-mr-2">
+                                                {{
+                                                    agentMsgInfo(user.conversation_id, user.socket_session.id)
+                                                        .count_unseen_msg > 9
+                                                        ? "9+"
+                                                        : agentMsgInfo(user.conversation_id, user.socket_session.id)
+                                                              .count_unseen_msg
+                                                }}
+                                            </q-badge>
+                                        </q-item-section>
+
+                                        <q-item-section v-if="showDraftIcon(user.conversation_id)" side>
+                                            <q-badge color="transparent"
+                                                ><i class="fa fa-pen text-grey-5"></i>
+                                            </q-badge>
+                                        </q-item-section>
+                                    </q-item>
+                                </transition-group>
                             </q-list>
                         </q-card-section>
                     </q-card>
@@ -325,6 +316,7 @@ import moment from "moment";
 import helpers from "boot/helpers/helpers";
 import ChatDepartment from "src/store/models/ChatDepartment";
 import Conversation from "src/store/models/Conversation";
+import _ from "lodash";
 
 export default defineComponent({
     name: "LeftBar",
@@ -669,3 +661,9 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="scss">
+.flip-list-move {
+    transition: transform 0.5s;
+}
+</style>
