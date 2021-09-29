@@ -184,13 +184,16 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                     !conv.closed_at &&
                     (agentsLength.length > 1 ||
                         (agentsLength.length === 1 && !sesInfo) ||
-                        (agentsLength.length === 1 && sesInfo.left_at))
+                        (agentsLength.length === 1 && sesInfo.left_at) ||
+                        (agentsLength.length === 1 && !sesInfo.left_at && !sesInfo.joined_at))
                 );
             })
             .map((conv: any) => {
                 return {
                     connected_client: _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user),
-                    connected_agents: conv.sessions.filter((convSes: any) => convSes.socket_session.user),
+                    connected_agents: conv.sessions.filter(
+                        (convSes: any) => convSes.socket_session.user && convSes.joined_at
+                    ),
                     ...conv,
                 };
             });
