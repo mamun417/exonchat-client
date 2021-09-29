@@ -520,7 +520,7 @@
                                             <div class="tw-flex tw-justify-between tw-items-center">
                                                 <div class="tw-mr-2">{{ $helpers.myDate(ticket.date) }}</div>
                                                 <q-badge
-                                                    :color="ticket.status === 'Answered' ? 'green' : 'orange'"
+                                                    :style="{ backgroundColor: getTicketStatusBgColor(ticket) }"
                                                     class="tw-text-xxs"
                                                 >
                                                     {{ ticket.status }}
@@ -707,6 +707,20 @@ export default defineComponent({
 
         gotoTicketDetails(ticket: any) {
             window.open(`${this.whmcsBaseUrl}/supporttickets.php?action=view&id=${ticket.id}`, "_blank");
+        },
+
+        getTicketStatusBgColor(ticket: any) {
+            return ticket.status === "On Hold"
+                ? "#224488"
+                : ticket.status === "In Progress"
+                ? "#CC0000"
+                : ticket.status === "Open"
+                ? "#779500"
+                : ticket.status === "Customer-Reply"
+                ? "#FF6600"
+                : ticket.status === "Answered"
+                ? "#000000"
+                : "#ddd";
         },
     },
 
