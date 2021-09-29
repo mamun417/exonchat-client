@@ -286,7 +286,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         const authInfo = rootGetters["auth/profile"];
 
-        const users = Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
+        const users = Object.values(allUsers).filter((user: any) => authInfo.id !== user.id);
 
         return _l
             .sortBy(users, [
@@ -301,7 +301,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         const authInfo = rootGetters["auth/profile"];
 
-        return Object.values(allUsers).find((user: any) => authInfo.email === user.email);
+        return Object.values(allUsers).find((user: any) => authInfo.id === user.id);
     },
 
     allAgent(state) {
