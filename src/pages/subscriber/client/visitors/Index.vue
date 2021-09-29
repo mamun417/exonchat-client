@@ -6,7 +6,6 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow tw-bg-white tw-p-4">
-                <!--                {{ visitors }}-->
                 <ec-table :rows="visitors" :columns="columns">
                     <template v-slot:cell-client="slotProps">
                         <div class="tw-uppercase">
@@ -17,11 +16,7 @@
                         </div>
                     </template>
 
-                    <template v-slot:cell-location="slotProps">
-                        {{
-                            sessionInfo(slotProps.row.session_id)?.init_location?.country?.names?.en || "Unknown"
-                        }}</template
-                    >
+                    <template v-slot:cell-location="slotProps"> {{ slotProps.row.init_location }}</template>
 
                     <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }}</template>
 
@@ -71,6 +66,7 @@
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 import EcTable from "components/common/table/EcTable.vue";
+import SocketSession from "src/store/models/SocketSession";
 
 const columns = [
     {
@@ -134,16 +130,7 @@ export default defineComponent({
 
     methods: {
         sessionInfo(sesId: any) {
-            let ses = null;
-            this.clientsConversation.find((conv: any) =>
-                conv.sessions.find((convSes: any) => {
-                    if (convSes.socket_session_id === sesId) {
-                        ses = convSes.socket_session;
-                    }
-                })
-            );
-
-            return ses;
+            return SocketSession.find(sesId) || {};
         },
     },
 
