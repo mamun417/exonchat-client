@@ -8,7 +8,7 @@
             <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table :rows="visitors" :columns="columns">
                     <template v-slot:cell-client="slotProps">
-                        <div class="tw-uppercase">
+                        <div class="tw-uppercase tw-text-xs">
                             {{
                                 sessionInfo(slotProps.row.session_id)?.init_name ||
                                 `Visitor#${slotProps.row.session_id.slice(-8)}`
@@ -24,9 +24,11 @@
 
                     <template v-slot:cell-url="slotProps">
                         <div>
-                            <a :href="$_.last(slotProps.row.visits).url" class="text-blue-5 tw-font-medium">{{
-                                $_.last(slotProps.row.visits).title
-                            }}</a>
+                            <a
+                                :href="$_.last(slotProps.row.visits).url"
+                                class="text-blue-5 tw-font-medium tw-whitespace-pre-wrap"
+                                >{{ $_.last(slotProps.row.visits).title }}</a
+                            >
                         </div>
                     </template>
 
@@ -82,7 +84,7 @@ const columns = [
 
     {
         name: "url",
-        align: "left",
+        align: "center",
         label: "Currently On",
     },
     {
