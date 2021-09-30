@@ -5,7 +5,7 @@ import * as _l from "lodash";
 
 const getters: GetterTree<VisitorsStateInterface, StateInterface> = {
     visitors(state) {
-        const visitors = state.visitors;
+        const visitors = Object.values(state.visitors).filter(Boolean);
 
         return _l
             .sortBy(visitors, [
