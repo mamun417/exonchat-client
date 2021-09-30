@@ -11,7 +11,7 @@ const notifications = {
 
 const helpers = {
     getTempId() {
-        return new Date().getTime();
+        return new Date().getTime() + this.getRandomIntInclusive(3, 3);
     },
 
     fromNowTime(timestamp: string, withoutSuffix = false) {
@@ -31,12 +31,23 @@ const helpers = {
         return moment(timestamp).format(format);
     },
 
-    getMySocketSessionId(type = "user") {
-        if (type === "user") {
-            return sessionStorage.getItem("ec_user_socket_ses_id");
+    getMySocketSessionId() {
+        // double check for safe
+        if (
+            window.router.currentRoute._value.name === "client-web-chat" ||
+            window.router.currentRoute._value.path === "/web-chat"
+        ) {
+            return localStorage.getItem("ec_client_socket_ses_id");
         }
 
-        return localStorage.getItem("ec_client_socket_ses_id");
+        return sessionStorage.getItem("ec_user_socket_ses_id");
+    },
+
+    isChatWidgetPanel() {
+        return (
+            window.router.currentRoute._value.name === "client-web-chat" ||
+            window.router.currentRoute._value.path === "/web-chat"
+        );
     },
 
     showErrorNotification(vm: any, message: any, color = "negative", textColor = "white") {
@@ -106,6 +117,14 @@ const helpers = {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+
+    getWhmcsBaseUrl() {
+        return process.env.DEV ? "https://dev.exonhost.com/backend" : "https://clients.exonhost.com/obosor";
+    },
+
+    getThumbStyle() {
+        return { borderRadius: "0px", zIndex: 99999 };
     },
 };
 

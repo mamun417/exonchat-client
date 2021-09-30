@@ -4,19 +4,24 @@
 
         <!--right bar mini mode-->
         <template v-if="rightBarState.mode === 'conversation'">
-            <message :ses_id="profile.socket_session.id" :conv_id="rightBarState.conv_id" :mini_mode="true">
+            <message
+                :ses_id="profile.socket_session.id"
+                :conv_id="rightBarState.conv_id"
+                :mini_mode="true"
+                :key="rightBarState.conv_id || 0"
+            >
                 <template v-slot:scroll-area-top-section>
                     <div class="tw-mb-3">
                         <messages-top-section
-                            v-if="conversationInfo.users_only"
+                            v-if="conversationData.users_only"
                             :conv_id="rightBarState.conv_id"
                             :mini_mode="true"
-                            :class="{ 'tw-mb-3': conversationInfo.users_only }"
+                            :class="{ 'tw-mb-3': conversationData.users_only }"
                         />
 
-                        <template v-if="!conversationInfo.users_only && conversationWithUsersInfo.length">
+                        <template v-if="!conversationData.users_only && conversationWithUsersInfo.length">
                             <q-list
-                                v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
+                                v-if="conversationWithUsersInfo.length && !conversationData.users_only"
                                 class="tw-px-1 tw-py-3 tw-pt-0"
                                 :class="$helpers.colors().defaultText"
                             >
@@ -50,7 +55,7 @@
                                                 @click="
                                                     $router.push({
                                                         name: 'chats',
-                                                        params: { conv_id: conversationInfo.id },
+                                                        params: { conv_id: conversationData.id },
                                                     })
                                                 "
                                                 icon="fullscreen"
@@ -75,7 +80,7 @@
 
                                 <customer-details-card
                                     :conversation-with-users-info="conversationWithUsersInfo[0]"
-                                    :conversation-info="conversationInfo"
+                                    :conversation-info="conversationData"
                                     :parsed-ua-string="parsedUaString"
                                 >
                                     <template v-slot:bottom-section>
@@ -128,7 +133,7 @@
                                                     </q-item-section>
                                                     <q-item-section side>
                                                         <q-item-label class="text-capitalize"
-                                                            >{{ conversationInfo.chat_department.tag }}
+                                                            >{{ conversationData.chatDepartment?.tag }}
                                                         </q-item-label>
                                                     </q-item-section>
                                                 </q-item>
@@ -140,7 +145,7 @@
                                                         <q-item-label>
                                                             {{
                                                                 $helpers.myDate(
-                                                                    conversationInfo.created_at,
+                                                                    conversationData.created_at,
                                                                     "MMMM Do YYYY, h:mm a"
                                                                 )
                                                             }}
@@ -153,14 +158,14 @@
                                                     </q-item-section>
                                                     <q-item-section side>
                                                         <q-item-label ref="chat_duration">
-                                                            <template v-if="!conversationInfo.closed_at"
-                                                                >{{ $helpers.preciseDiff(conversationInfo.created_at) }}
+                                                            <template v-if="!conversationData.closed_at"
+                                                                >{{ $helpers.preciseDiff(conversationData.created_at) }}
                                                             </template>
                                                             <template v-else>
                                                                 {{
                                                                     $helpers.preciseDiff(
-                                                                        conversationInfo.created_at,
-                                                                        conversationInfo.closed_at
+                                                                        conversationData.created_at,
+                                                                        conversationData.closed_at
                                                                     )
                                                                 }}
                                                             </template>
@@ -173,15 +178,17 @@
                                                     </q-item-section>
                                                     <q-item-section side>
                                                         <q-item-label>
-                                                            <template v-if="conversationInfo.rating">
+                                                            <template v-if="conversationData.conversation_rating">
                                                                 <span
                                                                     :class="
-                                                                        conversationInfo.rating.rating === 5
+                                                                        conversationData.conversation_rating.rating ===
+                                                                        5
                                                                             ? 'green'
                                                                             : 'orange'
                                                                     "
                                                                     >{{
-                                                                        conversationInfo.rating.rating === 5
+                                                                        conversationData.conversation_rating.rating ===
+                                                                        5
                                                                             ? "Good"
                                                                             : "Bad"
                                                                     }}</span
@@ -219,37 +226,26 @@
 
         <!--client info / full view-->
         <q-scroll-area
-            v-else-if="rightBarState.mode === 'client_info' && !conversationInfo.users_only"
+            v-else-if="rightBarState.mode === 'client_info' && !conversationData.users_only"
             class="fit"
-            :bar-style="{
-                background: '#60A5FA',
-                width: '4px',
-                opacity: 0.2,
-                borderRadius: '10px',
-            }"
-            :thumb-style="{
-                borderRadius: '9px',
-                backgroundColor: '#60A5FA',
-                width: '4px',
-                opacity: 0.5,
-            }"
+            :thumb-style="$helpers.getThumbStyle()"
         >
             <!-- at first conversationWithUsersInfo can be empty. show loader -->
             <q-list
-                v-if="conversationWithUsersInfo.length && !conversationInfo.users_only"
-                class="tw-px-1 tw-py-3"
+                v-if="conversationWithUsersInfo.length && !conversationData.users_only"
+                class="tw-px-1 tw-pr-3 tw-py-3"
                 :class="$helpers.colors().defaultText"
             >
                 <customer-details-card
                     :conversation-with-users-info="conversationWithUsersInfo[0]"
-                    :conversation-info="conversationInfo"
+                    :conversation-info="conversationData"
                     :parsed-ua-string="parsedUaString"
                 />
 
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="conversationInfo.closed_at"
+                    v-if="conversationData.closed_at"
                     label="AGENTS"
                     dense
                     default-opened
@@ -258,7 +254,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list v-if="conversationConnectedUsers.length">
                                 <q-item v-for="agent of conversationConnectedUsers" :key="agent.id" dense>
                                     <q-item-section class="tw-w-full">
@@ -291,7 +287,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="conversationInfo.type !== 'facebook_chat'"
+                    v-if="!conversationInfo.users_only && conversationInfo.type !== 'facebook_chat' && !conversationData.closed_at"
                     label="RELATED SERVICES"
                     dense
                     default-opened
@@ -300,7 +296,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list
                                 v-if="relatedServices.length"
                                 :class="$helpers.colors().defaultText"
@@ -309,14 +305,20 @@
                                 <q-item
                                     v-for="(service, index) in relatedServices"
                                     :key="index"
+                                    @click="gotoServiceDetails(service)"
                                     class="tw-flex tw-items-center tw-py-2"
                                     :class="`${index !== 0 ? 'custom-border-top' : ''}`"
+                                    clickable
                                     dense
                                 >
                                     <div>
                                         <div>{{ service.name }} - {{ service.billingcycle }}</div>
                                         <div>
-                                            <a href="https://exonhost.com" class="text-blue-5" target="_blank">
+                                            <a
+                                                href="javascript:void(0)"
+                                                @click.stop="gotoDomain(service.domain)"
+                                                class="text-blue-5"
+                                            >
                                                 {{ service.domain }}
                                             </a>
                                         </div>
@@ -346,7 +348,59 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat'"
+                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat' && !conversationInfo.users_only"
+                    label="RELATED DOMAINS"
+                    dense
+                    default-opened
+                    :header-class="`text-weight-bold ${globalBgColor}-5 tw-text-xs tw-rounded-t tw-text-white`"
+                    class="tw-shadow"
+                    expand-icon-class="hidden"
+                >
+                    <q-card>
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
+                            <q-list
+                                v-if="clientDomains.length"
+                                :class="$helpers.colors().defaultText"
+                                class="tw-text-xs"
+                            >
+                                <q-item
+                                    v-for="(domain, index) in clientDomains"
+                                    :key="index"
+                                    @click="gotoDomainDetails(domain)"
+                                    class="tw-flex tw-items-center tw-py-2"
+                                    :class="`${index !== 0 ? 'custom-border-top' : ''}`"
+                                    clickable
+                                    dense
+                                >
+                                    <div>
+                                        <div>
+                                            <a
+                                                href="javascript:void(0)"
+                                                @click.stop="gotoDomain(domain.domainname)"
+                                                class="text-blue-5"
+                                            >
+                                                {{ domain.domainname }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <q-space />
+                                    <div class="tw-text-right">
+                                        <div :class="`${domain.status === 'Active' ? 'text-green' : 'text-red'}`">
+                                            {{ domain.status }}
+                                        </div>
+                                        <div>Due Date: {{ $helpers.myDate(domain.nextduedate, "MMM Do Y") }}</div>
+                                    </div>
+                                </q-item>
+                            </q-list>
+                            <div v-else class="text-center tw-py-2 text-grey-7">No service found</div>
+                        </q-card-section>
+                    </q-card>
+                </q-expansion-item>
+
+                <div class="tw-mb-4"></div>
+
+                <q-expansion-item
+                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat' && !conversationInfo.users_only"
                     label="CUSTOMER PAGE VISITS"
                     dense
                     default-opened
@@ -355,7 +409,7 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
                                 <q-item
                                     v-for="(visit, key) of visits"
@@ -368,7 +422,11 @@
                                         <q-icon :name="visit.visiting ? 'visibility' : 'wysiwyg'" size="xs"></q-icon>
                                     </q-item-section>
                                     <q-item-section>
-                                        <q-item-label>{{ visit.url }}</q-item-label>
+                                        <q-item-label>
+                                            <a :href="visit.url" class="text-blue-5 tw-font-medium">{{
+                                                visit.title
+                                            }}</a>
+                                        </q-item-label>
                                         <q-item-label caption
                                             >{{
                                                 visit.visiting
@@ -396,16 +454,16 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list
                                 v-if="
-                                    clientPreviousChats[conversationInfo.id] &&
-                                    Object.keys(clientPreviousChats[conversationInfo.id]).length
+                                    clientPreviousChats[conversationData.id] &&
+                                    Object.keys(clientPreviousChats[conversationData.id]).length
                                 "
                                 class="tw-break-all"
                             >
                                 <q-item
-                                    v-for="(conv, key) of clientPreviousChats[conversationInfo.id]"
+                                    v-for="(conv, key) of clientPreviousChats[conversationData.id]"
                                     :to="{ name: 'chats', params: { conv_id: conv.id } }"
                                     :class="`${key !== 0 ? 'custom-border-top' : ''}`"
                                     :key="key"
@@ -433,7 +491,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat'"
+                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat' && !conversationInfo.users_only"
                     label="TICKETS"
                     dense
                     default-opened
@@ -442,17 +500,14 @@
                     expand-icon-class="hidden"
                 >
                     <q-card>
-                        <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :class="`tw-max-h-${cardMaxHeight}`">
+                        <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
                             <q-list v-if="Object.keys(clientTickets).length" class="tw-break-all">
                                 <q-item
                                     v-for="(ticket, key) of clientTickets"
                                     :key="key"
                                     class="tw-text-xs tw-py-2"
                                     :class="`${key !== 0 ? 'custom-border-top' : ''}`"
-                                    @click="
-                                        ticketSelected = ticket;
-                                        ticketDetailModal = true;
-                                    "
+                                    @click="gotoTicketDetails(ticket)"
                                     dense
                                     clickable
                                 >
@@ -465,7 +520,7 @@
                                             <div class="tw-flex tw-justify-between tw-items-center">
                                                 <div class="tw-mr-2">{{ $helpers.myDate(ticket.date) }}</div>
                                                 <q-badge
-                                                    :color="ticket.status === 'Answered' ? 'green' : 'orange'"
+                                                    :style="{ backgroundColor: getTicketStatusBgColor(ticket) }"
                                                     class="tw-text-xxs"
                                                 >
                                                     {{ ticket.status }}
@@ -482,11 +537,11 @@
                 </q-expansion-item>
 
                 <!--its a modal-->
-                <ticket-detail
+                <!--<ticket-detail
                     :ticket="ticketSelected"
                     :modal_show="ticketDetailModal"
                     @modalUpdate="ticketDetailModal = $event"
-                />
+                />-->
             </q-list>
         </q-scroll-area>
     </div>
@@ -501,10 +556,11 @@ import MessagesTopSection from "components/subscriber/chat/MessagesTopSection.vu
 import EcAvatar from "src/components/common/EcAvatar.vue";
 
 import UAParser from "ua-parser-js";
-import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
+// import TicketDetail from "components/apps/whmcs/TicketDetail.vue";
 import ConnectedUsersFaces from "components/subscriber/chat/ConnectedUsersFaces.vue";
 import CustomerDetailsCard from "components/common/RightbarCards/CustomerDetailsCard.vue";
 import SendTranscript from "components/common/SendTranscript.vue";
+import Conversation from "src/store/models/Conversation";
 
 export default defineComponent({
     name: "RightBar",
@@ -525,15 +581,18 @@ export default defineComponent({
             sesId: "",
             confirm: false,
 
-            ticketSelected: null,
-            ticketDetailModal: false,
+            // ticketSelected: null,
+            // ticketDetailModal: false,
 
             chatDuration: "",
 
             conversationShowDetail: false,
 
             relatedServices: [],
-            cardMaxHeight: "64",
+            clientDomains: [],
+            cardMaxHeight: "16rem",
+            whmcsBaseUrl: "", // load from helper, its need to direct call WHMCS api from client
+            rightBarInterVal: "",
         };
     },
 
@@ -547,8 +606,17 @@ export default defineComponent({
             clientPreviousChats: "chat/previousConversations",
         }),
 
+        conversationModel(): any {
+            return Conversation.query().where("id", this.fullChatConvId);
+        },
+
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.first() || {};
+        },
+
         conversationInfo(): any {
-            return this.$store.getters["chat/conversationInfo"](this.fullChatConvId);
+            return this.$store.getters["chat/conversationData"](this.fullChatConvId);
         },
 
         conversationConnectedUsers(): any {
@@ -575,7 +643,7 @@ export default defineComponent({
         visits(): any {
             if (!(this.$route.name === "chats" && this.rightBarState.mode === "client_info")) return [];
 
-            return this.$store.getters["visitor/visits"](this.conversationWithUsersInfo[0].socket_session.id);
+            return this.$store.getters["visitor/visits"](this.conversationData.clientSocketSession.id);
         },
 
         parsedUaString(): any {
@@ -606,12 +674,60 @@ export default defineComponent({
                     console.log(err.response);
                 });
         },
+
+        getClientDomains(clientEmail: string) {
+            window.api
+                .get("apps/whmcs/client-domains", {
+                    params: {
+                        email: clientEmail,
+                    },
+                })
+                .then((res: any) => {
+                    this.clientDomains = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
+        },
+
+        gotoDomain(domain: any) {
+            window.open(`http://${domain}`, "_blank");
+        },
+
+        gotoServiceDetails(service: any) {
+            window.open(
+                `${this.whmcsBaseUrl}/clientsservices.php?userid=${service.clientid}&id=${service.id}`,
+                "_blank"
+            );
+        },
+
+        gotoDomainDetails(domain: any) {
+            window.open(`${this.whmcsBaseUrl}/clientsdomains.php?userid=${domain.userid}&id=${domain.id}`, "_blank");
+        },
+
+        gotoTicketDetails(ticket: any) {
+            window.open(`${this.whmcsBaseUrl}/supporttickets.php?action=view&id=${ticket.id}`, "_blank");
+        },
+
+        getTicketStatusBgColor(ticket: any) {
+            return ticket.status === "On Hold"
+                ? "#224488"
+                : ticket.status === "In Progress"
+                ? "#CC0000"
+                : ticket.status === "Open"
+                ? "#779500"
+                : ticket.status === "Customer-Reply"
+                ? "#FF6600"
+                : ticket.status === "Answered"
+                ? "#000000"
+                : "#ddd";
+        },
     },
 
     mounted() {
         // console.log("right bar initiated");
 
-        setInterval(() => {
+        this.rightBarInterVal = setInterval(() => {
             if (
                 this.$route.name === "chats" &&
                 this.rightBarState.mode === "client_info" &&
@@ -621,7 +737,13 @@ export default defineComponent({
                 this.$refs.chat_duration?.$forceUpdate();
                 this.$refs.connectedForTimer?.$forceUpdate();
             }
-        }, 1000);
+        }, 3000);
+
+        this.whmcsBaseUrl = this.$helpers.getWhmcsBaseUrl();
+    },
+
+    beforeUnmount() {
+        clearInterval(this.rightBarInterVal);
     },
 
     watch: {
@@ -641,13 +763,15 @@ export default defineComponent({
 
                     const clientEmail = this.conversationWithUsersInfo[0].socket_session.init_email;
 
-                    if (!this.conversationInfo.closed_at) {
+                    if (!this.conversationData.closed_at) {
                         // load client tickets
                         this.$store.dispatch("ticket/getTickets", {
                             email: clientEmail,
                         });
 
                         this.getClientServices(clientEmail);
+
+                        this.getClientDomains(clientEmail);
                     }
                 }
             },

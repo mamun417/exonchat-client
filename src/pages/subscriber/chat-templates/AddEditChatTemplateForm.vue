@@ -98,6 +98,7 @@
                             label="Message"
                             :color="globalColor"
                             :readonly="chosenContentType === 'intent'"
+                            autogrow
                             dense
                         >
                             <template v-slot:prepend>
@@ -107,6 +108,7 @@
                     </div>
 
                     <q-input
+                        class="tw-mb-2"
                         v-model="addEditChatTemplateFormData.description"
                         :error-message="chatTemplateFormDataErrors.description"
                         :error="!!chatTemplateFormDataErrors.description"
@@ -367,6 +369,7 @@ export default defineComponent({
         resetForm() {
             this.$emit("hideModal");
             this.addEditChatTemplateFormData = {};
+            this.addEditChatTemplateFormData.own = false;
             this.addEditChatTemplateFormData.active = true;
             this.chosenDepartment = "";
             this.chosenContentType = "static";

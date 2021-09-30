@@ -7,6 +7,7 @@ import helpers from "boot/helpers/helpers";
 
 import Conversation from "src/store/models/Conversation";
 import Message from "src/store/models/Message";
+import ConversationSession from "src/store/models/ConversationSession";
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -48,6 +49,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             sessions: convData.conversation_sessions,
             chat_department: convData.chat_department,
             notify_status: convInfo.notify, // of this action if notify then true
+            original_data: { conversation: convInfo.conv_data },
             caller: "storeNewChatFromClient",
         };
 
@@ -81,14 +83,18 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     updateConvSesInfo(context, data) {
         context.commit("updateConvSesInfo", data);
 
-        if (data.action === "chat_transfer_sent") {
+        const profile = context.rootGetters["auth/profile"];
+
+        if (data.action === "chat_transfer_sent" && profile.online_status === "online") {
+            if (window.$browser_tab_id === localStorage.getItem("ec_current_visiting_tab")) {
+                helpers.notifications().reqOne.play().then();
+            }
+
             if (
                 localStorage.getItem("ec_not_in_tabs") &&
                 window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
             ) {
                 const convObj = context.getters["conversationInfo"](data.conv_id);
-
-                helpers.notifications().reqOne.play().then();
 
                 const notification = new Notification(
                     `Chat transfer request from ${data.original_payload?.agent_info?.user_meta?.display_name}`,
@@ -133,6 +139,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             closed_reason: convInfo.closed_reason,
             sessions: convInfo.conversation_sessions, // not sending now
             caller: "updateConvStateToClosed",
+            original_data: { conversation: convInfo },
         });
 
         if (convInfo.log_message) {
@@ -141,6 +148,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 message: convInfo.log_message,
             });
         }
+    },
+    updateConversationSession(context, conversationSession) {
+        ConversationSession.update({
+            where: conversationSession.id,
+            data: conversationSession,
+        });
     },
 
     // get client conversation messages from db
@@ -362,8 +375,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeMessage(context, messageRes) {
         const tempConv = messageRes.conversation;
 
-        Message.insert({ data: messageRes });
-
         const obj = {
             conv_id: tempConv.id,
             conversation: _l.pick(tempConv, [
@@ -526,9 +537,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     // update online users
-    updateOnlineUsers(context, onlineUsers) {
+    updateOnlineUsers(context, socketUsers) {
         return new Promise((resolve) => {
-            context.commit("updateOnlineUsers", onlineUsers);
+            context.commit("updateOnlineUsers", socketUsers);
             resolve(true);
         });
     },

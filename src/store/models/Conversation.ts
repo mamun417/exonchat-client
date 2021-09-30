@@ -2,6 +2,8 @@ import { Model } from "@vuex-orm/core";
 import ConversationSession from "src/store/models/ConversationSession";
 import Message from "src/store/models/Message";
 import ChatDepartment from "src/store/models/ChatDepartment";
+import helpers from "boot/helpers/helpers";
+import { values } from "lodash";
 
 export default class Conversation extends Model {
     // This is the name used as module name of the Vuex Store.
@@ -75,7 +77,7 @@ export default class Conversation extends Model {
             .where("id", this.id)
             .with("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery
-                    .where("socket_session_id", this.$store().getters["auth/profile"]?.socket_session?.id)
+                    .where("socket_session_id", helpers.getMySocketSessionId())
                     .with("socket_session.user");
             })
             .first();
@@ -83,27 +85,44 @@ export default class Conversation extends Model {
         return conversation?.conversation_sessions.length ? conversation.conversation_sessions[0] : {};
     }
 
-    // only use in agent panel
     get myUnseenMessageCount() {
         const conversation: any = this.$query()
             .where("id", this.id)
             .with("messages", (messageQuery) => {
                 messageQuery
                     .where("message_type", "message")
-                    .where(
-                        "socket_session_id",
-                        (value: any) => value !== this.$store().getters["auth/profile"]?.socket_session?.id
-                    )
+                    .where("socket_session_id", (value: any) => value !== helpers.getMySocketSessionId())
                     .where(
                         "created_at",
                         (value: any) =>
                             new Date(value).getTime() >
                             new Date(this.myConversationSession.last_msg_seen_time).getTime()
-                    )
-                    .with("socket_session");
+                    );
             })
             .first();
 
         return conversation?.messages.length || 0;
+    }
+
+    get getOthersLastMessageSeenTime() {
+        const conversation: any = this.$query()
+            .where("id", this.id)
+            .with("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery
+                    .where("socket_session_id", (value: any) => value !== helpers.getMySocketSessionId())
+                    .orderBy("last_msg_seen_time", "desc")
+                    .limit(1);
+            })
+            .first();
+
+        return conversation?.conversation_sessions.length
+            ? conversation?.conversation_sessions[0].last_msg_seen_time || 0
+            : 0;
+    }
+
+    get chatDepartment() {
+        const conversation: any = this.$query().where("id", this.id).with("chat_department").first();
+
+        return conversation?.chat_department || {};
     }
 }

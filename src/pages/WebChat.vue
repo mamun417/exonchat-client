@@ -126,7 +126,7 @@
                         <q-btn icon="more_horiz" flat dense>
                             <q-menu anchor="bottom right" self="top end" :class="$helpers.colors().defaultText">
                                 <q-list separator style="min-width: 200px">
-                                    <q-item clickable>
+                                    <q-item clickable v-if="conversationInfo.id">
                                         <send-transcript
                                             :conv_id="conversationInfo.id"
                                             @sendingTranscript="sendingTranscript = $event"
@@ -149,6 +149,7 @@
                                     <q-item
                                         v-if="conversationInfo.id && !conversationInfo.closed_at"
                                         @click="closeChatModal = true"
+                                        v-close-popup
                                         clickable
                                     >
                                         <q-item-section avatar class="tw-pr-2 tw-min-w-0">
@@ -217,7 +218,7 @@
 
                         <div v-show="!closeChatModal" class="tw-flex-grow tw-flex tw-flex-col tw-relative">
                             <div
-                                v-if="clientInitiateConvInfo.conv_id"
+                                v-if="clientInitiateConvInfo.conv_id && panelReady"
                                 id="webchat-container"
                                 class="tw-flex-grow tw-flex tw-flex-col"
                             >
@@ -254,13 +255,6 @@
                                     </template>
 
                                     <template v-slot:scroll-area-last-section>
-                                        <div
-                                            class="text-center"
-                                            :class="$helpers.colors().defaultText"
-                                            v-if="!conversationInfo.closed_at && !chatActiveStatus"
-                                        >
-                                            Chat is idle due to 10 minutes of inactivity
-                                        </div>
                                         <div v-if="clientInitiateConvInfo.showRatingForm" class="tw-mb-4">
                                             <chat-rating-form />
                                         </div>
@@ -316,7 +310,7 @@
                                             <div class="tw-my-7">
                                                 <div>
                                                     Welcome to our LiveChat! Please fill in the form below before
-                                                    starting the chat.
+                                                    starting the chat
                                                 </div>
 
                                                 <div
@@ -324,9 +318,10 @@
                                                     class="tw-my-2 tw-shadow-none tw-font-medium tw-flex tw-items-center tw-justify-between tw--mb-4"
                                                 >
                                                     <div class="text-green-8">
-                                                        You are currently logged in dashboard.
+                                                        You are currently logged in dashboard
                                                     </div>
                                                     <q-btn
+                                                        v-if="!whmcsAutoLogin"
                                                         @click="resetConvInitForm"
                                                         size="xs"
                                                         color="orange-8"
@@ -379,7 +374,7 @@
                                                 "
                                                 hide-bottom-space
                                                 option-value="id"
-                                                option-label="tag"
+                                                option-label="display_name"
                                                 label="Chat Department"
                                                 class="tw-mb-3"
                                                 :color="globalColor"
@@ -565,8 +560,6 @@ export default defineComponent({
             showNeedHelpText: false,
             showNeedHelpTextTimeout: null,
 
-            chatActiveStatus: true,
-
             closeChatModal: false,
             allCheck: false,
 
@@ -598,13 +591,16 @@ export default defineComponent({
                 user_info: {},
             },
             convInitFieldsErrors: {},
+
             msg: "",
-            pageInFocus: false,
-            pageNotInFocusEmitted: false,
             typingHandler: {
                 typing: false,
             },
+
+            pageInFocus: false,
+            pageNotInFocusEmitted: false,
             pageVisitingHandler: null,
+
             gotoBottomBtnShow: false,
             departmentAgentsOffline: false,
             successSubmitOfflineChatReq: localStorage.getItem("success_submit_offline_chat_req") || false,
@@ -616,11 +612,13 @@ export default defineComponent({
 
             whmcsInfoError: false,
             whmcsInfoAssigned: false,
+            whmcsAutoLogin: false,
+            getExonchatObjInterval: "",
             globalColor: "green-10",
             roundBtnHover: false,
             sendChatInitiateMsgInterval: "",
 
-            socketConnectError: false,
+            socketConnectError: null,
             sendingTranscript: false,
         };
     },
@@ -669,13 +667,7 @@ export default defineComponent({
                 }
 
                 if (event.data.res === "exonchat_obj" && event.data.value) {
-                    if (
-                        event.data.value.hasOwnProperty("whmcs_info") &&
-                        event.data.value.whmcs_info.clientId &&
-                        event.data.value.whmcs_info.clientEmail
-                    ) {
-                        this.getClientWhmcsInfo(event.data.value.whmcs_info);
-                    }
+                    this.getClientWhmcsInfo(event.data.value.whmcs_info);
                 }
 
                 // handle other res
@@ -708,24 +700,21 @@ export default defineComponent({
 
         showWhmcsLoginForm(): any {
             const departmentForWhmcsLogin = "support";
+            const selectedDepartment = this.convInitFields.department_tag?.toLowerCase();
 
-            if (this.convInitFields.department_tag !== departmentForWhmcsLogin) {
+            if (selectedDepartment !== departmentForWhmcsLogin) {
                 return false;
             }
 
             // get department info
             const departmentInfo = this.chatDepartments.find(
-                (department: any) => department.tag === departmentForWhmcsLogin
+                (department: any) => department.tag?.toLowerCase() == departmentForWhmcsLogin
             );
 
             // check is this department status online
             const checkDepartmentIsOnline = this.onlineChatDepartments.includes(departmentInfo.id);
 
-            return (
-                !this.whmcsInfoAssigned &&
-                this.convInitFields.department_tag === departmentForWhmcsLogin &&
-                checkDepartmentIsOnline
-            );
+            return !this.whmcsInfoAssigned && selectedDepartment === departmentForWhmcsLogin && checkDepartmentIsOnline;
         },
     },
 
@@ -989,6 +978,10 @@ export default defineComponent({
 
                 this.socketId = this.socket.id;
 
+                if (this.socketConnectError === true && !process.env.DEV) {
+                    location.reload();
+                }
+
                 this.socketConnectError = false;
             });
 
@@ -1020,11 +1013,9 @@ export default defineComponent({
 
             // successfully sent to user
             this.socket.on("ec_msg_to_client", (res: any) => {
-                this.chatActiveStatus = true;
-
                 this.$store.dispatch("chat/storeMessage", res);
 
-                // console.log('from ec_msg_to_client', res);
+                console.log("from ec_msg_to_client", res);
             });
             // this.socket.on('ec_is_typing_to_client', (res: any) => {
             //     console.log('from ec_is_typing_to_client', res);
@@ -1076,6 +1067,13 @@ export default defineComponent({
                 clearInterval(this.queuePositionInterval);
 
                 // console.log('from ec_is_closed_from_conversation', res);
+            });
+
+            this.socket.on("ec_conversation_session_updated", (res: any) => {
+                // handle this emit for all conversation session update like join left etc also. life will be easier
+                this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
+
+                // console.log("from ec_conversation_session_updated", res);
             });
 
             this.socket.on("ec_conv_queue_position_res", (res: any) => {
@@ -1181,7 +1179,7 @@ export default defineComponent({
         },
 
         fireOtherEvents() {
-            setInterval(() => {
+            this.getExonchatObjInterval = setInterval(() => {
                 window.parent.postMessage({ action: "getExonchatObj" }, "*");
             }, 3000);
 
@@ -1285,6 +1283,7 @@ export default defineComponent({
             this.convInitFields = {};
             this.convInitFieldsErrors = {};
             this.whmcsInfoAssigned = false;
+            clearInterval(this.getExonchatObjInterval);
         },
 
         reload() {
@@ -1309,6 +1308,9 @@ export default defineComponent({
                 this.convInitFields.email = whmcsInfo?.email;
 
                 this.whmcsInfoAssigned = true;
+                this.whmcsAutoLogin = true;
+
+                clearInterval(this.getExonchatObjInterval);
 
                 return;
             }
@@ -1322,7 +1324,7 @@ export default defineComponent({
             )
                 return;
 
-            window.api
+            window.socketSessionApi
                 .post("apps/whmcs/client-details", {
                     clientid: whmcsCredential?.clientId, // change key to client_id
                     email: whmcsCredential?.clientEmail,
@@ -1344,6 +1346,9 @@ export default defineComponent({
                     localStorage.setItem(`ec_update_storage_ec_whmcs_info_${this.api_key}`, JSON.stringify(res.data));
 
                     this.whmcsInfoAssigned = true;
+                    this.whmcsAutoLogin = true;
+
+                    clearInterval(this.getExonchatObjInterval);
                 })
                 .catch((err: any) => {
                     console.log(err.response);
@@ -1402,7 +1407,7 @@ export default defineComponent({
                     if (!model.loaded && !model.src) {
                         MessageAttachment.update({
                             where: model.id,
-                            data: { loaded: true },
+                            data: { loaded: true, status: "done" },
                         });
 
                         window.socketSessionApi

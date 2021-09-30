@@ -32,17 +32,10 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return {};
     },
 
-    myConversationSession: () => (convId: any, mySesId: any) => {
-        const conv: any = Conversation.query().where("id", convId).with("conversation_sessions").first();
+    myConversationSession: () => (convId: any) => {
+        const conv: any = Conversation.query().where("id", convId).first();
 
-        if (!conv) return {};
-
-        return (
-            _l.find(
-                conv.conversation_sessions,
-                (conversationSession: any) => conversationSession.socket_session_id === mySesId
-            ) || {}
-        );
+        return conv.myConversationSession || {};
     },
 
     conversationStatusForMe: () => (convId: any, mySesId: any) => {
@@ -191,13 +184,16 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
                     !conv.closed_at &&
                     (agentsLength.length > 1 ||
                         (agentsLength.length === 1 && !sesInfo) ||
-                        (agentsLength.length === 1 && sesInfo.left_at))
+                        (agentsLength.length === 1 && sesInfo.left_at) ||
+                        (agentsLength.length === 1 && !sesInfo.left_at && !sesInfo.joined_at))
                 );
             })
             .map((conv: any) => {
                 return {
                     connected_client: _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user),
-                    connected_agents: conv.sessions.filter((convSes: any) => convSes.socket_session.user),
+                    connected_agents: conv.sessions.filter(
+                        (convSes: any) => convSes.socket_session.user && convSes.joined_at
+                    ),
                     ...conv,
                 };
             });
@@ -295,7 +291,28 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         const authInfo = rootGetters["auth/profile"];
 
-        return Object.values(allUsers).filter((user: any) => authInfo.email !== user.email);
+        const users = Object.values(allUsers).filter((user: any) => authInfo.id !== user.id);
+
+        return _l
+            .sortBy(users, [
+                (user: any) => user.online_status === "online",
+                (user: any) => user.online_status === "offline",
+                (user: any) => user.online_status === "invisible",
+            ])
+            .reverse();
+    },
+    meAsChatUser(state, getters, rootState, rootGetters) {
+        const allUsers = state.chatUsers;
+
+        const authInfo = rootGetters["auth/profile"];
+
+        return Object.values(allUsers).find((user: any) => authInfo.id === user.id);
+    },
+
+    allAgent(state) {
+        const allUsers = state.chatUsers;
+
+        return Object.values(allUsers);
     },
 
     previousConversations(state) {

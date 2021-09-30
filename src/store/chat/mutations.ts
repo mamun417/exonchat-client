@@ -58,16 +58,12 @@ const mutation: MutationTree<ChatStateInterface> = {
     // update online users
     updateOnlineUsers(state: ChatStateInterface, socketUsers: any) {
         Object.values(state.chatUsers).map((user: any) => {
-            if (socketUsers[0]?.db_change) {
-                if (socketUsers[0].ses_id === user.socket_session.id) {
-                    user.online_status = socketUsers[0].online_status;
-                }
-            } else {
-                const foundSocketUser = _l.find(socketUsers, ["ses_id", user.socket_session.id]);
+            const socketUser = socketUsers[user.socket_session.id];
 
-                if (user.online_status === "online" && !foundSocketUser) {
-                    user.online_status = "offline";
-                }
+            if (!socketUser) {
+                user.online_status = "logout";
+            } else {
+                user.online_status = socketUser.online_status;
             }
         });
     },
@@ -114,7 +110,12 @@ const mutation: MutationTree<ChatStateInterface> = {
                 state.conversations[convId].ai_is_replying = convData.ai_is_replying;
             }
 
-            if (convData.hasOwnProperty("message") && convData.message) {
+            // keeping hasOwnProperty check for not break for other call
+            if ((convData.hasOwnProperty("message") && convData.message) || convData.message) {
+                if (convData.message.temp_id) {
+                    Message.delete(convData.message.temp_id);
+                }
+
                 Message.insert({ data: convData.message });
 
                 if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
@@ -124,6 +125,8 @@ const mutation: MutationTree<ChatStateInterface> = {
                 } else {
                     // later check for update time & replace
                 }
+
+                window.emitter.emit("message_inserted_or_updated", { conv_id: convId });
             }
 
             if (convData.hasOwnProperty("messages") && convData.messages.length) {
@@ -138,6 +141,8 @@ const mutation: MutationTree<ChatStateInterface> = {
                         // later check for update time & replace
                     }
                 });
+
+                window.emitter.emit("message_inserted_or_updated", { conv_id: convId });
             }
 
             // here sessions means [conversation_session...]
@@ -224,6 +229,13 @@ const mutation: MutationTree<ChatStateInterface> = {
                 );
 
                 if (convSession) {
+                    ConversationSession.update({
+                        where: convSession.id,
+                        data: {
+                            last_msg_seen_time: convData.last_msg_seen_time,
+                        },
+                    });
+
                     convSession.last_msg_seen_time = convData.last_msg_seen_time;
                 }
             }

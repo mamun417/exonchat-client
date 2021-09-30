@@ -30,15 +30,15 @@
                     </template>
 
                     <template v-slot:cell-intent="slotProps">
-                        <div class="tw-text-xxs tw-text-gray-700">
+                        <div>
                             {{ slotProps.row.intent ? "@" + slotProps.row.intent.tag : "" }}
                         </div>
                     </template>
 
                     <template v-slot:cell-msg="slotProps">
-                        <div class="tw-text-xxs tw-font-medium">
+                        <div class="tw-whitespace-normal">
                             <template v-if="slotProps.row.intent">
-                                <div class="tw-text-xxs">
+                                <div>
                                     {{ slotProps.row.intent.content.content }}
                                     <q-inner-loading :showing="!!slotProps.row.intent.content.loading">
                                         <q-spinner-dots size="sm" color="green" />
@@ -52,7 +52,7 @@
                     </template>
 
                     <template v-slot:cell-chat_department="slotProps">
-                        <div class="tw-text-xxs tw-text-gray-700">
+                        <div>
                             {{ slotProps.row.chat_department?.tag }}
                         </div>
                     </template>
@@ -102,17 +102,17 @@ export default defineComponent({
     data(): any {
         return {
             columns: [
-                { name: "tag", align: "center", label: "Tag Name", field: "tag" },
-                { name: "intent", align: "center", label: "Intent", field: "intent" },
+                { name: "tag", align: "left", label: "Tag Name", field: "tag" },
+                { name: "intent", align: "left", label: "Intent", field: "intent" },
                 {
                     name: "msg",
-                    align: "center",
+                    align: "left",
                     label: "Message",
                     field: "msg",
                 },
                 {
                     name: "chat_department",
-                    align: "center",
+                    align: "left",
                     label: "Department",
                     field: "chat_department",
                 },

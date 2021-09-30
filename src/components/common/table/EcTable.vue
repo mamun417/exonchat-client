@@ -1,14 +1,23 @@
 <template>
-    <q-table :rows="rows" :columns="columns" row-key="name" :pagination="{ rowsPerPage: 0 }" hide-pagination flat>
+    <q-table
+        :rows="rows"
+        :columns="columns"
+        row-key="name"
+        :pagination="{ rowsPerPage: 0 }"
+        class="tw-p-4 tw-py-0"
+        hide-pagination
+        flat
+    >
         <template v-if="!hideSearch" v-slot:top-left>
             <q-input
                 @update:model-value="handlePipeline"
                 :model-value="searchValue"
                 dense
                 debounce="300"
-                placeholder="Search"
+                :placeholder="searchPlaceholder"
                 :color="globalColor"
                 clearable
+                style="width: 350px"
             >
                 <template v-slot:append>
                     <q-icon name="search" />
@@ -115,6 +124,7 @@ export default defineComponent({
     name: "EcTable",
     components: { DeleteBtn, EditBtn, ItalicBold },
     props: {
+        searchPlaceholder: { type: String, default: "Search" },
         searchValue: { type: String, default: "" },
         rows: [],
         columns: [],

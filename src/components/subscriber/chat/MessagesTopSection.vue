@@ -24,33 +24,35 @@
                 </q-item-section>
 
                 <q-item-section class="tw-w-full">
-                    <q-item-label
-                        class="text-weight-bold"
-                        :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg', $helpers.colors().defaultText]"
-                    >
+                    <q-item-label :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg', $helpers.colors().defaultText]">
                         <div v-for="{ socket_session } in conversationWithUsersInfo" :key="socket_session.id">
-                            <span class="text-capitalize tw-mr-1">{{
-                                socket_session.user
-                                    ? socket_session.user.user_meta.display_name
-                                    : socket_session.init_name
-                            }}</span>
+                            <div class="text-capitalize tw-mr-1 text-weight-bold">
+                                {{
+                                    socket_session.user
+                                        ? socket_session.user.user_meta.display_name
+                                        : socket_session.init_name
+                                }}
+                            </div>
+                            <div class="tw-text-sm" v-if="conversationInfo.users_only">
+                                {{ socket_session.user ? socket_session.user.email : socket_session.init_email }}
+                            </div>
                             <!--<span class="text-caption">({{ socket_session.user ? 'agent' : 'client' }})</span>-->
                         </div>
                     </q-item-label>
                     <q-item-label caption>
-                        <q-badge
-                            v-if="conversationWithUsersInfo[0]?.socket_session.user"
-                            :color="
-                                agentOnlineStatus === 'online'
-                                    ? 'green'
-                                    : agentOnlineStatus === 'offline'
-                                    ? 'red-6'
-                                    : 'grey'
-                            "
-                            :class="{ 'tw-px-2 tw-pb-1': !mini_mode }"
-                        >
-                            {{ agentOnlineStatus }}
-                        </q-badge>
+                        <!--<q-badge-->
+                        <!--    v-if="conversationWithUsersInfo[0]?.socket_session.user"-->
+                        <!--    :color="-->
+                        <!--        agentOnlineStatus === 'online'-->
+                        <!--            ? 'green'-->
+                        <!--            : agentOnlineStatus === 'offline'-->
+                        <!--            ? 'red-6'-->
+                        <!--            : 'grey'-->
+                        <!--    "-->
+                        <!--    :class="{ 'tw-px-2 tw-pb-1': !mini_mode }"-->
+                        <!--&gt;-->
+                        <!--    {{ agentOnlineStatus }}-->
+                        <!--</q-badge>-->
 
                         <!--<q-badge
                             v-else
@@ -183,7 +185,7 @@
                                         <!--                                            <q-icon name="confirmation_number" />-->
                                         <!--                                        </q-item-section>-->
                                         <q-item-section
-                                            @click="openTicketModal = true"
+                                            @click="showOpenTicketModal"
                                             :class="$helpers.colors().defaultText"
                                             >Open Ticket
                                         </q-item-section>
@@ -241,7 +243,7 @@
                                         </q-item-section>
                                     </q-item>
 
-                                    <q-item clickable>
+                                    <q-item v-if="canSendTranscript" clickable>
                                         <send-transcript
                                             :conv_id="conversationInfo.id"
                                             @sendingTranscript="sendingTranscript = $event"
@@ -288,20 +290,68 @@
 
         <q-dialog v-model="openTicketModal">
             <q-card style="min-width: 350px">
-                <q-card-section class="tw-border-b-2 tw-py-3 tw-px-2">
-                    <span class="q-ml-sm">You are going to open a support ticket</span>
+                <q-card-section class="row items-center tw-border-b tw-border-blue-grey-500 tw-px-6">
+                    <div class="tw-text-lg" :class="`text-${globalColor}`">You are going to open a support ticket</div>
+
+                    <q-space></q-space>
+
+                    <q-btn icon="close" color="orange-3" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
-                <q-card-section>
-                    <div class="tw-text-xs">Write ticket subject</div>
-                    <q-input v-model="ticketSubject" placeholder="Subject" dense></q-input>
+                <q-card-section class="tw-px-6">
+                    <q-input
+                        v-model="openTicketForm.subject"
+                        :error-message="openTicketFormError.subject"
+                        :error="!!openTicketFormError.subject"
+                        @update:model-value="openTicketFormError.subject = ''"
+                        :color="globalColor"
+                        placeholder="Subject"
+                        class="tw-mb-3"
+                        no-error-icon
+                        hide-bottom-space
+                        dense
+                    ></q-input>
+
+                    <q-select
+                        v-model="openTicketForm.department_id"
+                        :error-message="openTicketFormError.department_id"
+                        :error="!!openTicketFormError.department_id"
+                        @update:model-value="openTicketFormError.department_id = ''"
+                        :options="supportDepartments"
+                        no-error-icon
+                        hide-bottom-space
+                        option-value="id"
+                        option-label="name"
+                        label="Select Department"
+                        class="tw-mb-3"
+                        :color="globalColor"
+                        emit-value
+                        map-options
+                        dense
+                    />
+
+                    <q-select
+                        v-model="openTicketForm.priority"
+                        :error-message="openTicketFormError.priority"
+                        :error="!!openTicketFormError.priority"
+                        @update:model-value="openTicketFormError.priority = ''"
+                        :options="['Low', 'Medium', 'High']"
+                        no-error-icon
+                        hide-bottom-space
+                        label="Select Priority"
+                        class="tw-mb-3"
+                        :color="globalColor"
+                        emit-value
+                        map-options
+                        dense
+                    />
                 </q-card-section>
 
                 <q-card-section class="tw-py-3 text-center">
-                    <q-btn label="Submit" color="green" class="full-width" @click="openTicket" unelevated />
+                    <q-btn label="Submit" :color="globalColor" class="full-width" @click="openTicket" unelevated />
                 </q-card-section>
 
-                <q-inner-loading :showing="ticketSubmitLoader" color="green" />
+                <q-inner-loading :showing="ticketSubmitLoader" :color="globalColor" />
             </q-card>
         </q-dialog>
 
@@ -372,12 +422,21 @@ export default defineComponent({
 
             openTicketModal: false,
             ticketSubmitLoader: false,
-            ticketSubject: "",
+
+            supportDepartments: [],
+
+            openTicketForm: {
+                subject: "",
+                department_id: "",
+                priority: "",
+            },
+            openTicketFormError: {},
 
             showChatTransferModal: false,
             transferChatToExpand: false,
             transferChatToFilter: "",
             sendingTranscript: false,
+            chatDurationInterval: "",
         };
     },
 
@@ -386,7 +445,7 @@ export default defineComponent({
             this.clientActiveStatus = res.status === "active";
         });
 
-        setInterval(() => {
+        this.chatDurationInterval = setInterval(() => {
             if (
                 this.$route.name === "chats" &&
                 this.conversationWithUsersInfo?.length &&
@@ -398,6 +457,10 @@ export default defineComponent({
         }, 1000);
 
         console.log("msg top section initiated");
+    },
+
+    beforeUnmount() {
+        clearInterval(this.chatDurationInterval);
     },
 
     computed: {
@@ -447,6 +510,10 @@ export default defineComponent({
             return this.canClose;
         },
 
+        canSendTranscript(): any {
+            return this.conversationStatusForMe === "joined";
+        },
+
         conversationWithUsersInfo(): any {
             return this.$store.getters["chat/conversationWithUsersInfo"](
                 this.conv_id,
@@ -482,19 +549,39 @@ export default defineComponent({
             this[`${this.modalForState}Conversation`](this.conv_id);
         },
 
+        showOpenTicketModal() {
+            this.resetOpenTicketForm();
+
+            this.ticketSubmitLoader = true;
+            this.openTicketModal = true;
+
+            // get support departments from WHMCS
+            window
+                .api("apps/whmcs/support-departments")
+                .then((res: any) => {
+                    this.supportDepartments = res.data;
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                })
+                .finally(() => {
+                    this.ticketSubmitLoader = false;
+                });
+        },
+
         openTicket() {
             this.ticketSubmitLoader = true;
 
             this.$store
                 .dispatch("ticket/storeTicket", {
                     conv_id: this.conv_id,
-                    inputs: {
-                        subject: this.ticketSubject,
-                    },
+                    inputs: this.openTicketForm,
                 })
                 .then(() => {
                     this.$helpers.showSuccessNotification(this, "Ticket submitted successfully");
-                    this.ticketSubject = "";
+
+                    this.resetOpenTicketForm();
+                    this.openTicketModal = false;
 
                     // reload ticket list
                     this.$store.dispatch("ticket/getTickets", {
@@ -502,28 +589,27 @@ export default defineComponent({
                     });
                 })
                 .catch((e: any) => {
-                    console.log(e);
-                    this.$helpers.showErrorNotification(this, e.response.data.message);
+                    this.openTicketErrorHandle(e);
                 })
                 .finally(() => {
-                    this.openTicketModal = false;
                     this.ticketSubmitLoader = false;
                 });
+        },
 
-            // window.socketSessionApi
-            //     .post(`/apps/whmcs/tickets/open/${this.conv_id}`, { subject: this.ticketSubject })
-            //     .then(() => {
-            //         this.$helpers.showSuccessNotification(this, "Ticket submitted successfully");
-            //         this.ticketSubject = "";
-            //     })
-            //     .catch((e: any) => {
-            //         console.log(e);
-            //         this.$helpers.showErrorNotification(this, e.response.data.message);
-            //     })
-            //     .finally(() => {
-            //         this.openTicketModal = false;
-            //         this.ticketSubmitLoader = false;
-            //     });
+        openTicketErrorHandle(err: any) {
+            if (this.$_.isObject(err.response.data.message)) {
+                this.openTicketFormError = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
+        },
+
+        resetOpenTicketForm() {
+            this.openTicketForm.subject = "";
+            this.openTicketForm.department_id = "";
+            this.openTicketForm.priority = "";
+
+            this.openTicketFormError = {};
         },
 
         joinConversation(conv_id: any) {

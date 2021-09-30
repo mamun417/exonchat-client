@@ -6,11 +6,9 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow tw-bg-white tw-p-4">
-                <!--                {{ visitors }}-->
                 <ec-table :rows="visitors" :columns="columns">
                     <template v-slot:cell-client="slotProps">
-                        <div class="">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
+                        <div class="tw-uppercase tw-text-xs">
                             {{
                                 sessionInfo(slotProps.row.session_id)?.init_name ||
                                 `Visitor#${slotProps.row.session_id.slice(-8)}`
@@ -18,27 +16,48 @@
                         </div>
                     </template>
 
-                    <template v-slot:cell-location="slotProps">
-                        {{ slotProps.row.session_info?.init_location?.country?.names?.en || "Unknown" }}</template
-                    >
+                    <template v-slot:cell-location="slotProps"> {{ slotProps.row.init_location }}</template>
 
                     <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }}</template>
 
                     <template v-slot:cell-chats> 0</template>
 
                     <template v-slot:cell-url="slotProps">
-                        <div class="">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
-                            {{ $_.last(slotProps.row.visits).url }}
+                        <div>
+                            <a
+                                :href="$_.last(slotProps.row.visits).url"
+                                class="text-blue-5 tw-font-medium tw-whitespace-pre-wrap"
+                                >{{ $_.last(slotProps.row.visits).title }}</a
+                            >
                         </div>
                     </template>
 
-                    <template v-slot:cell-stay_time="slotProps">
-                        <div class="">
-                            <!-- <pre>{{ slotProps.row }}</pre> -->
-                            {{ $helpers.diffAsMinute($_.last(slotProps.row.visits).first_visit_time) }}
+                    <template v-slot:cell-activity="slotProps">
+                        <div class="tw-flex tw-items-center tw-justify-end tw-gap-2">
+                            <!--{{ $_.last(slotProps.row.visits).visiting }}-->
+                            <q-icon
+                                name="fa fa-circle"
+                                size="8px"
+                                :color="$_.last(slotProps.row.visits).visiting ? 'green-8' : 'grey-6'"
+                            />
+                            <div
+                                class="tw-font-medium"
+                                :class="{
+                                    'text-green-8': $_.last(slotProps.row.visits).visiting,
+                                    'text-grey-8': !$_.last(slotProps.row.visits).visiting,
+                                }"
+                            >
+                                {{ $_.last(slotProps.row.visits).visiting ? "Visiting" : "Not Visiting" }}
+                            </div>
                         </div>
                     </template>
+
+                    <!--<template v-slot:cell-stay_time="slotProps">-->
+                    <!--    <div class="">-->
+                    <!--        &lt;!&ndash; <pre>{{ slotProps.row }}</pre> &ndash;&gt;-->
+                    <!--        {{ $helpers.diffAsMinute($_.last(slotProps.row.visits).first_visit_time) }}-->
+                    <!--    </div>-->
+                    <!--</template>-->
                 </ec-table>
             </div>
         </div>
@@ -49,6 +68,7 @@
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 import EcTable from "components/common/table/EcTable.vue";
+import SocketSession from "src/store/models/SocketSession";
 
 const columns = [
     {
@@ -78,9 +98,13 @@ const columns = [
         label: "Chats",
     },
     {
-        name: "stay_time",
-        label: "Time On Site",
+        name: "activity",
+        label: "Activity",
     },
+    // {
+    //     name: "stay_time",
+    //     label: "Time On Site",
+    // },
 ];
 
 export default defineComponent({
@@ -88,7 +112,9 @@ export default defineComponent({
         EcTable,
     },
     data(): any {
-        return {};
+        return {
+            visitorInterval: "",
+        };
     },
 
     setup() {
@@ -106,23 +132,18 @@ export default defineComponent({
 
     methods: {
         sessionInfo(sesId: any) {
-            let ses = null;
-            this.clientsConversation.find((conv: any) =>
-                conv.sessions.find((convSes: any) => {
-                    if (convSes.socket_session_id === sesId) {
-                        ses = convSes.socket_session;
-                    }
-                })
-            );
-
-            return ses;
+            return SocketSession.find(sesId) || {};
         },
     },
 
     mounted() {
-        setInterval(() => {
+        this.visitorInterval = setInterval(() => {
             this.$forceUpdate();
         }, 10000);
+    },
+
+    beforeUnmount() {
+        clearInterval(this.visitorInterval);
     },
 });
 </script>

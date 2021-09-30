@@ -4,19 +4,7 @@
         ref="msgScrollArea"
         class="tw-px-0 tw-flex-grow tw-text-xs"
         style="height: 1px"
-        :bar-style="{
-            background: 'grey',
-            width: '8px',
-            borderRadius: '5px',
-            zIndex: 99999,
-        }"
-        :thumb-style="{
-            borderRadius: '5px',
-            backgroundColor: '#bec3cd',
-            width: '8px',
-            opacity: 0.7,
-            zIndex: 99999,
-        }"
+        :thumb-style="$helpers.getThumbStyle()"
         :content-style="{}"
     >
         <!--        debounce is for load spam-->
@@ -196,147 +184,164 @@
                             </div>
 
                             <!--                            message-->
-                            <q-card
-                                v-if="message.message_type === 'message'"
-                                class="tw-pb-0 tw-my-4"
-                                :class="[
-                                    mini_mode ? 'tw-shadow-none' : 'tw-shadow-sm',
-                                    isAgentChatPanel ? '' : 'ec-widget-message-card-container',
-                                ]"
-                                :style="
-                                    checkOwnMessage(message)
-                                        ? `background-color: ${
-                                              isAgentChatPanel ? '#f0f5f8' : 'rgba(46, 104, 44, 0.04)'
-                                          }`
-                                        : ''
-                                "
-                            >
-                                <q-card-section class="tw-px-0 tw-flex tw-py-3" :class="{ 'tw-py-2': mini_mode }">
-                                    <div
-                                        class="tw-flex-shrink-0 tw-flex tw-justify-center"
-                                        :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
-                                    >
-                                        <ec-avatar
-                                            :size="mini_mode ? 'lg' : 'xl'"
-                                            :image_src="
-                                                msgSenderInfo(message, index).type === 'ai'
-                                                    ? 'fas fa-robot'
-                                                    : msgSenderInfo(message, index).src
-                                            "
-                                            :name="msgSenderInfo(message, index).img_alt_name"
-                                            :is_icon="msgSenderInfo(message, index).type === 'ai'"
-                                            :email="msgSenderInfo(message, index).email"
-                                            class=""
-                                        >
-                                            <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
-                                        </ec-avatar>
-                                    </div>
-                                    <div class="tw-pr-4 tw-text-base tw-w-full">
+                            <div v-if="message.message_type === 'message'" class="tw-pb-0 tw-my-4">
+                                <q-card
+                                    :class="[
+                                        mini_mode ? 'tw-shadow-none' : 'tw-shadow-sm',
+                                        isAgentChatPanel ? '' : 'ec-widget-message-card-container',
+                                    ]"
+                                    :style="
+                                        checkOwnMessage(message)
+                                            ? `background-color: ${
+                                                  isAgentChatPanel ? '#f0f5f8' : 'rgba(46, 104, 44, 0.04)'
+                                              }`
+                                            : ''
+                                    "
+                                >
+                                    <q-card-section class="tw-px-0 tw-flex tw-py-3" :class="{ 'tw-py-2': mini_mode }">
                                         <div
-                                            class="tw-flex tw-justify-between tw-items-center"
-                                            :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
+                                            class="tw-flex-shrink-0 tw-flex tw-justify-center"
+                                            :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
                                         >
-                                            <div class="tw-flex tw-items-center tw-gap-2 tw-mr-4">
-                                                <div
-                                                    :class="`tw-font-bold tw-capitalize text-${globalColor} tw-text-sm`"
-                                                >
-                                                    {{ msgSenderInfo(message, index).display_name }}
-                                                </div>
-                                                <div v-if="!isAgentToAgentConversation && isAgentChatPanel">
-                                                    <div
-                                                        class="tw-rounded-sm tw-text-xxs tw-px-1 tw-uppercase"
-                                                        :class="{ '': msgSenderInfo(message, index).type === 'client' }"
-                                                        style="border: 1px solid"
-                                                        :style="{
-                                                            backgroundColor:
-                                                                msgSenderInfo(message, index).type === 'client'
-                                                                    ? '#f0f5f8'
-                                                                    : '#00568b',
-                                                            borderColor:
-                                                                msgSenderInfo(message, index).type === 'client'
-                                                                    ? '#cddee8'
-                                                                    : '#003658',
-                                                            color:
-                                                                msgSenderInfo(message, index).type === 'client'
-                                                                    ? '#333'
-                                                                    : '#fff',
-                                                        }"
-                                                    >
-                                                        {{
-                                                            msgSenderInfo(message, index).type === "agent"
-                                                                ? "staff"
-                                                                : msgSenderInfo(message, index).type
-                                                        }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div :class="$helpers.colors().defaultText">
-                                            <div
-                                                v-for="(msgItem, index) of message.messageArray"
-                                                :key="index"
-                                                class="tw-flex tw-justify-between tw-gap-2"
+                                            <ec-avatar
+                                                :size="mini_mode ? 'lg' : 'xl'"
+                                                :image_src="
+                                                    msgSenderInfo(message).type === 'ai'
+                                                        ? 'fas fa-robot'
+                                                        : msgSenderInfo(message).src
+                                                "
+                                                :name="msgSenderInfo(message).img_alt_name"
+                                                :is_icon="msgSenderInfo(message).type === 'ai'"
+                                                :email="msgSenderInfo(message).email"
+                                                class=""
                                             >
-                                                <div>
-                                                    <div class="tw-text-sm tw-my-2">
-                                                        <pre
-                                                            v-html="$helpers.makeCLickAbleLink(msgItem.msg)"
-                                                            class="tw-whitespace-normal"
-                                                            style="
-                                                                font-family: inherit;
-                                                                word-break: break-word;
-                                                                white-space: break-spaces;
-                                                            "
-                                                        ></pre>
-                                                    </div>
-
-                                                    <!--attachment-->
+                                                <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
+                                            </ec-avatar>
+                                        </div>
+                                        <div class="tw-pr-4 tw-text-base tw-w-full">
+                                            <div
+                                                class="tw-flex tw-justify-between tw-items-center"
+                                                :class="{ 'tw-mb-2': mini_mode, 'tw-mb-3': !mini_mode }"
+                                            >
+                                                <div class="tw-flex tw-items-center tw-gap-2 tw-mr-4">
                                                     <div
-                                                        v-if="msgItem.attachments && msgItem.attachments.length"
-                                                        class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
+                                                        :class="`tw-font-bold tw-capitalize text-${globalColor} tw-text-sm`"
                                                     >
+                                                        {{ msgSenderInfo(message).display_name }}
+                                                    </div>
+                                                    <div v-if="!isAgentToAgentConversation && isAgentChatPanel">
                                                         <div
-                                                            v-for="attachment in msgItem.attachments"
-                                                            :key="attachment.id"
-                                                            style="width: 200px; max-height: 200px"
-                                                            class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                                            class="tw-rounded-sm tw-text-xxs tw-px-1 tw-uppercase"
+                                                            :class="{
+                                                                '': msgSenderInfo(message).type === 'client',
+                                                            }"
+                                                            style="border: 1px solid"
+                                                            :style="{
+                                                                backgroundColor:
+                                                                    msgSenderInfo(message).type === 'client'
+                                                                        ? '#f0f5f8'
+                                                                        : '#00568b',
+                                                                borderColor:
+                                                                    msgSenderInfo(message).type === 'client'
+                                                                        ? '#cddee8'
+                                                                        : '#003658',
+                                                                color:
+                                                                    msgSenderInfo(message).type === 'client'
+                                                                        ? '#333'
+                                                                        : '#fff',
+                                                            }"
                                                         >
-                                                            <q-img
-                                                                fit="cover"
-                                                                spinner-color="green"
-                                                                @click="
-                                                                    attachmentPreview = attachment;
-                                                                    attachmentPreviewModal = true;
-                                                                "
-                                                                :src="attachment.src"
-                                                            >
-                                                                <q-tooltip
-                                                                    :class="globalBgColor"
-                                                                    anchor="bottom middle"
-                                                                    :offset="[10, 10]"
-                                                                    >{{ attachment.original_name }}
-                                                                </q-tooltip>
-                                                            </q-img>
+                                                            {{
+                                                                msgSenderInfo(message).type === "agent"
+                                                                    ? "staff"
+                                                                    : msgSenderInfo(message).type
+                                                            }}
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </div>
 
+                                            <div :class="$helpers.colors().defaultText">
                                                 <div
-                                                    class="tw-whitespace-nowrap"
-                                                    :class="{
-                                                        'tw-text-xxs': mini_mode,
-                                                        'tw-text-xs': !mini_mode,
-                                                        [$helpers.colors().dateTimeText]: true,
-                                                    }"
+                                                    v-for="(msgItem, index) of message.messageArray"
+                                                    :key="index"
+                                                    class="tw-flex tw-justify-between tw-gap-2 tw-my-2"
                                                 >
-                                                    {{ getDateTime(msgItem.created_at) }}
+                                                    <div>
+                                                        <div class="tw-text-sm">
+                                                            <pre
+                                                                v-html="$helpers.makeCLickAbleLink(msgItem.msg)"
+                                                                class="tw-whitespace-normal"
+                                                                style="
+                                                                    font-family: inherit;
+                                                                    word-break: break-word;
+                                                                    white-space: break-spaces;
+                                                                "
+                                                            ></pre>
+                                                        </div>
+
+                                                        <!--attachment-->
+                                                        <div
+                                                            v-if="msgItem.attachments && msgItem.attachments.length"
+                                                            class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
+                                                        >
+                                                            <div
+                                                                v-for="attachment in msgItem.attachments"
+                                                                :key="attachment.id"
+                                                                style="height: 150px; min-width: 150px"
+                                                                class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                                            >
+                                                                <q-img
+                                                                    height="100%"
+                                                                    fit="cover"
+                                                                    spinner-color="green"
+                                                                    @click="
+                                                                        attachmentPreview = attachment;
+                                                                        attachmentPreviewModal = true;
+                                                                    "
+                                                                    :src="attachment.src"
+                                                                >
+                                                                    <q-tooltip
+                                                                        :class="globalBgColor"
+                                                                        anchor="bottom middle"
+                                                                        :offset="[10, 10]"
+                                                                        >{{ attachment.original_name }}
+                                                                    </q-tooltip>
+
+                                                                    <q-inner-loading
+                                                                        :showing="attachment.status !== 'done'"
+                                                                        color="white"
+                                                                    />
+                                                                </q-img>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="tw-flex tw-items-center tw-gap-1">
+                                                        <div
+                                                            class="tw-whitespace-nowrap"
+                                                            :class="{
+                                                                'tw-text-xxs': mini_mode,
+                                                                'tw-text-xs': !mini_mode,
+                                                                [$helpers.colors().dateTimeText]: true,
+                                                            }"
+                                                        >
+                                                            {{ getDateTime(msgItem.created_at) }}
+                                                        </div>
+
+                                                        <q-icon
+                                                            v-if="msgItem.isMyMsg"
+                                                            :name="messageStatusIconName(msgItem)"
+                                                            :color="messageStatusIconColor(msgItem)"
+                                                            size="12px"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </q-card-section>
-                            </q-card>
+                                    </q-card-section>
+                                </q-card>
+                            </div>
 
                             <!-- keep this block here cz it will show after the last message-->
                             <div
@@ -483,6 +488,10 @@
         <q-scroll-observer :debounce="200" @scroll="scrollObserverHandle" />
     </q-scroll-area>
 
+    <div v-if="showFileErrorMsg" class="text-orange-8 tw--mb-2 tw-mt-1 tw-text-xs">
+        Valid file type: jpg, jpeg, gif, png and File size max: 5 MB.
+    </div>
+
     <div
         style="border-top: 1px solid rgba(0, 0, 0, 0.08)"
         v-if="showSendMessageInput"
@@ -495,12 +504,10 @@
             ref="attachment_uploader"
             class="hidden"
             accept=".jpg, .jpeg, .png, .gif"
-            max-files="5"
-            :max-file-size="1024 * 1024 * 1"
+            :max-files="attachmentConfig.maxFiles"
             multiple
             append
             @update:model-value="attachmentUploaderHandle"
-            @rejected="handleAttachmentReject"
         />
 
         <div class="tw-flex tw-flex-col tw-justify-end">
@@ -538,6 +545,8 @@
                 @keyup="keyUpHandle"
                 @focus="inputFocusHandle"
                 @blur="inputBlurHandle"
+                @paste="imageLoadOnPast"
+                @drop="imageLoadOnPast"
                 hide-bottom-space
                 autogrow
                 borderless
@@ -581,7 +590,9 @@
                             <q-item-section>
                                 <q-item-label>
                                     <div class="tw-flex tw-items-center tw-gap-3">
-                                        <div class="tw-text-sm tw-font-medium">/{{ template.tag }}</div>
+                                        <div class="tw-text-sm tw-font-medium tw-whitespace-nowrap">
+                                            /{{ template.tag }}
+                                        </div>
                                         <div
                                             class="tw-text-xs tw-overflow-hidden tw-whitespace-nowrap tw-overflow-ellipsis"
                                             :class="$helpers.colors().defaultText"
@@ -646,21 +657,6 @@
                 @click="sendMessage"
             ></q-btn>
         </div>
-
-        <q-dialog v-model="attachmentPreviewModal" full-width>
-            <q-responsive class="no-shadow" :ratio="1">
-                <q-img fit="contain" :src="attachmentPreview.src" spinner-color="green" class="attachment-preview">
-                    <div class="absolute-bottom text-subtitle1 text-center">
-                        {{ attachmentPreview.original_name }}
-                    </div>
-                    <q-badge class="tw-cursor-pointer" floating v-close-popup>
-                        <q-icon name="close" class="text-orange tw-text-lg" />
-                    </q-badge>
-                </q-img>
-            </q-responsive>
-
-            <q-btn class="hidden" />
-        </q-dialog>
     </div>
 
     <div
@@ -686,7 +682,7 @@
             />
 
             <send-transcript
-                v-if="conversationConnectedUsers.length || conversationData.closed_at"
+                v-if="canSendTranscript && (conversationConnectedUsers.length || conversationData.closed_at)"
                 :conv_id="conv_id"
             />
 
@@ -703,6 +699,12 @@
             />
         </div>
     </div>
+
+    <attachment-view-modal
+        v-if="attachmentPreviewModal"
+        :attachment-preview="attachmentPreview"
+        @hide="attachmentPreviewModal = false"
+    />
 </template>
 
 <script lang="ts">
@@ -717,10 +719,15 @@ import EcAvatar from "./EcAvatar.vue";
 import EcEmoji from "components/common/EcEmoji.vue";
 import SendTranscript from "components/common/SendTranscript.vue";
 import SocketSession from "src/store/models/SocketSession";
+import Message from "src/store/models/Message";
+import AttachmentViewModal from "components/subscriber/message/attachment/AttachmentViewModal.vue";
+import MessageAttachment from "src/store/models/MessageAttachment";
+import ConversationSession from "src/store/models/ConversationSession";
+import { date } from "quasar";
 
 export default defineComponent({
     name: "Message",
-    components: { SendTranscript, EcEmoji, EcAvatar },
+    components: { AttachmentViewModal, SendTranscript, EcEmoji, EcAvatar },
     props: {
         conv_id: {
             type: String,
@@ -758,12 +765,14 @@ export default defineComponent({
             gettingNewMessages: false, // we could also use conv's loading state but it's will be a disaster here
             newMessagesMayBeLoaded: false,
             canCallMessageApi: true,
+            canSendNextMsg: true,
 
             convId: "",
             confirm: false,
             convState: "",
 
             msg: "",
+            tempMsgId: "",
             typingInstance: null,
             msgInputFocused: false,
             gotoBottomBtnShow: false,
@@ -790,6 +799,7 @@ export default defineComponent({
 
             scrollInfo: {},
             scrollCheckInterval: null,
+            updateLastMsgSeenTimeTimer: null,
 
             scrollbarCanHandleScrollEvent: false,
 
@@ -797,20 +807,40 @@ export default defineComponent({
 
             timeToShowSpeakingInfo: false,
             clientPanelGlobalColor: "green-10",
+            showFileErrorMsg: false,
+            showFileErrorMsgInterval: "",
+            attachmentConfig: {
+                maxFileSize: 1024 * 1024 * 5, // 5 MB
+                maxFiles: 5,
+            },
+            forceUpdateInterval: "",
         };
     },
 
     mounted() {
-        setInterval(() => {
+        this.getDraft();
+
+        this.forceUpdateInterval = setInterval(() => {
             this.$forceUpdate();
         }, 30000);
 
         this.fireSocketListeners();
         this.emitSocketEvents();
+
+        this.$emitter.on("message_inserted_or_updated", (res: any) => {
+            if (res.conv_id === this.conv_id) {
+                setTimeout(() => this.scrollToPosition(), 300);
+            }
+        });
+
+        window.onbeforeunload = (e: any) => {
+            this.saveDraft();
+        };
     },
 
     beforeUnmount() {
         clearInterval(this.ecGetClientSesIdStatusInterval);
+        clearInterval(this.forceUpdateInterval);
 
         if (this.chatPanelType === "user" && !this.conversationData.users_only) {
             this.$socket.removeEventListener("ec_get_client_ses_id_status_res");
@@ -850,7 +880,11 @@ export default defineComponent({
         },
 
         myConversationSession(): any {
-            return this.$store.getters["chat/myConversationSession"](this.conv_id, this.ses_id);
+            return this.conversationData.myConversationSession;
+        },
+
+        othersLastMessageSeenTime(): any {
+            return new Date(this.conversationData.getOthersLastMessageSeenTime).getTime();
         },
 
         messages(): any {
@@ -915,9 +949,7 @@ export default defineComponent({
         typingState(): any {
             const states = this.$store.getters["chat/typingState"](this.conv_id);
 
-            return states.filter((state: any) => {
-                return state.status === "typing";
-            });
+            return states.filter((state: any) => state.status === "typing");
         },
 
         getSendBtnStatus(): any {
@@ -993,21 +1025,69 @@ export default defineComponent({
         conversationConnectedUsers(): any {
             return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
         },
+
+        canSendTranscript(): any {
+            const sortedAgents = _l.sortBy(
+                this.conversationConnectedUsers.filter(
+                    (conversationConnectedUser: any) => !conversationConnectedUser.left_at
+                ),
+                (convSes: any) => moment(convSes.joined_at).format("x")
+            );
+
+            return !!(sortedAgents.length && sortedAgents[0].socket_session_id === this.profile?.socket_session?.id);
+        },
     },
 
     methods: {
         scrollObserverHandle(info: any) {
             // go up, assume that scroll happened manually so update
-            if (info.direction === "up") {
+
+            // check this.scrollInfo.verticalPercentage !== 1 cz up fires even if vertical position is 1
+            // delta is for move from bottom height. sometime scroll moves by typing or multiple msg
+            if (
+                info.direction === "up" &&
+                this.scrollInfo.verticalPercentage !== 1 &&
+                (!info.directionChanged || (info.directionChanged && info.delta.top < -30))
+            ) {
                 this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                     conv_id: this.conv_id,
                     auto_scroll_to_bottom: false,
                     last_position: this.scrollInfo.verticalPercentage,
                 });
             }
+
+            // later percentage check by other parameters also for fine tune
+            if (info.direction === "up" && this.scrollInfo.verticalPercentage < 0.1) {
+                if (this.canCallMessageApi && !this.gettingNewMessages && this.$refs.myInfiniteScrollArea) {
+                    this.scrollInfo = this.$refs.msgScrollArea.getScroll(); // it will update scroll info so without scroll no load new data
+
+                    this.$refs.myInfiniteScrollArea.resume();
+                    this.$refs.myInfiniteScrollArea.trigger();
+                }
+            }
+
+            if (info.direction === "down" && this.scrollInfo.verticalPercentage === 1) {
+                this.scrollToPosition(1, true); // by passing true no need to update scroll position to state
+            }
         },
         messageInputResizeObserver(size: any) {
             this.msgInputWidth = size.width;
+        },
+
+        messageStatusIconName(msg: any) {
+            if (msg.id.includes("temp_msg_id")) {
+                return "schedule";
+            }
+
+            return "done_all";
+        },
+
+        messageStatusIconColor(msg: any) {
+            if (this.othersLastMessageSeenTime > new Date(msg.created_at).getTime()) {
+                return "green-6";
+            }
+
+            return "grey-6";
         },
 
         emitSocketEvents() {
@@ -1029,26 +1109,11 @@ export default defineComponent({
                     this.emitEcGetClientSesIdStatus();
                 }
 
-                if (this.canGoToBottom) {
-                    this.scrollToPosition();
-
-                    // move these check to the function
-                    if (this.chatPanelType === "user") {
-                        // check if user on page then update. for now do it
-                        setTimeout(() => this.updateLastMsgSeenTime(), 1200);
-                    }
-                }
+                // this.scrollToPosition();
             });
 
             this.$emitter.on(`new_message_from_user_${this.conv_id}`, () => {
-                if (this.canGoToBottom) {
-                    this.scrollToPosition();
-
-                    if (this.chatPanelType === "user") {
-                        // check if user on page then update. for now do it
-                        setTimeout(() => this.updateLastMsgSeenTime(), 1200);
-                    }
-                }
+                // this.scrollToPosition();
             });
         },
 
@@ -1100,13 +1165,6 @@ export default defineComponent({
                         if (!res.data.conversation.data.messages?.length) {
                             // if no data turn off new msg load
                             this.canCallMessageApi = false;
-                        }
-
-                        // we can check page === 1 without checking firstTimeMessageLoaded
-                        if (!this.firstTimeMessageLoaded && this.canGoToBottom) {
-                            this.scrollToPosition(1); // y here? cz if msg comes & scrollbar appear then auto go bottom
-
-                            if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
                         }
                     })
                     .catch(() => {
@@ -1214,7 +1272,7 @@ export default defineComponent({
                 const tempMsg = this.msg;
                 const dynamicSocket = this.socket || this.$socket;
 
-                if (tempMsg.trim()) {
+                if (tempMsg?.trim()) {
                     this.notTypingEmitted = false;
 
                     dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
@@ -1364,12 +1422,12 @@ export default defineComponent({
                 return false;
             }
 
-            // console.log('sending the msg');
+            this.createTempMsgId();
 
             const dynamicBody =
                 this.chatPanelType === "user"
-                    ? { conv_id: this.conv_id, temp_id: this.$helpers.getTempId() }
-                    : { temp_id: this.$helpers.getTempId() };
+                    ? { conv_id: this.conv_id, temp_id: this.tempMsgId }
+                    : { temp_id: this.tempMsgId };
 
             const dynamicSocket = this.socket || this.$socket;
 
@@ -1380,148 +1438,206 @@ export default defineComponent({
                 status: "not_typing",
             });
 
-            dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
-                ...dynamicBody,
-                msg: this.msg,
-                attachments: _l.map(this.finalAttachments, "id"),
+            Message.insert({
+                data: {
+                    id: this.tempMsgId,
+                    msg: this.msg,
+                    message_type: "message",
+                    conversation_id: this.conv_id,
+                    socket_session_id: this.$helpers.getMySocketSessionId(),
+                    created_at: new Date().toISOString(),
+                    attachments: this.finalAttachments,
+                },
+            }).then(() => {
+                this.tempMsgId = null;
+
+                this.scrollToPosition();
             });
+
+            const pendingEntry = this.finalAttachments.find((attachment: any) => attachment.status !== "done");
+
+            if (!this.finalAttachments.length || !pendingEntry) {
+                dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
+                    ...dynamicBody,
+                    msg: this.msg,
+                    attachments: _l.map(this.finalAttachments, "attachment_uploaded_id"),
+                });
+            }
 
             this.msg = "";
             this.attachments = [];
             this.finalAttachments = [];
         },
 
-        handleScroll() {
-            // if a cov has no msg then it will fire
-            // that time we are loading until scrollbar appears or no more msg
-            // verticalPercentage is 0 if small amount of msg
-            if (
-                this.scrollInfo.verticalSize === this.scrollInfo.verticalContainerSize &&
-                this.scrollInfo.verticalPercentage === 0
-            ) {
-                // get new messages until scrollbar appear or no msg
-                if (this.canCallMessageApi && !this.gettingNewMessages && this.$refs.myInfiniteScrollArea) {
-                    this.$refs.myInfiniteScrollArea.resume();
-                    this.$refs.myInfiniteScrollArea.trigger();
+        scrollToPosition(position = 1, forceBottom = false) {
+            if (this.conversationData.closed_at) return; // no need to scroll bottom if conv is closed or chat history
+            if (!this.canGoToBottom && !forceBottom) return;
 
-                    // canGoToBottom check safe side
-                    if (this.canGoToBottom) {
-                        this.scrollToPosition(1); // y here? cz if msg comes & scrollbar appear then auto go bottom
-
-                        if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
-                    }
-                }
-
-                return;
-            }
-
-            const verticalPercentage = this.scrollInfo.verticalPercentage;
-            // if it has scroll info we know it's not first time
-            if (this.conversationInfo.hasOwnProperty("scroll_info")) {
-                this.gotoBottomBtnShow = verticalPercentage < 0.9 && this.messages?.length > 0;
-
-                const topScrolling = this.lastTopVerticalPosition > this.scrollInfo.verticalPosition;
-                this.lastTopVerticalPosition = this.scrollInfo.verticalPosition;
-
-                if (topScrolling && verticalPercentage < 0.25) {
-                    if (this.canCallMessageApi && !this.gettingNewMessages) {
-                        // if we can then resume and trigger which will fire the load event
-                        this.$refs.myInfiniteScrollArea.resume();
-                        this.$refs.myInfiniteScrollArea.trigger();
-                    }
-                }
-            }
-
-            if (this.newMessagesMayBeLoaded && this.canGoToBottom) {
-                this.scrollToPosition();
-
-                // it's needed for come back
-                if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
-            }
-
-            // if we scrolled to bottom but in store set to not can go then update
-            if (this.scrollInfo.verticalPercentage === 1 && !this.canGoToBottom) {
-                this.scrollToPosition();
-
-                if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
-            }
-        },
-
-        scrollToPosition(position = 1) {
             const msgScrollArea = this.$refs.msgScrollArea;
 
-            if (msgScrollArea) {
-                // waiting for dom render
-                setTimeout(() => {
-                    console.log("scroll to ", position);
-                    msgScrollArea.setScrollPercentage("vertical", position, 200);
-                }, 100);
+            // waiting for dom render
+            setTimeout(() => {
+                if (msgScrollArea) {
+                    // console.log("scroll to ", position);
+
+                    this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+                        conv_id: this.conv_id,
+                        auto_scroll_to_bottom: position === 1,
+                        last_position: 1,
+                    });
+
+                    msgScrollArea.setScrollPercentage("vertical", position, 100);
+
+                    if (position === 1) {
+                        clearTimeout(this.updateLastMsgSeenTimeTimer);
+
+                        // check if user on page then update. for now do it
+                        this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
+                    }
+                }
+            }, 100);
+        },
+
+        createTempMsgId() {
+            if (!this.tempMsgId) {
+                this.tempMsgId = `temp_msg_id_${this.$helpers.getTempId()}`;
             }
 
-            this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
-                conv_id: this.conv_id,
-                auto_scroll_to_bottom: position === 1,
-                last_position: 1,
-            });
-
-            if (this.newMessagesMayBeLoaded && position === 1) {
-                this.newMessagesMayBeLoaded = false;
-            }
+            return this.tempMsgId;
         },
 
         attachmentUploaderHandle(val: any) {
-            val.forEach((img: any) => {
-                if (_l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1) {
-                    this.finalAttachments.push({
-                        temp_id: new Date().getTime(),
-                        original_name: img.name,
-                        size: img.size,
-                        status: "pending",
-                        src: URL.createObjectURL(img),
-                    });
+            this.$refs.messageInput.focus();
 
-                    let formData = new FormData();
-                    formData.append("attachments", img, img.name);
+            const tempMsgId = this.createTempMsgId();
+
+            val.forEach((img: any) => {
+                if (!this.attachmentValidation(img)) {
+                    return;
+                }
+
+                // prevent same image load
+                const notPreviousLoaded =
+                    _l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1;
+
+                if (notPreviousLoaded) {
+                    const tempAttachmentId = `temp_attachment_id_${this.$helpers.getTempId()}`;
+
+                    this.pushToFinalAttachment(tempAttachmentId, img);
+
+                    let formData = this.makeAttachmentFormData(img, tempAttachmentId, tempMsgId);
 
                     this.$socketSessionApi
                         .post("attachments", formData)
                         .then((res: any) => {
-                            // console.log(res.data);
-                            const attachment = res.data.data[0];
+                            const attachment: any = res.data.data[0];
 
-                            const afterPushedFinalAttachmentIndex = _l.findIndex(this.finalAttachments, {
+                            const finalAttachment = _l.find(this.finalAttachments, {
                                 original_name: img.name,
                                 size: img.size,
                             });
 
-                            const finalAttachment = this.finalAttachments[afterPushedFinalAttachmentIndex];
+                            if (finalAttachment) {
+                                finalAttachment.status = "done";
+                                finalAttachment.attachment_uploaded_id = attachment.attachment_info.id;
+                            }
 
-                            finalAttachment.status = "uploading";
+                            this.updateAttachmentModelStatus(attachment, "done");
 
-                            this.$socketSessionApi
-                                .get(attachment.src, {
-                                    responseType: "arraybuffer",
-                                })
-                                .then((res: any) => {
-                                    // console.log(res);
-                                    // console.log(typeof res.data);
-
-                                    finalAttachment.id = attachment.attachment_info.id;
-                                    finalAttachment.status = "done";
-                                    finalAttachment.src = URL.createObjectURL(
-                                        new Blob([res.data], { type: res.headers["content-type"] })
-                                    ); // its giving a warning so after this line nothing will work
-                                })
-                                .catch((e: any) => {
-                                    console.log(e);
-                                });
+                            this.sendMessageAfterAllAttachmentUploaded(attachment, tempMsgId);
                         })
                         .catch((e: any) => {
                             console.log(e);
                         });
+                } else {
+                    // console.log(`file ${img.name} already added`);
                 }
             });
         },
+
+        attachmentValidation(img: any) {
+            const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
+
+            const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
+
+            if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
+                clearInterval(this.showFileErrorMsgInterval);
+
+                this.showFileErrorMsg = true;
+
+                this.showFileErrorMsgInterval = setInterval(() => {
+                    this.showFileErrorMsg = false;
+                }, 10000);
+
+                return false;
+            }
+
+            return true;
+        },
+
+        makeAttachmentFormData(img: any, tempAttachmentId: any, tempMsgId: any) {
+            let formData = new FormData();
+            formData.append("attachments", img, img.name);
+            formData.append("attachment_temp_id", tempAttachmentId);
+            formData.append("msg_temp_id", tempMsgId);
+
+            return formData;
+        },
+
+        pushToFinalAttachment(tempAttachmentId: string, img: any) {
+            this.finalAttachments.push({
+                id: tempAttachmentId,
+                temp_id: tempAttachmentId,
+                original_name: img.name,
+                size: img.size,
+                status: "pending",
+                src: URL.createObjectURL(img),
+                created_at: new Date().getTime(),
+                updated_at: new Date().getTime(),
+            });
+        },
+
+        updateAttachmentModelStatus(attachment: any, status: string) {
+            // remove this data after received the msg event. how i dont know
+            // if not remove then no worry but it will eat resource
+            if (attachment.temp_id) {
+                MessageAttachment.update({
+                    where: attachment?.temp_id,
+                    data: {
+                        attachment_uploaded_id: attachment.attachment_info.id,
+                        status,
+                    },
+                });
+            }
+        },
+
+        // when submit multiple attachment, after all attachment successfully upload emit the event (ec_msg_from_user/ec_msg_from_client)
+        // when multiple attachment with text, text will be sent after uploaded the all attachment
+        sendMessageAfterAllAttachmentUploaded(attachment: any, tempMsgId: string) {
+            if (attachment.msg_temp_id) {
+                const msgObj: any = Message.query().where("id", attachment.msg_temp_id).with("attachments").first();
+
+                if (msgObj && msgObj.attachments && msgObj.attachments.length) {
+                    const pendingEntry = msgObj.attachments.find((attachment: any) => attachment.status !== "done");
+
+                    if (!pendingEntry) {
+                        const dynamicSocket = this.socket || this.$socket;
+                        const dynamicBody =
+                            this.chatPanelType === "user"
+                                ? { conv_id: this.conv_id, temp_id: tempMsgId }
+                                : { temp_id: tempMsgId };
+
+                        // here msg will be empty so get msg from msgObj
+                        dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
+                            ...dynamicBody,
+                            msg: msgObj.msg,
+                            attachments: _l.map(msgObj.attachments, "attachment_uploaded_id"),
+                        });
+                    }
+                }
+            }
+        },
+
         attachmentRemoveHandle(attachmentObj: any) {
             const localCopy = _l.cloneDeep(attachmentObj);
 
@@ -1539,20 +1655,10 @@ export default defineComponent({
                 this.$socketSessionApi.delete(`attachments/${localCopy.id}`);
             }
         },
-        handleAttachmentReject(entries: any) {
-            // show toast
-            console.log("before upload error", entries);
-
-            entries.forEach((attachment: any) => {
-                console.log(attachment.file.name, attachment.failedPropValidation, "error");
-                this.$helpers.showErrorNotification(this, attachment.failedPropValidation);
-            });
-        },
 
         async updateLastMsgSeenTime() {
             // urgent check needed
             // must check if seen need to update or not
-            console.log("update seen");
             const lastMsgSeenTime = moment().format();
             const mySocketSesId = this.$helpers.getMySocketSessionId();
 
@@ -1560,19 +1666,20 @@ export default defineComponent({
             if (
                 this.myConversationSession &&
                 this.myConversationSession.joined_at &&
-                !this.myConversationSession.left_at
+                !this.myConversationSession.left_at &&
+                this.conversationData.myUnseenMessageCount > 0
             ) {
+                console.log("update seen");
+
                 this.$store.commit("chat/updateConversation", {
                     conv_id: this.conv_id,
                     last_msg_seen_time: lastMsgSeenTime,
                     socket_session_id: mySocketSesId,
                 });
 
-                await window.api.post(
-                    `conversations/update-last-message-seen-time/conversation-session/${this.myConversationSession.id}`,
-                    {
-                        last_msg_seen_time: lastMsgSeenTime,
-                    }
+                // we could use conversation/:conv_id/update-last-message-seen-time
+                await window.socketSessionApi.post(
+                    `conversations/update-last-message-seen-time/conversation-session/${this.myConversationSession.id}`
                 );
             }
         },
@@ -1620,6 +1727,56 @@ export default defineComponent({
                 }
             }
         },
+
+        imageLoadOnPast(e: any) {
+            const isTextPast = e.clipboardData?.getData("text") || e.dataTransfer?.getData("text");
+
+            // prevent default only for file (past/drop)
+            if (!isTextPast) e.preventDefault();
+
+            let files = e.dataTransfer?.files || e.clipboardData?.files || [];
+
+            this.attachmentUploaderHandle([...files]);
+        },
+
+        getDraft() {
+            window.socketSessionApi
+                .get(`conversations/get-draft/${this.conv_id}`)
+                .then((res: any) => {
+                    if (res.data.draft_message) {
+                        ConversationSession.update({ where: res.data.id, data: res.data });
+                        this.msg = res.data.draft_message;
+                    }
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
+        },
+
+        saveDraft() {
+            if (!this.showSendMessageInput) return;
+
+            const msg = this.msg;
+
+            const bodyData: any = {};
+
+            // now only support for text
+            if (msg || this.finalAttachments.length) {
+                bodyData.draft_message = msg;
+            }
+
+            window.socketSessionApi
+                .post(`conversations/save-draft/${this.conv_id}`, bodyData)
+                .then((res: any) => {
+                    ConversationSession.update({ where: res.data.id, data: res.data });
+
+                    this.msg = "";
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err.response);
+                });
+        },
     },
 
     watch: {
@@ -1639,9 +1796,7 @@ export default defineComponent({
                 if (this.conv_id && this.mini_mode && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
                     this.$refs.myInfiniteScrollArea.poll();
 
-                    this.scrollToPosition();
-
-                    if (this.chatPanelType === "user") this.updateLastMsgSeenTime();
+                    this.scrollToPosition(1, true);
                 }
 
                 // if need remove mini mode check
@@ -1654,31 +1809,9 @@ export default defineComponent({
             immediate: true,
         },
 
-        messages: {
-            handler: function (newVal, oldVal) {
-                if (!newVal || !oldVal || newVal.length === oldVal.length) return;
-                // in the future, we can fine tune this by checking old & new val
-                this.newMessagesMayBeLoaded = true;
-
-                if (!this.scrollCheckInterval) {
-                    this.scrollCheckInterval = setInterval(() => this.handleScroll(), 300);
-                }
-            },
-            deep: true,
-            immediate: true,
-        },
-
         typingState: {
-            handler: function (newVal, oldVal) {
-                // console.log(oldVal, newVal);
-
-                if (this.conversationInfo.scroll_info?.auto_scroll_to_bottom) {
-                    // I think this if not need anymore
-                    if (newVal.length > oldVal.length) {
-                        // this.scrollToPosition();
-                        this.newMessagesMayBeLoaded = true;
-                    }
-                }
+            handler: function () {
+                this.scrollToPosition();
             },
             deep: true,
         },
@@ -1708,6 +1841,8 @@ export default defineComponent({
         });
 
         clearInterval(this.scrollCheckInterval);
+
+        this.saveDraft();
     },
 });
 </script>

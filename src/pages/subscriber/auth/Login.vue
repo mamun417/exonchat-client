@@ -1,12 +1,14 @@
 <template>
     <div class="tw-min-h-screen tw-p-2 tw-flex tw-flex-col tw-justify-center">
-        <div class="tw-p-10 tw-max-w-md tw-m-auto tw-w-full tw-bg-white tw-rounded-xl tw-shadow-2xl">
+        <div class="tw-px-10 tw-py-8 tw-max-w-md tw-m-auto tw-w-full tw-bg-white tw-rounded-lg tw-shadow-2xl">
             <form @submit.prevent="loginButtonClicked">
-                <div class="text-center tw-mb-6">
-                    <q-icon name="lock_open" size="50px" color="green"></q-icon>
+                <div class="text-center tw-mb-8">
+                    <q-img src="https://www.exonhost.com/img/logo.png" width="200px" />
+                    <div class="tw-mt-3 tw-text-base" style="color: #555">Sign In to Your Account</div>
+                    <!--<q-icon name="lock_open" size="50px" color="green"></q-icon>-->
                 </div>
 
-                <div class="tw-flex tw-mb-3">
+                <!--<div class="tw-flex tw-mb-3">
                     <q-input
                         label="Company Name"
                         class="full-width"
@@ -19,7 +21,7 @@
                             <q-icon name="business" color="green" />
                         </template>
                     </q-input>
-                </div>
+                </div>-->
 
                 <div class="tw-flex tw-mb-3">
                     <q-input label="Email" class="full-width" color="green" v-model="formData.email" autofocus dense>
@@ -92,7 +94,7 @@ export default defineComponent({
             formData: {
                 email: "",
                 password: "",
-                company_name: "",
+                company_name: process.env.DEV ? "test" : "exonhost",
             },
             loginSuccess: false,
         };

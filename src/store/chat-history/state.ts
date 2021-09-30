@@ -2,7 +2,6 @@
 export interface ChatHistoryStateInterface {
     paginationMeta: any;
     pipeline: any;
-    newLoadedChatHistoriesIds: any;
 }
 
 function state(): ChatHistoryStateInterface {
@@ -14,8 +13,10 @@ function state(): ChatHistoryStateInterface {
         },
         pipeline: {
             s: "",
+            chat_department_id: "",
+            agent_id: "",
+            rating: "",
         },
-        newLoadedChatHistoriesIds: [],
     };
 }
 

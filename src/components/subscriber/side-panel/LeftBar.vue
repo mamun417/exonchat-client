@@ -4,25 +4,11 @@
 
         <q-scroll-area
             class="fit"
-            :bar-style="{
-                background: '#60A5FA',
-                width: '4px',
-                opacity: 0.2,
-                borderRadius: '10px',
-            }"
             :thumb-style="{
-                borderRadius: '9px',
-                backgroundColor: '#60A5FA',
-                width: '4px',
-                opacity: 0.5,
+                marginRight: '-10px',
+                ...$helpers.getThumbStyle(),
             }"
         >
-            <!-- <div
-                        class="text-weight-bold tw-text-lg text-center tw-py-2"
-                    >
-                        Interactions
-                    </div> -->
-
             <q-list class="tw-text-gray-600">
                 <q-item>
                     <q-item-section>
@@ -121,6 +107,7 @@
                         <q-card-section class="tw-p-0">
                             <q-list v-if="myOngoingWithFbChats.length">
                                 <q-item
+                                    class="tw-pr-0"
                                     v-for="ongoingChat in myOngoingWithFbChats"
                                     :to="{ name: 'chats', params: { conv_id: ongoingChat.id } }"
                                     :key="ongoingChat.id"
@@ -145,13 +132,19 @@
                                     </q-item-section>
 
                                     <q-item-section v-if="ongoingChat.myUnseenMessageCount" side>
-                                        <q-badge color="orange">
+                                        <q-badge color="orange" class="tw-mr-2">
                                             {{
                                                 ongoingChat.myUnseenMessageCount > 9
                                                     ? "9+"
                                                     : ongoingChat.myUnseenMessageCount
                                             }}
                                         </q-badge>
+                                    </q-item-section>
+
+                                    <!--<pre>{{ ongoingChat }}</pre>-->
+
+                                    <q-item-section v-if="showDraftIcon(ongoingChat.id)" side>
+                                        <q-badge color="transparent"><i class="fa fa-pen text-grey-5"></i> </q-badge>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -230,65 +223,80 @@
                     <q-card>
                         <q-card-section class="tw-p-0">
                             <q-list>
-                                <q-item
-                                    v-for="(user, index) in chatUsers"
-                                    @click="openUserToUserConversation(user)"
-                                    :active-class="`text-grey-9 bg-${globalColor}-2`"
-                                    :active="user.conversation_id && user.conversation_id === $route.params?.conv_id"
-                                    :key="index"
-                                    clickable
-                                    dense
-                                >
-                                    <q-item-section class="tw-min-w-0" avatar>
-                                        <ec-avatar
-                                            :image_src="user?.user_meta?.attachment?.src"
-                                            :name="user?.user_meta?.display_name"
-                                            :email="user?.email"
-                                            size="23px"
-                                        >
-                                            <q-badge
-                                                floating
-                                                rounded
-                                                :color="
-                                                    user.online_status === 'online'
-                                                        ? 'green'
-                                                        : user.online_status === 'offline'
-                                                        ? 'red'
-                                                        : 'grey'
-                                                "
-                                                style="padding: 2px 4px; min-height: 8px"
-                                            />
-                                        </ec-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-medium tw-text-sm tw-capitalize">
-                                            {{ user.user_meta.display_name }}
-                                        </q-item-label>
-
-                                        <!--<q-item-label lines="2" caption>
-                                            &lt;!&ndash; {{ teamConversations }} &ndash;&gt;
-                                            {{ agentMsgInfo(user.conversation_id, user.socket_session.id) }}
-                                        </q-item-label>-->
-                                    </q-item-section>
-
-                                    <q-item-section
-                                        v-if="
-                                            agentMsgInfo(user.conversation_id, user.socket_session.id).count_unseen_msg
+                                <transition-group name="flip-list">
+                                    <q-item
+                                        v-for="user in chatUsers"
+                                        @click="openUserToUserConversation(user)"
+                                        :active-class="`text-grey-9 bg-${globalColor}-2`"
+                                        :active="
+                                            user.conversation_id && user.conversation_id === $route.params?.conv_id
                                         "
-                                        side
+                                        class="tw-py-2 tw-pr-0"
+                                        :key="user.id"
+                                        clickable
+                                        dense
                                     >
-                                        <q-badge color="orange">
-                                            {{
+                                        <q-item-section class="tw-min-w-0" avatar>
+                                            <ec-avatar
+                                                :image_src="user?.user_meta?.attachment?.src"
+                                                :name="user?.user_meta?.display_name"
+                                                :email="user?.email"
+                                                :key="user.id"
+                                                size="30px"
+                                            >
+                                                <q-badge floating rounded class="bg-white" style="padding: 1px">
+                                                    <q-icon
+                                                        :name="`${
+                                                            user.online_status === 'logout' ? 'block' : 'circle'
+                                                        }`"
+                                                        size="12px"
+                                                        :color="
+                                                            user.online_status === 'online'
+                                                                ? 'green'
+                                                                : user.online_status === 'offline'
+                                                                ? 'red'
+                                                                : 'grey-6'
+                                                        "
+                                                        class="bg-grey-4 tw-rounded-full"
+                                                    />
+                                                </q-badge>
+                                            </ec-avatar>
+                                        </q-item-section>
+
+                                        <q-item-section>
+                                            <q-item-label
+                                                class="text-weight-medium tw-text-sm tw-capitalize"
+                                                :class="{ 'text-grey': user.online_status === 'logout' }"
+                                            >
+                                                {{ user.user_meta.display_name }}
+                                            </q-item-label>
+                                        </q-item-section>
+
+                                        <q-item-section
+                                            v-if="
                                                 agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                    .count_unseen_msg > 9
-                                                    ? "9+"
-                                                    : agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                          .count_unseen_msg
-                                            }}
-                                        </q-badge>
-                                    </q-item-section>
-                                </q-item>
+                                                    .count_unseen_msg
+                                            "
+                                            side
+                                        >
+                                            <q-badge color="orange" class="tw-mr-2">
+                                                {{
+                                                    agentMsgInfo(user.conversation_id, user.socket_session.id)
+                                                        .count_unseen_msg > 9
+                                                        ? "9+"
+                                                        : agentMsgInfo(user.conversation_id, user.socket_session.id)
+                                                              .count_unseen_msg
+                                                }}
+                                            </q-badge>
+                                        </q-item-section>
+
+                                        <q-item-section v-if="showDraftIcon(user.conversation_id)" side>
+                                            <q-badge color="transparent"
+                                                ><i class="fa fa-pen text-grey-5"></i>
+                                            </q-badge>
+                                        </q-item-section>
+                                    </q-item>
+                                </transition-group>
                             </q-list>
                         </q-card-section>
                     </q-card>
@@ -308,6 +316,7 @@ import moment from "moment";
 import helpers from "boot/helpers/helpers";
 import ChatDepartment from "src/store/models/ChatDepartment";
 import Conversation from "src/store/models/Conversation";
+import _ from "lodash";
 
 export default defineComponent({
     name: "LeftBar",
@@ -350,6 +359,7 @@ export default defineComponent({
             myOngoingChats: "chat/myOngoingChats",
 
             chatUsers: "chat/chatUsers",
+            meAsChatUser: "chat/meAsChatUser",
             globalBgColor: "setting_ui/globalBgColor",
             globalColor: "setting_ui/globalColor",
             profile: "auth/profile",
@@ -414,7 +424,9 @@ export default defineComponent({
         },
 
         getMyOnlineStatus(): any {
-            return this.onlineStatus.find((onlineStatus: any) => onlineStatus?.status === this.profile.online_status);
+            return this.onlineStatus.find(
+                (onlineStatus: any) => this.meAsChatUser?.online_status === onlineStatus.status
+            );
         },
     },
 
@@ -564,43 +576,34 @@ export default defineComponent({
             // this.$emitter.on('listen_error_ec_init_conv_from_user', fn);
         },
 
-        senderInfo(conv: any) {
-            if (conv.conversation_session?.socket_session) {
-                return {
-                    display_name: conv.conversation_session.socket_session.init_name,
-                    img_alt_name: conv.conversation_session.socket_session.init_name,
-                    email: conv.conversation_session.socket_session.init_email,
-                };
-            }
-
-            return {};
-        },
-
-        async updateOnlineStatus(status: any) {
+        updateOnlineStatus(status: any) {
             // try {
-            await this.$store.dispatch("setting_profile/updateOnlineStatus", {
-                inputs: {
-                    online_status: status,
-                },
-            });
+            this.$store
+                .dispatch("setting_profile/updateOnlineStatus", {
+                    inputs: {
+                        online_status: status,
+                    },
+                })
+                .then(() => {
+                    this.$store.dispatch("auth/updateAuthInfo");
 
-            this.$socket.emit("ec_updated_socket_room_info", {
-                online_status: status,
-                status_for: "user",
-            });
-
-            // } catch (err) {
-            //     this.updateOnlineStatusErrorHandle(err);
-            // }
+                    this.$socket.emit("ec_updated_socket_room_info", {
+                        online_status: status,
+                        status_for: "user",
+                    });
+                })
+                .catch(() => {
+                    // this.updateOnlineStatusErrorHandle(err);
+                });
         },
 
-        // updateOnlineStatusErrorHandle(err: any) {
-        //     if (this.$_.isObject(err.response.data.message)) {
-        //         this.formDataErrors = err.response.data.message;
-        //     } else {
-        //         this.$helpers.showErrorNotification(this, err.response.data.message);
-        //     }
-        // },
+        myConversationSession(convId: any) {
+            return Conversation.find(convId)?.myConversationSession || {};
+        },
+
+        showDraftIcon(convId: any) {
+            return this.myConversationSession(convId).draft_message && this.$route.params["conv_id"] !== convId;
+        },
     },
 
     watch: {
@@ -651,7 +654,11 @@ export default defineComponent({
                 if (this.incomingChatRequestsForMe.length) {
                     if (!this.chatRequestSoundLoop) {
                         this.chatRequestSoundLoop = setInterval(() => {
-                            if (this.$browser_tab_id === localStorage.getItem("ec_current_visiting_tab")) {
+                            if (
+                                this.$browser_tab_id === localStorage.getItem("ec_current_visiting_tab") &&
+                                this.incomingChatRequestsForMe.length &&
+                                this.profile.online_status === "online"
+                            ) {
                                 helpers.notifications().reqOne.play();
                             }
                         }, 10000);
@@ -666,3 +673,9 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="scss">
+.flip-list-move {
+    transition: transform 0.5s;
+}
+</style>
