@@ -96,13 +96,7 @@
                     </q-card-section>
 
                     <q-card-actions class="tw-py-2 tw-pb-4 tw-flex tw-justify-center">
-                        <q-btn
-                            :loading="updateProfileLoading"
-                            :color="globalColor"
-                            @click="updateProfile"
-                            no-caps
-                            unelevated
-                        >
+                        <q-btn :color="globalColor" @click="updateProfile" no-caps unelevated>
                             Update Personal Information
                         </q-btn>
                     </q-card-actions>
@@ -285,7 +279,7 @@
             </q-card>
         </q-dialog>
 
-        <update-email-otp-modal v-if="emailUpdateVerifyOtpModalShow" />
+        <!--<update-email-otp-modal v-if="emailUpdateVerifyOtpModalShow" />-->
     </div>
 </template>
 
@@ -294,11 +288,11 @@ import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 import EcAvatar from "components/common/EcAvatar.vue";
 import * as _l from "lodash";
-import UpdateEmailOtpModal from "pages/subscriber/settings/profile/UpdateEmailOtpModal.vue";
+// import UpdateEmailOtpModal from "pages/subscriber/settings/profile/UpdateEmailOtpModal.vue";
 
 export default defineComponent({
     name: "SettingProfile",
-    components: { UpdateEmailOtpModal, EcAvatar },
+    components: { EcAvatar },
     data(): any {
         return {
             existingAvatarUrl: "",
@@ -376,18 +370,18 @@ export default defineComponent({
                     inputs: this.formData,
                 });
 
-                if (updateProfileRes.data.send_otp) {
-                    this.emailUpdateVerifyOtpModalShow = true;
-                    return;
-                }
+                // if (updateProfileRes.data.send_otp) {
+                //     this.emailUpdateVerifyOtpModalShow = true;
+                //     return;
+                // }
 
                 await this.$store.dispatch("auth/updateAuthInfo");
 
                 this.$helpers.showSuccessNotification(this, "Profile update successful");
 
-                this.updateProfileLoading = false;
+                // this.updateProfileLoading = false;
             } catch (err) {
-                this.updateProfileLoading = false;
+                // this.updateProfileLoading = false;
                 this.updateProfileErrorHandle(err);
             }
         },
