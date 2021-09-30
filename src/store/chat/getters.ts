@@ -291,14 +291,17 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
         const users = Object.values(allUsers).filter((user: any) => authInfo.id !== user.id);
 
+        const sortByName = _l.sortBy(users, [(user: any) => user.user_meta.display_name]).reverse();
+
         return _l
-            .sortBy(users, [
+            .sortBy(sortByName, [
                 (user: any) => user.online_status === "online",
                 (user: any) => user.online_status === "offline",
                 (user: any) => user.online_status === "invisible",
             ])
             .reverse();
     },
+
     meAsChatUser(state, getters, rootState, rootGetters) {
         const allUsers = state.chatUsers;
 
