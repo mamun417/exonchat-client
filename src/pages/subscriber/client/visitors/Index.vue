@@ -6,19 +6,6 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow tw-bg-white tw-p-4">
-                <div>
-                    <transition-group name="flip-list">
-                        <div v-for="visitor in visitors" :key="visitor.session_id">
-                            <a
-                                :href="$_.last(visitor.visits).url"
-                                target="_blank"
-                                class="text-blue-5 tw-font-medium tw-whitespace-pre-wrap"
-                                >{{ $_.last(visitor.visits).title }}</a
-                            >
-                        </div>
-                    </transition-group>
-                </div>
-
                 <ec-table :rows="visitors" :columns="columns">
                     <template v-slot:cell-client="slotProps">
                         <div class="tw-text-xs">
