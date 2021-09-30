@@ -168,8 +168,6 @@
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 
-import * as _l from "lodash";
-
 declare global {
     interface Window {
         fbAsyncInit: any;

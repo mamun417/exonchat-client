@@ -316,7 +316,6 @@ import moment from "moment";
 import helpers from "boot/helpers/helpers";
 import ChatDepartment from "src/store/models/ChatDepartment";
 import Conversation from "src/store/models/Conversation";
-import _ from "lodash";
 
 export default defineComponent({
     name: "LeftBar",
@@ -373,9 +372,9 @@ export default defineComponent({
         myOngoingWithFbChats(): any {
             const facebookChats = Conversation.query()
                 .where("type", (value: any) => value === "facebook_chat")
-                .whereHas("conversation_sessions", (conversationSessionQuery) => {
-                    conversationSessionQuery; //
-                })
+                // .whereHas("conversation_sessions", (conversationSessionQuery) => {
+                //     conversationSessionQuery; //
+                // })
                 .orderBy("created_at")
                 .get();
 

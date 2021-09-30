@@ -287,7 +287,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.users_only && conversationInfo.type !== 'facebook_chat' && !conversationData.closed_at"
+                    v-if="
+                        !conversationData.users_only &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.closed_at
+                    "
                     label="RELATED SERVICES"
                     dense
                     default-opened
@@ -348,7 +352,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat' && !conversationInfo.users_only"
+                    v-if="
+                        !conversationData.closed_at &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.users_only
+                    "
                     label="RELATED DOMAINS"
                     dense
                     default-opened
@@ -400,7 +408,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat' && !conversationInfo.users_only"
+                    v-if="
+                        !conversationData.closed_at &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.users_only
+                    "
                     label="CUSTOMER PAGE VISITS"
                     dense
                     default-opened
@@ -445,7 +457,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat'"
+                    v-if="!conversationData.closed_at && conversationData.type !== 'facebook_chat'"
                     label="PREVIOUS CHATS"
                     dense
                     default-opened
@@ -491,7 +503,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationInfo.closed_at && conversationInfo.type !== 'facebook_chat' && !conversationInfo.users_only"
+                    v-if="
+                        !conversationData.closed_at &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.users_only
+                    "
                     label="TICKETS"
                     dense
                     default-opened
@@ -568,7 +584,7 @@ export default defineComponent({
         SendTranscript,
         CustomerDetailsCard,
         ConnectedUsersFaces,
-        TicketDetail,
+        // TicketDetail,
         MessagesTopSection,
         Message,
         EcAvatar,
@@ -613,10 +629,6 @@ export default defineComponent({
         conversationData(): any {
             // if || {} empty object raise error for accessing models getter then manage null
             return this.conversationModel.first() || {};
-        },
-
-        conversationInfo(): any {
-            return this.$store.getters["chat/conversationData"](this.fullChatConvId);
         },
 
         conversationConnectedUsers(): any {
@@ -752,8 +764,8 @@ export default defineComponent({
                 // console.log(newVal, oldVal);
 
                 if (
-                    !this.conversationInfo.users_only &&
-                    this.conversationInfo.type !== "facebook_chat" &&
+                    !this.conversationData.users_only &&
+                    this.conversationData.type !== "facebook_chat" &&
                     newVal?.length &&
                     (!oldVal?.length || newVal[0].conversation_id !== oldVal[0].conversation_id)
                 ) {

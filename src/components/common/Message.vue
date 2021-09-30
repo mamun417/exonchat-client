@@ -833,7 +833,7 @@ export default defineComponent({
             }
         });
 
-        window.onbeforeunload = (e: any) => {
+        window.onbeforeunload = () => {
             this.saveDraft();
         };
     },
@@ -1206,6 +1206,15 @@ export default defineComponent({
                     email: msg.socket_session.user.email,
                     src: msg.socket_session.user.user_meta.src || null,
                     type: "agent",
+                };
+            }
+
+            if (!msg.socket_session.user_id && msg.socket_session.is_facebook_page) {
+                return {
+                    display_name: msg.socket_session.init_name,
+                    img_alt_name: msg.socket_session.init_name,
+                    email: msg.socket_session.init_email,
+                    type: "fb",
                 };
             }
 

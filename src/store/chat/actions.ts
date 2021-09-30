@@ -6,7 +6,6 @@ import * as _l from "lodash";
 import helpers from "boot/helpers/helpers";
 
 import Conversation from "src/store/models/Conversation";
-import Message from "src/store/models/Message";
 import ConversationSession from "src/store/models/ConversationSession";
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {

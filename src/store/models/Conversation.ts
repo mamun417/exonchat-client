@@ -3,7 +3,6 @@ import ConversationSession from "src/store/models/ConversationSession";
 import Message from "src/store/models/Message";
 import ChatDepartment from "src/store/models/ChatDepartment";
 import helpers from "boot/helpers/helpers";
-import { values } from "lodash";
 
 export default class Conversation extends Model {
     // This is the name used as module name of the Vuex Store.
@@ -42,7 +41,7 @@ export default class Conversation extends Model {
             .with("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery
                     .whereHas("socket_session", (socketSessionQuery) => {
-                        socketSessionQuery.where("user_id", null);
+                        socketSessionQuery.where("user_id", null).where("is_facebook_page", false);
                     })
                     .with("socket_session");
             })
