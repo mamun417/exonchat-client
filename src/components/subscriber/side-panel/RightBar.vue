@@ -423,7 +423,7 @@
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label>
-                                            <a :href="visit.url" class="text-blue-5 tw-font-medium">{{
+                                            <a :href="visit.url" target="_blank" class="text-blue-5 tw-font-medium">{{
                                                 visit.title
                                             }}</a>
                                         </q-item-label>

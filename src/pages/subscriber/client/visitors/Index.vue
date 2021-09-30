@@ -6,13 +6,23 @@
 
         <div class="tw-flex-grow">
             <div class="tw-shadow tw-bg-white tw-p-4">
+                <div>
+                    <transition-group name="flip-list">
+                        <div v-for="visitor in visitors" :key="visitor.session_id">
+                            <a
+                                :href="$_.last(visitor.visits).url"
+                                target="_blank"
+                                class="text-blue-5 tw-font-medium tw-whitespace-pre-wrap"
+                                >{{ $_.last(visitor.visits).title }}</a
+                            >
+                        </div>
+                    </transition-group>
+                </div>
+
                 <ec-table :rows="visitors" :columns="columns">
                     <template v-slot:cell-client="slotProps">
-                        <div class="tw-uppercase tw-text-xs">
-                            {{
-                                sessionInfo(slotProps.row.session_id)?.init_name ||
-                                `Visitor#${slotProps.row.session_id.slice(-8)}`
-                            }}
+                        <div class="tw-text-xs">
+                            {{ sessionInfo(slotProps.row.session_id)?.init_name || slotProps.row.init_ip }}
                         </div>
                     </template>
 
@@ -20,12 +30,11 @@
 
                     <template v-slot:cell-referrer="slotProps"> {{ slotProps.row.referrer }}</template>
 
-                    <template v-slot:cell-chats> 0</template>
-
                     <template v-slot:cell-url="slotProps">
                         <div>
                             <a
                                 :href="$_.last(slotProps.row.visits).url"
+                                target="_blank"
                                 class="text-blue-5 tw-font-medium tw-whitespace-pre-wrap"
                                 >{{ $_.last(slotProps.row.visits).title }}</a
                             >
@@ -33,7 +42,7 @@
                     </template>
 
                     <template v-slot:cell-activity="slotProps">
-                        <div class="tw-flex tw-items-center tw-justify-end tw-gap-2">
+                        <div class="tw-flex tw-items-center tw-gap-2">
                             <!--{{ $_.last(slotProps.row.visits).visiting }}-->
                             <q-icon
                                 name="fa fa-circle"
@@ -84,21 +93,17 @@ const columns = [
 
     {
         name: "url",
-        align: "center",
+        align: "left",
         label: "Currently On",
     },
     {
         name: "referrer",
-        align: "center",
+        align: "left",
         label: "Referrer",
     },
     {
-        name: "chats",
-        align: "center",
-        label: "Chats",
-    },
-    {
         name: "activity",
+        align: "left",
         label: "Activity",
     },
     // {
@@ -126,7 +131,6 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             visitors: "visitor/visitors",
-            clientsConversation: "chat/clientsConversation",
         }),
     },
 

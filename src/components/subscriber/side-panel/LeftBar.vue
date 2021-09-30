@@ -661,9 +661,3 @@ export default defineComponent({
     },
 });
 </script>
-
-<style lang="scss">
-.flip-list-move {
-    transition: transform 0.5s;
-}
-</style>

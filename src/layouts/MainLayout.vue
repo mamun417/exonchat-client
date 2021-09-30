@@ -1161,4 +1161,8 @@ body {
 .custom-border-top {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+.flip-list-move {
+    transition: transform 0.5s;
+}
 </style>
