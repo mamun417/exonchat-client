@@ -113,6 +113,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("pages/subscriber/settings/profile/Index.vue"),
             },
             {
+                path: "settings/profile/new",
+                name: "settings_profile.new",
+                component: () => import("pages/subscriber/settings/profile/New.vue"),
+            },
+            {
                 path: "settings/chat-routing",
                 name: "settings_chat_routing",
                 component: () => import("pages/subscriber/settings/chat-routing/Index.vue"),
