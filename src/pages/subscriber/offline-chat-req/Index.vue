@@ -13,6 +13,12 @@
                     :columns="columns"
                     :bodyCelTemplate="bodyCelTemplate"
                 >
+                    <template v-slot:cell-message="slotProps">
+                        <div class="tw-whitespace-normal">
+                            {{ slotProps.row.message }}
+                        </div>
+                    </template>
+
                     <template v-slot:cell-chat_department="slotProps">
                         <div>
                             {{ $_.upperFirst(slotProps.row.chat_department.tag) }}
@@ -21,8 +27,12 @@
 
                     <template v-slot:cell-created_at="slotProps">
                         <div class="tw-text-xss">
-                            {{ $helpers.myDate(slotProps.row.created_at, "MMMM Do YYYY, h:mm a") }}
+                            {{ $helpers.myDate(slotProps.row.created_at, "MMM Do YYYY, h:mm a") }}
                         </div>
+                    </template>
+
+                    <template v-slot:cell-action="slotProps">
+                        <div><q-icon @click="openReplyModal" name="reply" size="sm" title="Reply" /></div>
                     </template>
                 </ec-table>
 
@@ -35,6 +45,8 @@
                 </div>
             </div>
         </div>
+
+        <reply-offline-chat-req-modal v-if="replyModal" @hide="replyModal = false" />
     </div>
 </template>
 
@@ -43,9 +55,10 @@ import { defineComponent } from "vue";
 import EcTable from "components/common/table/EcTable.vue";
 import Pagination from "components/common/Pagination.vue";
 import { mapGetters } from "vuex";
+import ReplyOfflineChatReqModal from "pages/subscriber/offline-chat-req/ReplyOfflineChatReqModal.vue";
 
 export default defineComponent({
-    components: { Pagination, EcTable },
+    components: { ReplyOfflineChatReqModal, Pagination, EcTable },
     data(): any {
         return {
             columns: [
@@ -89,15 +102,16 @@ export default defineComponent({
                     field: "created_at",
                 },
 
-                /*{
-                    name: 'action', // only view, close if needed, join if um not joined, leave if um joined
-                    label: 'Actions',
-                    field: 'action',
-                    align: 'center',
-                },*/
+                {
+                    name: "action",
+                    label: "Actions",
+                    field: "action",
+                    align: "center",
+                },
             ],
             chatRequests: [],
             bodyCelTemplate: {},
+            replyModal: false,
         };
     },
 
@@ -139,6 +153,12 @@ export default defineComponent({
                 this.getChatRequests();
             });
         },
+
+        openReplyModal() {
+            this.replyModal = true;
+        },
     },
 });
 </script>
+
+<!--// koita reply korte parbe ? // reply gular list dekha jabe ? // reply delete korar option thkbe kina ? //-->
