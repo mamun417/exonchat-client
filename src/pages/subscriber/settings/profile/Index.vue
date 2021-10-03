@@ -1,18 +1,18 @@
 <template>
-    <div class="tw-p-6" :class="$helpers.colors().defaultText">
+    <div class="tw-py-6 tw-px-8" :class="$helpers.colors().defaultText">
         <div class="tw-mb-4">
-            <div class="tw-text-2xl text-weight-bold tw-mb-4 tw-flex tw-gap-3">
+            <div class="tw-text-2xl text-weight-bold tw-flex tw-gap-3">
                 <div><q-icon name="far fa-id-card" size="xs" class="tw--mt-1" /></div>
                 <div>Profile</div>
             </div>
 
-            <div class="tw-grid lg:tw-grid-cols-2 md:tw-grid-col-1 tw-gap-6 tw-mt-8">
+            <div class="tw-grid lg:tw-grid-cols-2 md:tw-grid-col-1 tw-gap-6 tw-mt-6">
                 <!--Left-->
                 <div>
                     <q-card class="tw-shadow-none tw-bg-transparent">
                         <!--Personal Information-->
                         <q-card-section class="tw-p-0">
-                            <div class="tw-border-b-1 tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase">
+                            <div class="tw-border-b-1 tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase tw-text-lg">
                                 Personal Information
                             </div>
 
@@ -23,6 +23,7 @@
                                     :error-message="formDataErrors.full_name"
                                     :error="!!formDataErrors.full_name"
                                     @update:model-value="formDataErrors.full_name = ''"
+                                    no-error-icon
                                     bg-color="white"
                                     class="tw-shadow tw-px-2 tw-bg-white"
                                     hide-bottom-space
@@ -39,6 +40,7 @@
                                     :error-message="formDataErrors.display_name"
                                     :error="!!formDataErrors.display_name"
                                     @update:model-value="formDataErrors.display_name = ''"
+                                    no-error-icon
                                     bg-color="white"
                                     class="tw-shadow tw-px-2 tw-bg-white"
                                     hide-bottom-space
@@ -55,6 +57,7 @@
                                     :error-message="formDataErrors.email"
                                     :error="!!formDataErrors.email"
                                     @update:model-value="formDataErrors.email = ''"
+                                    no-error-icon
                                     bg-color="white"
                                     class="tw-shadow tw-px-2 tw-bg-white"
                                     hide-bottom-space
@@ -64,22 +67,24 @@
                                 />
                             </div>
 
-                            <q-btn :color="globalColor" @click="updateProfile" no-caps unelevated> Save Changes </q-btn>
+                            <q-btn class="tw-px-3" :color="globalColor" @click="updateProfile" no-caps unelevated dense>
+                                Save Changes
+                            </q-btn>
                         </q-card-section>
 
                         <!--Change Password-->
                         <q-card-section class="tw-p-0 tw-mt-10">
-                            <div class="tw-font-bold tw-mb-6 tw-uppercase">Change Password</div>
+                            <div class="tw-font-bold tw-mb-6 tw-uppercase tw-text-lg">Change Password</div>
 
                             <div class="tw-mb-7">
                                 <div class="text-weight-bold tw-mb-1 tw-text-xs">Current Password</div>
                                 <q-input
                                     v-model="passFormData.old_password"
-                                    :error-message="formDataErrors.old_password"
-                                    :error="!!formDataErrors.old_password"
-                                    @update:model-value="formDataErrors.old_password = ''"
-                                    bg-color="white"
+                                    :error-message="passFormDataErrors.old_password"
+                                    :error="!!passFormDataErrors.old_password"
+                                    @update:model-value="passFormDataErrors.old_password = ''"
                                     class="tw-shadow tw-px-2 tw-bg-white"
+                                    no-error-icon
                                     type="password"
                                     hide-bottom-space
                                     standout
@@ -92,9 +97,10 @@
                                 <div class="tw-font-bold tw-mb-1 tw-text-xs">New Password</div>
                                 <q-input
                                     v-model="passFormData.password"
-                                    :error-message="formDataErrors.password"
-                                    :error="!!formDataErrors.password"
-                                    @update:model-value="formDataErrors.password = ''"
+                                    :error-message="passFormDataErrors.password"
+                                    :error="!!passFormDataErrors.password"
+                                    @update:model-value="passFormDataErrors.password = ''"
+                                    no-error-icon
                                     bg-color="white"
                                     class="tw-shadow tw-px-2 tw-bg-white"
                                     type="password"
@@ -105,7 +111,14 @@
                                 />
                             </div>
 
-                            <q-btn :color="globalColor" @click="updateProfile" no-caps unelevated>
+                            <q-btn
+                                class="tw-px-3"
+                                :color="globalColor"
+                                @click="changePassword"
+                                no-caps
+                                unelevated
+                                dense
+                            >
                                 Update Password
                             </q-btn>
                         </q-card-section>
@@ -117,7 +130,7 @@
                     <q-card class="tw-shadow-none tw-bg-transparent">
                         <!--Photo-->
                         <q-card-section class="tw-p-0">
-                            <div class="tw-border-b-1 tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase">Photo</div>
+                            <div class="tw-border-b-1 tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase tw-text-lg">Photo</div>
 
                             <div class="tw-flex tw-gap-4">
                                 <div>
@@ -146,7 +159,7 @@
                                         </ul>
                                     </div>
 
-                                    <div class="tw-mt-2 text-blue-5 cursor-pointer">
+                                    <div class="tw-mt-2 text-blue-5 cursor-pointer" @click="updateAvatarModalHandle">
                                         Change your photo with Gravatar
                                     </div>
                                 </div>
@@ -155,7 +168,14 @@
                             <div class="tw-mt-6">
                                 <div class="tw-flex tw-items-center tw-justify-between">
                                     <div class="tw-font-bold tw-text-xs">Enable Gravatar</div>
-                                    <div>On</div>
+                                    <div>
+                                        <q-toggle
+                                            v-model="enable_avatar"
+                                            checked-icon="check"
+                                            color="green"
+                                            unchecked-icon="clear"
+                                        />
+                                    </div>
                                 </div>
                                 <div class="text-grey tw-text-xs">
                                     Use the gravatar associated with your email when enabled, or just use the default
@@ -166,17 +186,25 @@
 
                         <!--Chat Settings-->
                         <q-card-section class="tw-p-0 tw-mt-10">
-                            <div class="tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase">Chat Settings</div>
+                            <div class="tw-font-bold tw-mb-4 tw-uppercase tw-text-lg">Chat Settings</div>
 
                             <div class="tw-flex tw-items-center tw-justify-between">
                                 <div class="tw-font-bold tw-text-xs tw-mb-1">Auto Away/Idle Timeout Queue</div>
-                                <div>On</div>
+                                <div>
+                                    <q-toggle
+                                        v-model="idle_time_queue"
+                                        checked-icon="check"
+                                        color="green"
+                                        unchecked-icon="clear"
+                                    />
+                                </div>
                             </div>
 
                             <q-select
-                                class="tw-shadow tw-px-2 tw-bg-white"
+                                class="tw-shadow tw-px-2 tw-bg-white tw-mb-6"
                                 :options="['10 minutes', '20 minutes', '30 minutes', '40 minutes']"
                                 v-model="idle_time_out"
+                                no-error-icon
                                 bg-color="white"
                                 hide-bottom-space
                                 standout
@@ -184,15 +212,24 @@
                                 dense
                             />
 
-                            <q-btn class="tw-mt-" :color="globalColor" no-caps unelevated> Save Changes </q-btn>
+                            <q-btn class="tw-px-3" :color="globalColor" no-caps unelevated dense> Save Changes </q-btn>
                         </q-card-section>
 
                         <!--Ticket Signature-->
                         <q-card-section class="tw-p-0 tw-mt-10">
-                            <div class="tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase">Ticket Signature</div>
+                            <div class="tw-border-b-1 tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase tw-text-lg">
+                                Ticket Signature
+                            </div>
 
                             <div class="tw-flex tw-gap-6">
-                                <div>Off</div>
+                                <div>
+                                    <q-toggle
+                                        v-model="ticket_signature"
+                                        checked-icon="check"
+                                        color="green"
+                                        unchecked-icon="clear"
+                                    />
+                                </div>
 
                                 <div class="">
                                     <div>Enable Your Ticket Signature</div>
@@ -205,9 +242,73 @@
                     </q-card>
                 </div>
             </div>
+
+            <!--Notifications-->
+            <div>
+                <q-card class="tw-shadow-none tw-bg-transparent">
+                    <q-card-section class="tw-p-0 tw-mt-10">
+                        <div class="tw-border-b-1 tw-font-bold tw-mb-4 tw-pb-2 tw-uppercase tw-text-lg">
+                            Notifications
+                        </div>
+                    </q-card-section>
+                </q-card>
+
+                <q-card class="tw-shadow tw-mt-6">
+                    <q-card-section class="tw-p-0">
+                        <div>
+                            <q-list separator>
+                                <q-item>
+                                    <q-item-section>
+                                        <div class="tw-font-bold text-grey-5">Event</div>
+                                    </q-item-section>
+                                    <q-item-section side>
+                                        <div class="tw-font-bold text-grey-5">Email</div>
+                                    </q-item-section>
+                                </q-item>
+
+                                <q-item>
+                                    <q-item-section>Ticket Assigned To Me</q-item-section>
+                                    <q-item-section side>
+                                        <q-toggle
+                                            v-model="enable_avatar"
+                                            checked-icon="check"
+                                            color="green"
+                                            unchecked-icon="clear"
+                                        />
+                                    </q-item-section>
+                                </q-item>
+
+                                <q-item>
+                                    <q-item-section>Ticket Created</q-item-section>
+                                    <q-item-section side>
+                                        <q-toggle
+                                            v-model="enable_avatar"
+                                            checked-icon="check"
+                                            color="green"
+                                            unchecked-icon="clear"
+                                        />
+                                    </q-item-section>
+                                </q-item>
+
+                                <q-item>
+                                    <q-item-section>Ticket Reply</q-item-section>
+                                    <q-item-section side>
+                                        <q-toggle
+                                            v-model="enable_avatar"
+                                            checked-icon="check"
+                                            color="green"
+                                            unchecked-icon="clear"
+                                        />
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </div>
+                    </q-card-section>
+                </q-card>
+            </div>
         </div>
 
-        <q-card class="tw-mb-4 tw-shadow">
+        <!--<q-card class="tw-mb-4 tw-shadow">
             <q-card-section>
                 <div class="tw-flex tw-flex-col tw-items-center">
                     <div class="tw-mb-3 ec-settings-profile-img tw-relative">
@@ -256,7 +357,7 @@
                                 :error-message="formDataErrors.full_name"
                                 :error="!!formDataErrors.full_name"
                                 @update:model-value="formDataErrors.full_name = ''"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -272,7 +373,7 @@
                                 :error-message="formDataErrors.display_name"
                                 :error="!!formDataErrors.display_name"
                                 @update:model-value="formDataErrors.display_name = ''"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -288,7 +389,7 @@
                                 :error-message="formDataErrors.email"
                                 :error="!!formDataErrors.email"
                                 @update:model-value="formDataErrors.email = ''"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -313,7 +414,7 @@
                             <div>Phone Number</div>
                             <q-input
                                 v-model="formData.phone"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -325,7 +426,7 @@
                             <div>Address</div>
                             <q-input
                                 v-model="formData.address"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -337,7 +438,7 @@
                             <div>Facebook URI</div>
                             <q-input
                                 v-model="formData.facebook"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -349,7 +450,7 @@
                             <div>Twitter URI</div>
                             <q-input
                                 v-model="formData.twitter"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -361,7 +462,7 @@
                             <div>Linkdin URI</div>
                             <q-input
                                 v-model="formData.linkedin"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -391,7 +492,7 @@
                                 :error-message="formDataErrors.old_password"
                                 :error="!!formDataErrors.old_password"
                                 @update:model-value="formDataErrors.old_password = ''"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -407,7 +508,7 @@
                                 :error-message="formDataErrors.password"
                                 :error="!!formDataErrors.password"
                                 @update:model-value="formDataErrors.password = ''"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -420,7 +521,7 @@
                             <div>Confirm New Password</div>
                             <q-input
                                 v-model="passFormData.confirm_password"
-                                bg-color="white"
+                                no-error-icon bg-color="white"
                                 class="tw-mb-2 tw-shadow tw-px-2"
                                 hide-bottom-space
                                 standout
@@ -441,7 +542,7 @@
                     </q-card-section>
                 </q-card>
             </div>
-        </div>
+        </div>-->
 
         <q-dialog :model-value="updateAvatarModal" @hide="updateAvatarModal = false">
             <q-card style="min-width: 350px">
@@ -499,6 +600,9 @@ export default defineComponent({
     data(): any {
         return {
             idle_time_out: "30 minutes",
+            ticket_signature: false,
+            idle_time_queue: true,
+            enable_avatar: true,
             existingAvatarUrl: "",
             updateAvatarModal: false,
             previewAvatar: "",
@@ -514,14 +618,14 @@ export default defineComponent({
                 twitter: "",
                 linkedin: "",
             },
+            formDataErrors: {},
+
             passFormData: {
                 old_password: "",
                 password: "",
-                confirm_password: "",
             },
-
-            formDataErrors: {},
             passFormDataErrors: {},
+
             updateProfileLoading: false,
             emailUpdateVerifyOtpModalShow: false,
         };
@@ -598,10 +702,10 @@ export default defineComponent({
         },
 
         changePassword() {
-            if (this.passFormData.password !== this.passFormData.confirm_password) {
-                this.$helpers.showErrorNotification(this, "Password does not match");
-                return;
-            }
+            // if (this.passFormData.password !== this.passFormData.confirm_password) {
+            //     this.$helpers.showErrorNotification(this, "Password does not match");
+            //     return;
+            // }
 
             this.$store
                 .dispatch("auth/changePassword", {
