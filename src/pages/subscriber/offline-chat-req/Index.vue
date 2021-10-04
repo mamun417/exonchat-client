@@ -31,7 +31,7 @@
                         </div>
                     </template>
 
-                    <template v-slot:cell-action="slotProps">
+                    <template v-slot:cell-action>
                         <div><q-icon @click="openReplyModal" name="reply" size="sm" title="Reply" /></div>
                     </template>
                 </ec-table>
