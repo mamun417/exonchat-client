@@ -32,7 +32,7 @@
                     </template>
 
                     <template v-slot:cell-action>
-                        <div><q-icon @click="openReplyModal" name="reply" size="sm" title="Reply" /></div>
+                        <div><q-icon @click="replyModal = true" name="reply" size="sm" title="Reply" /></div>
                     </template>
                 </ec-table>
 
@@ -152,10 +152,6 @@ export default defineComponent({
             this.$store.dispatch("offline_chat_req/updateCurrentPage", page).then(() => {
                 this.getChatRequests();
             });
-        },
-
-        openReplyModal() {
-            this.replyModal = true;
         },
     },
 });

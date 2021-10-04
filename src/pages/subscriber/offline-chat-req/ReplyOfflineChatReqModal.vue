@@ -1,60 +1,113 @@
 <template>
     <q-dialog :model-value="true" persistent>
         <q-card style="min-width: 25rem">
-            <q-card-section class="tw-flex tw-justify-between tw-items-center tw-border-b">
-                <div>
-                    <span :class="`q-ml-sm tw-text-base tw-font-medium text-${globalColor}`">
-                        Reply offline chat request
-                    </span>
+            <q-card-section class="row items-center tw-border-b tw-px-6 tw-py-3">
+                <div class="tw-text-lg tw-font-bold" :class="`text-${globalColor}`">
+                    <div>Reply offline chat request</div>
                 </div>
+                <q-space></q-space>
                 <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
             </q-card-section>
 
             <q-card-section>
                 <div>
                     <q-input
-                        hide-bottom-space
-                        dense
-                        no-error-icon
+                        v-model="replyFormData.subject"
+                        :error-message="replyFormDataErrors.subject"
+                        :error="!!replyFormDataErrors.subject"
+                        @update:model-value="replyFormDataErrors.subject = ''"
                         :color="globalColor"
-                        class="tw-mb-3"
                         label="Subject"
-                        type="email"
+                        class="tw-mb-3"
+                        hide-bottom-space
+                        no-error-icon
                         outlined
+                        dense
                     />
 
                     <q-input
-                        hide-bottom-space
-                        dense
-                        no-error-icon
+                        v-model="replyFormData.message"
+                        :error-message="replyFormDataErrors.message"
+                        :error="!!replyFormDataErrors.message"
+                        @update:model-value="replyFormDataErrors.message = ''"
+                        input-style="min-height: 50px"
                         label="Your Message"
                         :color="globalColor"
+                        hide-bottom-space
+                        type="textarea"
                         class="tw-mb-3"
+                        no-error-icon
                         autogrow
                         outlined
-                        type="textarea"
-                        input-style="min-height: 50px"
                         rows="3"
+                        dense
                     />
                 </div>
             </q-card-section>
 
             <q-card-section class="tw-py-2 tw-pb-4">
-                <q-btn :color="globalColor" no-caps unelevated class="tw-w-full"> Send Reply</q-btn>
+                <q-btn
+                    @click="createReply"
+                    :color="globalColor"
+                    :loading="loadingSendReply"
+                    no-caps
+                    unelevated
+                    class="tw-w-full"
+                >
+                    Send Reply
+                </q-btn>
             </q-card-section>
         </q-card>
     </q-dialog>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     name: "ReplyOfflineChatReqModal",
+    data(): any {
+        return {
+            loadingSendReply: false,
+            replyFormData: {
+                subject: "",
+                message: "",
+            },
+            defaultForm: this.replyFormData,
+            replyFormDataErrors: {},
+        };
+    },
+
     computed: {
         ...mapGetters({ globalColor: "setting_ui/globalColor" }),
     },
-};
+
+    methods: {
+        createReply() {
+            this.loadingSendReply = true;
+
+            console.log(this.replyFormData);
+
+            window.api
+                .post("offline-chat-requests/reply", this.replyFormData)
+                .then((res: any) => {
+                    console.log({ defaultForm: this.defaultForm });
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    if (this.$_.isObject(err.response.data.message)) {
+                        this.replyFormDataErrors = err.response.data.message;
+                    } else {
+                        this.$helpers.showErrorNotification(this, err.response.data.message);
+                    }
+                })
+                .finally(() => {
+                    this.loadingSendReply = false;
+                });
+        },
+    },
+});
 </script>
 
 <style scoped></style>
