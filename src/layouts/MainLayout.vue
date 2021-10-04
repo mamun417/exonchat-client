@@ -848,6 +848,16 @@ export default defineComponent({
 
                 // check if not then new event
                 this.$emitter.emit(`listen_error_${data.step}`, data);
+
+                if (data.step === "ec_join_conversation") {
+                    this.$q.notify({
+                        color: "warning",
+                        textColor: "black",
+                        message: data.reason.message ? data.reason.message : data.reason,
+                        position: "top",
+                        badgeClass: "hidden",
+                    });
+                }
             });
 
             this.socket.on("connect_error", (err: any) => {
