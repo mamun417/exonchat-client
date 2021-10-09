@@ -392,6 +392,7 @@ import ConversationStateConfirmModal from "components/common/modal/ConversationS
 import * as _l from "lodash";
 import moment from "moment";
 import SendTranscript from "components/common/SendTranscript.vue";
+import Conversation from "src/store/models/Conversation";
 
 export default defineComponent({
     name: "MessagesTopSection",
@@ -479,6 +480,15 @@ export default defineComponent({
 
         conversationInfo(): any {
             return this.$store.getters["chat/conversationInfo"](this.conv_id);
+        },
+
+        conversationModel(): any {
+            return Conversation.query().where("id", this.conv_id);
+        },
+
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.first() || {};
         },
 
         conversationStatusForMe(): any {

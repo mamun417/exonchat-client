@@ -121,6 +121,7 @@
                                         <ec-avatar
                                             :name="ongoingChat.clientSocketSession.init_name"
                                             :email="ongoingChat.clientSocketSession.init_email"
+                                            :image_src="ongoingChat.clientSocketSession.user_info?.profile_pic || null"
                                             size="23px"
                                         ></ec-avatar>
                                     </q-item-section>

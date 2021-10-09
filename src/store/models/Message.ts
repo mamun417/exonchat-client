@@ -23,9 +23,12 @@ export default class Message extends Model {
             socket_session_id: this.attr(null),
 
             msg: this.attr(null),
+            extra_msg_data: this.attr(null),
             message_type: this.attr(null),
             sender_type: this.attr(null),
             info: this.attr(null),
+
+            other_service_id: this.attr(null),
 
             attachment_ids: this.attr([]),
 

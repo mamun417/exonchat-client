@@ -18,6 +18,7 @@ export default class SocketSession extends Model {
             init_ip: this.attr(null),
             init_location: this.attr(null),
             init_user_agent: this.attr(null),
+            user_info: this.attr(null),
             use_for: this.attr(null),
             use_for_id: this.attr(null),
             user_id: this.attr(null),
