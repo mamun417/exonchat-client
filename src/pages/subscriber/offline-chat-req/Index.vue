@@ -8,11 +8,17 @@
             <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     @handlePipeline="handlePipeline({ s: $event })"
+                    @rowClick="openDetails"
                     :search-value="offlineChatReqPipeline.s"
                     :rows="chatRequests.data"
                     :columns="columns"
                     :bodyCelTemplate="bodyCelTemplate"
                 >
+                    <template v-slot:cell-name="slotProps">
+                        <div>Name: {{ slotProps.row.name }}</div>
+                        <div>Email: {{ slotProps.row.email }}</div>
+                    </template>
+
                     <template v-slot:cell-message="slotProps">
                         <div class="tw-whitespace-normal">
                             {{ slotProps.row.message }}
@@ -67,12 +73,6 @@ export default defineComponent({
                     align: "left",
                     label: "Name",
                     field: "name",
-                },
-                {
-                    name: "email",
-                    align: "left",
-                    label: "Email",
-                    field: "email",
                 },
                 {
                     name: "subject",
@@ -153,8 +153,12 @@ export default defineComponent({
                 this.getChatRequests();
             });
         },
+
+        openDetails(offlineChatReq: any) {
+            console.log(offlineChatReq);
+
+            this.$router.push({ name: "offline-chat-req.view", params: { id: offlineChatReq.id } });
+        },
     },
 });
 </script>
-
-<!--// koita reply korte parbe ? // reply gular list dekha jabe ? // reply delete korar option thkbe kina ? //-->

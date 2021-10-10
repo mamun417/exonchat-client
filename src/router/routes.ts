@@ -74,6 +74,12 @@ const routes: RouteRecordRaw[] = [
             },
 
             {
+                path: "offline-chat-request/:id",
+                name: "offline-chat-req.view",
+                component: () => import("pages/subscriber/offline-chat-req/DetailsOfflineChatReq.vue"),
+            },
+
+            {
                 path: "clients-conversations",
                 name: "clients-conversations",
                 component: () => import("pages/subscriber/client/clients-conversations/Index.vue"),
