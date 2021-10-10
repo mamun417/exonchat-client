@@ -103,7 +103,7 @@
                         </div>
 
                         <div class="tw-flex tw-gap-1 tw-flex-col tw-items-center">
-                            <q-btn icon="info" flat>
+                            <q-btn v-if="devMode" icon="info" flat>
                                 <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
                                     Developer debug
                                 </q-tooltip>
@@ -416,6 +416,8 @@ export default defineComponent({
             notificationDisabledWarning: false,
 
             clientsPageVisitInterval: null, // for better manage we can use this when agent is in page visitor or a conversation
+
+            devMode: process.env.DEV,
         };
     },
 

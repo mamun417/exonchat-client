@@ -72,7 +72,7 @@
                         <template v-slot:option="scope">
                             <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" class="tw-py-2" dense>
                                 <q-item-section avatar>
-                                    <q-avatar><img :src="scope.opt.avatar" /></q-avatar>
+                                    <ec-avatar :email="scope.opt.label" size="sm" />
                                 </q-item-section>
                                 <q-item-section>
                                     {{ scope.opt.label }}
@@ -108,10 +108,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
+import EcAvatar from "components/common/EcAvatar.vue";
 
 export default defineComponent({
     name: "AddEditDepartmentForm",
-
+    components: { EcAvatar },
     props: {
         showAddEditDepartmentModal: {
             type: Boolean,
@@ -169,7 +170,6 @@ export default defineComponent({
                         return {
                             label: user.email,
                             value: user.id,
-                            avatar: user.avatar ?? "https://cdn.quasar.dev/img/avatar1.jpg",
                         };
                     });
                 })
