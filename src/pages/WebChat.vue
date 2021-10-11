@@ -177,12 +177,22 @@
                             <q-btn v-if="develop" @click="reload" icon="refresh" flat dense />
                         </div>
 
-                        <q-btn
-                            :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
-                            @click="toggleChatPanel(!panelVisibleStatus)"
-                            dense
-                            flat
-                        ></q-btn>
+                        <div>
+                            <q-btn
+                                v-if="conversationInfo.id && !conversationInfo.closed_at"
+                                @click="closeChatModal = true"
+                                icon="close"
+                                dense
+                                flat
+                            />
+
+                            <q-btn
+                                :icon="panelVisibleStatus ? 'expand_more' : 'expand_less'"
+                                @click="toggleChatPanel(!panelVisibleStatus)"
+                                dense
+                                flat
+                            ></q-btn>
+                        </div>
                     </div>
 
                     <div class="tw-flex-grow tw-flex tw-flex-col tw-relative">
