@@ -410,7 +410,7 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-2 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
-                            <q-list v-if="visits.length" ref="page_visit_list" class="tw-break-all">
+                            <q-list v-if="visits?.length" ref="page_visit_list" class="tw-break-all">
                                 <q-item
                                     v-for="(visit, key) of visits"
                                     :key="key"

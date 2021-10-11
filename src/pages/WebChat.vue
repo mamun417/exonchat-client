@@ -1098,6 +1098,10 @@ export default defineComponent({
                 // console.log("from ec_departments_online_status_res", res);
             });
 
+            this.socket.on("ec_reload_client_widget_from_user", (res: any) => {
+                location.reload();
+            });
+
             this.socket.on("ec_error", (res: any) => {
                 if (res.step === "ec_init_conv_from_client") {
                     this.errorHandleEcInitConvFromClient(res);

@@ -252,6 +252,21 @@
                                         </send-transcript>
                                     </q-item>
 
+                                    <q-item v-if="canSendTranscript" clickable>
+                                        <div
+                                            @click="reloadClientWidget(conversationInfo.id)"
+                                            class="tw-flex tw-items-center"
+                                        >
+                                            <template v-if="reloadingClientWidget">
+                                                <q-spinner-hourglass class="on-left" size="2em" /> Reloading...
+                                            </template>
+
+                                            <template v-else>
+                                                <q-item-section>Reload Client Widget</q-item-section>
+                                            </template>
+                                        </div>
+                                    </q-item>
+
                                     <q-item
                                         v-if="['joined', 'left'].includes(conversationStatusForMe) && canClose"
                                         clickable
@@ -425,6 +440,7 @@ export default defineComponent({
             transferChatToExpand: false,
             transferChatToFilter: "",
             sendingTranscript: false,
+            reloadingClientWidget: false,
             chatDurationInterval: "",
         };
     },
@@ -621,6 +637,19 @@ export default defineComponent({
             this.$socket.emit("ec_close_conversation", {
                 conv_id: conv_id,
             });
+        },
+
+        reloadClientWidget(conv_id: any) {
+            this.reloadingClientWidget = true;
+
+            this.$socket.emit("ec_reload_client_widget_from_user", {
+                conv_id: conv_id,
+            });
+
+            setTimeout(() => {
+                this.reloadingClientWidget = false;
+                this.$helpers.showSuccessNotification(this, "Client widget reload successfully");
+            }, 3000);
         },
     },
 });
