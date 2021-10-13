@@ -37,9 +37,9 @@
                         </div>
                     </template>
 
-                    <template v-slot:cell-action>
+                    <!--<template v-slot:cell-action>
                         <div><q-icon @click="replyModal = true" name="reply" size="sm" title="Reply" /></div>
-                    </template>
+                    </template>-->
                 </ec-table>
 
                 <div v-if="chatRequests?.pagination?.total_page > 1" class="tw-mt-10 flex flex-center">
@@ -100,13 +100,6 @@ export default defineComponent({
                     align: "left",
                     label: "Date",
                     field: "created_at",
-                },
-
-                {
-                    name: "action",
-                    label: "Actions",
-                    field: "action",
-                    align: "center",
                 },
             ],
             chatRequests: [],

@@ -94,7 +94,7 @@ export default defineComponent({
             formData: {
                 email: "",
                 password: "",
-                company_name: process.env.DEV ? "test" : "exonhost",
+                company_name: "exonhost",
             },
             loginSuccess: false,
         };

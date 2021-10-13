@@ -146,43 +146,57 @@
                         <!--<q-scroll-observer :debounce="200" @scroll="scrollObserverHandle" />-->
                     </q-scroll-area>
 
-                    <!--input-->
                     <div
                         style="border-top: 1px solid rgba(0, 0, 0, 0.08)"
                         class="tw-w-full tw-py-2 tw-flex tw-mt-3 tw-bg-white tw-self-end tw-rounded tw-mb-1 tw-shadow-md"
                     >
                         <q-file
+                            v-model="attachments"
                             name="attachment-uploader"
                             ref="attachment_uploader"
                             class="hidden"
                             accept=".jpg, .jpeg, .png, .gif"
+                            :max-files="attachmentConfig.maxFiles"
                             multiple
                             append
+                            @update:model-value="attachmentUploaderHandle"
                         />
 
                         <div class="tw-flex tw-flex-col tw-justify-end">
-                            <q-btn flat :color="globalColor" icon="attachment" :class="['tw-px-1']"></q-btn>
+                            <q-btn
+                                flat
+                                :color="globalColor"
+                                icon="attachment"
+                                class="tw-px-2"
+                                @click="$refs.attachment_uploader.pickFiles($event)"
+                            ></q-btn>
                         </div>
                         <div class="tw-flex tw-flex-col tw-justify-end">
-                            <ec-emoji :class="['tw-px-1']" :color="globalColor" />
+                            <ec-emoji @clickEmoji="handleClickEmoji" class="tw-px-2" :color="globalColor" />
                         </div>
 
                         <div class="tw-flex-auto tw-px-3">
+                            <!-- used keydown for instant catch n prevent -->
                             <q-input
                                 ref="messageInput"
+                                v-model="msg"
                                 debounce="0"
                                 placeholder="Write Message..."
                                 :color="globalColor"
                                 class="ec-msg-input"
                                 :class="[`ec-msg-input-${uid}`]"
+                                :autofocus="messageInputAutoFocus"
+                                @keydown="keyDownHandle"
+                                @keyup="keyUpHandle"
+                                @paste="imageLoadOnPast"
+                                @drop="imageLoadOnPast"
                                 hide-bottom-space
                                 autogrow
                                 borderless
                                 dense
-                            >
-                            </q-input>
+                            />
 
-                            <!--<div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
+                            <div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
                                 <q-avatar
                                     v-for="(attachmentObj, key) in finalAttachments"
                                     :key="key"
@@ -190,7 +204,7 @@
                                     class="each-attachment shadow-3 tw-relative"
                                     :class="{ 'tw-mr-2': key !== finalAttachments.length - 1 }"
                                     rounded
-                                ><img class="cursor-pointer" :src="attachmentObj.src" />
+                                    ><img class="cursor-pointer" :src="attachmentObj.src" />
                                     <div
                                         v-show="attachmentObj.status !== 'done'"
                                         class="tw-absolute tw-h-full tw-w-full tw-bg-gray-900 tw-opacity-25"
@@ -209,14 +223,24 @@
                                     >
                                         <q-icon name="close" />
                                     </q-badge>
-                                    <q-tooltip class="bg-green" anchor="top middle" self="bottom middle" :offset="[10, 10]"
-                                    >{{ attachmentObj.original_name }}
+                                    <q-tooltip
+                                        class="bg-green"
+                                        anchor="top middle"
+                                        self="bottom middle"
+                                        :offset="[10, 10]"
+                                        >{{ attachmentObj.original_name }}
                                     </q-tooltip>
                                 </q-avatar>
-                            </div>-->
+                            </div>
                         </div>
                         <div class="tw-flex tw-flex-col tw-justify-end">
-                            <q-btn icon="send" flat :color="globalColor"></q-btn>
+                            <q-btn
+                                icon="send"
+                                flat
+                                :color="globalColor"
+                                :disable="getSendBtnStatus"
+                                @click="sendMessage"
+                            ></q-btn>
                         </div>
                     </div>
                 </div>
@@ -408,18 +432,310 @@ import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
 import EcAvatar from "components/common/EcAvatar.vue";
 import EcEmoji from "components/common/EcEmoji.vue";
+import * as _l from "lodash";
+import Message from "src/store/models/Message";
 
 export default defineComponent({
     name: "DetailsOfflineChatReq",
     components: { EcEmoji, EcAvatar },
     data(): any {
         return {
+            offline_chat_req_id: this.$route.params["id"],
+            msg: "",
+            tempMsgId: "",
             cardMaxHeight: "16rem",
+            attachments: [],
+            finalAttachments: [],
+            showFileErrorMsg: false,
+            showFileErrorMsgInterval: "",
+            attachmentConfig: {
+                maxFileSize: 1024 * 1024 * 5, // 5 MB
+                maxFiles: 5,
+            },
+            messageInputAutoFocus: true,
         };
     },
 
     computed: {
         ...mapGetters({ globalBgColor: "setting_ui/globalBgColor", globalColor: "setting_ui/globalColor" }),
+    },
+
+    mounted() {
+        this.getReplies();
+    },
+
+    methods: {
+        getReplies() {
+            window.api
+                .get(`offline-chat-requests/${this.offline_chat_req_id}/replies`)
+                .then((res: any) => {
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+        },
+
+        attachmentUploaderHandle(val: any) {
+            this.$refs.messageInput.focus();
+
+            const tempMsgId = this.createTempMsgId();
+
+            val.forEach((img: any) => {
+                if (!this.attachmentValidation(img)) {
+                    return;
+                }
+
+                // prevent same image load
+                const notPreviousLoaded =
+                    _l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1;
+
+                if (notPreviousLoaded) {
+                    const tempAttachmentId = `temp_attachment_id_${this.$helpers.getTempId()}`;
+
+                    this.pushToFinalAttachment(tempAttachmentId, img);
+
+                    let formData = this.makeAttachmentFormData(img, tempAttachmentId, tempMsgId);
+
+                    this.$socketSessionApi
+                        .post("attachments", formData)
+                        .then((res: any) => {
+                            const attachment: any = res.data.data[0];
+
+                            const finalAttachment = _l.find(this.finalAttachments, {
+                                original_name: img.name,
+                                size: img.size,
+                            });
+
+                            if (finalAttachment) {
+                                finalAttachment.status = "done";
+                                finalAttachment.attachment_uploaded_id = attachment.attachment_info.id;
+                            }
+
+                            this.updateAttachmentModelStatus(attachment, "done");
+
+                            this.sendMessageAfterAllAttachmentUploaded(attachment, tempMsgId);
+                        })
+                        .catch((e: any) => {
+                            console.log(e);
+                        });
+                } else {
+                    // console.log(`file ${img.name} already added`);
+                }
+            });
+        },
+
+        attachmentValidation(img: any) {
+            const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
+
+            const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
+
+            if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
+                clearInterval(this.showFileErrorMsgInterval);
+
+                this.showFileErrorMsg = true;
+
+                this.showFileErrorMsgInterval = setInterval(() => {
+                    this.showFileErrorMsg = false;
+                }, 10000);
+
+                return false;
+            }
+
+            return true;
+        },
+
+        makeAttachmentFormData(img: any, tempAttachmentId: any, tempMsgId: any) {
+            let formData = new FormData();
+            formData.append("attachments", img, img.name);
+            formData.append("attachment_temp_id", tempAttachmentId);
+            formData.append("msg_temp_id", tempMsgId);
+
+            return formData;
+        },
+
+        pushToFinalAttachment(tempAttachmentId: string, img: any) {
+            this.finalAttachments.push({
+                id: tempAttachmentId,
+                temp_id: tempAttachmentId,
+                original_name: img.name,
+                size: img.size,
+                status: "pending",
+                src: URL.createObjectURL(img),
+                created_at: new Date().getTime(),
+                updated_at: new Date().getTime(),
+            });
+        },
+
+        handleClickEmoji($event: any) {
+            this.msg += $event;
+            this.$refs.messageInput.focus();
+        },
+
+        keyDownHandle(e: any) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+
+                if (!this.chatTemplate) {
+                    this.sendMessage();
+                }
+            }
+        },
+        keyUpHandle(e: any) {
+            // prevent only enter so that before send new line does not show
+            if (this.chatPanelType !== "client" && e.key === "/" && !this.beforeKeyUpInputVal) {
+                this.chatTemplate = true;
+            }
+
+            /// when backspace press this.msg is empty
+            if (!this.msg && e.key === "Backspace") {
+                this.chatTemplate = false;
+            }
+
+            if (this.chatTemplate) {
+                if (!["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(e.key)) {
+                    this.chatTemplateSearchHandle(e.target.value.slice(1));
+                }
+            }
+
+            // e.target.value is the previous state
+            this.beforeKeyUpInputVal = e.target.value;
+        },
+
+        imageLoadOnPast(e: any) {
+            const isTextPast = e.clipboardData?.getData("text") || e.dataTransfer?.getData("text");
+
+            // prevent default only for file (past/drop)
+            if (!isTextPast) e.preventDefault();
+
+            let files = e.dataTransfer?.files || e.clipboardData?.files || [];
+
+            this.attachmentUploaderHandle([...files]);
+        },
+
+        attachmentRemoveHandle(attachmentObj: any) {
+            const localCopy = _l.cloneDeep(attachmentObj);
+
+            _l.remove(
+                this.finalAttachments,
+                (a: any) => a.original_name === attachmentObj.original_name && a.size === attachmentObj.size
+            );
+
+            _l.remove(
+                this.attachments,
+                (a: any) => a.name === attachmentObj.original_name && a.size === attachmentObj.size
+            );
+
+            if (localCopy.id) {
+                this.$socketSessionApi.delete(`attachments/${localCopy.id}`);
+            }
+        },
+
+        getSendBtnStatus(): any {
+            return !!this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
+        },
+
+        sendMessage(): any {
+            this.msg = this.msg.trim();
+
+            if (!this.finalAttachments.length && !this.msg.length) {
+                return false;
+            }
+
+            this.createTempMsgId();
+
+            console.log(this.msg);
+
+            window.api
+                .post("offline-chat-requests/reply", {
+                    offline_chat_req_id: this.offline_chat_req_id,
+                    message: this.msg,
+                })
+                .then((res: any) => {
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
+
+            // const dynamicBody =
+            //     this.chatPanelType === "user"
+            //         ? { conv_id: this.conv_id, temp_id: this.tempMsgId }
+            //         : { temp_id: this.tempMsgId };
+
+            // const dynamicSocket = this.socket || this.$socket;
+
+            // send not typing from here also before send emit so that typing flicker goes
+            // dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
+            //     conv_id: this.conv_id,
+            //     msg: "",
+            //     status: "not_typing",
+            // });
+
+            // Message.insert({
+            //     data: {
+            //         id: this.tempMsgId,
+            //         msg: this.msg,
+            //         message_type: "message",
+            //         conversation_id: this.conv_id,
+            //         socket_session_id: this.$helpers.getMySocketSessionId(),
+            //         created_at: new Date().toISOString(),
+            //         attachments: this.finalAttachments,
+            //     },
+            // }).then(() => {
+            //     this.tempMsgId = null;
+            //
+            //     this.scrollToPosition();
+            // });
+
+            const pendingEntry = this.finalAttachments.find((attachment: any) => attachment.status !== "done");
+
+            // if (!this.finalAttachments.length || !pendingEntry) {
+            //     dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
+            //         ...dynamicBody,
+            //         msg: this.msg,
+            //         attachments: _l.map(this.finalAttachments, "attachment_uploaded_id"),
+            //     });
+            // }
+
+            this.msg = "";
+            this.attachments = [];
+            this.finalAttachments = [];
+        },
+
+        scrollToPosition(position = 1) {
+            const msgScrollArea = this.$refs.msgScrollArea;
+
+            // waiting for dom render
+            setTimeout(() => {
+                if (msgScrollArea) {
+                    // console.log("scroll to ", position);
+
+                    // this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+                    //     conv_id: this.conv_id,
+                    //     auto_scroll_to_bottom: position === 1,
+                    //     last_position: 1,
+                    // });
+
+                    msgScrollArea.setScrollPercentage("vertical", position, 100);
+
+                    // if (position === 1) {
+                    //     clearTimeout(this.updateLastMsgSeenTimeTimer);
+                    //
+                    //     // check if user on page then update. for now do it
+                    //     this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
+                    // }
+                }
+            }, 100);
+        },
+
+        createTempMsgId() {
+            if (!this.tempMsgId) {
+                this.tempMsgId = `temp_msg_id_${this.$helpers.getTempId()}`;
+            }
+
+            return this.tempMsgId;
+        },
     },
 });
 </script>
