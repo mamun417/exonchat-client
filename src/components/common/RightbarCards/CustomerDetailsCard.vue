@@ -26,7 +26,11 @@
                                     <q-item-label class="text-right text-blue-7" caption
                                         >{{ conversationWithUsersInfo.socket_session.init_email }}
                                     </q-item-label>
-                                    <q-item-label class="text-right" ref="connectedForTimer" caption
+                                    <q-item-label
+                                        v-if="conversationInfo.type === 'live_chat'"
+                                        class="text-right"
+                                        ref="connectedForTimer"
+                                        caption
                                         >Connected for
                                         <b>{{
                                             $helpers.preciseDiff(
@@ -101,11 +105,12 @@
     </q-expansion-item>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
 import EcAvatar from "components/common/EcAvatar";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     name: "CustomerDetailsCard",
     components: { EcAvatar },
     props: {
@@ -122,6 +127,23 @@ export default {
             default: () => ({}),
         },
     },
+    data(): any {
+        return {
+            mountedInterVal: null,
+        };
+    },
+
+    mounted() {
+        this.mountedInterVal = setInterval(() => {
+            if (this.$route.name === "chats" && this.rightBarState.mode === "client_info") {
+                this.$refs.connectedForTimer?.$forceUpdate();
+            }
+        }, 3000);
+    },
+
+    beforeUnmount() {
+        clearInterval(this.mountedInterVal);
+    },
 
     computed: {
         ...mapGetters({
@@ -130,7 +152,7 @@ export default {
             rightBarState: "setting_ui/rightBarState",
         }),
     },
-};
+});
 </script>
 
 <style scoped></style>

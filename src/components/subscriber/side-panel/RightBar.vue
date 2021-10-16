@@ -747,7 +747,6 @@ export default defineComponent({
             ) {
                 this.$refs.page_visit_list?.$forceUpdate();
                 this.$refs.chat_duration?.$forceUpdate();
-                this.$refs.connectedForTimer?.$forceUpdate();
             }
         }, 3000);
 

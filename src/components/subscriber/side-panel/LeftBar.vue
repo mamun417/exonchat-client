@@ -373,6 +373,7 @@ export default defineComponent({
         myOngoingWithFbChats(): any {
             const facebookChats = Conversation.query()
                 .where("type", (value: any) => value === "facebook_chat")
+                .where("closed_at", null)
                 // .whereHas("conversation_sessions", (conversationSessionQuery) => {
                 //     conversationSessionQuery; //
                 // })

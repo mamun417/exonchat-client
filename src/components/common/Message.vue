@@ -754,7 +754,6 @@ import Message from "src/store/models/Message";
 import AttachmentViewModal from "components/subscriber/message/attachment/AttachmentViewModal.vue";
 import MessageAttachment from "src/store/models/MessageAttachment";
 import ConversationSession from "src/store/models/ConversationSession";
-import { date } from "quasar";
 
 export default defineComponent({
     name: "Message",
