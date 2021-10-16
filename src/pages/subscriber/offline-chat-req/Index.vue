@@ -52,6 +52,8 @@
             </div>
         </div>
 
+        <pre>{{ offlineChatRequest }}</pre>
+
         <reply-offline-chat-req-modal v-if="replyModal" @hide="replyModal = false" />
     </div>
 </template>
@@ -62,6 +64,8 @@ import EcTable from "components/common/table/EcTable.vue";
 import Pagination from "components/common/Pagination.vue";
 import { mapGetters } from "vuex";
 import ReplyOfflineChatReqModal from "pages/subscriber/offline-chat-req/ReplyOfflineChatReqModal.vue";
+import Conversation from "src/store/models/Conversation";
+import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 
 export default defineComponent({
     components: { ReplyOfflineChatReqModal, Pagination, EcTable },
@@ -117,6 +121,10 @@ export default defineComponent({
             offlineChatReqPaginationMeta: "offline_chat_req/paginationMeta",
             offlineChatReqPipeline: "offline_chat_req/pipeline",
         }),
+
+        offlineChatRequest() {
+            return OfflineChatRequest.all();
+        },
     },
 
     methods: {

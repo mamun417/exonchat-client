@@ -2,6 +2,7 @@ import { ActionTree } from "vuex";
 import { StateInterface } from "../index";
 import { OfflineChatReqStateInterface } from "./state";
 import * as _l from "lodash";
+import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 
 const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
     getChatRequests(context) {
@@ -18,7 +19,9 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                         // message: query,
                     },
                 })
-                .then((res: any) => {
+                .then(async (res: any) => {
+                    await OfflineChatRequest.insert({ data: res.data.chat_requests.data });
+
                     context.commit("updatePaginationMeta", res.data.chat_requests.pagination);
 
                     resolve(res);
@@ -30,18 +33,19 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
     },
 
     getReplies(context, payload: any) {
-        // call api
         return new Promise((resolve, reject) => {
             window.api
                 .get(`offline-chat-requests/${payload.offline_chat_req_id}/replies`)
-                .then((res: any) => {
+                .then(async (res: any) => {
                     const offlineChatReq = res.data;
 
-                    context.commit("updateOfflineChatReq", {
-                        conv_id: offlineChatReq.id,
-                        offline_chat_req: _l.pick(offlineChatReq, ["id", "created_by_id", "created_at"]),
-                        replies: offlineChatReq.replies,
-                    });
+                    await OfflineChatRequest.insert({ data: offlineChatReq });
+
+                    // context.commit("updateOfflineChatReq", {
+                    //     offline_chat_req_id: offlineChatReq.id,
+                    //     offline_chat_req: _l.pick(offlineChatReq, ["id", "created_by_id", "created_at"]),
+                    //     replies: offlineChatReq.offline_chat_req_replies,
+                    // });
 
                     resolve(res);
                 })

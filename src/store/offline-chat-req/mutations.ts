@@ -7,14 +7,14 @@ const mutation: MutationTree<OfflineChatReqStateInterface> = {
         const offlineChatReqId = offlineChatReqData.offline_chat_req_id;
 
         if (offlineChatReqId) {
-            const offlineChatReq: any = state.offlineChatRequests[offlineChatReqId];
+            let offlineChatReq: any = state.offlineChatRequests[offlineChatReqId];
 
-            if (!state.offlineChatRequests[offlineChatReqId]?.id) {
+            if (!offlineChatReq?.id) {
                 if (!offlineChatReqData.offline_chat_req) {
                     offlineChatReqData.offline_chat_req = {};
                 }
 
-                state.offlineChatRequests[offlineChatReqId] = {
+                offlineChatReq = {
                     ...offlineChatReqData.offline_chat_req,
                     replies: {},
                 };

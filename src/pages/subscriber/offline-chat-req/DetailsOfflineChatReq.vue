@@ -34,7 +34,7 @@
                         >
                             <template v-slot:default>
                                 <div class="tw-relative tw-z-10">
-                                    <template class="justify-center" v-for="n in 22" :key="n">
+                                    <template class="justify-center" v-for="n in offlineChatRequestReplies" :key="n">
                                         <div class="">
                                             <div class="tw-pb-0 tw-my-4">
                                                 <q-card
@@ -68,7 +68,7 @@
                                                                             <pre
                                                                                 v-html="
                                                                                     $helpers.makeCLickAbleLink(
-                                                                                        'lorem ipsum'
+                                                                                        n.message
                                                                                     )
                                                                                 "
                                                                                 class="tw-whitespace-normal"
@@ -434,6 +434,8 @@ import EcAvatar from "components/common/EcAvatar.vue";
 import EcEmoji from "components/common/EcEmoji.vue";
 import * as _l from "lodash";
 import Message from "src/store/models/Message";
+import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
+import OfflineChatRequestReply from "src/store/models/offline-chat-req/OfflineChatRequestReply";
 
 export default defineComponent({
     name: "DetailsOfflineChatReq",
@@ -458,6 +460,15 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({ globalBgColor: "setting_ui/globalBgColor", globalColor: "setting_ui/globalColor" }),
+
+        offlineChatRequestReplies() {
+            const offlineChatRequest: any = OfflineChatRequest.query()
+                .where("id", this.offline_chat_req_id)
+                .with("offline_chat_req_replies")
+                .first();
+
+            return offlineChatRequest?.offline_chat_req_replies;
+        },
     },
 
     mounted() {
@@ -466,14 +477,7 @@ export default defineComponent({
 
     methods: {
         getReplies() {
-            window.api
-                .get(`offline-chat-requests/${this.offline_chat_req_id}/replies`)
-                .then((res: any) => {
-                    console.log(res.data);
-                })
-                .catch((err: any) => {
-                    console.log(err);
-                });
+            this.$store.dispatch("offline_chat_req/getReplies", { offline_chat_req_id: this.offline_chat_req_id });
         },
 
         attachmentUploaderHandle(val: any) {
@@ -646,18 +650,6 @@ export default defineComponent({
 
             console.log(this.msg);
 
-            window.api
-                .post("offline-chat-requests/reply", {
-                    offline_chat_req_id: this.offline_chat_req_id,
-                    message: this.msg,
-                })
-                .then((res: any) => {
-                    console.log(res.data);
-                })
-                .catch((err: any) => {
-                    console.log(err);
-                });
-
             // const dynamicBody =
             //     this.chatPanelType === "user"
             //         ? { conv_id: this.conv_id, temp_id: this.tempMsgId }
@@ -672,23 +664,22 @@ export default defineComponent({
             //     status: "not_typing",
             // });
 
-            // Message.insert({
-            //     data: {
-            //         id: this.tempMsgId,
-            //         msg: this.msg,
-            //         message_type: "message",
-            //         conversation_id: this.conv_id,
-            //         socket_session_id: this.$helpers.getMySocketSessionId(),
-            //         created_at: new Date().toISOString(),
-            //         attachments: this.finalAttachments,
-            //     },
-            // }).then(() => {
-            //     this.tempMsgId = null;
-            //
-            //     this.scrollToPosition();
-            // });
+            OfflineChatRequestReply.insert({
+                data: {
+                    id: this.tempMsgId,
+                    message: this.msg,
+                    message_type: "message",
+                    offline_chat_req_id: this.offline_chat_req_id,
+                    socket_session_id: this.$helpers.getMySocketSessionId(),
+                    created_at: new Date().toISOString(),
+                },
+            }).then(() => {
+                this.tempMsgId = null;
 
-            const pendingEntry = this.finalAttachments.find((attachment: any) => attachment.status !== "done");
+                this.scrollToPosition();
+            });
+
+            // const pendingEntry = this.finalAttachments.find((attachment: any) => attachment.status !== "done");
 
             // if (!this.finalAttachments.length || !pendingEntry) {
             //     dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
@@ -697,6 +688,18 @@ export default defineComponent({
             //         attachments: _l.map(this.finalAttachments, "attachment_uploaded_id"),
             //     });
             // }
+
+            window.api
+                .post("offline-chat-requests/reply", {
+                    offline_chat_req_id: this.offline_chat_req_id,
+                    message: this.msg,
+                })
+                .then((res: any) => {
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                });
 
             this.msg = "";
             this.attachments = [];
