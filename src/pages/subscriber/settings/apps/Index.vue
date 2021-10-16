@@ -186,7 +186,9 @@ export default defineComponent({
                 .dispatch("setting_app/getAppSetting")
                 .then((res: any) => {
                     res.data.forEach((appSetting: any) => {
-                        this.formInputs[appSetting.slug] = this.getSingleInputValue(appSetting);
+                        if (this.formInputs.hasOwnProperty(appSetting.slug)) {
+                            this.formInputs[appSetting.slug] = this.getSingleInputValue(appSetting);
+                        }
                     });
 
                     // if need

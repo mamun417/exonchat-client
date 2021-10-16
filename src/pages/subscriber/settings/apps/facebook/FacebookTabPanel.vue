@@ -1,6 +1,41 @@
 <template>
-    <q-tab-panel name="facebook">
+    <q-tab-panel name="facebook" :class="$helpers.colors().defaultText">
         <q-card-section>
+            <div class="tw-border-b-1">
+                <div class="tw-font-medium tw-pb-2">Facebook API Manager</div>
+            </div>
+        </q-card-section>
+
+        <q-card-section>
+            <div>App ID</div>
+            <q-input
+                v-model="facebookApiManagerForm.apps_fb_app_id"
+                :error-message="facebookApiManagerFormErrors.apps_fb_app_id"
+                :error="!!facebookApiManagerFormErrors.apps_fb_app_id"
+                @update:model-value="facebookApiManagerFormErrors.apps_fb_app_id = ''"
+                placeholder="Ex. 1033239004116693"
+                type="input"
+                bg-color="white"
+                class="tw-shadow tw-px-2"
+                hide-bottom-space
+                standout
+                borderless
+                dense
+            />
+
+            <q-btn
+                @click="updateFacebookApiSetting"
+                class="tw-mt-5"
+                type="submit"
+                :color="globalColor"
+                unelevated
+                no-caps
+            >
+                Update App Setting
+            </q-btn>
+        </q-card-section>
+
+        <q-card-section class="tw-mt-4">
             <div class="tw-mb-4 tw-border-b-1">
                 <div class="tw-font-medium tw-pb-2" :class="$helpers.colors().defaultText">
                     Facebook Account Manager
@@ -13,7 +48,9 @@
                 <div class="bg-grey-3 tw-rounded-sm tw-p-6 tw-flex tw-items-center tw-justify-between tw-gap-4">
                     <div class="tw-font-medium" :class="$helpers.colors().defaultText">
                         You are currently connected as
-                        <span :class="`text-${globalColor}`" class="tw-font-bold">Mohammed Younus</span>
+                        <span :class="`text-${globalColor}`" class="tw-font-bold">{{
+                            accounts[0].user_info.name
+                        }}</span>
                     </div>
                     <q-btn label="Disconnect" text-color="orange-8" @click="fbLogoutHandle" flat />
                 </div>
@@ -183,6 +220,10 @@ export default defineComponent({
         return {
             accounts: [],
             chatDepartments: [],
+            facebookApiManagerForm: {
+                apps_fb_app_id: "",
+            },
+            facebookApiManagerFormErrors: {},
             facebookDataForSubmit: {
                 auth_response: {},
                 user_response: {},
@@ -192,32 +233,7 @@ export default defineComponent({
     },
 
     mounted() {
-        this.$nextTick(() => {
-            window.fbAsyncInit = () => {
-                FB.init({
-                    appId: "1033239004116693",
-                    xfbml: true,
-                    version: "v11.0",
-                });
-
-                console.log("FB SDK was initialized as mixin");
-            };
-        });
-
-        (function (d, s, id) {
-            let js: any,
-                fjs: any = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {
-                return;
-            }
-            js = d.createElement(s);
-            js.id = id;
-            js.src = "//connect.facebook.net/en_US/sdk.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        })(document, "script", "facebook-jssdk");
-
-        this.getFacebookAccounts();
-        this.getChatDepartments();
+        this.getAppSetting();
     },
 
     computed: {
@@ -225,6 +241,86 @@ export default defineComponent({
     },
 
     methods: {
+        getAppSetting() {
+            this.$store
+                .dispatch("setting_app/getAppSetting")
+                .then((res: any) => {
+                    res.data.forEach((appSetting: any) => {
+                        if (this.facebookApiManagerForm.hasOwnProperty(appSetting.slug)) {
+                            this.facebookApiManagerForm[appSetting.slug] = this.getSingleInputValue(appSetting);
+                        }
+                    });
+
+                    this.initFacebookSdk();
+                })
+                .catch((err: any) => {
+                    console.log(err.response.data);
+                });
+        },
+
+        getSingleInputValue(appSetting: any) {
+            const value = appSetting.user_settings_value.length
+                ? appSetting.user_settings_value[0].value
+                : appSetting.default_value;
+
+            return appSetting.input_type === "checkbox" ? value === "true" : value;
+        },
+
+        updateFacebookApiSetting() {
+            const data = Object.keys(this.facebookApiManagerForm).map((inputName: any) => {
+                return {
+                    name: inputName,
+                    value: this.facebookApiManagerForm[inputName].toString(),
+                };
+            });
+
+            this.$store
+                .dispatch("setting_app/updateAppSetting", {
+                    inputs: {
+                        app_settings: data,
+                    },
+                })
+                .then(() => {
+                    this.$helpers.showSuccessNotification(this, "App setting update successful");
+                })
+                .catch((err: any) => {
+                    if (this.$_.isObject(err.response.data.message)) {
+                        this.facebookApiManagerFormErrors = err.response.data.message;
+                    } else {
+                        this.$helpers.showErrorNotification(this, err.response.data.message);
+                    }
+                });
+        },
+
+        initFacebookSdk() {
+            this.$nextTick(() => {
+                window.fbAsyncInit = () => {
+                    FB.init({
+                        appId: this.facebookApiManagerForm.apps_fb_app_id,
+                        xfbml: true,
+                        version: "v11.0",
+                    });
+
+                    console.log("FB SDK was initialized as mixin");
+                };
+            });
+
+            (function (d, s, id) {
+                let js: any,
+                    fjs: any = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) {
+                    return;
+                }
+                js = d.createElement(s);
+                js.id = id;
+                js.src = "//connect.facebook.net/en_US/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            })(document, "script", "facebook-jssdk");
+
+            this.getFacebookAccounts();
+            this.getChatDepartments();
+        },
+
         getFacebookAccounts() {
             this.$api.get("/apps/facebook/accounts").then((res: any) => {
                 this.accounts = res.data;
