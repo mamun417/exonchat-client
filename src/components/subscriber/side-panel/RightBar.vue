@@ -615,10 +615,6 @@ export default defineComponent({
             return this.conversationModel.first() || {};
         },
 
-        conversationInfo(): any {
-            return this.$store.getters["chat/conversationData"](this.fullChatConvId);
-        },
-
         conversationConnectedUsers(): any {
             return this.$store.getters["chat/conversationConnectedUsers"](this.fullChatConvId);
         },

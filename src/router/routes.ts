@@ -74,11 +74,6 @@ const routes: RouteRecordRaw[] = [
             },
 
             {
-                path: "clients-conversations",
-                name: "clients-conversations",
-                component: () => import("pages/subscriber/client/clients-conversations/Index.vue"),
-            },
-            {
                 path: "visitors",
                 name: "visitors",
                 component: () => import("pages/subscriber/client/visitors/Index.vue"),

@@ -33,56 +33,21 @@
                                         : socket_session.init_name
                                 }}
                             </div>
-                            <div class="tw-text-sm" v-if="conversationInfo.users_only">
+                            <div class="tw-text-sm" v-if="conversationData.users_only">
                                 {{ socket_session.user ? socket_session.user.email : socket_session.init_email }}
                             </div>
                             <!--<span class="text-caption">({{ socket_session.user ? 'agent' : 'client' }})</span>-->
                         </div>
                     </q-item-label>
                     <q-item-label caption>
-                        <!--<q-badge-->
-                        <!--    v-if="conversationWithUsersInfo[0]?.socket_session.user"-->
-                        <!--    :color="-->
-                        <!--        agentOnlineStatus === 'online'-->
-                        <!--            ? 'green'-->
-                        <!--            : agentOnlineStatus === 'offline'-->
-                        <!--            ? 'red-6'-->
-                        <!--            : 'grey'-->
-                        <!--    "-->
-                        <!--    :class="{ 'tw-px-2 tw-pb-1': !mini_mode }"-->
-                        <!--&gt;-->
-                        <!--    {{ agentOnlineStatus }}-->
-                        <!--</q-badge>-->
-
-                        <!--<q-badge
-                            v-else
-                            :color="clientActiveStatus ? 'green' : 'grey'"
-                            :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
-                        >
-                            {{ clientActiveStatus ? 'Online' : 'Offline' }}
-                        </q-badge>-->
-
-                        <!--<q-badge
-                            v-if="conversationInfo.closed_at"
-                            color="orange"
-                            :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
-                            >Chat Closed
-                        </q-badge>-->
-
-                        <div v-if="!conversationInfo.users_only && !conversationInfo.closed_at">
+                        <div v-if="!conversationData.users_only && !conversationData.closed_at">
                             <!--                            q-card used for the ref instance-->
                             <q-card class="shadow-0" ref="chatDuration">
-                                Chat is Ongoing for <b>{{ $helpers.preciseDiff(conversationInfo.created_at) }}</b>
+                                Chat is Ongoing for <b>{{ $helpers.preciseDiff(conversationData.created_at) }}</b>
                             </q-card>
                         </div>
                     </q-item-label>
                 </q-item-section>
-
-                <!--                <q-item-section v-if="!mini_mode" side>-->
-                <!--                    <q-item-label>-->
-                <!--                        <connected-users-faces :users_conv_ses="conversationConnectedUsers" />-->
-                <!--                    </q-item-label>-->
-                <!--                </q-item-section>-->
 
                 <q-item-section side>
                     <q-item-label>
@@ -90,7 +55,7 @@
                             v-if="
                                 mini_mode &&
                                 rightBarState.mode === 'conversation' &&
-                                (conversationInfo.users_only || conversationInfo.closed_at)
+                                (conversationData.users_only || conversationData.closed_at)
                             "
                         >
                             <q-btn
@@ -101,7 +66,7 @@
                                     updateRightDrawerState({
                                         mode: 'client_info',
                                     });
-                                    $router.push({ name: 'chats', params: { conv_id: conversationInfo.id } });
+                                    $router.push({ name: 'chats', params: { conv_id: conversationData.id } });
                                 "
                             >
                                 <q-tooltip>Maximize Conversation</q-tooltip>
@@ -122,7 +87,7 @@
                         </template>
 
                         <q-btn
-                            v-if="!conversationInfo.users_only && !conversationInfo.closed_at"
+                            v-if="!conversationData.users_only && !conversationData.closed_at"
                             icon="flash_on"
                             class=""
                             :color="globalColor"
@@ -164,7 +129,7 @@
 
                                     <q-item
                                         v-if="
-                                            ['support', 'Support'].includes(conversationInfo.chat_department.tag) &&
+                                            ['support', 'Support'].includes(conversationData.chat_department.tag) &&
                                             conversationStatusForMe === 'joined'
                                         "
                                         clickable
@@ -205,7 +170,7 @@
                                                 });
                                                 $router.push({
                                                     name: 'chats',
-                                                    params: { conv_id: conversationInfo.id },
+                                                    params: { conv_id: conversationData.id },
                                                 });
                                             "
                                             :class="$helpers.colors().defaultText"
@@ -234,7 +199,7 @@
 
                                     <q-item v-if="canSendTranscript" clickable>
                                         <send-transcript
-                                            :conv_id="conversationInfo.id"
+                                            :conv_id="conversationData.id"
                                             @sendingTranscript="sendingTranscript = $event"
                                         >
                                             <template v-slot:custom-content>
@@ -254,7 +219,7 @@
 
                                     <q-item v-if="canSendTranscript" clickable>
                                         <div
-                                            @click="reloadClientWidget(conversationInfo.id)"
+                                            @click="reloadClientWidget(conversationData.id)"
                                             class="tw-flex tw-items-center"
                                         >
                                             <template v-if="reloadingClientWidget">
@@ -396,6 +361,7 @@ import ConversationStateConfirmModal from "components/common/modal/ConversationS
 import * as _l from "lodash";
 import moment from "moment";
 import SendTranscript from "components/common/SendTranscript.vue";
+import Conversation from "src/store/models/Conversation";
 
 export default defineComponent({
     name: "MessagesTopSection",
@@ -454,8 +420,8 @@ export default defineComponent({
             if (
                 this.$route.name === "chats" &&
                 this.conversationWithUsersInfo?.length &&
-                !this.conversationInfo.users_only &&
-                !this.conversationInfo.closed_at
+                !this.conversationData.users_only &&
+                !this.conversationData.closed_at
             ) {
                 this.$refs.chatDuration?.$forceUpdate();
             }
@@ -476,14 +442,19 @@ export default defineComponent({
             globalColor: "setting_ui/globalColor",
         }),
 
+        conversationModel(): any {
+            return Conversation.query().where("id", this.$route.params?.conv_id);
+        },
+
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.first() || {};
+        },
+
         onlineUsers(): any {
             const users = this.$store.getters["chat/chatUsers"];
 
             return this.transferChatToFilter ? users : users;
-        },
-
-        conversationInfo(): any {
-            return this.$store.getters["chat/conversationInfo"](this.conv_id);
         },
 
         conversationStatusForMe(): any {

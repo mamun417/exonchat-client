@@ -370,41 +370,6 @@ export default defineComponent({
             return ChatDepartment.query();
         },
 
-        /*teamConversations(): any {
-            const teamConversations = this.$_.cloneDeep(this.$store.getters['chat/teamConversation']);
-
-            if (teamConversations.length) {
-                return teamConversations.map((conv: any) => {
-                    conv.message = msgMaker(conv.messages);
-
-                    return conv;
-                });
-            }
-
-            function msgMaker(messagesObj: any) {
-                if (messagesObj && Object.keys(messagesObj).length) {
-                    const messages = _l.cloneDeep(Object.values(messagesObj));
-
-                    const tempMsgObj: any = _l
-                        .sortBy(
-                            messages.filter((msg: any) => msg.msg || (msg.attachments && msg.attachments.length)),
-                            [(msg: any) => moment(msg.created_at).format('x')]
-                        )
-                        .reverse()[0];
-
-                    if (!tempMsgObj.msg) {
-                        tempMsgObj.msg = 'Uploaded Attachments';
-                    }
-
-                    return tempMsgObj;
-                }
-
-                return null;
-            }
-
-            return [];
-        },*/
-
         selectAbleOnlineStatus(): any {
             return this.onlineStatus.filter(
                 (onlineStatus: any) => onlineStatus?.status !== this.getMyOnlineStatus?.status

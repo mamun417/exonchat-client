@@ -91,16 +91,6 @@ export default defineComponent({
         this.conv_id = JSON.parse(localStorage.getItem("clientInitiateConvInfo") || "").conv_id;
     },
 
-    computed: {
-        conversationInfo(): any {
-            return this.$store.getters["chat/conversationInfo"](this.conv_id);
-        },
-
-        // geEcClientSocketSesId(): any {
-        //     return sessionStorage.getItem('ec_client_socket_ses_id');
-        // },
-    },
-
     methods: {
         submitRating() {
             this.ratingForm.conversation_id = this.conv_id;

@@ -58,7 +58,7 @@
 
             <div v-show="panelReady" class="tw-flex tw-justify-end">
                 <q-btn
-                    v-show="conversationInfo.id || !onlineChatDepartments || onlineChatDepartments.length"
+                    v-show="conversationData.id || !onlineChatDepartments || onlineChatDepartments.length"
                     size="20px"
                     :color="globalColor"
                     class="ec_mini_mode_btn tw-shadow-xl round-btn"
@@ -92,7 +92,7 @@
                 </q-btn>
 
                 <q-btn
-                    v-show="!conversationInfo.id && onlineChatDepartments && !onlineChatDepartments.length"
+                    v-show="!conversationData.id && onlineChatDepartments && !onlineChatDepartments.length"
                     icon="mail"
                     :color="globalColor"
                     class="tw-shadow-xl tw-mb-4"
@@ -126,9 +126,9 @@
                         <q-btn icon="more_horiz" flat dense>
                             <q-menu anchor="bottom right" self="top end" :class="$helpers.colors().defaultText">
                                 <q-list separator style="min-width: 200px">
-                                    <q-item clickable v-if="conversationInfo.id">
+                                    <q-item clickable v-if="conversationData.id">
                                         <send-transcript
-                                            :conv_id="conversationInfo.id"
+                                            :conv_id="conversationData.id"
                                             @sendingTranscript="sendingTranscript = $event"
                                         >
                                             <template v-slot:custom-content>
@@ -147,7 +147,7 @@
                                     </q-item>
 
                                     <q-item
-                                        v-if="conversationInfo.id && !conversationInfo.closed_at"
+                                        v-if="conversationData.id && !conversationData.closed_at"
                                         @click="closeChatModal = true"
                                         v-close-popup
                                         clickable
@@ -170,7 +170,7 @@
 
                         <div class="tw-text-base tw-flex tw-items-center">
                             {{
-                                conversationInfo.id || !onlineChatDepartments || onlineChatDepartments.length
+                                conversationData.id || !onlineChatDepartments || onlineChatDepartments.length
                                     ? "Online - Chat with us"
                                     : "Offline - Send offline message"
                             }}
@@ -179,7 +179,7 @@
 
                         <div>
                             <q-btn
-                                v-if="conversationInfo.id && !conversationInfo.closed_at"
+                                v-if="conversationData.id && !conversationData.closed_at"
                                 @click="closeChatModal = true"
                                 icon="close"
                                 dense
@@ -242,9 +242,7 @@
                                     <template v-slot:scroll-area-top-section>
                                         <div
                                             v-if="
-                                                !conversationInfo.closed_at &&
-                                                conversationInfo.sessions?.length === 1 &&
-                                                !conversationInfo.sessions[0].socket_session.user
+                                                !conversationData.closed_at && !conversationData.connectedUsers.length
                                             "
                                             class="tw-py-4 tw-text-sm"
                                             :class="$helpers.colors().defaultText"
@@ -272,10 +270,10 @@
                                 </message>
 
                                 <div
-                                    v-if="conversationInfo.closed_at"
+                                    v-if="conversationData.closed_at"
                                     class="tw-px-5 full-width tw-flex tw-justify-between tw-items-center tw-gap-4 tw-py-2"
                                 >
-                                    <send-transcript :conv_id="conversationInfo.id" :color="globalColor" />
+                                    <send-transcript :conv_id="conversationData.id" :color="globalColor" />
 
                                     <div>OR</div>
 
@@ -548,6 +546,7 @@ import WhmcsLogin from "components/common/WhmcsLogin.vue";
 import SendTranscript from "components/common/SendTranscript.vue";
 import { Query } from "@vuex-orm/core";
 import MessageAttachment from "src/store/models/MessageAttachment";
+import Conversation from "src/store/models/Conversation";
 
 declare global {
     interface Window {
@@ -695,17 +694,16 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            conversations: "chat/conversations",
             clientInitiateConvInfo: "chat/clientInitiateConvInfo",
         }),
 
-        // which messages store by getConvMessages()
-        conversationInfo(): any {
-            return this.$store.getters["chat/conversationInfo"](this.clientInitiateConvInfo.conv_id);
+        conversationModel(): any {
+            return Conversation.query().where("id", this.conv_id);
         },
 
-        conversationMessages(): any {
-            return this.$store.getters["chat/conversationMessages"](this.clientInitiateConvInfo.conv_id);
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.first() || {};
         },
 
         showWhmcsLoginForm(): any {
@@ -1134,17 +1132,17 @@ export default defineComponent({
 
             this.queuePositionInterval = setInterval(() => {
                 if (
-                    this.conversationInfo.sessions?.length === 1 &&
-                    !this.conversationInfo.sessions[0].socket_session.user &&
-                    !this.clientInitiateConvInfo.closed_at
+                    this.conversationData.id &&
+                    !this.conversationData.closed_at &&
+                    !this.conversationData.connectedUsers.length
                 ) {
                     this.socket.emit("ec_conv_queue_position", { conv_id: this.clientInitiateConvInfo.conv_id });
                 }
 
                 // check agent joined and session is > 1
                 if (
-                    this.conversationInfo.conv_id &&
-                    (this.clientInitiateConvInfo.closed_at || this.conversationInfo.sessions?.length > 1)
+                    this.conversationData.id &&
+                    (this.clientInitiateConvInfo.closed_at || this.conversationData.connectedUsers.length)
                 ) {
                     clearInterval(this.queuePositionInterval);
                 }
@@ -1452,63 +1450,6 @@ export default defineComponent({
         if (this.socket) {
             this.socket.close();
         }
-    },
-
-    watch: {
-        // if you need to load avatars everywhere then watch conversation n use same way in the layout template
-        conversations: {
-            handler: async function () {
-                // console.log('conversations watcher started');
-
-                if (this.usersAvatarLoading) return;
-
-                this.usersAvatarLoading = true;
-
-                if (this.conversations) {
-                    for (const convObj of Object.values(this.conversations)) {
-                        const conv: any = convObj;
-                        const tempArray: any = { conv_id: conv.id, srcs: [] };
-
-                        for (const convSes of conv.sessions) {
-                            if (convSes.socket_session.user) {
-                                // I can send attachment from db but for that I have to send from all the query
-                                // I have to get the image so y give hard time to api so here check that
-                                if (
-                                    convSes.socket_session.user?.user_meta?.attachment_id &&
-                                    !convSes.socket_session.user?.user_meta?.src
-                                ) {
-                                    try {
-                                        const imgRes = await this.$api.get(
-                                            `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
-                                            {
-                                                responseType: "arraybuffer",
-                                            }
-                                        );
-
-                                        tempArray.srcs.push({
-                                            conv_ses_id: convSes.id,
-                                            src: URL.createObjectURL(
-                                                new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-                                            ),
-                                        });
-                                    } catch (e) {
-                                        console.log(e);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (tempArray.srcs.length) {
-                            this.$store.commit("chat/updateConversationUserAvatar", tempArray);
-                        }
-                    }
-                }
-
-                this.usersAvatarLoading = false;
-            },
-            deep: true,
-            immediate: true,
-        },
     },
 });
 </script>

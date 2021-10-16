@@ -300,7 +300,7 @@
                     <div
                         v-if="
                             rightBarState.mode &&
-                            ((rightBarState.mode === 'client_info' && !conversationInfo.users_only) ||
+                            ((rightBarState.mode === 'client_info' && !conversationData.users_only) ||
                                 (rightBarState.mode === 'conversation' && rightBarState.conv_id))
                         "
                         class="tw-absolute tw-top-6 tw-right-0"
@@ -365,11 +365,6 @@ import EcAvatar from "src/components/common/EcAvatar.vue";
 import StoreDebug from "src/components/debug/StoreDebug.vue";
 import helpers from "boot/helpers/helpers";
 import Conversation from "src/store/models/Conversation";
-import ConversationSession from "src/store/models/ConversationSession";
-import SocketSession from "src/store/models/SocketSession";
-import Message from "src/store/models/Message";
-import User from "src/store/models/User";
-import ChatDepartment from "src/store/models/ChatDepartment";
 import { Query } from "@vuex-orm/core";
 import MessageAttachment from "src/store/models/MessageAttachment";
 
@@ -432,7 +427,6 @@ export default defineComponent({
         ...mapGetters({
             profile: "auth/profile",
             chatUsers: "chat/chatUsers",
-            conversations: "chat/conversations",
             globalBgColor: "setting_ui/globalBgColor",
             rightBarState: "setting_ui/rightBarState", // its a mistake to store & get from there
             myChatTransferRequests: "chat/myChatTransferRequests",
@@ -442,10 +436,13 @@ export default defineComponent({
             return this.myChatTransferRequests?.length ? this.myChatTransferRequests[0] : {};
         },
 
-        conversationInfo(): any {
-            if (this.$route.name !== "chats" || !this.$route.params.conv_id) return {};
+        conversationModel(): any {
+            return Conversation.query().where("id", this.$route.params?.conv_id);
+        },
 
-            return this.$store.getters["chat/conversationInfo"](this.$route.params.conv_id);
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.first() || {};
         },
 
         currentRouteName() {
@@ -459,11 +456,9 @@ export default defineComponent({
                 }
 
                 if (this.$route.name === "chats" && this.rightBarState.mode === "client_info") {
-                    const conv: any = this.conversations[this.$route.params.conv_id];
+                    if (!this.conversationData) return false;
 
-                    if (!conv) return false;
-
-                    return !conv.users_only;
+                    return !this.conversationData.users_only;
                 }
 
                 return true;
@@ -478,19 +473,6 @@ export default defineComponent({
             }
 
             return [];
-        },
-
-        tempStore(): any {
-            return {
-                conversations: Conversation.query()
-                    .with(["conversation_sessions.*", "messages", "chat_department"])
-                    .get(),
-                conversation_sessions: ConversationSession.query().withAll().get(),
-                socket_sessions: SocketSession.query().withAll().get(),
-                chat_departments: ChatDepartment.query().withAll().get(),
-                messages: Message.query().with(["conversation", "socket_session"]).get(),
-                users: User.query().withAll().get(),
-            };
         },
     },
 
@@ -1057,59 +1039,59 @@ export default defineComponent({
 
     watch: {
         // if you need to load avatars everywhere then watch conversation n use same way in the layout template
-        conversations: {
-            handler: async function () {
-                // console.log('conversations watcher started');
-
-                if (this.usersAvatarLoading) return;
-
-                this.usersAvatarLoading = true;
-
-                if (this.conversations) {
-                    for (const convObj of Object.values(this.conversations)) {
-                        const conv: any = convObj;
-                        const tempArray: any = { conv_id: conv.id, srcs: [] };
-
-                        for (const convSes of conv.sessions) {
-                            if (convSes.socket_session.user) {
-                                // I can send attachment from db but for that I have to send from all the query
-                                // I have to get the image so y give hard time to api so here check that
-                                if (
-                                    convSes.socket_session.user?.user_meta?.attachment_id &&
-                                    !convSes.socket_session.user?.user_meta?.src
-                                ) {
-                                    try {
-                                        const imgRes = await this.$api.get(
-                                            `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
-                                            {
-                                                responseType: "arraybuffer",
-                                            }
-                                        );
-
-                                        tempArray.srcs.push({
-                                            conv_ses_id: convSes.id,
-                                            src: URL.createObjectURL(
-                                                new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-                                            ),
-                                        });
-                                    } catch (e) {
-                                        console.log(e);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (tempArray.srcs.length) {
-                            this.$store.commit("chat/updateConversationUserAvatar", tempArray);
-                        }
-                    }
-                }
-
-                this.usersAvatarLoading = false;
-            },
-            deep: true,
-            immediate: true,
-        },
+        // conversations: {
+        //     handler: async function () {
+        //         // console.log('conversations watcher started');
+        //
+        //         if (this.usersAvatarLoading) return;
+        //
+        //         this.usersAvatarLoading = true;
+        //
+        //         if (this.conversations) {
+        //             for (const convObj of Object.values(this.conversations)) {
+        //                 const conv: any = convObj;
+        //                 const tempArray: any = { conv_id: conv.id, srcs: [] };
+        //
+        //                 for (const convSes of conv.sessions) {
+        //                     if (convSes.socket_session.user) {
+        //                         // I can send attachment from db but for that I have to send from all the query
+        //                         // I have to get the image so y give hard time to api so here check that
+        //                         if (
+        //                             convSes.socket_session.user?.user_meta?.attachment_id &&
+        //                             !convSes.socket_session.user?.user_meta?.src
+        //                         ) {
+        //                             try {
+        //                                 const imgRes = await this.$api.get(
+        //                                     `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
+        //                                     {
+        //                                         responseType: "arraybuffer",
+        //                                     }
+        //                                 );
+        //
+        //                                 tempArray.srcs.push({
+        //                                     conv_ses_id: convSes.id,
+        //                                     src: URL.createObjectURL(
+        //                                         new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+        //                                     ),
+        //                                 });
+        //                             } catch (e) {
+        //                                 console.log(e);
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //
+        //                 if (tempArray.srcs.length) {
+        //                     this.$store.commit("chat/updateConversationUserAvatar", tempArray);
+        //                 }
+        //             }
+        //         }
+        //
+        //         this.usersAvatarLoading = false;
+        //     },
+        //     deep: true,
+        //     immediate: true,
+        // },
 
         newConversationInfo: {
             handler: function (newVal, oldVal) {

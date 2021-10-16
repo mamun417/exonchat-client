@@ -12,30 +12,16 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return state.clientInitiateConvInfo;
     },
 
-    clientsConversation: (state) => {
-        return Object.values(state.conversations).filter((conv: any) => !conv.users_only);
-    },
-
     teamConversation: (state) => {
         return Object.values(state.conversations).filter((conv: any) => conv.users_only);
     },
 
-    conversations: (state) => {
-        return state.conversations;
-    },
-
     conversationInfo: (state) => (convId: any) => {
         if (state.conversations[convId]) {
-            return _l.omit(state.conversations[convId], ["messages"]);
+            return state.conversations[convId];
         }
 
         return {};
-    },
-
-    myConversationSession: () => (convId: any) => {
-        const conv: any = Conversation.query().where("id", convId).first();
-
-        return conv.myConversationSession || {};
     },
 
     conversationStatusForMe: () => (convId: any, mySesId: any) => {
@@ -86,10 +72,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return userSessions;
     },
 
-    conversationMessages: (state) => (convId: any) => {
-        return state.conversations[convId]?.messages || {};
-    },
-
     typingState: (state) => (convId: any) => {
         const typingState: any = state.typingStates[convId];
         const conv = state.conversations[convId];
@@ -111,59 +93,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         });
 
         return typingRes;
-    },
-
-    getConvSesStateAsMsg: (state) => (convId: any) => {
-        const stateAsMsg: any = [];
-
-        if (!state.conversations[convId]) return [];
-
-        const conv = state.conversations[convId];
-
-        if (conv.closed_at) {
-            stateAsMsg.push({
-                id: `${conv.closed_by.id}_closed`,
-                state: "closed",
-                session: conv.closed_by,
-                conversation_id: convId,
-                created_at: conv.closed_at,
-                updated_at: conv.closed_at, // its for future
-            });
-        }
-
-        if (conv.sessions && conv.sessions.length) {
-            conv.sessions.forEach((convSes: any) => {
-                ["joined", "left"].forEach((state: any) => {
-                    if (convSes[`${state}_at`]) {
-                        stateAsMsg.push({
-                            id: `${convSes.socket_session_id}_${state}`,
-                            state: state,
-                            session: convSes.socket_session,
-                            conversation_id: convId,
-                            created_at: convSes[`${state}_at`],
-                            updated_at: convSes[`${state}_at`], // its for future
-                        });
-                    }
-                });
-            });
-        }
-
-        return stateAsMsg;
-    },
-
-    // ongoing all chats => for interaction page
-    ongoingAllChats(state) {
-        const chats = Object.values(state.conversations)
-            .filter((conv: any) => {
-                return !conv.users_only && !conv.closed_at && conv.sessions.length > 1;
-            })
-            .map((conv: any) => {
-                const client_info = _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user);
-
-                return { conversation_session: conv.sessions[0], ...conv, client_info }; // conv.sessions[0] cz we are already filtering length 1
-            });
-
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format("x")).reverse();
     },
 
     // ongoing other chats => for interaction page
