@@ -20,6 +20,8 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                     },
                 })
                 .then(async (res: any) => {
+                    console.log({ res: res });
+
                     await OfflineChatRequest.insert({ data: res.data.chat_requests.data });
 
                     context.commit("updatePaginationMeta", res.data.chat_requests.pagination);
@@ -39,13 +41,9 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                 .then(async (res: any) => {
                     const offlineChatReq = res.data;
 
-                    await OfflineChatRequest.insert({ data: offlineChatReq });
+                    console.log({ offlineChatReq });
 
-                    // context.commit("updateOfflineChatReq", {
-                    //     offline_chat_req_id: offlineChatReq.id,
-                    //     offline_chat_req: _l.pick(offlineChatReq, ["id", "created_by_id", "created_at"]),
-                    //     replies: offlineChatReq.offline_chat_req_replies,
-                    // });
+                    await OfflineChatRequest.insert({ data: offlineChatReq });
 
                     resolve(res);
                 })

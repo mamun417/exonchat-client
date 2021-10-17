@@ -34,18 +34,35 @@
                         >
                             <template v-slot:default>
                                 <div class="tw-relative tw-z-10">
-                                    <template class="justify-center" v-for="n in offlineChatRequestReplies" :key="n">
+                                    <template
+                                        class="justify-center"
+                                        v-for="reply in offlineChatRequestReplies"
+                                        :key="reply.id"
+                                    >
+                                        <pre>{{ reply }}</pre>
                                         <div class="">
                                             <div class="tw-pb-0 tw-my-4">
                                                 <q-card
                                                     :class="['tw-shadow-sm']"
-                                                    :style="`background-color: ${n % 2 === 0 ? '#f0f5f8' : ''}`"
+                                                    :style="`background-color: ${
+                                                        checkOwnMessage(reply) ? '#f0f5f8' : ''
+                                                    }`"
                                                 >
                                                     <q-card-section class="tw-px-0 tw-flex tw-py-3">
                                                         <div class="tw-flex-shrink-0 tw-flex tw-justify-center tw-w-20">
-                                                            <ec-avatar size="lg" />
+                                                            <ec-avatar
+                                                                :image_src="
+                                                                    reply.socket_session?.user?.user_meta?.attachment
+                                                                        ?.src
+                                                                "
+                                                                :name="
+                                                                    reply.socket_session?.user?.user_meta?.display_name
+                                                                "
+                                                                :email="reply.socket_session?.user?.email"
+                                                                size="xl"
+                                                            />
                                                         </div>
-
+                                                        <!--<pre>{{ pre }}</pre>-->
                                                         <div class="tw-pr-4 tw-text-base tw-w-full">
                                                             <div
                                                                 class="tw-flex tw-justify-between tw-items-center tw-mb-2"
@@ -54,7 +71,12 @@
                                                                     <div
                                                                         :class="`tw-font-bold tw-capitalize text-${globalColor} tw-text-sm`"
                                                                     >
-                                                                        Display Name
+                                                                        {{
+                                                                            reply.socket_session?.user
+                                                                                ? reply.socket_session.user.user_meta
+                                                                                      .display_name
+                                                                                : offlineChatRequest.name
+                                                                        }}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -68,7 +90,7 @@
                                                                             <pre
                                                                                 v-html="
                                                                                     $helpers.makeCLickAbleLink(
-                                                                                        n.message
+                                                                                        reply.message
                                                                                     )
                                                                                 "
                                                                                 class="tw-whitespace-normal"
@@ -127,8 +149,12 @@
                                                                             class="tw-whitespace-nowrap tw-text-xs"
                                                                             :class="$helpers.colors().dateTimeText"
                                                                         >
-                                                                            Date Time
-                                                                            <!--{{ getDateTime(msgItem.created_at) }}-->
+                                                                            {{
+                                                                                $helpers.myDate(
+                                                                                    reply.created_at,
+                                                                                    "MMM DD, Y h:mm a"
+                                                                                )
+                                                                            }}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -326,9 +352,9 @@
                                                     </div>
                                                     <div class="tw-text-sm">abdullah@example.com</div>
                                                 </div>
-                                                <div class="tw-float-right">
+                                                <!--<div class="tw-float-right">
                                                     <div class="text-blue-5 tw-cursor-pointer">Change</div>
-                                                </div>
+                                                </div>-->
                                             </q-item-label>
                                         </q-item-section>
                                     </q-item>
@@ -387,9 +413,9 @@
                                                     </div>
                                                     <div class="tw-text-sm">abdullah@example.com</div>
                                                 </div>
-                                                <div class="tw-float-right">
+                                                <!--<div class="tw-float-right">
                                                     <div class="text-blue-5 tw-cursor-pointer">Change</div>
-                                                </div>
+                                                </div>-->
                                             </q-item-label>
                                         </q-item-section>
                                     </q-item>
@@ -436,6 +462,7 @@ import * as _l from "lodash";
 import Message from "src/store/models/Message";
 import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 import OfflineChatRequestReply from "src/store/models/offline-chat-req/OfflineChatRequestReply";
+import helpers from "boot/helpers/helpers";
 
 export default defineComponent({
     name: "DetailsOfflineChatReq",
@@ -461,10 +488,18 @@ export default defineComponent({
     computed: {
         ...mapGetters({ globalBgColor: "setting_ui/globalBgColor", globalColor: "setting_ui/globalColor" }),
 
-        offlineChatRequestReplies() {
+        offlineChatRequest(): any {
+            return OfflineChatRequest.query().where("id", this.offline_chat_req_id).first();
+        },
+
+        offlineChatRequestReplies(): any {
             const offlineChatRequest: any = OfflineChatRequest.query()
                 .where("id", this.offline_chat_req_id)
-                .with("offline_chat_req_replies")
+                .with([
+                    "offline_chat_req_replies",
+                    "offline_chat_req_replies.socket_session",
+                    "offline_chat_req_replies.socket_session.user",
+                ])
                 .first();
 
             return offlineChatRequest?.offline_chat_req_replies;
@@ -729,7 +764,7 @@ export default defineComponent({
                     //     this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
                     // }
                 }
-            }, 100);
+            }, 300);
         },
 
         createTempMsgId() {
@@ -738,6 +773,10 @@ export default defineComponent({
             }
 
             return this.tempMsgId;
+        },
+
+        checkOwnMessage(message: any) {
+            return message.socket_session_id === this.$helpers.getMySocketSessionId();
         },
     },
 });

@@ -1,4 +1,5 @@
 import { Model } from "@vuex-orm/core";
+import SocketSession from "src/store/models/SocketSession";
 
 export default class OfflineChatRequestReply extends Model {
     // This is the name used as module name of the Vuex Store.
@@ -18,6 +19,8 @@ export default class OfflineChatRequestReply extends Model {
 
             created_at: this.attr(null),
             updated_at: this.attr(null),
+
+            socket_session: this.belongsTo(SocketSession, "socket_session_id"),
         };
     }
 }

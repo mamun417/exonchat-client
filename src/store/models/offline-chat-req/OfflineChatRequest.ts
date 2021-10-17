@@ -24,6 +24,8 @@ export default class OfflineChatRequest extends Model {
             created_at: this.attr(null),
             updated_at: this.attr(null),
 
+            assigned_user: this.attr(null),
+            chat_department: this.attr(null),
             offline_chat_req_replies: this.hasMany(OfflineChatRequestReply, "offline_chat_req_id"),
         };
     }
