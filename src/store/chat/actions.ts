@@ -59,7 +59,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             context.commit("updateConversation", { conv_id: convData.id, message: convData.log_message });
         }
 
+        const profile = context.rootGetters["auth/profile"];
+
         if (
+            profile.online_status === "online" &&
             localStorage.getItem("ec_not_in_tabs") &&
             window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
         ) {
@@ -413,9 +416,16 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 helpers.notifications().replyOne.play();
             }
 
-            if (profile.online_status === "online" && conversationStatusForMe === "joined") {
+            if (conversationStatusForMe === "joined") {
                 if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
-                    helpers.notifications().replyOne.play();
+                    // for chat conversation no need to check online status case joined users should be get sound notification
+                    // And for user to user conversation its need to check the user online status,
+                    // cause without online users should not be get sound notification
+                    if (!tempConv.users_only || (tempConv.users_only && profile.online_status === "online")) {
+                        helpers.notifications().replyOne.play();
+                    }
+
+                    return;
                 }
 
                 if (
@@ -425,7 +435,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 ) {
                     helpers.notifications().replyTwo.play();
 
+                    // browser notification should be get only for online users
                     if (
+                        profile.online_status === "online" &&
                         localStorage.getItem("ec_not_in_tabs") &&
                         window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
                     ) {
