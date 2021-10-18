@@ -147,6 +147,7 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             // here sessions means [conversation_session...]
             if (convData.hasOwnProperty("sessions") && convData.sessions.length) {
+                console.log(convData.sessions);
                 ConversationSession.insert({ data: convData.sessions });
 
                 if (state.conversations[convId].sessions.length) {

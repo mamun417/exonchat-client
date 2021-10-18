@@ -11,7 +11,17 @@
                             <q-card-section class="row no-wrap items-center tw-p-0">
                                 <q-item class="tw-w-full">
                                     <q-item-section>
-                                        <div>Ticket Subject</div>
+                                        <div class="tw-flex tw-items-center tw-gap-2">
+                                            <div class="tw-whitespace-nowrap tw-cursor-pointer">
+                                                <div class="tw-flex tw-items-center tw-gap-2">
+                                                    <q-icon name="keyboard_backspace" size="sm" />
+                                                    <div class="tw-text-xs">Back</div>
+                                                </div>
+                                            </div>
+                                            <div class="tw-text-lg tw-text-center tw-w-full">
+                                                {{ offlineChatRequest?.subject }}
+                                            </div>
+                                        </div>
                                     </q-item-section>
                                 </q-item>
                             </q-card-section>
@@ -39,7 +49,7 @@
                                         v-for="reply in offlineChatRequestReplies"
                                         :key="reply.id"
                                     >
-                                        <pre>{{ reply }}</pre>
+                                        <!--<pre>{{ reply }}</pre>-->
                                         <div class="">
                                             <div class="tw-pb-0 tw-my-4">
                                                 <q-card
@@ -101,47 +111,6 @@
                                                                                 "
                                                                             ></pre>
                                                                         </div>
-
-                                                                        <!--attachment-->
-                                                                        <!--<div
-                                                                                            v-if="
-                                                                                                msgItem.attachments &&
-                                                                                                msgItem.attachments.length
-                                                                                            "
-                                                                                            class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
-                                                                                        >
-                                                                                            <div
-                                                                                                v-for="attachment in msgItem.attachments"
-                                                                                                :key="attachment.id"
-                                                                                                style="height: 150px; min-width: 150px"
-                                                                                                class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
-                                                                                            >
-                                                                                                <q-img
-                                                                                                    height="100%"
-                                                                                                    fit="cover"
-                                                                                                    spinner-color="green"
-                                                                                                    @click="
-                                                                                                        attachmentPreview = attachment;
-                                                                                                        attachmentPreviewModal = true;
-                                                                                                    "
-                                                                                                    :src="attachment.src"
-                                                                                                >
-                                                                                                    <q-tooltip
-                                                                                                        :class="globalBgColor"
-                                                                                                        anchor="bottom middle"
-                                                                                                        :offset="[10, 10]"
-                                                                                                        >{{ attachment.original_name }}
-                                                                                                    </q-tooltip>
-
-                                                                                                    <q-inner-loading
-                                                                                                        :showing="
-                                                                                                            attachment.status !== 'done'
-                                                                                                        "
-                                                                                                        color="white"
-                                                                                                    />
-                                                                                                </q-img>
-                                                                                            </div>
-                                                                                        </div>-->
                                                                     </div>
 
                                                                     <div class="tw-flex tw-items-center tw-gap-1">
@@ -176,27 +145,6 @@
                         style="border-top: 1px solid rgba(0, 0, 0, 0.08)"
                         class="tw-w-full tw-py-2 tw-flex tw-mt-3 tw-bg-white tw-self-end tw-rounded tw-mb-1 tw-shadow-md"
                     >
-                        <q-file
-                            v-model="attachments"
-                            name="attachment-uploader"
-                            ref="attachment_uploader"
-                            class="hidden"
-                            accept=".jpg, .jpeg, .png, .gif"
-                            :max-files="attachmentConfig.maxFiles"
-                            multiple
-                            append
-                            @update:model-value="attachmentUploaderHandle"
-                        />
-
-                        <div class="tw-flex tw-flex-col tw-justify-end">
-                            <q-btn
-                                flat
-                                :color="globalColor"
-                                icon="attachment"
-                                class="tw-px-2"
-                                @click="$refs.attachment_uploader.pickFiles($event)"
-                            ></q-btn>
-                        </div>
                         <div class="tw-flex tw-flex-col tw-justify-end">
                             <ec-emoji @clickEmoji="handleClickEmoji" class="tw-px-2" :color="globalColor" />
                         </div>
@@ -213,51 +161,11 @@
                                 :class="[`ec-msg-input-${uid}`]"
                                 :autofocus="messageInputAutoFocus"
                                 @keydown="keyDownHandle"
-                                @keyup="keyUpHandle"
-                                @paste="imageLoadOnPast"
-                                @drop="imageLoadOnPast"
                                 hide-bottom-space
                                 autogrow
                                 borderless
                                 dense
                             />
-
-                            <div v-if="finalAttachments && finalAttachments.length" class="tw-mt-3 tw-mb-2">
-                                <q-avatar
-                                    v-for="(attachmentObj, key) in finalAttachments"
-                                    :key="key"
-                                    size="80px"
-                                    class="each-attachment shadow-3 tw-relative"
-                                    :class="{ 'tw-mr-2': key !== finalAttachments.length - 1 }"
-                                    rounded
-                                    ><img class="cursor-pointer" :src="attachmentObj.src" />
-                                    <div
-                                        v-show="attachmentObj.status !== 'done'"
-                                        class="tw-absolute tw-h-full tw-w-full tw-bg-gray-900 tw-opacity-25"
-                                    ></div>
-                                    <div
-                                        v-show="attachmentObj.status !== 'done'"
-                                        class="tw-absolute tw-flex tw-justify-items-center text-green tw-font-bold tw-text-xs tw-text-center tw-cursor-default"
-                                    >
-                                        {{ attachmentObj.status }}
-                                    </div>
-                                    <q-badge
-                                        class="attachment-remove-btn hidden tw-cursor-pointer"
-                                        floating
-                                        color="red"
-                                        @click="attachmentRemoveHandle(attachmentObj)"
-                                    >
-                                        <q-icon name="close" />
-                                    </q-badge>
-                                    <q-tooltip
-                                        class="bg-green"
-                                        anchor="top middle"
-                                        self="bottom middle"
-                                        :offset="[10, 10]"
-                                        >{{ attachmentObj.original_name }}
-                                    </q-tooltip>
-                                </q-avatar>
-                            </div>
                         </div>
                         <div class="tw-flex tw-flex-col tw-justify-end">
                             <q-btn
@@ -277,7 +185,7 @@
                     <q-card-section class="row no-wrap items-center tw-p-0">
                         <q-item class="tw-w-full">
                             <q-item-section>
-                                <div>Details</div>
+                                <div class="tw-text-lg">Details</div>
                             </q-item-section>
                         </q-item>
                     </q-card-section>
@@ -299,7 +207,7 @@
                                         <q-item class="tw-text-xs tw-py-2" clickable dense>
                                             <q-item-section>
                                                 <q-item-label>
-                                                    Ticket ID: UWRP7
+                                                    Ticket ID: {{ offlineChatRequest.identifier }}
                                                     <span class="text-blue-5">Copy URL</span>
                                                 </q-item-label>
                                             </q-item-section>
@@ -307,7 +215,15 @@
 
                                         <q-item class="tw-text-xs tw-py-2" clickable dense>
                                             <q-item-section>
-                                                <q-item-label> Created: 10 Oct 2021 </q-item-label>
+                                                <q-item-label>
+                                                    Created:
+                                                    {{
+                                                        $helpers.myDate(
+                                                            offlineChatRequest?.created_at,
+                                                            "MMM DD, Y h:mm a"
+                                                        )
+                                                    }}
+                                                </q-item-label>
                                             </q-item-section>
                                         </q-item>
 
@@ -319,7 +235,19 @@
 
                                         <q-item class="tw-text-xs tw-py-2" clickable dense>
                                             <q-item-section>
-                                                <q-item-label> Status: Open </q-item-label>
+                                                <q-item-label>
+                                                    Status:
+
+                                                    <q-badge
+                                                        :style="{
+                                                            backgroundColor: getOfflineChatReqStatusBgColor(
+                                                                offlineChatRequest
+                                                            ),
+                                                        }"
+                                                    >
+                                                        {{ offlineChatRequest?.status }}
+                                                    </q-badge>
+                                                </q-item-label>
                                             </q-item-section>
                                         </q-item>
                                     </q-list>
@@ -348,7 +276,7 @@
                                             <q-item-label class="tw-flex tw-justify-between">
                                                 <div>
                                                     <div class="text-capitalize tw-mr-1 text-weight-bold">
-                                                        Abdullah Al Mammun
+                                                        Abdullah Al Mamun
                                                     </div>
                                                     <div class="tw-text-sm">abdullah@example.com</div>
                                                 </div>
@@ -377,7 +305,9 @@
                                     <q-item>
                                         <q-item-section>
                                             <div class="tw-flex tw-justify-between">
-                                                <div>Support</div>
+                                                <div>
+                                                    {{ offlineChatRequest.chat_department.display_name }}
+                                                </div>
                                                 <div class="tw-float-right">
                                                     <div class="text-blue-5 tw-cursor-pointer">Edit</div>
                                                 </div>
@@ -402,16 +332,19 @@
                                 <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto">
                                     <q-item>
                                         <q-item-section avatar>
-                                            <ec-avatar size="lg"></ec-avatar>
+                                            <ec-avatar
+                                                :name="offlineChatRequest.name"
+                                                :email="offlineChatRequest.email"
+                                            />
                                         </q-item-section>
 
                                         <q-item-section class="tw-w-full">
                                             <q-item-label class="tw-flex tw-justify-between">
                                                 <div>
                                                     <div class="text-capitalize tw-mr-1 text-weight-bold">
-                                                        Abdullah Al Mammun
+                                                        {{ offlineChatRequest.name }}
                                                     </div>
-                                                    <div class="tw-text-sm">abdullah@example.com</div>
+                                                    <div class="tw-text-sm">{{ offlineChatRequest.email }}</div>
                                                 </div>
                                                 <!--<div class="tw-float-right">
                                                     <div class="text-blue-5 tw-cursor-pointer">Change</div>
@@ -459,10 +392,8 @@ import { mapGetters } from "vuex";
 import EcAvatar from "components/common/EcAvatar.vue";
 import EcEmoji from "components/common/EcEmoji.vue";
 import * as _l from "lodash";
-import Message from "src/store/models/Message";
 import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 import OfflineChatRequestReply from "src/store/models/offline-chat-req/OfflineChatRequestReply";
-import helpers from "boot/helpers/helpers";
 
 export default defineComponent({
     name: "DetailsOfflineChatReq",
@@ -473,14 +404,6 @@ export default defineComponent({
             msg: "",
             tempMsgId: "",
             cardMaxHeight: "16rem",
-            attachments: [],
-            finalAttachments: [],
-            showFileErrorMsg: false,
-            showFileErrorMsgInterval: "",
-            attachmentConfig: {
-                maxFileSize: 1024 * 1024 * 5, // 5 MB
-                maxFiles: 5,
-            },
             messageInputAutoFocus: true,
         };
     },
@@ -489,7 +412,7 @@ export default defineComponent({
         ...mapGetters({ globalBgColor: "setting_ui/globalBgColor", globalColor: "setting_ui/globalColor" }),
 
         offlineChatRequest(): any {
-            return OfflineChatRequest.query().where("id", this.offline_chat_req_id).first();
+            return OfflineChatRequest.query().where("id", this.offline_chat_req_id).first() || {};
         },
 
         offlineChatRequestReplies(): any {
@@ -515,97 +438,6 @@ export default defineComponent({
             this.$store.dispatch("offline_chat_req/getReplies", { offline_chat_req_id: this.offline_chat_req_id });
         },
 
-        attachmentUploaderHandle(val: any) {
-            this.$refs.messageInput.focus();
-
-            const tempMsgId = this.createTempMsgId();
-
-            val.forEach((img: any) => {
-                if (!this.attachmentValidation(img)) {
-                    return;
-                }
-
-                // prevent same image load
-                const notPreviousLoaded =
-                    _l.findIndex(this.finalAttachments, { original_name: img.name, size: img.size }) === -1;
-
-                if (notPreviousLoaded) {
-                    const tempAttachmentId = `temp_attachment_id_${this.$helpers.getTempId()}`;
-
-                    this.pushToFinalAttachment(tempAttachmentId, img);
-
-                    let formData = this.makeAttachmentFormData(img, tempAttachmentId, tempMsgId);
-
-                    this.$socketSessionApi
-                        .post("attachments", formData)
-                        .then((res: any) => {
-                            const attachment: any = res.data.data[0];
-
-                            const finalAttachment = _l.find(this.finalAttachments, {
-                                original_name: img.name,
-                                size: img.size,
-                            });
-
-                            if (finalAttachment) {
-                                finalAttachment.status = "done";
-                                finalAttachment.attachment_uploaded_id = attachment.attachment_info.id;
-                            }
-
-                            this.updateAttachmentModelStatus(attachment, "done");
-
-                            this.sendMessageAfterAllAttachmentUploaded(attachment, tempMsgId);
-                        })
-                        .catch((e: any) => {
-                            console.log(e);
-                        });
-                } else {
-                    // console.log(`file ${img.name} already added`);
-                }
-            });
-        },
-
-        attachmentValidation(img: any) {
-            const IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png|jpg)$/i;
-
-            const checkImagMaxSize = img.size > this.attachmentConfig.maxFileSize;
-
-            if (!IMAGE_MIME_REGEX.test(img.type) || checkImagMaxSize) {
-                clearInterval(this.showFileErrorMsgInterval);
-
-                this.showFileErrorMsg = true;
-
-                this.showFileErrorMsgInterval = setInterval(() => {
-                    this.showFileErrorMsg = false;
-                }, 10000);
-
-                return false;
-            }
-
-            return true;
-        },
-
-        makeAttachmentFormData(img: any, tempAttachmentId: any, tempMsgId: any) {
-            let formData = new FormData();
-            formData.append("attachments", img, img.name);
-            formData.append("attachment_temp_id", tempAttachmentId);
-            formData.append("msg_temp_id", tempMsgId);
-
-            return formData;
-        },
-
-        pushToFinalAttachment(tempAttachmentId: string, img: any) {
-            this.finalAttachments.push({
-                id: tempAttachmentId,
-                temp_id: tempAttachmentId,
-                original_name: img.name,
-                size: img.size,
-                status: "pending",
-                src: URL.createObjectURL(img),
-                created_at: new Date().getTime(),
-                updated_at: new Date().getTime(),
-            });
-        },
-
         handleClickEmoji($event: any) {
             this.msg += $event;
             this.$refs.messageInput.focus();
@@ -618,55 +450,6 @@ export default defineComponent({
                 if (!this.chatTemplate) {
                     this.sendMessage();
                 }
-            }
-        },
-        keyUpHandle(e: any) {
-            // prevent only enter so that before send new line does not show
-            if (this.chatPanelType !== "client" && e.key === "/" && !this.beforeKeyUpInputVal) {
-                this.chatTemplate = true;
-            }
-
-            /// when backspace press this.msg is empty
-            if (!this.msg && e.key === "Backspace") {
-                this.chatTemplate = false;
-            }
-
-            if (this.chatTemplate) {
-                if (!["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(e.key)) {
-                    this.chatTemplateSearchHandle(e.target.value.slice(1));
-                }
-            }
-
-            // e.target.value is the previous state
-            this.beforeKeyUpInputVal = e.target.value;
-        },
-
-        imageLoadOnPast(e: any) {
-            const isTextPast = e.clipboardData?.getData("text") || e.dataTransfer?.getData("text");
-
-            // prevent default only for file (past/drop)
-            if (!isTextPast) e.preventDefault();
-
-            let files = e.dataTransfer?.files || e.clipboardData?.files || [];
-
-            this.attachmentUploaderHandle([...files]);
-        },
-
-        attachmentRemoveHandle(attachmentObj: any) {
-            const localCopy = _l.cloneDeep(attachmentObj);
-
-            _l.remove(
-                this.finalAttachments,
-                (a: any) => a.original_name === attachmentObj.original_name && a.size === attachmentObj.size
-            );
-
-            _l.remove(
-                this.attachments,
-                (a: any) => a.name === attachmentObj.original_name && a.size === attachmentObj.size
-            );
-
-            if (localCopy.id) {
-                this.$socketSessionApi.delete(`attachments/${localCopy.id}`);
             }
         },
 
@@ -682,8 +465,6 @@ export default defineComponent({
             }
 
             this.createTempMsgId();
-
-            console.log(this.msg);
 
             // const dynamicBody =
             //     this.chatPanelType === "user"
@@ -709,7 +490,7 @@ export default defineComponent({
                     created_at: new Date().toISOString(),
                 },
             }).then(() => {
-                this.tempMsgId = null;
+                // this.tempMsgId = null;
 
                 this.scrollToPosition();
             });
@@ -730,15 +511,17 @@ export default defineComponent({
                     message: this.msg,
                 })
                 .then((res: any) => {
-                    console.log(res.data);
+                    if (this.tempMsgId) {
+                        OfflineChatRequestReply.delete(this.tempMsgId);
+                    }
+
+                    OfflineChatRequestReply.insert({ data: res.data });
                 })
                 .catch((err: any) => {
                     console.log(err);
                 });
 
             this.msg = "";
-            this.attachments = [];
-            this.finalAttachments = [];
         },
 
         scrollToPosition(position = 1) {
@@ -777,6 +560,16 @@ export default defineComponent({
 
         checkOwnMessage(message: any) {
             return message.socket_session_id === this.$helpers.getMySocketSessionId();
+        },
+
+        getOfflineChatReqStatusBgColor(offlineChatReq: any) {
+            return offlineChatReq.status === "open"
+                ? "rgb(67, 132, 245)"
+                : offlineChatReq.status === "pending"
+                ? "rgb(66, 77, 87)"
+                : offlineChatReq.status === "solved"
+                ? "rgb(44, 176, 106)"
+                : "rgb(221, 226, 230)"; // spam
         },
     },
 });

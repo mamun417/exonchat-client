@@ -90,7 +90,10 @@
                             </q-btn>
 
                             <q-btn
-                                :class="{ 'active-btn': $route.name === 'offline-chat-req' }"
+                                :class="{
+                                    'active-btn':
+                                        $route.name === 'offline-chat-req' || $route.name === 'offline-chat-req.view',
+                                }"
                                 icon="feedback"
                                 :to="{ name: 'offline-chat-req' }"
                                 flat

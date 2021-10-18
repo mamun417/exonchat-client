@@ -20,7 +20,7 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                     },
                 })
                 .then(async (res: any) => {
-                    console.log({ res: res });
+                    console.log({ fff: res.data.chat_requests.data });
 
                     await OfflineChatRequest.insert({ data: res.data.chat_requests.data });
 
