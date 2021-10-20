@@ -112,11 +112,13 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             // keeping hasOwnProperty check for not break for other call
             if ((convData.hasOwnProperty("message") && convData.message) || convData.message) {
-                if (convData.message.temp_id) {
-                    Message.delete(convData.message.temp_id);
-                }
+                if (!convData.caller || convData.caller !== "storeMessage") {
+                    if (convData.message.temp_id) {
+                        Message.delete(convData.message.temp_id);
+                    }
 
-                Message.insert({ data: convData.message });
+                    Message.insert({ data: convData.message });
+                }
 
                 if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
                     // console.log(convData.message);
@@ -130,7 +132,9 @@ const mutation: MutationTree<ChatStateInterface> = {
             }
 
             if (convData.hasOwnProperty("messages") && convData.messages.length) {
-                Message.insert({ data: convData.messages });
+                if (convData.caller === "getConvMessages" || convData.caller === "getUsers") {
+                    Message.insert({ data: convData.messages }); // move this to action
+                }
 
                 convData.messages.forEach((message: any) => {
                     if (!state.conversations[convId].messages.hasOwnProperty(message.id)) {

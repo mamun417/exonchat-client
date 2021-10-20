@@ -401,10 +401,14 @@ export default defineComponent({
         },
 
         async getChatRequest() {
-            await this.$store.dispatch("chat/getChatRequests");
+            try {
+                await this.$store.dispatch("chat/getChatRequests");
+            } catch (e) {}
         },
         async getOtherJoinedChats() {
-            await this.$store.dispatch("chat/getOtherJoinedChats");
+            try {
+                await this.$store.dispatch("chat/getOtherJoinedChats");
+            } catch (e) {}
         },
         async getJoinedChatsWithMe() {
             await this.$store.dispatch("chat/getJoinedChatsWithMe");

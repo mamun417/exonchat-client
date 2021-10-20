@@ -592,35 +592,35 @@ export default defineComponent({
             });
 
             // successfully sent to client
-            this.socket.on("ec_msg_to_user", (res: any) => {
-                this.$store.dispatch("chat/storeMessage", res);
+            this.socket.on("ec_msg_to_user", async (res: any) => {
+                await this.$store.dispatch("chat/storeMessage", res);
                 console.log("from ec_msg_to_user", res);
             });
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on("ec_msg_from_user", (res: any) => {
+            this.socket.on("ec_msg_from_user", async (res: any) => {
                 res.socket_event = "ec_msg_from_user";
 
-                this.$store.dispatch("chat/storeMessage", res);
+                await this.$store.dispatch("chat/storeMessage", res);
 
                 this.$emitter.emit(`new_message_from_user_${res.conversation.id}`, res);
 
                 console.log("from ec_msg_from_user", res);
             });
 
-            this.socket.on("ec_msg_from_client", (res: any) => {
+            this.socket.on("ec_msg_from_client", async (res: any) => {
                 res.socket_event = "ec_msg_from_client";
 
-                this.$store.dispatch("chat/storeMessage", res);
+                await this.$store.dispatch("chat/storeMessage", res);
 
                 this.$emitter.emit(`new_message_from_client_${res.conversation.id}`, res);
 
                 console.log("from ec_msg_from_client", res);
             });
 
-            this.socket.on("ec_reply_from_ai", (res: any) => {
-                this.$store.dispatch("chat/storeMessage", res);
+            this.socket.on("ec_reply_from_ai", async (res: any) => {
+                await this.$store.dispatch("chat/storeMessage", res);
 
                 console.log("from ec_reply_from_ai", res);
             });
@@ -648,7 +648,7 @@ export default defineComponent({
                 this.$emitter.emit("listen_ec_init_conv_from_user", data);
             });
 
-            this.socket.on("ec_conv_initiated_from_client", (res: any) => {
+            this.socket.on("ec_conv_initiated_from_client", async (res: any) => {
                 console.log("from ec_conv_initiated_from_client", res);
 
                 if (res.data.notify) {
@@ -666,41 +666,41 @@ export default defineComponent({
                     }
 
                     if (this.profile.online_status === "online") {
-                        helpers.notifications().reqOne.play();
+                        await helpers.notifications().reqOne.play();
                     }
                 }
 
-                this.$store.dispatch("chat/storeNewChatFromClient", res.data);
+                await this.$store.dispatch("chat/storeNewChatFromClient", res.data);
             });
 
-            this.socket.on("ec_is_joined_from_conversation", (res: any) => {
+            this.socket.on("ec_is_joined_from_conversation", async (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
                 convSesInfo.from_chat_transfer_request = res.data.from_chat_transfer_request;
 
-                this.$store.dispatch("chat/updateConvState", convSesInfo);
+                await this.$store.dispatch("chat/updateConvState", convSesInfo);
 
                 console.log("from ec_is_joined_from_conversation", convSesInfo);
             });
 
-            this.socket.on("ec_is_leaved_from_conversation", (res: any) => {
+            this.socket.on("ec_is_leaved_from_conversation", async (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
 
-                this.$store.dispatch("chat/updateConvState", convSesInfo);
+                await this.$store.dispatch("chat/updateConvState", convSesInfo);
 
                 console.log("from ec_is_leaved_from_conversation", convSesInfo);
             });
 
-            this.socket.on("ec_is_closed_from_conversation", (res: any) => {
+            this.socket.on("ec_is_closed_from_conversation", async (res: any) => {
                 const convInfo = res.data.conv_data;
 
-                this.$store.dispatch("chat/updateConvStateToClosed", convInfo);
+                await this.$store.dispatch("chat/updateConvStateToClosed", convInfo);
 
                 console.log("from ec_is_closed_from_conversation", convInfo);
             });
 
-            this.socket.on("ec_conversation_session_updated", (res: any) => {
+            this.socket.on("ec_conversation_session_updated", async (res: any) => {
                 // handle this emit for all conversation session update like join left etc also. life will be easier
-                this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
+                await this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
 
                 // console.log("from ec_conversation_session_updated", res);
             });
