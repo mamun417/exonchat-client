@@ -990,6 +990,15 @@ export default defineComponent({
         },
 
         vuexOrmMutationListener() {
+            // prevent api call for attachment load
+            Query.on("beforeCreate", (model: any) => {
+                if (model instanceof User) {
+                    if (User.find(model.id)) {
+                        return false;
+                    }
+                }
+            });
+
             Query.on("afterCreate", (model: any) => {
                 if (model instanceof MessageAttachment) {
                     if (!model.loaded && !model.src) {
@@ -1010,6 +1019,31 @@ export default defineComponent({
                                 MessageAttachment.update({
                                     where: model.id,
                                     data: { src: src },
+                                });
+                            })
+                            .catch();
+                    }
+                }
+
+                if (model instanceof User) {
+                    if (model.user_meta.attachment_id && !model.user_meta.loaded && !model.user_meta.src) {
+                        User.update({
+                            where: model.id,
+                            data: { user_meta: { ...model.user_meta, loaded: true } },
+                        });
+
+                        this.$api
+                            .get(`attachments/${model.user_meta.attachment_id}`, {
+                                responseType: "arraybuffer",
+                            })
+                            .then((imgRes: any) => {
+                                const src = URL.createObjectURL(
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                                );
+
+                                User.update({
+                                    where: model.id,
+                                    data: { user_meta: { ...model.user_meta, src } },
                                 });
                             })
                             .catch();

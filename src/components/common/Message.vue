@@ -215,9 +215,10 @@
                                                 :email="msgSenderInfo(message).email"
                                                 class=""
                                             >
-                                                {{ msgSenderInfo(message).src }}
+                                                <!--{{ msgSenderInfo(message).src }}-->
                                                 <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
                                             </ec-avatar>
+                                            <!--<pre>{{ msgSenderInfo(message) }}</pre>-->
                                         </div>
                                         <div class="tw-pr-4 tw-text-base tw-w-full">
                                             <div

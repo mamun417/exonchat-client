@@ -16,6 +16,22 @@
                 placeholder="Ex. 1033239004116693"
                 type="input"
                 bg-color="white"
+                class="tw-shadow tw-px-2 tw-mb-3"
+                hide-bottom-space
+                standout
+                borderless
+                dense
+            />
+
+            <div>Secret Key</div>
+            <q-input
+                v-model="facebookApiManagerForm.apps_fb_secret_key"
+                :error-message="facebookApiManagerFormErrors.apps_fb_secret_key"
+                :error="!!facebookApiManagerFormErrors.apps_fb_secret_key"
+                @update:model-value="facebookApiManagerFormErrors.apps_fb_secret_key = ''"
+                placeholder="Ex. 26ee4518d92aad3173751b1c491d70a7"
+                type="input"
+                bg-color="white"
                 class="tw-shadow tw-px-2"
                 hide-bottom-space
                 standout
@@ -222,6 +238,7 @@ export default defineComponent({
             chatDepartments: [],
             facebookApiManagerForm: {
                 apps_fb_app_id: "",
+                apps_fb_secret_key: "",
             },
             facebookApiManagerFormErrors: {},
             facebookDataForSubmit: {
@@ -281,6 +298,7 @@ export default defineComponent({
                     },
                 })
                 .then(() => {
+                    this.initFacebookSdk();
                     this.$helpers.showSuccessNotification(this, "App setting update successful");
                 })
                 .catch((err: any) => {

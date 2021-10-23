@@ -7,6 +7,7 @@ import helpers from "boot/helpers/helpers";
 
 import Conversation from "src/store/models/Conversation";
 import ConversationSession from "src/store/models/ConversationSession";
+import SocketSession from "src/store/models/SocketSession";
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -467,6 +468,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             const getUsers = window.api.get("users/active");
 
             Promise.all([getMyConvWithUsers, getUsers]).then(async ([myConvWithUsers, users]) => {
+                const socketSession = _l.map(users.data, "socket_session");
+                await SocketSession.insert({ data: socketSession });
+
                 // collect convSessions array
                 myConvWithUsers.data.forEach((conv: any) => {
                     Conversation.insert({ data: conv });
