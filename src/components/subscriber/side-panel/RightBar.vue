@@ -16,15 +16,12 @@
                             v-if="conversationData.users_only"
                             :conv_id="rightBarState.conv_id"
                             :mini_mode="true"
-                            :class="{ 'tw-mb-3': conversationData.users_only }"
+                            class="tw-mb-3"
                         />
 
-                        <template v-if="!conversationData.users_only && conversationWithUsersInfo.length">
-                            <q-list
-                                v-if="conversationWithUsersInfo.length && !conversationData.users_only"
-                                class="tw-px-1 tw-py-3 tw-pt-0"
-                                :class="$helpers.colors().defaultText"
-                            >
+                        <!--assuming its livechat-->
+                        <template v-if="!conversationData.users_only">
+                            <q-list class="tw-px-1 tw-py-3 tw-pt-0" :class="$helpers.colors().defaultText">
                                 <q-card class="tw-shadow-none tw-mb-3 no-border-radius">
                                     <q-card-section
                                         class="tw-flex tw-items-center tw-justify-between tw-py-2 tw-font-bold text-white"
@@ -79,7 +76,7 @@
                                 </q-card>
 
                                 <customer-details-card
-                                    :conversation-with-users-info="conversationWithUsersInfo[0]"
+                                    :conversation-with-users-info="conversationData.clientConversationSession"
                                     :conversation-info="conversationData"
                                     :parsed-ua-string="parsedUaString"
                                 >
@@ -122,7 +119,7 @@
                                                     </q-item-section>
                                                     <q-item-section side>
                                                         <connected-users-faces
-                                                            :users_conv_ses="conversationConnectedUsers"
+                                                            :users_conv_ses="conversationData.connectedUsers"
                                                             size="md"
                                                         />
                                                     </q-item-section>
@@ -230,14 +227,9 @@
             class="fit"
             :thumb-style="$helpers.getThumbStyle()"
         >
-            <!-- at first conversationWithUsersInfo can be empty. show loader -->
-            <q-list
-                v-if="conversationWithUsersInfo.length && !conversationData.users_only"
-                class="tw-px-1 tw-pr-3 tw-py-3"
-                :class="$helpers.colors().defaultText"
-            >
+            <q-list class="tw-px-1 tw-pr-3 tw-py-3" :class="$helpers.colors().defaultText">
                 <customer-details-card
-                    :conversation-with-users-info="conversationWithUsersInfo[0]"
+                    :conversation-with-users-info="conversationData.clientConversationSession"
                     :conversation-info="conversationData"
                     :parsed-ua-string="parsedUaString"
                 />
@@ -255,8 +247,8 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
-                            <q-list v-if="conversationConnectedUsers.length">
-                                <q-item v-for="agent of conversationConnectedUsers" :key="agent.id" dense>
+                            <q-list v-if="conversationData.connectedUsers.length">
+                                <q-item v-for="agent of conversationData.connectedUsers" :key="agent.id" dense>
                                     <q-item-section class="tw-w-full">
                                         <div class="tw-flex tw-w-full tw-my-1 tw-gap-4">
                                             <ec-avatar
@@ -615,25 +607,12 @@ export default defineComponent({
             return this.conversationModel.first() || {};
         },
 
-        conversationConnectedUsers(): any {
-            return this.$store.getters["chat/conversationConnectedUsers"](this.fullChatConvId);
-        },
-
         fullChatConvId(): any {
             if (this.$route.name === "chats" && this.rightBarState.mode === "client_info") {
                 return this.$route.params["conv_id"];
             }
 
             return this.rightBarState?.conv_id || null;
-        },
-
-        conversationWithUsersInfo(): any {
-            // if (!(this.$route.name === 'chats' && this.rightBarState.mode === 'client_info')) return [];
-
-            return this.$store.getters["chat/conversationWithUsersInfo"](
-                this.fullChatConvId,
-                this.profile?.socket_session?.id
-            );
         },
 
         visits(): any {
@@ -643,9 +622,8 @@ export default defineComponent({
         },
 
         parsedUaString(): any {
-            const uaString: any = this.conversationWithUsersInfo.length
-                ? this.conversationWithUsersInfo[0].socket_session.init_user_agent
-                : "";
+            const uaString: any =
+                this.conversationData.clientConversationSession?.socket_session?.init_user_agent || "";
 
             // console.log(uaString, UAParser(uaString));
 
@@ -727,7 +705,7 @@ export default defineComponent({
             if (
                 this.$route.name === "chats" &&
                 this.rightBarState.mode === "client_info" &&
-                this.conversationWithUsersInfo?.length
+                this.conversationData.clientConversationSession?.id
             ) {
                 this.$refs.page_visit_list?.$forceUpdate();
                 this.$refs.chat_duration?.$forceUpdate();
@@ -743,20 +721,21 @@ export default defineComponent({
     },
 
     watch: {
-        conversationWithUsersInfo: {
+        conversationData: {
             handler: function (newVal, oldVal) {
                 // console.log(newVal, oldVal);
 
                 if (
+                    this.conversationData.id &&
                     !this.conversationData.users_only &&
-                    newVal?.length &&
-                    (!oldVal?.length || newVal[0].conversation_id !== oldVal[0].conversation_id)
+                    newVal.id &&
+                    newVal.id !== oldVal.id
                 ) {
                     // this.$store.dispatch("chat/getPreviousConversations", {
                     //     before_conversation: newVal[0].conversation_id,
                     // });
 
-                    const clientEmail = this.conversationWithUsersInfo[0].socket_session.init_email;
+                    const clientEmail = this.conversationData.clientConversationSession.socket_session.init_email;
 
                     if (!this.conversationData.closed_at) {
                         // load client tickets

@@ -56,6 +56,23 @@ export default class Conversation extends Model {
         return this.clientConversationSession.socket_session;
     }
 
+    // user to user chat other person
+    get userToUserChatOtherPerson() {
+        const conversation: any = this.$query()
+            .where("id", this.id)
+            .where("users_only", true)
+            .where("type", "user_to_user_chat")
+            .with("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery
+                    .where("socket_session_id", (value: any) => value !== helpers.getMySocketSessionId())
+                    .with("socket_session.user");
+            })
+            .first();
+
+        return conversation?.conversation_sessions.length ? conversation.conversation_sessions[0] : {};
+    }
+
+    // connected users including me
     get connectedUsers() {
         const conversation: any = this.$query()
             .where("id", this.id)

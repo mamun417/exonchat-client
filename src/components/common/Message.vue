@@ -678,7 +678,7 @@
             />
 
             <send-transcript
-                v-if="canSendTranscript && (conversationConnectedUsers.length || conversationData.closed_at)"
+                v-if="canSendTranscript && (conversationData.connectedUsers.length || conversationData.closed_at)"
                 :conv_id="conv_id"
             />
 
@@ -872,7 +872,7 @@ export default defineComponent({
         },
 
         conversationStatusForMe(): any {
-            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id, this.ses_id);
+            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id);
         },
 
         myConversationSession(): any {
@@ -1018,13 +1018,9 @@ export default defineComponent({
             return this.chatPanelType === "user";
         },
 
-        conversationConnectedUsers(): any {
-            return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
-        },
-
         canSendTranscript(): any {
             const sortedAgents = _l.sortBy(
-                this.conversationConnectedUsers.filter(
+                this.conversationData.connectedUsers.filter(
                     (conversationConnectedUser: any) => !conversationConnectedUser.left_at
                 ),
                 (convSes: any) => moment(convSes.joined_at).format("x")
@@ -1411,7 +1407,7 @@ export default defineComponent({
             templateDom.style.bottom = `${bodyHeight - msgInputBottomPos + 50}px`;
         },
 
-        sendMessage(): any {
+        async sendMessage() {
             this.msg = this.msg.trim();
 
             if (!this.finalAttachments.length && !this.msg.length) {
@@ -1434,7 +1430,7 @@ export default defineComponent({
                 status: "not_typing",
             });
 
-            Message.insert({
+            await Message.insert({
                 data: {
                     id: this.tempMsgId,
                     msg: this.msg,
@@ -1666,12 +1662,6 @@ export default defineComponent({
                 this.conversationData.myUnseenMessageCount > 0
             ) {
                 console.log("update seen");
-
-                this.$store.commit("chat/updateConversation", {
-                    conv_id: this.conv_id,
-                    last_msg_seen_time: lastMsgSeenTime,
-                    socket_session_id: mySocketSesId,
-                });
 
                 // we could use conversation/:conv_id/update-last-message-seen-time
                 await window.socketSessionApi.post(

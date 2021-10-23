@@ -6,6 +6,8 @@ import { ChatStateInterface } from "./state";
 
 import ChatDepartment from "src/store/models/ChatDepartment";
 import Conversation from "src/store/models/Conversation";
+import ConversationSession from "src/store/models/ConversationSession";
+import SocketSession from "src/store/models/SocketSession";
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
@@ -24,52 +26,15 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return {};
     },
 
-    conversationStatusForMe: () => (convId: any, mySesId: any) => {
+    conversationStatusForMe: () => (convId: any) => {
         const conv: any = Conversation.query().where("id", convId).with("conversation_sessions").first();
 
         if (!conv) return null;
         if (conv.closed_at) return "closed";
 
-        const conversationSession =
-            _l.find(
-                conv.conversation_sessions,
-                (conversationSession: any) => conversationSession.socket_session_id === mySesId
-            ) || {};
+        const conversationSession = conv.myConversationSession;
 
         return conversationSession.left_at ? "left" : conversationSession.joined_at ? "joined" : null;
-    },
-
-    conversationWithUsersInfo: (state) => (convId: any, mySesId: any) => {
-        let userSessions = [];
-
-        const conv = state.conversations[convId];
-
-        if (conv?.id) {
-            userSessions = conv.sessions.filter((session: any) => {
-                return (
-                    (!conv.users_only && !session.socket_session.user) ||
-                    (conv.users_only && session.socket_session_id !== mySesId)
-                );
-            });
-        }
-
-        return userSessions;
-    },
-
-    // connected agents
-    conversationConnectedUsers: (state) => (convId: any) => {
-        let userSessions: any = [];
-
-        if (state.conversations[convId]) {
-            const conv = state.conversations[convId];
-
-            // send connected users in this conversation without client. its for showing images
-            userSessions = conv.sessions.filter((session: any) => {
-                return (!conv.users_only && session.socket_session.user) || conv.users_only;
-            });
-        }
-
-        return userSessions;
     },
 
     typingState: (state) => (convId: any) => {
@@ -81,13 +46,16 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         const typingRes: any = [];
 
         Object.values(typingState).forEach((each: any) => {
-            const sesInfo = _l.find(conv.sessions, ["socket_session_id", each.socket_session_id]);
+            const conversationSession = ConversationSession.query()
+                .where("socket_session_id", each.socket_session_id)
+                .first();
+            const socketSession = SocketSession.find(each.socket_session_id);
 
-            if (sesInfo) {
+            if (conversationSession) {
                 typingRes.push({
                     ...each,
-                    conv_ses_info: sesInfo,
-                    socket_session: sesInfo.socket_session,
+                    conv_ses_info: conversationSession,
+                    socket_session: socketSession,
                 });
             }
         });
@@ -96,38 +64,25 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     // ongoing other chats => for interaction page
-    ongoingOtherChats(state, getters, rootState, rootGetters) {
-        const chats = Object.values(state.conversations)
-            .filter((conv: any) => {
-                const sesInfo = _l.find(conv.sessions, [
-                    "socket_session_id",
-                    rootGetters["auth/profile"]?.socket_session?.id,
-                ]);
+    ongoingOtherChats() {
+        const conversations = Conversation.query()
+            .where("users_only", false)
+            .where("closed_at", null)
+            .with("chat_department")
+            .orderBy("created_at", "desc")
+            .get();
 
-                const agentsLength = conv.sessions.filter(
-                    (convSes: any) => convSes.socket_session.user && convSes.joined_at
-                );
+        return conversations.filter((conv: any) => {
+            const connectedAgents = conv.connectedUsers;
+            const myConversationSession = conv.myConversationSession;
 
-                return (
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    (agentsLength.length > 1 ||
-                        (agentsLength.length === 1 && !sesInfo) ||
-                        (agentsLength.length === 1 && sesInfo.left_at) ||
-                        (agentsLength.length === 1 && !sesInfo.left_at && !sesInfo.joined_at))
-                );
-            })
-            .map((conv: any) => {
-                return {
-                    connected_client: _l.find(conv.sessions, (convSes: any) => !convSes.socket_session.user),
-                    connected_agents: conv.sessions.filter(
-                        (convSes: any) => convSes.socket_session.user && convSes.joined_at
-                    ),
-                    ...conv,
-                };
-            });
-
-        return _l.sortBy(chats, (conv: any) => moment(conv.created_at).format("x")).reverse();
+            return (
+                connectedAgents.length > 1 ||
+                (connectedAgents.length === 1 && !myConversationSession) ||
+                (connectedAgents.length === 1 && myConversationSession.left_at) ||
+                (connectedAgents.length === 1 && !myConversationSession.left_at && !myConversationSession.joined_at)
+            );
+        });
     },
 
     // chat requests for me => for left bar & interaction page
@@ -171,34 +126,19 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     myChatTransferRequests(state, getters, rootState, rootGetters) {
-        const myTransferRequest = Object.values(state.conversations)
-            .filter((conv: any) => {
-                const sesInfo = _l.find(conv.sessions, [
-                    "socket_session_id",
-                    rootGetters["auth/profile"]?.socket_session?.id,
-                ]);
-
-                // Object.keys(conv.messages).length check for safe
-                // omitting left_at null check for now. if need null check modify event api also
-                return (
-                    !conv.users_only &&
-                    !conv.closed_at &&
-                    sesInfo &&
-                    !sesInfo.joined_at &&
-                    sesInfo.type === "chat_transfer"
-                );
+        return Conversation.query()
+            .where("users_only", false)
+            .where("closed_at", null)
+            .whereHas("conversation_sessions", (conversationSessionQuery) => {
+                conversationSessionQuery
+                    .where("joined_at", null)
+                    .where("left_at", null)
+                    .where("type", "chat_transfer")
+                    .where("socket_session_id", rootGetters["auth/profile"]?.socket_session?.id);
             })
-            .map((conv: any) => {
-                // it holds transfer info in the info object
-                const sesInfo = _l.find(conv.sessions, [
-                    "socket_session_id",
-                    rootGetters["auth/profile"]?.socket_session?.id,
-                ]);
-
-                return { ...conv, transfer_request_info: sesInfo };
-            });
-
-        return _l.sortBy(myTransferRequest, (conv: any) => moment(conv.updated_at).format("x"));
+            .with("chat_department")
+            .orderBy("updated_at")
+            .get();
     },
 
     // departmental chat requests count => for left bar

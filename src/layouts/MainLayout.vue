@@ -169,7 +169,7 @@
                                 <span class="tw-font-bold tw-text-base tw-capitalize">
                                     Chat transfer request from
                                     {{
-                                        myChatTransferRequest.transfer_request_info?.info?.transfer_from?.user_meta
+                                        myChatTransferRequest.myConversationSession?.info?.transfer_from?.user_meta
                                             ?.display_name
                                     }}</span
                                 >
@@ -254,7 +254,7 @@
                             </div>
                             <div class="tw-flex tw-items-center tw-mr-4">
                                 <div
-                                    v-if="conversationConnectedUsers.length"
+                                    v-if="conversationData.connectedUsers.length"
                                     class="tw-flex tw-flex-col tw-items-center"
                                 >
                                     <div class="text-white tw-mb-2">Someone already accepted this conversation</div>
@@ -465,14 +465,6 @@ export default defineComponent({
             }
 
             return false;
-        },
-
-        conversationConnectedUsers(): any {
-            if (this.newConversationInfo) {
-                return this.$store.getters["chat/conversationConnectedUsers"](this.newConversationInfo.id);
-            }
-
-            return [];
         },
     },
 
@@ -877,7 +869,7 @@ export default defineComponent({
             window.socketInstance.emit("ec_join_conversation", {
                 conv_id: convData.id,
                 chat_transfer_request_from: fromChatTransferRequest
-                    ? convData.transfer_request_info?.info?.transfer_from
+                    ? convData.myConversationSession?.info?.transfer_from
                     : null,
             });
 

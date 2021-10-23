@@ -16,14 +16,6 @@ const getters: GetterTree<ClientConversationStateInterface, StateInterface> = {
     newLoadedConversationIds(state) {
         return state.newLoadedConversationIds;
     },
-
-    getClientConversations(state) {
-        return _l
-            .sortBy(state.clientConversations, [
-                (clientConversation) => moment(clientConversation.created_at).format("x"),
-            ])
-            .reverse();
-    },
 };
 
 export default getters;
