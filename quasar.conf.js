@@ -55,6 +55,11 @@ module.exports = configure(function (ctx) {
 
             env: { API: ctx.dev ? "http://localhost:3000" : process.env.PROD_API_ENDPOINT, DEV: ctx.dev },
 
+            // env: {
+            //     API: ctx.dev ? "https://f3e0-103-148-172-231.ngrok.io" : process.env.PROD_API_ENDPOINT,
+            //     DEV: ctx.dev,
+            // },
+
             // transpile: false,
 
             // Add dependencies for transpiling with Babel (Array of string/regex)

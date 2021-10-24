@@ -116,10 +116,18 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     updateConvState(context, convSesInfo) {
+        const extraInfo: any = {};
+
+        // when join the conversation closed_at should be null
+        if (convSesInfo.hasOwnProperty("conversation_closed_at")) {
+            extraInfo.closed_at = convSesInfo.closed_at;
+        }
+
         context.commit("updateConversation", {
             conv_id: convSesInfo.conversation_id,
             session: convSesInfo,
             caller: "updateConvState",
+            ...extraInfo,
         });
 
         if (convSesInfo.log_message) {

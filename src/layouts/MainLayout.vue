@@ -694,6 +694,7 @@ export default defineComponent({
             this.socket.on("ec_is_joined_from_conversation", (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
                 convSesInfo.from_chat_transfer_request = res.data.from_chat_transfer_request;
+                convSesInfo.conversation_closed_at = null;
 
                 this.$store.dispatch("chat/updateConvState", convSesInfo);
 
