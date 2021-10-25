@@ -1,7 +1,6 @@
 import { ActionTree } from "vuex";
 import { StateInterface } from "../index";
 import { OfflineChatReqStateInterface } from "./state";
-import * as _l from "lodash";
 import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 
 const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {

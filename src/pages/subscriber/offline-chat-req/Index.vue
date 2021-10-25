@@ -86,7 +86,7 @@ export default defineComponent({
                 {
                     name: "name",
                     align: "left",
-                    label: "Name",
+                    label: "Requester",
                     field: "name",
                 },
                 {
@@ -112,7 +112,7 @@ export default defineComponent({
                 {
                     name: "created_at",
                     align: "left",
-                    label: "Created Date",
+                    label: "Last Message",
                     field: "created_at",
                 },
             ],

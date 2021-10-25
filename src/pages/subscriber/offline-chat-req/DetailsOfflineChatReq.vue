@@ -49,8 +49,8 @@
                                         v-for="reply in offlineChatRequestReplies"
                                         :key="reply.id"
                                     >
-                                        <!--<pre>{{ reply }}</pre>-->
-                                        <div class="">
+                                        <pre>{{ reply }}</pre>
+                                        <div v-if="reply.message_type === 'message'" class="">
                                             <div class="tw-pb-0 tw-my-4">
                                                 <q-card
                                                     :class="['tw-shadow-sm']"
@@ -58,7 +58,7 @@
                                                         checkOwnMessage(reply) ? '#f0f5f8' : ''
                                                     }`"
                                                 >
-                                                    <q-card-section class="tw-px-0 tw-flex tw-py-3">
+                                                    <q-card-section class="tw-px-0 tw-flex tw-items-center tw-py-3">
                                                         <div class="tw-flex-shrink-0 tw-flex tw-justify-center tw-w-20">
                                                             <ec-avatar
                                                                 :image_src="
@@ -133,6 +133,7 @@
                                                 </q-card>
                                             </div>
                                         </div>
+                                        <div v-else>log message</div>
                                     </template>
                                 </div>
                             </template>
@@ -143,15 +144,12 @@
 
                     <div
                         style="border-top: 1px solid rgba(0, 0, 0, 0.08)"
-                        class="tw-w-full tw-py-2 tw-flex tw-mt-3 tw-bg-white tw-self-end tw-rounded tw-mb-1 tw-shadow-md"
+                        class="tw-w-full tw-py-2 tw-mt-3 tw-bg-white tw-self-end tw-rounded tw-mb-1 tw-shadow-md"
                     >
-                        <div class="tw-flex tw-flex-col tw-justify-end">
-                            <ec-emoji @clickEmoji="handleClickEmoji" class="tw-px-2" :color="globalColor" />
-                        </div>
-
                         <div class="tw-flex-auto tw-px-3">
                             <!-- used keydown for instant catch n prevent -->
                             <q-input
+                                type="textarea"
                                 ref="messageInput"
                                 v-model="msg"
                                 debounce="0"
@@ -160,21 +158,34 @@
                                 class="ec-msg-input"
                                 :class="[`ec-msg-input-${uid}`]"
                                 :autofocus="messageInputAutoFocus"
-                                @keydown="keyDownHandle"
                                 hide-bottom-space
-                                autogrow
+                                rows="3"
                                 borderless
-                                dense
                             />
                         </div>
-                        <div class="tw-flex tw-flex-col tw-justify-end">
-                            <q-btn
-                                icon="send"
-                                flat
-                                :color="globalColor"
-                                :disable="getSendBtnStatus"
-                                @click="sendMessage"
-                            ></q-btn>
+                        <div class="tw-flex tw-justify-between">
+                            <div class="tw-flex">
+                                <ec-emoji @clickEmoji="handleClickEmoji" class="tw-px-2" :color="globalColor" />
+                            </div>
+
+                            <div class="tw-flex tw-items-center tw-justify-end tw-w-full">
+                                <div class="tw-whitespace-nowrap">Ticket status</div>
+                                <q-select
+                                    v-model="ticket_status"
+                                    style="max-width: 120px"
+                                    :options="['Open', 'Pending', 'Solved', 'Spam']"
+                                    class="tw-ml-2 tw-w-full"
+                                    outlined
+                                    dense
+                                />
+                                <q-btn
+                                    icon="send"
+                                    flat
+                                    :color="globalColor"
+                                    :disable="getSendBtnStatus"
+                                    @click="sendMessage"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -306,11 +317,11 @@
                                         <q-item-section>
                                             <div class="tw-flex tw-justify-between">
                                                 <div>
-                                                    {{ offlineChatRequest.chat_department.display_name }}
+                                                    {{ offlineChatRequest.chat_department?.display_name }}
                                                 </div>
-                                                <div class="tw-float-right">
+                                                <!--<div class="tw-float-right">
                                                     <div class="text-blue-5 tw-cursor-pointer">Edit</div>
-                                                </div>
+                                                </div>-->
                                             </div>
                                         </q-item-section>
                                     </q-item>
@@ -402,6 +413,7 @@ export default defineComponent({
         return {
             offline_chat_req_id: this.$route.params["id"],
             msg: "",
+            ticket_status: "Pending",
             tempMsgId: "",
             cardMaxHeight: "16rem",
             messageInputAutoFocus: true,
@@ -443,85 +455,73 @@ export default defineComponent({
             this.$refs.messageInput.focus();
         },
 
-        keyDownHandle(e: any) {
-            if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-
-                if (!this.chatTemplate) {
-                    this.sendMessage();
-                }
-            }
-        },
-
         getSendBtnStatus(): any {
             return !!this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
         },
 
-        sendMessage(): any {
+        async sendMessage() {
             this.msg = this.msg.trim();
 
-            if (!this.finalAttachments.length && !this.msg.length) {
-                return false;
+            const messageTypes = ["message", "ticket_status"];
+
+            for (const messageType of messageTypes) {
+                this.createTempMsgId();
+
+                let dynamicData: any = {};
+
+                if (messageType === "message") {
+                    dynamicData = {
+                        offline_chat_req_id: this.offline_chat_req_id,
+                        message: this.msg,
+                        message_type: "message",
+                    };
+                } else if (messageType === "ticket_status") {
+                    dynamicData = {
+                        offline_chat_req_id: this.offline_chat_req_id,
+                        message: `changeTicketStatusFrom_${this.offlineChatRequest.status}`,
+                        message_type: "log",
+                        ticket_status: this.ticket_status.toLowerCase(),
+                    };
+                }
+
+                await this.insertMessageToModel(dynamicData);
+
+                await this.insertMessageToDB(dynamicData, messageType);
+
+                this.tempMsgId = "";
             }
+        },
 
-            this.createTempMsgId();
-
-            // const dynamicBody =
-            //     this.chatPanelType === "user"
-            //         ? { conv_id: this.conv_id, temp_id: this.tempMsgId }
-            //         : { temp_id: this.tempMsgId };
-
-            // const dynamicSocket = this.socket || this.$socket;
-
-            // send not typing from here also before send emit so that typing flicker goes
-            // dynamicSocket.emit(`ec_is_typing_from_${this.chatPanelType}`, {
-            //     conv_id: this.conv_id,
-            //     msg: "",
-            //     status: "not_typing",
-            // });
-
+        insertMessageToModel(dynamicData: any) {
             OfflineChatRequestReply.insert({
                 data: {
                     id: this.tempMsgId,
-                    message: this.msg,
-                    message_type: "message",
-                    offline_chat_req_id: this.offline_chat_req_id,
                     socket_session_id: this.$helpers.getMySocketSessionId(),
                     created_at: new Date().toISOString(),
+                    ...dynamicData,
                 },
             }).then(() => {
-                // this.tempMsgId = null;
-
                 this.scrollToPosition();
             });
+        },
 
-            // const pendingEntry = this.finalAttachments.find((attachment: any) => attachment.status !== "done");
-
-            // if (!this.finalAttachments.length || !pendingEntry) {
-            //     dynamicSocket.emit(`ec_msg_from_${this.chatPanelType}`, {
-            //         ...dynamicBody,
-            //         msg: this.msg,
-            //         attachments: _l.map(this.finalAttachments, "attachment_uploaded_id"),
-            //     });
-            // }
-
+        insertMessageToDB(dynamicData: any, messageType: any) {
             window.api
-                .post("offline-chat-requests/reply", {
-                    offline_chat_req_id: this.offline_chat_req_id,
-                    message: this.msg,
-                })
+                .post("offline-chat-requests/reply", { ...dynamicData, temp_msg_id: this.tempMsgId })
                 .then((res: any) => {
-                    if (this.tempMsgId) {
-                        OfflineChatRequestReply.delete(this.tempMsgId);
+                    if (res.data.temp_msg_id) {
+                        OfflineChatRequestReply.delete(res.data.temp_msg_id);
                     }
 
                     OfflineChatRequestReply.insert({ data: res.data });
+
+                    if (messageType === "message") {
+                        this.msg = "";
+                    }
                 })
                 .catch((err: any) => {
                     console.log(err);
                 });
-
-            this.msg = "";
         },
 
         scrollToPosition(position = 1) {
