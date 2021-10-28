@@ -33,7 +33,7 @@
                     <template v-slot:cell-assignee="slotProps">
                         <div>
                             {{ slotProps.row.assign_user ? slotProps.row.assign_user : "Unassigned" }}
-                            <pre>{{ slotProps.row }}</pre>
+                            <!--<pre>{{ slotProps.row }}</pre>-->
                         </div>
                     </template>
 
@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        <pre>{{ offlineChatRequest }}</pre>
+        <!--<pre>{{ offlineChatRequest }}</pre>-->
 
         <reply-offline-chat-req-modal v-if="replyModal" @hide="replyModal = false" />
     </div>

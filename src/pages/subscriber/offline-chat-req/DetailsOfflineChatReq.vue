@@ -1,19 +1,19 @@
 <template>
     <div>
-        <div
-            class="tw-grid tw-grid-cols-3 tw-gap-2 tw-h-full tw-overflow-hidden"
-            :class="$helpers.colors().defaultText"
-        >
+        <div class="tw-grid tw-grid-cols-3 tw-h-full tw-overflow-hidden" :class="$helpers.colors().defaultText">
             <div class="tw-col-span-2">
                 <div class="tw-flex tw-flex-col tw-h-full">
-                    <div>
-                        <q-card class="tw-shadow-sm tw-text-center tw-mb-3">
+                    <div class="tw-border-b">
+                        <q-card class="tw-shadow-none tw-text-center">
                             <q-card-section class="row no-wrap items-center tw-p-0">
                                 <q-item class="tw-w-full">
                                     <q-item-section>
                                         <div class="tw-flex tw-items-center tw-gap-2">
                                             <div class="tw-whitespace-nowrap tw-cursor-pointer">
-                                                <div class="tw-flex tw-items-center tw-gap-2">
+                                                <div
+                                                    class="tw-flex tw-items-center tw-gap-2"
+                                                    @click="$router.push({ name: 'offline-chat-req' })"
+                                                >
                                                     <q-icon name="keyboard_backspace" size="sm" />
                                                     <div class="tw-text-xs">Back</div>
                                                 </div>
@@ -49,7 +49,7 @@
                                         v-for="reply in offlineChatRequestReplies"
                                         :key="reply.id"
                                     >
-                                        <pre>{{ reply }}</pre>
+                                        <!--<pre>{{ reply }}</pre>-->
                                         <div v-if="reply.message_type === 'message'" class="">
                                             <div class="tw-pb-0 tw-my-4">
                                                 <q-card
@@ -133,7 +133,20 @@
                                                 </q-card>
                                             </div>
                                         </div>
-                                        <div v-else>log message</div>
+                                        <div v-else class="tw-py-2 tw-px-4 tw-flex tw-justify-between">
+                                            <div>
+                                                <b>{{ reply.socket_session.user.user_meta.full_name }}</b> change status
+                                                <!--from {{ reply.message.split("_")[1] }}-->
+                                                to
+                                                {{ reply.message.split("_")[2] }}
+                                            </div>
+                                            <div
+                                                class="tw-whitespace-nowrap tw-text-xs"
+                                                :class="$helpers.colors().dateTimeText"
+                                            >
+                                                {{ $helpers.myDate(reply.created_at, "MMM DD, Y h:mm a") }}
+                                            </div>
+                                        </div>
                                     </template>
                                 </div>
                             </template>
@@ -178,21 +191,15 @@
                                     outlined
                                     dense
                                 />
-                                <q-btn
-                                    icon="send"
-                                    flat
-                                    :color="globalColor"
-                                    :disable="getSendBtnStatus"
-                                    @click="sendMessage"
-                                />
+                                <q-btn icon="send" flat :color="globalColor" @click="sendMessage" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div>
-                <q-card class="tw-shadow-sm tw-text-center">
+            <div class="tw-border-l">
+                <q-card class="tw-shadow-none tw-text-center tw-border-b">
                     <q-card-section class="row no-wrap items-center tw-p-0">
                         <q-item class="tw-w-full">
                             <q-item-section>
@@ -202,7 +209,7 @@
                     </q-card-section>
                 </q-card>
 
-                <q-scroll-area class="fit" :thumb-style="$helpers.getThumbStyle()">
+                <q-scroll-area class="fit tw-px-3" :thumb-style="$helpers.getThumbStyle()">
                     <q-list class="tw-px-1 tw-pr-3 tw-py-3" :class="$helpers.colors().defaultText">
                         <q-expansion-item
                             label="TICKET INFO"
@@ -215,19 +222,23 @@
                             <q-card>
                                 <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto">
                                     <q-list class="tw-break-all">
-                                        <q-item class="tw-text-xs tw-py-2" clickable dense>
+                                        <q-item class="tw-text-xs tw-py-2" dense>
                                             <q-item-section>
                                                 <q-item-label>
                                                     Ticket ID: {{ offlineChatRequest.identifier }}
-                                                    <span class="text-blue-5">Copy URL</span>
+                                                    <span
+                                                        class="text-blue-5 tw-cursor-pointer"
+                                                        @click="copyCurrentUrl"
+                                                        >{{ urlCopySuccess ? "Copied" : "Copy URL" }}</span
+                                                    >
                                                 </q-item-label>
                                             </q-item-section>
                                         </q-item>
 
-                                        <q-item class="tw-text-xs tw-py-2" clickable dense>
+                                        <q-item class="tw-text-xs tw-py-2" dense>
                                             <q-item-section>
                                                 <q-item-label>
-                                                    Created:
+                                                    Created At:
                                                     {{
                                                         $helpers.myDate(
                                                             offlineChatRequest?.created_at,
@@ -238,17 +249,26 @@
                                             </q-item-section>
                                         </q-item>
 
-                                        <q-item class="tw-text-xs tw-py-2" clickable dense>
-                                            <q-item-section>
-                                                <q-item-label> Last message: 10 Oct 2021 </q-item-label>
+                                        <q-item class="tw-text-xs tw-py-2" dense>
+                                            <q-item-section v-if="offlineChatRequestReplies?.length">
+                                                <q-item-label>
+                                                    Last message:
+                                                    {{
+                                                        $helpers.myDate(
+                                                            offlineChatRequestReplies[
+                                                                offlineChatRequestReplies.length - 1
+                                                            ].created_at,
+                                                            "MMM DD, Y h:mm a"
+                                                        )
+                                                    }}
+                                                </q-item-label>
                                             </q-item-section>
                                         </q-item>
 
-                                        <q-item class="tw-text-xs tw-py-2" clickable dense>
+                                        <q-item class="tw-text-xs tw-py-2" dense>
                                             <q-item-section>
                                                 <q-item-label>
                                                     Status:
-
                                                     <q-badge
                                                         :style="{
                                                             backgroundColor: getOfflineChatReqStatusBgColor(
@@ -268,7 +288,7 @@
 
                         <div class="tw-mb-4"></div>
 
-                        <q-expansion-item
+                        <!--<q-expansion-item
                             label="ASSIGNEE"
                             dense
                             default-opened
@@ -291,15 +311,15 @@
                                                     </div>
                                                     <div class="tw-text-sm">abdullah@example.com</div>
                                                 </div>
-                                                <!--<div class="tw-float-right">
+                                                &lt;!&ndash;<div class="tw-float-right">
                                                     <div class="text-blue-5 tw-cursor-pointer">Change</div>
-                                                </div>-->
+                                                </div>&ndash;&gt;
                                             </q-item-label>
                                         </q-item-section>
                                     </q-item>
                                 </q-card-section>
                             </q-card>
-                        </q-expansion-item>
+                        </q-expansion-item>-->
 
                         <div class="tw-mb-4"></div>
 
@@ -384,7 +404,17 @@
                                 >
                                     <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
                                         <q-item class="tw-flex tw-items-center tw-py-4" clickable dense>
-                                            <div><span class="q-badge tw-rounded-full">Open</span> Test ticket</div>
+                                            <div v-for="(recentTicket, key) in recentTickets" :key="key">
+                                                <q-badge
+                                                    :style="{
+                                                        backgroundColor: getOfflineChatReqStatusBgColor(recentTicket),
+                                                    }"
+                                                >
+                                                    {{ recentTicket?.status }}
+                                                </q-badge>
+
+                                                {{ recentTicket.subject }}
+                                            </div>
                                         </q-item>
                                     </q-list>
                                 </q-card-section>
@@ -417,6 +447,7 @@ export default defineComponent({
             tempMsgId: "",
             cardMaxHeight: "16rem",
             messageInputAutoFocus: true,
+            urlCopySuccess: false,
         };
     },
 
@@ -430,19 +461,28 @@ export default defineComponent({
         offlineChatRequestReplies(): any {
             const offlineChatRequest: any = OfflineChatRequest.query()
                 .where("id", this.offline_chat_req_id)
-                .with([
-                    "offline_chat_req_replies",
-                    "offline_chat_req_replies.socket_session",
-                    "offline_chat_req_replies.socket_session.user",
-                ])
+                .with("offline_chat_req_replies", (query) => {
+                    query.orderBy("created_at");
+                })
+                .with(["offline_chat_req_replies.socket_session", "offline_chat_req_replies.socket_session.user"])
                 .first();
 
             return offlineChatRequest?.offline_chat_req_replies;
+        },
+
+        recentTickets(): any {
+            return OfflineChatRequest.query()
+                .where((offlineChatRequest: any) => {
+                    return offlineChatRequest.id !== this.offlineChatRequest.id;
+                })
+                .where("email", this.offlineChatRequest.email)
+                .get();
         },
     },
 
     mounted() {
         this.getReplies();
+        this.scrollToPosition();
     },
 
     methods: {
@@ -455,12 +495,10 @@ export default defineComponent({
             this.$refs.messageInput.focus();
         },
 
-        getSendBtnStatus(): any {
-            return !!this.finalAttachments.length && _l.findIndex(this.finalAttachments, (att: any) => !att.id);
-        },
-
         async sendMessage() {
             this.msg = this.msg.trim();
+
+            // if (!this.msg) return;
 
             const messageTypes = ["message", "ticket_status"];
 
@@ -469,7 +507,7 @@ export default defineComponent({
 
                 let dynamicData: any = {};
 
-                if (messageType === "message") {
+                if (messageType === "message" && this.msg) {
                     dynamicData = {
                         offline_chat_req_id: this.offline_chat_req_id,
                         message: this.msg,
@@ -478,17 +516,21 @@ export default defineComponent({
                 } else if (messageType === "ticket_status") {
                     dynamicData = {
                         offline_chat_req_id: this.offline_chat_req_id,
-                        message: `changeTicketStatusFrom_${this.offlineChatRequest.status}`,
+                        message: `changeTicketStatusFrom_${
+                            this.offlineChatRequest.status
+                        }_${this.ticket_status.toLowerCase()}`,
                         message_type: "log",
                         ticket_status: this.ticket_status.toLowerCase(),
                     };
                 }
 
-                await this.insertMessageToModel(dynamicData);
+                if (Object.keys(dynamicData).length) {
+                    await this.insertMessageToModel(dynamicData);
 
-                await this.insertMessageToDB(dynamicData, messageType);
+                    await this.insertMessageToDB(dynamicData, messageType);
 
-                this.tempMsgId = "";
+                    this.tempMsgId = "";
+                }
             }
         },
 
@@ -506,6 +548,10 @@ export default defineComponent({
         },
 
         insertMessageToDB(dynamicData: any, messageType: any) {
+            if (messageType === "message") {
+                this.msg = "";
+            }
+
             window.api
                 .post("offline-chat-requests/reply", { ...dynamicData, temp_msg_id: this.tempMsgId })
                 .then((res: any) => {
@@ -514,10 +560,6 @@ export default defineComponent({
                     }
 
                     OfflineChatRequestReply.insert({ data: res.data });
-
-                    if (messageType === "message") {
-                        this.msg = "";
-                    }
                 })
                 .catch((err: any) => {
                     console.log(err);
@@ -547,7 +589,7 @@ export default defineComponent({
                     //     this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
                     // }
                 }
-            }, 300);
+            }, 500);
         },
 
         createTempMsgId() {
@@ -570,6 +612,23 @@ export default defineComponent({
                 : offlineChatReq.status === "solved"
                 ? "rgb(44, 176, 106)"
                 : "rgb(221, 226, 230)"; // spam
+        },
+
+        copyCurrentUrl() {
+            const dummy = document.createElement("input"),
+                url = window.location.href;
+
+            document.body.appendChild(dummy);
+            dummy.value = url;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            this.urlCopySuccess = true;
+
+            setTimeout(() => {
+                this.urlCopySuccess = false;
+            }, 3000);
         },
     },
 });
