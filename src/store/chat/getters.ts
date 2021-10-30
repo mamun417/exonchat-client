@@ -38,29 +38,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     typingState: (state) => (convId: any) => {
-        const typingState: any = state.typingStates[convId];
-        const conv = state.conversations[convId];
-
-        if (!typingState || !conv) return [];
-
-        const typingRes: any = [];
-
-        Object.values(typingState).forEach((each: any) => {
-            const conversationSession = ConversationSession.query()
-                .where("socket_session_id", each.socket_session_id)
-                .first();
-            const socketSession = SocketSession.find(each.socket_session_id);
-
-            if (conversationSession) {
-                typingRes.push({
-                    ...each,
-                    conv_ses_info: conversationSession,
-                    socket_session: socketSession,
-                });
-            }
-        });
-
-        return typingRes;
+        return _l.cloneDeep(state.typingStates[convId]);
     },
 
     // ongoing other chats => for interaction page

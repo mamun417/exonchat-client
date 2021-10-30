@@ -175,6 +175,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         });
 
         await Conversation.insert({ data: conv });
+
+        return res;
     },
 
     // get chat requests form db
@@ -383,7 +385,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         await Conversation.update({
             where: convRatingInfo.conversation_id,
             data: {
-                conversation_rating: convData.rating,
+                conversation_rating: convRatingInfo,
             },
         });
     },

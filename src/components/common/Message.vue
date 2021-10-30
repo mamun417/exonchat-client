@@ -407,11 +407,7 @@
 
                     <!--typing state-->
                     <div>
-                        <div
-                            v-for="(typing, index) in typingState"
-                            :key="index"
-                            class="tw-flex tw-items-center tw-py-2"
-                        >
+                        <div v-for="(typing, index) in typingData" :key="index" class="tw-flex tw-items-center tw-py-2">
                             <div
                                 class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                 :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
@@ -719,7 +715,6 @@ import Message from "src/store/models/Message";
 import AttachmentViewModal from "components/subscriber/message/attachment/AttachmentViewModal.vue";
 import MessageAttachment from "src/store/models/MessageAttachment";
 import ConversationSession from "src/store/models/ConversationSession";
-import { date } from "quasar";
 
 export default defineComponent({
     name: "Message",
@@ -945,7 +940,37 @@ export default defineComponent({
         typingState(): any {
             const states = this.$store.getters["chat/typingState"](this.conv_id);
 
-            return states.filter((state: any) => state.status === "typing");
+            console.log(this.conv_id);
+
+            if (states) {
+                console.log("x");
+                // this.scrollToPosition();
+            }
+
+            return states;
+        },
+
+        typingData(): any {
+            const typingRes: any = [];
+
+            if (this.typingState) {
+                Object.values(this.typingState).forEach((each: any) => {
+                    const conversationSession = ConversationSession.query()
+                        .where("socket_session_id", each.socket_session_id)
+                        .first();
+                    const socketSession = SocketSession.find(each.socket_session_id);
+
+                    if (conversationSession) {
+                        typingRes.push({
+                            ...each,
+                            conv_ses_info: conversationSession,
+                            socket_session: socketSession,
+                        });
+                    }
+                });
+            }
+
+            return typingRes.filter((state: any) => state.status === "typing");
         },
 
         getSendBtnStatus(): any {
@@ -1059,6 +1084,7 @@ export default defineComponent({
             }
 
             if (info.direction === "down" && this.scrollInfo.verticalPercentage === 1) {
+                console.log(this.scrollInfo, info);
                 this.scrollToPosition(1, true); // by passing true no need to update scroll position to state
             }
         },
@@ -1470,7 +1496,7 @@ export default defineComponent({
             // waiting for dom render
             setTimeout(() => {
                 if (msgScrollArea) {
-                    // console.log("scroll to ", position);
+                    console.log("scroll to ", position);
 
                     this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                         conv_id: this.conv_id,
@@ -1781,6 +1807,7 @@ export default defineComponent({
             handler: function (newVal, oldVal) {
                 if (this.conv_id && this.mini_mode && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
                     this.$refs.myInfiniteScrollArea.poll();
+                    console.log("x");
 
                     this.scrollToPosition(1, true);
                 }
@@ -1795,12 +1822,14 @@ export default defineComponent({
             immediate: true,
         },
 
-        typingState: {
-            handler: function () {
-                this.scrollToPosition();
-            },
-            deep: true,
-        },
+        // typingState: {
+        //     handler: function (newVal, oldVal) {
+        //         if (newVal === oldVal) return;
+        //         console.log("y");
+        //         this.scrollToPosition();
+        //     },
+        //     deep: true,
+        // },
 
         ecGetClientSesIdStatusWatch: {
             handler: function () {

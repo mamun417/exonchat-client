@@ -272,20 +272,12 @@
                                             </q-item-label>
                                         </q-item-section>
 
-                                        <q-item-section
-                                            v-if="
-                                                agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                    .count_unseen_msg
-                                            "
-                                            side
-                                        >
+                                        <q-item-section v-if="agentMsgInfo(user.conversation_id).count_unseen_msg" side>
                                             <q-badge color="orange" class="tw-mr-2">
                                                 {{
-                                                    agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                        .count_unseen_msg > 9
+                                                    agentMsgInfo(user.conversation_id).count_unseen_msg > 9
                                                         ? "9+"
-                                                        : agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                              .count_unseen_msg
+                                                        : agentMsgInfo(user.conversation_id).count_unseen_msg
                                                 }}
                                             </q-badge>
                                         </q-item-section>
@@ -422,20 +414,12 @@ export default defineComponent({
             this.$router.push({ name: "chats", params: { conv_id: convId } });
         },
 
-        agentMsgInfo(convId: any, sesId: any) {
+        agentMsgInfo(convId: any) {
             if (!convId) return "";
 
             const returnObj: any = {
-                typing: false,
                 count_unseen_msg: 0,
             };
-
-            const typingStates = this.$store.getters["chat/typingState"](convId);
-            const sesTypingState = _l.find(typingStates, ["socket_session_id", sesId]);
-
-            if (sesTypingState && sesTypingState.status === "typing") {
-                returnObj.typing = true;
-            }
 
             const conv = this.teamConversations.find((conv: any) => conv.id === convId);
 

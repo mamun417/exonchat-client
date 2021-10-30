@@ -72,12 +72,10 @@ const mutation: MutationTree<ChatStateInterface> = {
         const convId = convData.conv_id;
 
         if (convId) {
-            const conv = state.conversations[convId];
-
             if (!state.conversations[convId]?.id) {
-                if (!convData.conversation) {
-                    convData.conversation = { id: convId };
-                }
+                state.conversations[convId] = {
+                    scroll_info: {},
+                };
             }
 
             if (convData.hasOwnProperty("ai_is_replying")) {
@@ -166,7 +164,7 @@ const mutation: MutationTree<ChatStateInterface> = {
             state.typingStates[convId] = {};
         }
 
-        if (!state.typingStates[convId].hasOwnProperty(sesId)) {
+        if (!state.typingStates[convId][sesId]?.socket_session_id) {
             state.typingStates[convId][sesId] = {
                 msg: typingStateObj.msg,
                 time: Date.now(),

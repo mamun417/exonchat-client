@@ -445,11 +445,11 @@ export default defineComponent({
             return this.conversationModel.first() || {};
         },
 
-        currentRouteName() {
+        currentRouteName(): any {
             return this.$route.name;
         },
 
-        rightDrawerVisible() {
+        rightDrawerVisible(): any {
             if (this.rightBarState.visible && this.rightBarState.mode) {
                 if (this.$route.name !== "chats" && this.rightBarState.mode === "client_info") {
                     return false;
@@ -621,17 +621,13 @@ export default defineComponent({
             this.socket.on("ec_is_typing_from_user", (res: any) => {
                 this.$store.dispatch("chat/updateTypingState", res);
 
-                // console.log("from ec_is_typing_from_user", res);
+                console.log("from ec_is_typing_from_user", res);
             });
-
-            // this.socket.on('ec_is_typing_to_user', (data: any) => {
-            //     console.log('from ec_is_typing_to_user', data);
-            // });
 
             this.socket.on("ec_is_typing_from_client", (res: any) => {
                 this.$store.dispatch("chat/updateTypingState", res);
 
-                // console.log("from ec_is_typing_from_client", res.msg);
+                console.log("from ec_is_typing_from_client", res.msg);
             });
 
             this.socket.on("ec_conv_initiated_from_user", (data: any) => {

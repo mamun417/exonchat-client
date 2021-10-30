@@ -1,6 +1,10 @@
 <template>
     <q-card class="tw-shadow-sm">
-        <q-card-section class="row no-wrap items-center tw-p-2" :class="{ 'tw-px-0': mini_mode }">
+        <q-card-section
+            v-if="conversationData.id"
+            class="row no-wrap items-center tw-p-2"
+            :class="{ 'tw-px-0': mini_mode }"
+        >
             <q-item class="tw-w-full">
                 <!--assuming live chat-->
                 <q-item-section
@@ -455,7 +459,7 @@ export default defineComponent({
         }),
 
         conversationModel(): any {
-            return Conversation.query().where("id", this.$route.params?.conv_id);
+            return Conversation.query().where("id", this.conv_id);
         },
 
         conversationData(): any {

@@ -3,7 +3,7 @@
         <slot name="extra"></slot>
 
         <!--right bar mini mode-->
-        <template v-if="rightBarState.mode === 'conversation'">
+        <template v-if="rightBarState.mode === 'conversation' && rightBarState.conv_id">
             <message
                 :ses_id="profile.socket_session.id"
                 :conv_id="rightBarState.conv_id"
@@ -14,13 +14,13 @@
                     <div class="tw-mb-3">
                         <messages-top-section
                             v-if="conversationData.users_only"
-                            :conv_id="rightBarState.conv_id"
+                            :conv_id="conversationData.id"
                             :mini_mode="true"
                             class="tw-mb-3"
                         />
 
                         <!--assuming its livechat-->
-                        <template v-if="!conversationData.users_only">
+                        <template v-if="conversationData.id && !conversationData.users_only">
                             <q-list class="tw-px-1 tw-py-3 tw-pt-0" :class="$helpers.colors().defaultText">
                                 <q-card class="tw-shadow-none tw-mb-3 no-border-radius">
                                     <q-card-section
@@ -76,6 +76,7 @@
                                 </q-card>
 
                                 <customer-details-card
+                                    v-if="conversationData.id"
                                     :conversation-with-users-info="conversationData.clientConversationSession"
                                     :conversation-info="conversationData"
                                     :parsed-ua-string="parsedUaString"
@@ -223,12 +224,13 @@
 
         <!--client info / full view-->
         <q-scroll-area
-            v-else-if="rightBarState.mode === 'client_info' && !conversationData.users_only"
+            v-else-if="rightBarState.mode === 'client_info' && conversationData.id && !conversationData.users_only"
             class="fit"
             :thumb-style="$helpers.getThumbStyle()"
         >
             <q-list class="tw-px-1 tw-pr-3 tw-py-3" :class="$helpers.colors().defaultText">
                 <customer-details-card
+                    v-if="conversationData.id"
                     :conversation-with-users-info="conversationData.clientConversationSession"
                     :conversation-info="conversationData"
                     :parsed-ua-string="parsedUaString"
