@@ -257,8 +257,6 @@
                                             <div class="text-center tw-mb-1 tw-mt-2">
                                                 You are number <b>{{ queuePosition }}</b> in the queue.
                                             </div>
-                                            <!--<div class="text-center tw-mb-1">Your chat is currently in queue</div>-->
-                                            <!--<div class="text-center tw-font-bold">Someone will be with you shortly</div>-->
                                         </div>
                                     </template>
 
@@ -698,7 +696,7 @@ export default defineComponent({
         }),
 
         conversationModel(): any {
-            return Conversation.query().where("id", this.conv_id);
+            return Conversation.query().where("id", this.clientInitiateConvInfo?.conv_id);
         },
 
         conversationData(): any {

@@ -69,7 +69,7 @@ export default class Conversation extends Model {
             })
             .first();
 
-        return conversation?.conversation_sessions.length ? conversation.conversation_sessions[0] : {};
+        return conversation?.conversation_sessions?.length ? conversation.conversation_sessions[0] : {};
     }
 
     // connected users including me
@@ -85,7 +85,7 @@ export default class Conversation extends Model {
             })
             .first();
 
-        return conversation?.conversation_sessions.length ? conversation.conversation_sessions : [];
+        return conversation?.conversation_sessions?.length ? conversation.conversation_sessions : [];
     }
 
     // use only in agent panel

@@ -464,7 +464,7 @@ export default defineComponent({
 
         conversationData(): any {
             // if || {} empty object raise error for accessing models getter then manage null
-            return this.conversationModel.first() || {};
+            return this.conversationModel.with("chat_department").first() || {};
         },
 
         onlineUsers(): any {
