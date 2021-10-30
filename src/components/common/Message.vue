@@ -938,16 +938,7 @@ export default defineComponent({
         },
 
         typingState(): any {
-            const states = this.$store.getters["chat/typingState"](this.conv_id);
-
-            console.log(this.conv_id);
-
-            if (states) {
-                console.log("x");
-                // this.scrollToPosition();
-            }
-
-            return states;
+            return this.$store.getters["chat/typingState"](this.conv_id);
         },
 
         typingData(): any {
@@ -1807,8 +1798,6 @@ export default defineComponent({
             handler: function (newVal, oldVal) {
                 if (this.conv_id && this.mini_mode && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
                     this.$refs.myInfiniteScrollArea.poll();
-                    console.log("x");
-
                     this.scrollToPosition(1, true);
                 }
 
@@ -1822,14 +1811,12 @@ export default defineComponent({
             immediate: true,
         },
 
-        // typingState: {
-        //     handler: function (newVal, oldVal) {
-        //         if (newVal === oldVal) return;
-        //         console.log("y");
-        //         this.scrollToPosition();
-        //     },
-        //     deep: true,
-        // },
+        typingState: {
+            handler: function () {
+                this.scrollToPosition();
+            },
+            deep: true,
+        },
 
         ecGetClientSesIdStatusWatch: {
             handler: function () {

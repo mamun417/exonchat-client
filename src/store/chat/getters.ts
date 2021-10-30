@@ -38,7 +38,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     typingState: (state) => (convId: any) => {
-        return _l.cloneDeep(state.typingStates[convId]);
+        return state.typingStates[convId];
     },
 
     // ongoing other chats => for interaction page
