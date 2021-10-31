@@ -145,7 +145,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         const callConvInfo = context.getters["conversationInfo"](callConvId);
 
         // also get the info which we need
-        if (callConvInfo && callConvInfo.pagination_meta) {
+        if (callConvInfo && callConvInfo.pagination_meta && callConvInfo.pagination_meta.current_page) {
             current_page = callConvInfo.pagination_meta.current_page;
         }
 

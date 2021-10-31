@@ -72,9 +72,9 @@ const mutation: MutationTree<ChatStateInterface> = {
         const convId = convData.conv_id;
 
         if (convId) {
-            if (!state.conversations[convId]?.id) {
+            if (!state.conversations[convId]?.loaded) {
                 state.conversations[convId] = {
-                    scroll_info: {},
+                    loaded: true // its for if check
                 };
             }
 
