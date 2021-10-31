@@ -1075,7 +1075,6 @@ export default defineComponent({
             }
 
             if (info.direction === "down" && this.scrollInfo.verticalPercentage === 1) {
-                console.log(this.scrollInfo, info);
                 this.scrollToPosition(1, true); // by passing true no need to update scroll position to state
             }
         },
@@ -1773,8 +1772,7 @@ export default defineComponent({
                 .then((res: any) => {
                     ConversationSession.update({ where: res.data.id, data: res.data });
 
-                    this.msg = "";
-                    console.log(res.data);
+                    this.msg = "";;
                 })
                 .catch((err: any) => {
                     console.log(err.response);
