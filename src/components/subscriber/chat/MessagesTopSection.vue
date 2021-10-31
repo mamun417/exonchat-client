@@ -123,7 +123,7 @@
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
                                         <q-item-section>
-                                            {{ conversationData.connectedUsers.length ? "Join Chat" : "Accept Chat" }}
+                                            {{ conversationData.connectedUsers?.length ? "Join Chat" : "Accept Chat" }}
                                         </q-item-section>
                                     </q-item>
 
@@ -480,16 +480,16 @@ export default defineComponent({
         needTransfer(): any {
             // not checking me. cz its before my leave
             return (
-                this.conversationData.connectedUsers.filter(
+                this.conversationData.connectedUsers?.filter(
                     (conversationConnectedUser: any) => conversationConnectedUser.left_at
                 ).length ===
-                this.conversationData.connectedUsers.length - 1
+                this.conversationData.connectedUsers?.length - 1
             );
         },
 
         canClose(): any {
             const sortedAgents = _l.sortBy(
-                this.conversationData.connectedUsers.filter(
+                this.conversationData.connectedUsers?.filter(
                     (conversationConnectedUser: any) => !conversationConnectedUser.left_at
                 ),
                 (convSes: any) => moment(convSes.joined_at).format("x")

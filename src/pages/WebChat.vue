@@ -242,7 +242,7 @@
                                     <template v-slot:scroll-area-top-section>
                                         <div
                                             v-if="
-                                                !conversationData.closed_at && !conversationData.connectedUsers.length
+                                                !conversationData.closed_at && !conversationData.connectedUsers?.length
                                             "
                                             class="tw-py-4 tw-text-sm"
                                             :class="$helpers.colors().defaultText"
@@ -1132,7 +1132,7 @@ export default defineComponent({
                 if (
                     this.conversationData.id &&
                     !this.conversationData.closed_at &&
-                    !this.conversationData.connectedUsers.length
+                    !this.conversationData.connectedUsers?.length
                 ) {
                     this.socket.emit("ec_conv_queue_position", { conv_id: this.clientInitiateConvInfo.conv_id });
                 }
@@ -1140,7 +1140,7 @@ export default defineComponent({
                 // check agent joined and session is > 1
                 if (
                     this.conversationData.id &&
-                    (this.clientInitiateConvInfo.closed_at || this.conversationData.connectedUsers.length)
+                    (this.clientInitiateConvInfo.closed_at || this.conversationData.connectedUsers?.length)
                 ) {
                     clearInterval(this.queuePositionInterval);
                 }

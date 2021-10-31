@@ -249,7 +249,7 @@
                 >
                     <q-card>
                         <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto" :style="{ maxHeight: cardMaxHeight }">
-                            <q-list v-if="conversationData.connectedUsers.length">
+                            <q-list v-if="conversationData.connectedUsers?.length">
                                 <q-item v-for="agent of conversationData.connectedUsers" :key="agent.id" dense>
                                     <q-item-section class="tw-w-full">
                                         <div class="tw-flex tw-w-full tw-my-1 tw-gap-4">

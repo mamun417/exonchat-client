@@ -164,20 +164,22 @@
 
                     <template v-slot:cell-client="slotProps">
                         <div class="">
-                            {{ slotProps.row.connected_client.socket_session.init_name }}
+                            {{ slotProps.row.clientSocketSession.init_name }}
                         </div>
                     </template>
 
                     <template v-slot:cell-connected_agents="slotProps">
-                        <connected-users-faces :users_conv_ses="slotProps.row.connected_agents" />
+                        <connected-users-faces :users_conv_ses="slotProps.row.connectedUsers" />
                     </template>
 
                     <template v-slot:cell-currently_on="slotProps">
                         <div class="text-xss">
                             {{
                                 $_.last(
-                                    $_.find(visitors, ["session_id", slotProps.row.connected_client.socket_session_id])
-                                        ?.visits
+                                    $_.find(visitors, [
+                                        "session_id",
+                                        slotProps.row.clientConversationSession.socket_session_id,
+                                    ])?.visits
                                 )?.url
                             }}
                         </div>

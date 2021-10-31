@@ -110,7 +110,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
             .whereHas("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery
                     .where("joined_at", null)
-                    .where("left_at", null)
                     .where("type", "chat_transfer")
                     .where("socket_session_id", rootGetters["auth/profile"]?.socket_session?.id);
             })

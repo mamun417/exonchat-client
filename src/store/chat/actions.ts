@@ -60,8 +60,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     async updateConvSesInfo(context, data) {
-        context.commit("updateConvSesInfo", data);
-
         const profile = context.rootGetters["auth/profile"];
 
         await ConversationSession.insert({ data: data.conv_ses_obj });

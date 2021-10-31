@@ -117,29 +117,6 @@ const mutation: MutationTree<ChatStateInterface> = {
         }
     },
 
-    updateConvSesInfo(state: ChatStateInterface, data: any) {
-        const convId = data.conv_id;
-        const conv = state.conversations[convId];
-
-        if (conv) {
-            if (data.payload_type === "conversation_session") {
-                if (data.action === "chat_transfer_sent") {
-                    const convSession = data.conv_ses_obj;
-
-                    // remove then assign full conversation session object for safe update
-                    _l.remove(conv.sessions, (convSes: any) => convSes.id === convSession.id);
-
-                    conv.sessions.push(convSession);
-                } else if (data.action === "chat_transfer_rejected") {
-                    const convSession = data.conv_ses_obj;
-
-                    // remove then assign full conversation session object for safe update
-                    _l.remove(conv.sessions, (convSes: any) => convSes.id === convSession.id);
-                }
-            }
-        }
-    },
-
     updateConversationUserAvatar(state: ChatStateInterface, data: any) {
         const convId = data.conv_id;
 

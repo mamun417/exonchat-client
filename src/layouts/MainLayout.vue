@@ -254,7 +254,7 @@
                             </div>
                             <div class="tw-flex tw-items-center tw-mr-4">
                                 <div
-                                    v-if="conversationData.connectedUsers.length"
+                                    v-if="conversationData.connectedUsers?.length"
                                     class="tw-flex tw-flex-col tw-items-center"
                                 >
                                     <div class="text-white tw-mb-2">Someone already accepted this conversation</div>
@@ -650,7 +650,7 @@ export default defineComponent({
 
                         this.newChatTimeout = setTimeout(() => {
                             this.newConversationInfo = {};
-                        }, 1000 * 5);
+                        }, 1000 * 50000);
                     }
 
                     if (this.profile.online_status === "online") {

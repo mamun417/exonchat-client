@@ -667,14 +667,14 @@
                     !conversationData.closed_at &&
                     (!conversationStatusForMe || conversationStatusForMe !== 'joined')
                 "
-                :label="conversationData.connectedUsers.length ? 'Join Chat' : 'Accept Chat'"
+                :label="conversationData.connectedUsers?.length ? 'Join Chat' : 'Accept Chat'"
                 :color="globalColor"
                 unelevated
                 no-caps
             />
 
             <send-transcript
-                v-if="canSendTranscript && (conversationData.connectedUsers.length || conversationData.closed_at)"
+                v-if="canSendTranscript && (conversationData.connectedUsers?.length || conversationData.closed_at)"
                 :conv_id="conv_id"
             />
 
@@ -1036,7 +1036,7 @@ export default defineComponent({
 
         canSendTranscript(): any {
             const sortedAgents = _l.sortBy(
-                this.conversationData.connectedUsers.filter(
+                this.conversationData.connectedUsers?.filter(
                     (conversationConnectedUser: any) => !conversationConnectedUser.left_at
                 ),
                 (convSes: any) => moment(convSes.joined_at).format("x")
