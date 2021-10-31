@@ -254,7 +254,7 @@
                             </div>
                             <div class="tw-flex tw-items-center tw-mr-4">
                                 <div
-                                    v-if="conversationData.connectedUsers?.length"
+                                    v-if="conversationData(newConversationInfo.id).connectedUsers?.length"
                                     class="tw-flex tw-flex-col tw-items-center"
                                 >
                                     <div class="text-white tw-mb-2">Someone already accepted this conversation</div>
@@ -300,7 +300,7 @@
                     <div
                         v-if="
                             rightBarState.mode &&
-                            ((rightBarState.mode === 'client_info' && !conversationData.users_only) ||
+                            ((rightBarState.mode === 'client_info' && !conversationData().users_only) ||
                                 (rightBarState.mode === 'conversation' && rightBarState.conv_id))
                         "
                         class="tw-absolute tw-top-6 tw-right-0"
@@ -437,12 +437,11 @@ export default defineComponent({
         },
 
         conversationModel(): any {
-            return Conversation.query().where("id", this.$route.params?.conv_id);
+            return (convId: any) => Conversation.query().where("id", convId || this.$route.params?.conv_id);
         },
 
         conversationData(): any {
-            // if || {} empty object raise error for accessing models getter then manage null
-            return this.conversationModel.first() || {};
+            return (convId: any) => this.conversationModel(convId).first() || {};
         },
 
         currentRouteName(): any {
@@ -456,9 +455,9 @@ export default defineComponent({
                 }
 
                 if (this.$route.name === "chats" && this.rightBarState.mode === "client_info") {
-                    if (!this.conversationData) return false;
+                    if (!this.conversationData()) return false;
 
-                    return !this.conversationData.users_only;
+                    return !this.conversationData().users_only;
                 }
 
                 return true;
@@ -650,7 +649,7 @@ export default defineComponent({
 
                         this.newChatTimeout = setTimeout(() => {
                             this.newConversationInfo = {};
-                        }, 1000 * 50000);
+                        }, 1000 * 5);
                     }
 
                     if (this.profile.online_status === "online") {

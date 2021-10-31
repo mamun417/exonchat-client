@@ -949,7 +949,7 @@ export default defineComponent({
                     const conversationSession = ConversationSession.query()
                         .where("socket_session_id", each.socket_session_id)
                         .first();
-                    const socketSession = SocketSession.find(each.socket_session_id);
+                    const socketSession = SocketSession.query().with("user").find(each.socket_session_id);
 
                     if (conversationSession) {
                         typingRes.push({
