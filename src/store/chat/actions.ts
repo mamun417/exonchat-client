@@ -149,6 +149,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             current_page = callConvInfo.pagination_meta.current_page;
         }
 
+        // nn
+        // const conversation: any = Conversation.query().where("id", payload.convId).with("messages").first();
+        // console.log({ conversation });
+        // if (!conversation?.messages?.length) {
+        //     current_page = 0;
+        // }
+
         // call next conv_id so that we can get prev data
         const res = await callerApi.get(`conversations/${callConvId}/messages`, {
             params: {

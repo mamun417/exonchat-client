@@ -1772,7 +1772,7 @@ export default defineComponent({
                 .then((res: any) => {
                     ConversationSession.update({ where: res.data.id, data: res.data });
 
-                    this.msg = "";;
+                    this.msg = "";
                 })
                 .catch((err: any) => {
                     console.log(err.response);
@@ -1794,10 +1794,12 @@ export default defineComponent({
 
         conv_id: {
             handler: function (newVal, oldVal) {
-                if (this.conv_id && this.mini_mode && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
-                    this.$refs.myInfiniteScrollArea.poll();
-                    this.scrollToPosition(1, true);
-                }
+                setTimeout(() => {
+                    if (this.conv_id && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
+                        this.$refs.myInfiniteScrollArea.poll();
+                        this.scrollToPosition(1, true);
+                    }
+                }, 300);
 
                 // if need remove mini mode check
                 if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
@@ -1833,8 +1835,8 @@ export default defineComponent({
         },
     },
 
-    unmounted() {
-        this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+    async unmounted() {
+        await this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
             conv_id: this.conv_id,
             auto_scroll_to_bottom: true,
             last_position: 1,
@@ -1843,6 +1845,14 @@ export default defineComponent({
         clearInterval(this.scrollCheckInterval);
 
         this.saveDraft();
+
+        // clear message for this conversation
+        await Message.delete((message: any) => message.conversation_id === this.conv_id);
+
+        await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
+            conv_id: this.conv_id,
+            pagination_meta: { current_page: 0 },
+        });
     },
 });
 </script>

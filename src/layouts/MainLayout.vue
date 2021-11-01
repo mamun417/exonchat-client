@@ -18,7 +18,6 @@
                         no-caps
                         unelevated /></q-toolbar
             ></q-header>
-
             <q-drawer
                 :model-value="true"
                 class="tw-shadow"
@@ -315,6 +314,16 @@
                             unelevated
                         />
                     </div>
+
+                    <!--debug remove conversation messages-->
+                    <!--<div class="tw-flex tw-flex-col tw-pl-3">
+                        <div class="bg-black tw-text-white tw-rounded-full tw-my-5">
+                            {{ Object.keys($store._modules.root.state["entities"]["messages"].data).length }}
+                        </div>
+                        <div v-for="dd in $store._modules.root.state['entities']['messages'].data" :key="dd">
+                            <p class="tw-whitespace-nowrap">{{ dd.msg }}</p>
+                        </div>
+                    </div>-->
 
                     <router-view
                         :class="`tw-w-full tw-p-3`"
