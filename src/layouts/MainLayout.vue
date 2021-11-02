@@ -18,7 +18,6 @@
                         no-caps
                         unelevated /></q-toolbar
             ></q-header>
-
             <q-drawer
                 :model-value="true"
                 class="tw-shadow"
@@ -169,7 +168,7 @@
                                 <span class="tw-font-bold tw-text-base tw-capitalize">
                                     Chat transfer request from
                                     {{
-                                        myChatTransferRequest.transfer_request_info?.info?.transfer_from?.user_meta
+                                        myChatTransferRequest.myConversationSession?.info?.transfer_from?.user_meta
                                             ?.display_name
                                     }}</span
                                 >
@@ -254,7 +253,7 @@
                             </div>
                             <div class="tw-flex tw-items-center tw-mr-4">
                                 <div
-                                    v-if="conversationConnectedUsers.length"
+                                    v-if="conversationData(newConversationInfo.id).connectedUsers?.length"
                                     class="tw-flex tw-flex-col tw-items-center"
                                 >
                                     <div class="text-white tw-mb-2">Someone already accepted this conversation</div>
@@ -300,7 +299,7 @@
                     <div
                         v-if="
                             rightBarState.mode &&
-                            ((rightBarState.mode === 'client_info' && !conversationInfo.users_only) ||
+                            ((rightBarState.mode === 'client_info' && !conversationData().users_only) ||
                                 (rightBarState.mode === 'conversation' && rightBarState.conv_id))
                         "
                         class="tw-absolute tw-top-6 tw-right-0"
@@ -315,6 +314,16 @@
                             unelevated
                         />
                     </div>
+
+                    <!--debug remove conversation messages-->
+                    <!--<div class="tw-flex tw-flex-col tw-pl-3">
+                        <div class="bg-black tw-text-white tw-rounded-full tw-my-5">
+                            {{ Object.keys($store._modules.root.state["entities"]["messages"].data).length }}
+                        </div>
+                        <div v-for="dd in $store._modules.root.state['entities']['messages'].data" :key="dd">
+                            <p class="tw-whitespace-nowrap">{{ dd.msg }}</p>
+                        </div>
+                    </div>-->
 
                     <router-view
                         :class="`tw-w-full tw-p-3`"
@@ -365,11 +374,6 @@ import EcAvatar from "src/components/common/EcAvatar.vue";
 import StoreDebug from "src/components/debug/StoreDebug.vue";
 import helpers from "boot/helpers/helpers";
 import Conversation from "src/store/models/Conversation";
-import ConversationSession from "src/store/models/ConversationSession";
-import SocketSession from "src/store/models/SocketSession";
-import Message from "src/store/models/Message";
-import User from "src/store/models/User";
-import ChatDepartment from "src/store/models/ChatDepartment";
 import { Query } from "@vuex-orm/core";
 import MessageAttachment from "src/store/models/MessageAttachment";
 
@@ -432,7 +436,6 @@ export default defineComponent({
         ...mapGetters({
             profile: "auth/profile",
             chatUsers: "chat/chatUsers",
-            conversations: "chat/conversations",
             globalBgColor: "setting_ui/globalBgColor",
             rightBarState: "setting_ui/rightBarState", // its a mistake to store & get from there
             myChatTransferRequests: "chat/myChatTransferRequests",
@@ -442,55 +445,34 @@ export default defineComponent({
             return this.myChatTransferRequests?.length ? this.myChatTransferRequests[0] : {};
         },
 
-        conversationInfo(): any {
-            if (this.$route.name !== "chats" || !this.$route.params.conv_id) return {};
-
-            return this.$store.getters["chat/conversationInfo"](this.$route.params.conv_id);
+        conversationModel(): any {
+            return (convId: any) => Conversation.query().where("id", convId || this.$route.params?.conv_id);
         },
 
-        currentRouteName() {
+        conversationData(): any {
+            return (convId: any) => this.conversationModel(convId).first() || {};
+        },
+
+        currentRouteName(): any {
             return this.$route.name;
         },
 
-        rightDrawerVisible() {
+        rightDrawerVisible(): any {
             if (this.rightBarState.visible && this.rightBarState.mode) {
                 if (this.$route.name !== "chats" && this.rightBarState.mode === "client_info") {
                     return false;
                 }
 
                 if (this.$route.name === "chats" && this.rightBarState.mode === "client_info") {
-                    const conv: any = this.conversations[this.$route.params.conv_id];
+                    if (!this.conversationData()) return false;
 
-                    if (!conv) return false;
-
-                    return !conv.users_only;
+                    return !this.conversationData().users_only;
                 }
 
                 return true;
             }
 
             return false;
-        },
-
-        conversationConnectedUsers(): any {
-            if (this.newConversationInfo) {
-                return this.$store.getters["chat/conversationConnectedUsers"](this.newConversationInfo.id);
-            }
-
-            return [];
-        },
-
-        tempStore(): any {
-            return {
-                conversations: Conversation.query()
-                    .with(["conversation_sessions.*", "messages", "chat_department"])
-                    .get(),
-                conversation_sessions: ConversationSession.query().withAll().get(),
-                socket_sessions: SocketSession.query().withAll().get(),
-                chat_departments: ChatDepartment.query().withAll().get(),
-                messages: Message.query().with(["conversation", "socket_session"]).get(),
-                users: User.query().withAll().get(),
-            };
         },
     },
 
@@ -610,35 +592,35 @@ export default defineComponent({
             });
 
             // successfully sent to client
-            this.socket.on("ec_msg_to_user", (res: any) => {
-                this.$store.dispatch("chat/storeMessage", res);
+            this.socket.on("ec_msg_to_user", async (res: any) => {
+                await this.$store.dispatch("chat/storeMessage", res);
                 console.log("from ec_msg_to_user", res);
             });
 
             // get msg from me & also from other users connected with this conv.
             // me msg will be used for my other tabs update
-            this.socket.on("ec_msg_from_user", (res: any) => {
+            this.socket.on("ec_msg_from_user", async (res: any) => {
                 res.socket_event = "ec_msg_from_user";
 
-                this.$store.dispatch("chat/storeMessage", res);
+                await this.$store.dispatch("chat/storeMessage", res);
 
                 this.$emitter.emit(`new_message_from_user_${res.conversation.id}`, res);
 
                 console.log("from ec_msg_from_user", res);
             });
 
-            this.socket.on("ec_msg_from_client", (res: any) => {
+            this.socket.on("ec_msg_from_client", async (res: any) => {
                 res.socket_event = "ec_msg_from_client";
 
-                this.$store.dispatch("chat/storeMessage", res);
+                await this.$store.dispatch("chat/storeMessage", res);
 
                 this.$emitter.emit(`new_message_from_client_${res.conversation.id}`, res);
 
                 console.log("from ec_msg_from_client", res);
             });
 
-            this.socket.on("ec_reply_from_ai", (res: any) => {
-                this.$store.dispatch("chat/storeMessage", res);
+            this.socket.on("ec_reply_from_ai", async (res: any) => {
+                await this.$store.dispatch("chat/storeMessage", res);
 
                 console.log("from ec_reply_from_ai", res);
             });
@@ -647,17 +629,13 @@ export default defineComponent({
             this.socket.on("ec_is_typing_from_user", (res: any) => {
                 this.$store.dispatch("chat/updateTypingState", res);
 
-                // console.log("from ec_is_typing_from_user", res);
+                console.log("from ec_is_typing_from_user", res);
             });
-
-            // this.socket.on('ec_is_typing_to_user', (data: any) => {
-            //     console.log('from ec_is_typing_to_user', data);
-            // });
 
             this.socket.on("ec_is_typing_from_client", (res: any) => {
                 this.$store.dispatch("chat/updateTypingState", res);
 
-                // console.log("from ec_is_typing_from_client", res.msg);
+                console.log("from ec_is_typing_from_client", res.msg);
             });
 
             this.socket.on("ec_conv_initiated_from_user", (data: any) => {
@@ -666,7 +644,7 @@ export default defineComponent({
                 this.$emitter.emit("listen_ec_init_conv_from_user", data);
             });
 
-            this.socket.on("ec_conv_initiated_from_client", (res: any) => {
+            this.socket.on("ec_conv_initiated_from_client", async (res: any) => {
                 console.log("from ec_conv_initiated_from_client", res);
 
                 if (res.data.notify) {
@@ -684,41 +662,41 @@ export default defineComponent({
                     }
 
                     if (this.profile.online_status === "online") {
-                        helpers.notifications().reqOne.play();
+                        await helpers.notifications().reqOne.play();
                     }
                 }
 
-                this.$store.dispatch("chat/storeNewChatFromClient", res.data);
+                await this.$store.dispatch("chat/storeNewChatFromClient", res.data);
             });
 
-            this.socket.on("ec_is_joined_from_conversation", (res: any) => {
+            this.socket.on("ec_is_joined_from_conversation", async (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
                 convSesInfo.from_chat_transfer_request = res.data.from_chat_transfer_request;
 
-                this.$store.dispatch("chat/updateConvState", convSesInfo);
+                await this.$store.dispatch("chat/updateConvState", convSesInfo);
 
                 console.log("from ec_is_joined_from_conversation", convSesInfo);
             });
 
-            this.socket.on("ec_is_leaved_from_conversation", (res: any) => {
+            this.socket.on("ec_is_leaved_from_conversation", async (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
 
-                this.$store.dispatch("chat/updateConvState", convSesInfo);
+                await this.$store.dispatch("chat/updateConvState", convSesInfo);
 
                 console.log("from ec_is_leaved_from_conversation", convSesInfo);
             });
 
-            this.socket.on("ec_is_closed_from_conversation", (res: any) => {
+            this.socket.on("ec_is_closed_from_conversation", async (res: any) => {
                 const convInfo = res.data.conv_data;
 
-                this.$store.dispatch("chat/updateConvStateToClosed", convInfo);
+                await this.$store.dispatch("chat/updateConvStateToClosed", convInfo);
 
                 console.log("from ec_is_closed_from_conversation", convInfo);
             });
 
-            this.socket.on("ec_conversation_session_updated", (res: any) => {
+            this.socket.on("ec_conversation_session_updated", async (res: any) => {
                 // handle this emit for all conversation session update like join left etc also. life will be easier
-                this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
+                await this.$store.dispatch("chat/updateConversationSession", res.data.conversation_session);
 
                 // console.log("from ec_conversation_session_updated", res);
             });
@@ -895,7 +873,7 @@ export default defineComponent({
             window.socketInstance.emit("ec_join_conversation", {
                 conv_id: convData.id,
                 chat_transfer_request_from: fromChatTransferRequest
-                    ? convData.transfer_request_info?.info?.transfer_from
+                    ? convData.myConversationSession?.info?.transfer_from
                     : null,
             });
 
@@ -1057,59 +1035,59 @@ export default defineComponent({
 
     watch: {
         // if you need to load avatars everywhere then watch conversation n use same way in the layout template
-        conversations: {
-            handler: async function () {
-                // console.log('conversations watcher started');
-
-                if (this.usersAvatarLoading) return;
-
-                this.usersAvatarLoading = true;
-
-                if (this.conversations) {
-                    for (const convObj of Object.values(this.conversations)) {
-                        const conv: any = convObj;
-                        const tempArray: any = { conv_id: conv.id, srcs: [] };
-
-                        for (const convSes of conv.sessions) {
-                            if (convSes.socket_session.user) {
-                                // I can send attachment from db but for that I have to send from all the query
-                                // I have to get the image so y give hard time to api so here check that
-                                if (
-                                    convSes.socket_session.user?.user_meta?.attachment_id &&
-                                    !convSes.socket_session.user?.user_meta?.src
-                                ) {
-                                    try {
-                                        const imgRes = await this.$api.get(
-                                            `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
-                                            {
-                                                responseType: "arraybuffer",
-                                            }
-                                        );
-
-                                        tempArray.srcs.push({
-                                            conv_ses_id: convSes.id,
-                                            src: URL.createObjectURL(
-                                                new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-                                            ),
-                                        });
-                                    } catch (e) {
-                                        console.log(e);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (tempArray.srcs.length) {
-                            this.$store.commit("chat/updateConversationUserAvatar", tempArray);
-                        }
-                    }
-                }
-
-                this.usersAvatarLoading = false;
-            },
-            deep: true,
-            immediate: true,
-        },
+        // conversations: {
+        //     handler: async function () {
+        //         // console.log('conversations watcher started');
+        //
+        //         if (this.usersAvatarLoading) return;
+        //
+        //         this.usersAvatarLoading = true;
+        //
+        //         if (this.conversations) {
+        //             for (const convObj of Object.values(this.conversations)) {
+        //                 const conv: any = convObj;
+        //                 const tempArray: any = { conv_id: conv.id, srcs: [] };
+        //
+        //                 for (const convSes of conv.sessions) {
+        //                     if (convSes.socket_session.user) {
+        //                         // I can send attachment from db but for that I have to send from all the query
+        //                         // I have to get the image so y give hard time to api so here check that
+        //                         if (
+        //                             convSes.socket_session.user?.user_meta?.attachment_id &&
+        //                             !convSes.socket_session.user?.user_meta?.src
+        //                         ) {
+        //                             try {
+        //                                 const imgRes = await this.$api.get(
+        //                                     `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
+        //                                     {
+        //                                         responseType: "arraybuffer",
+        //                                     }
+        //                                 );
+        //
+        //                                 tempArray.srcs.push({
+        //                                     conv_ses_id: convSes.id,
+        //                                     src: URL.createObjectURL(
+        //                                         new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+        //                                     ),
+        //                                 });
+        //                             } catch (e) {
+        //                                 console.log(e);
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //
+        //                 if (tempArray.srcs.length) {
+        //                     this.$store.commit("chat/updateConversationUserAvatar", tempArray);
+        //                 }
+        //             }
+        //         }
+        //
+        //         this.usersAvatarLoading = false;
+        //     },
+        //     deep: true,
+        //     immediate: true,
+        // },
 
         newConversationInfo: {
             handler: function (newVal, oldVal) {

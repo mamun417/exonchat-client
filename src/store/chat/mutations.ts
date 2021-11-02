@@ -69,146 +69,17 @@ const mutation: MutationTree<ChatStateInterface> = {
     },
 
     updateConversation(state: ChatStateInterface, convData: any) {
-        // console.log('>>>>>>>', convData.caller, convData.conversation);
-
         const convId = convData.conv_id;
 
         if (convId) {
-            const conv = state.conversations[convId];
-
-            if (!state.conversations[convId]?.id) {
-                if (!convData.conversation) {
-                    convData.conversation = {};
-                }
-
+            if (!state.conversations[convId]?.loaded) {
                 state.conversations[convId] = {
-                    ...convData.conversation,
-                    messages: {},
-                    sessions: [],
-                    loading: false,
+                    loaded: true // its for if check
                 };
-            }
-
-            // closed_reason & closed_at will not null one time only so we can check that
-            if (convData.closed_reason) {
-                state.conversations[convId].closed_reason = convData.closed_reason;
-            }
-            if (convData.closed_at) {
-                state.conversations[convId].closed_at = convData.closed_at;
-            }
-
-            if (convData.closed_by) {
-                state.conversations[convId].closed_by_id = convData.closed_by.id;
-                state.conversations[convId].closed_by = convData.closed_by;
-            }
-
-            if (convData.hasOwnProperty("chat_department")) {
-                state.conversations[convId].chat_department = convData.chat_department;
             }
 
             if (convData.hasOwnProperty("ai_is_replying")) {
                 state.conversations[convId].ai_is_replying = convData.ai_is_replying;
-            }
-
-            // keeping hasOwnProperty check for not break for other call
-            if ((convData.hasOwnProperty("message") && convData.message) || convData.message) {
-                if (convData.message.temp_id) {
-                    Message.delete(convData.message.temp_id);
-                }
-
-                Message.insert({ data: convData.message });
-
-                if (!state.conversations[convId].messages.hasOwnProperty(convData.message.id)) {
-                    // console.log(convData.message);
-
-                    state.conversations[convId].messages[convData.message.id] = convData.message;
-                } else {
-                    // later check for update time & replace
-                }
-
-                window.emitter.emit("message_inserted_or_updated", { conv_id: convId });
-            }
-
-            if (convData.hasOwnProperty("messages") && convData.messages.length) {
-                Message.insert({ data: convData.messages });
-
-                convData.messages.forEach((message: any) => {
-                    if (!state.conversations[convId].messages.hasOwnProperty(message.id)) {
-                        // console.log(convData.message);
-
-                        state.conversations[convId].messages[message.id] = message;
-                    } else {
-                        // later check for update time & replace
-                    }
-                });
-
-                window.emitter.emit("message_inserted_or_updated", { conv_id: convId });
-            }
-
-            // here sessions means [conversation_session...]
-            if (convData.hasOwnProperty("sessions") && convData.sessions.length) {
-                ConversationSession.insert({ data: convData.sessions });
-
-                if (state.conversations[convId].sessions.length) {
-                    // later
-                    convData.sessions.forEach((session: any) => {
-                        const foundSes = _l.find(state.conversations[convId].sessions, ["id", session.id]);
-
-                        if (foundSes) {
-                            // this check will try to update latest. cz if left_at then its always latest
-                            if (session.left_at) {
-                                foundSes.left_at = session.left_at;
-                            }
-
-                            if (session.closed_reason) {
-                                foundSes.closed_reason = session.closed_reason;
-                            }
-
-                            // add other check & add for socket_session name update etc
-                        } else {
-                            state.conversations[convId].sessions.push(session);
-                        }
-                    });
-                } else {
-                    state.conversations[convId].sessions = convData.sessions;
-                }
-            }
-
-            // here session means conversation_session
-            if (convData.hasOwnProperty("session")) {
-                ConversationSession.insert({ data: convData.session });
-
-                const convSession = convData.session;
-
-                const foundSes = _l.find(conv.sessions, ["id", convSession.id]);
-
-                if (foundSes) {
-                    // this check will try to update latest. cz if left_at then its always latest
-                    foundSes.left_at = convSession.left_at;
-                    foundSes.joined_at = convSession.joined_at;
-
-                    // add other check & add for socket_session name update etc
-                } else {
-                    conv.sessions.push(convSession);
-                }
-
-                // when transferred chat joined other agent
-                if (convData.session.hasOwnProperty("from_chat_transfer_request")) {
-                    conv.sessions.map((session: any) => {
-                        session.type = "normal";
-                    });
-                }
-            }
-
-            if (convData.hasOwnProperty("rating")) {
-                Conversation.update({
-                    where: convId,
-                    data: {
-                        conversation_rating: convData.rating,
-                    },
-                });
-
-                state.conversations[convId].rating = convData.rating;
             }
 
             if (convData.hasOwnProperty("notify_status")) {
@@ -221,23 +92,6 @@ const mutation: MutationTree<ChatStateInterface> = {
 
             if (convData.hasOwnProperty("scroll_info")) {
                 state.conversations[convId].scroll_info = convData.scroll_info;
-            }
-
-            if (convData.hasOwnProperty("last_msg_seen_time")) {
-                const convSession = conv.sessions.find(
-                    (session: any) => session.socket_session_id === convData.socket_session_id
-                );
-
-                if (convSession) {
-                    ConversationSession.update({
-                        where: convSession.id,
-                        data: {
-                            last_msg_seen_time: convData.last_msg_seen_time,
-                        },
-                    });
-
-                    convSession.last_msg_seen_time = convData.last_msg_seen_time;
-                }
             }
 
             if (convData.hasOwnProperty("current_loading_conv_info")) {
@@ -261,41 +115,6 @@ const mutation: MutationTree<ChatStateInterface> = {
                 }
             }
         }
-
-        if (convData.hasOwnProperty("original_data")) {
-            if (convData.original_data.hasOwnProperty("conversation")) {
-                if (convData.original_data.conversation.hasOwnProperty("messages")) {
-                    convData.original_data.conversation.messages.map((msg: any) => {
-                        msg.attachment_ids = _l.map(msg.attachments, "id");
-                    });
-                }
-
-                Conversation.insert({ data: convData.original_data.conversation });
-            }
-        }
-    },
-
-    updateConvSesInfo(state: ChatStateInterface, data: any) {
-        const convId = data.conv_id;
-        const conv = state.conversations[convId];
-
-        if (conv) {
-            if (data.payload_type === "conversation_session") {
-                if (data.action === "chat_transfer_sent") {
-                    const convSession = data.conv_ses_obj;
-
-                    // remove then assign full conversation session object for safe update
-                    _l.remove(conv.sessions, (convSes: any) => convSes.id === convSession.id);
-
-                    conv.sessions.push(convSession);
-                } else if (data.action === "chat_transfer_rejected") {
-                    const convSession = data.conv_ses_obj;
-
-                    // remove then assign full conversation session object for safe update
-                    _l.remove(conv.sessions, (convSes: any) => convSes.id === convSession.id);
-                }
-            }
-        }
     },
 
     updateConversationUserAvatar(state: ChatStateInterface, data: any) {
@@ -314,18 +133,6 @@ const mutation: MutationTree<ChatStateInterface> = {
         }
     },
 
-    updateChatUsersAvatar(state: ChatStateInterface, data: any) {
-        if (data.length) {
-            data.forEach((srcObj: any) => {
-                const foundUser = _l.find(state.chatUsers, ["id", srcObj.user_id]);
-
-                if (foundUser) {
-                    foundUser.user_meta.src = srcObj.src;
-                }
-            });
-        }
-    },
-
     updateTypingState(state: ChatStateInterface, typingStateObj: any) {
         const convId = typingStateObj.conv_id;
         const sesId = typingStateObj.session_id;
@@ -334,7 +141,7 @@ const mutation: MutationTree<ChatStateInterface> = {
             state.typingStates[convId] = {};
         }
 
-        if (!state.typingStates[convId].hasOwnProperty(sesId)) {
+        if (!state.typingStates[convId][sesId]?.socket_session_id) {
             state.typingStates[convId][sesId] = {
                 msg: typingStateObj.msg,
                 time: Date.now(),

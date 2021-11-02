@@ -15,7 +15,7 @@ declare global {
 
 const browser_tab_id = `${new Date().getTime()}${helpers.getRandomIntInclusive(2, 2)}`.toString();
 
-window.clog = (text: any, type = "black") => console.log(text[type]);
+window.clog = (text: any, type = "green") => console.log(text[type]);
 const emitter = mitt();
 window.emitter = emitter;
 

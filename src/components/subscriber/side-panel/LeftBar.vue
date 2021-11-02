@@ -272,20 +272,12 @@
                                             </q-item-label>
                                         </q-item-section>
 
-                                        <q-item-section
-                                            v-if="
-                                                agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                    .count_unseen_msg
-                                            "
-                                            side
-                                        >
+                                        <q-item-section v-if="agentMsgInfo(user.conversation_id).count_unseen_msg" side>
                                             <q-badge color="orange" class="tw-mr-2">
                                                 {{
-                                                    agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                        .count_unseen_msg > 9
+                                                    agentMsgInfo(user.conversation_id).count_unseen_msg > 9
                                                         ? "9+"
-                                                        : agentMsgInfo(user.conversation_id, user.socket_session.id)
-                                                              .count_unseen_msg
+                                                        : agentMsgInfo(user.conversation_id).count_unseen_msg
                                                 }}
                                             </q-badge>
                                         </q-item-section>
@@ -370,41 +362,6 @@ export default defineComponent({
             return ChatDepartment.query();
         },
 
-        /*teamConversations(): any {
-            const teamConversations = this.$_.cloneDeep(this.$store.getters['chat/teamConversation']);
-
-            if (teamConversations.length) {
-                return teamConversations.map((conv: any) => {
-                    conv.message = msgMaker(conv.messages);
-
-                    return conv;
-                });
-            }
-
-            function msgMaker(messagesObj: any) {
-                if (messagesObj && Object.keys(messagesObj).length) {
-                    const messages = _l.cloneDeep(Object.values(messagesObj));
-
-                    const tempMsgObj: any = _l
-                        .sortBy(
-                            messages.filter((msg: any) => msg.msg || (msg.attachments && msg.attachments.length)),
-                            [(msg: any) => moment(msg.created_at).format('x')]
-                        )
-                        .reverse()[0];
-
-                    if (!tempMsgObj.msg) {
-                        tempMsgObj.msg = 'Uploaded Attachments';
-                    }
-
-                    return tempMsgObj;
-                }
-
-                return null;
-            }
-
-            return [];
-        },*/
-
         selectAbleOnlineStatus(): any {
             return this.onlineStatus.filter(
                 (onlineStatus: any) => onlineStatus?.status !== this.getMyOnlineStatus?.status
@@ -436,10 +393,14 @@ export default defineComponent({
         },
 
         async getChatRequest() {
-            await this.$store.dispatch("chat/getChatRequests");
+            try {
+                await this.$store.dispatch("chat/getChatRequests");
+            } catch (e) {}
         },
         async getOtherJoinedChats() {
-            await this.$store.dispatch("chat/getOtherJoinedChats");
+            try {
+                await this.$store.dispatch("chat/getOtherJoinedChats");
+            } catch (e) {}
         },
         async getJoinedChatsWithMe() {
             await this.$store.dispatch("chat/getJoinedChatsWithMe");
@@ -453,20 +414,12 @@ export default defineComponent({
             this.$router.push({ name: "chats", params: { conv_id: convId } });
         },
 
-        agentMsgInfo(convId: any, sesId: any) {
+        agentMsgInfo(convId: any) {
             if (!convId) return "";
 
             const returnObj: any = {
-                typing: false,
                 count_unseen_msg: 0,
             };
-
-            const typingStates = this.$store.getters["chat/typingState"](convId);
-            const sesTypingState = _l.find(typingStates, ["socket_session_id", sesId]);
-
-            if (sesTypingState && sesTypingState.status === "typing") {
-                returnObj.typing = true;
-            }
 
             const conv = this.teamConversations.find((conv: any) => conv.id === convId);
 
@@ -595,48 +548,6 @@ export default defineComponent({
     },
 
     watch: {
-        // if you need to load avatars everywhere then watch conversation n use same way in the layout template
-        chatUsers: {
-            handler: async function () {
-                // console.log("chatUsers watcher started");
-                if (this.chatUsersAvatarLoading) return;
-
-                this.chatUsersAvatarLoading = true;
-                // console.log(this.chatUsers);
-
-                const tempArray: any = [];
-
-                if (this.chatUsers.length) {
-                    for (const chatUser of this.chatUsers) {
-                        if (chatUser.user_meta?.attachment_id && !chatUser.user_meta?.src) {
-                            try {
-                                const imgRes = await this.$api.get(`attachments/${chatUser.user_meta.attachment_id}`, {
-                                    responseType: "arraybuffer",
-                                });
-
-                                tempArray.push({
-                                    user_id: chatUser.id,
-                                    src: URL.createObjectURL(
-                                        new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-                                    ),
-                                });
-                            } catch (e) {
-                                console.log(e);
-                            }
-                        }
-                    }
-                }
-
-                if (tempArray.length) {
-                    this.$store.commit("chat/updateChatUsersAvatar", tempArray);
-                }
-
-                this.chatUsersAvatarLoading = false;
-            },
-            deep: true,
-            immediate: true,
-        },
-
         incomingChatRequestsForMe: {
             handler: function () {
                 if (this.incomingChatRequestsForMe.length) {

@@ -407,11 +407,7 @@
 
                     <!--typing state-->
                     <div>
-                        <div
-                            v-for="(typing, index) in typingState"
-                            :key="index"
-                            class="tw-flex tw-items-center tw-py-2"
-                        >
+                        <div v-for="(typing, index) in typingData" :key="index" class="tw-flex tw-items-center tw-py-2">
                             <div
                                 class="tw-flex-shrink-0 tw-flex tw-items-center tw-justify-center"
                                 :class="{ 'tw-w-16': mini_mode, 'tw-w-20': !mini_mode }"
@@ -671,14 +667,14 @@
                     !conversationData.closed_at &&
                     (!conversationStatusForMe || conversationStatusForMe !== 'joined')
                 "
-                :label="conversationData.connectedUsers.length ? 'Join Chat' : 'Accept Chat'"
+                :label="conversationData.connectedUsers?.length ? 'Join Chat' : 'Accept Chat'"
                 :color="globalColor"
                 unelevated
                 no-caps
             />
 
             <send-transcript
-                v-if="canSendTranscript && (conversationConnectedUsers.length || conversationData.closed_at)"
+                v-if="canSendTranscript && (conversationData.connectedUsers?.length || conversationData.closed_at)"
                 :conv_id="conv_id"
             />
 
@@ -719,7 +715,6 @@ import Message from "src/store/models/Message";
 import AttachmentViewModal from "components/subscriber/message/attachment/AttachmentViewModal.vue";
 import MessageAttachment from "src/store/models/MessageAttachment";
 import ConversationSession from "src/store/models/ConversationSession";
-import { date } from "quasar";
 
 export default defineComponent({
     name: "Message",
@@ -753,6 +748,7 @@ export default defineComponent({
 
     data(): any {
         return {
+            scrollToBottomInterval: "",
             ecGetClientSesIdStatusInterval: "",
             chatActiveStatus: true,
             uid: new Date().getTime().toString(), // user convid insted. not from url
@@ -872,7 +868,7 @@ export default defineComponent({
         },
 
         conversationStatusForMe(): any {
-            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id, this.ses_id);
+            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id);
         },
 
         myConversationSession(): any {
@@ -943,9 +939,30 @@ export default defineComponent({
         },
 
         typingState(): any {
-            const states = this.$store.getters["chat/typingState"](this.conv_id);
+            return this.$store.getters["chat/typingState"](this.conv_id);
+        },
 
-            return states.filter((state: any) => state.status === "typing");
+        typingData(): any {
+            const typingRes: any = [];
+
+            if (this.typingState) {
+                Object.values(this.typingState).forEach((each: any) => {
+                    const conversationSession = ConversationSession.query()
+                        .where("socket_session_id", each.socket_session_id)
+                        .first();
+                    const socketSession = SocketSession.query().with("user").find(each.socket_session_id);
+
+                    if (conversationSession) {
+                        typingRes.push({
+                            ...each,
+                            conv_ses_info: conversationSession,
+                            socket_session: socketSession,
+                        });
+                    }
+                });
+            }
+
+            return typingRes.filter((state: any) => state.status === "typing");
         },
 
         getSendBtnStatus(): any {
@@ -1018,13 +1035,9 @@ export default defineComponent({
             return this.chatPanelType === "user";
         },
 
-        conversationConnectedUsers(): any {
-            return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
-        },
-
         canSendTranscript(): any {
             const sortedAgents = _l.sortBy(
-                this.conversationConnectedUsers.filter(
+                this.conversationData.connectedUsers?.filter(
                     (conversationConnectedUser: any) => !conversationConnectedUser.left_at
                 ),
                 (convSes: any) => moment(convSes.joined_at).format("x")
@@ -1411,7 +1424,7 @@ export default defineComponent({
             templateDom.style.bottom = `${bodyHeight - msgInputBottomPos + 50}px`;
         },
 
-        sendMessage(): any {
+        async sendMessage() {
             this.msg = this.msg.trim();
 
             if (!this.finalAttachments.length && !this.msg.length) {
@@ -1434,7 +1447,7 @@ export default defineComponent({
                 status: "not_typing",
             });
 
-            Message.insert({
+            await Message.insert({
                 data: {
                     id: this.tempMsgId,
                     msg: this.msg,
@@ -1474,7 +1487,7 @@ export default defineComponent({
             // waiting for dom render
             setTimeout(() => {
                 if (msgScrollArea) {
-                    // console.log("scroll to ", position);
+                    console.log("scroll to ", position);
 
                     this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                         conv_id: this.conv_id,
@@ -1667,12 +1680,6 @@ export default defineComponent({
             ) {
                 console.log("update seen");
 
-                this.$store.commit("chat/updateConversation", {
-                    conv_id: this.conv_id,
-                    last_msg_seen_time: lastMsgSeenTime,
-                    socket_session_id: mySocketSesId,
-                });
-
                 // we could use conversation/:conv_id/update-last-message-seen-time
                 await window.socketSessionApi.post(
                     `conversations/update-last-message-seen-time/conversation-session/${this.myConversationSession.id}`
@@ -1767,7 +1774,6 @@ export default defineComponent({
                     ConversationSession.update({ where: res.data.id, data: res.data });
 
                     this.msg = "";
-                    console.log(res.data);
                 })
                 .catch((err: any) => {
                     console.log(err.response);
@@ -1789,11 +1795,15 @@ export default defineComponent({
 
         conv_id: {
             handler: function (newVal, oldVal) {
-                if (this.conv_id && this.mini_mode && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
-                    this.$refs.myInfiniteScrollArea.poll();
-
-                    this.scrollToPosition(1, true);
-                }
+                this.scrollToBottomInterval = setInterval(() => {
+                    if (this.$refs.myInfiniteScrollArea && this.messages.length) {
+                        if (this.conv_id && newVal !== oldVal) {
+                            this.$refs.myInfiniteScrollArea.poll();
+                            this.scrollToPosition(1, true);
+                            clearInterval(this.scrollToBottomInterval);
+                        }
+                    }
+                }, 100);
 
                 // if need remove mini mode check
                 if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
@@ -1829,8 +1839,8 @@ export default defineComponent({
         },
     },
 
-    unmounted() {
-        this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+    async unmounted() {
+        await this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
             conv_id: this.conv_id,
             auto_scroll_to_bottom: true,
             last_position: 1,
@@ -1839,6 +1849,14 @@ export default defineComponent({
         clearInterval(this.scrollCheckInterval);
 
         this.saveDraft();
+
+        // clear message for this conversation
+        await Message.delete((message: any) => message.conversation_id === this.conv_id);
+
+        await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
+            conv_id: this.conv_id,
+            pagination_meta: { current_page: 0 },
+        });
     },
 });
 </script>

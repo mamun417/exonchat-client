@@ -1,88 +1,69 @@
 <template>
     <q-card class="tw-shadow-sm">
-        <q-card-section class="row no-wrap items-center tw-p-2" :class="{ 'tw-px-0': mini_mode }">
+        <q-card-section
+            v-if="conversationData.id"
+            class="row no-wrap items-center tw-p-2"
+            :class="{ 'tw-px-0': mini_mode }"
+        >
             <q-item class="tw-w-full">
-                <q-item-section v-if="conversationWithUsersInfo.length === 1" avatar>
+                <!--assuming live chat-->
+                <q-item-section
+                    v-if="!conversationData.users_only && conversationData.clientConversationSession?.id"
+                    avatar
+                >
                     <ec-avatar
                         :size="mini_mode ? 'lg' : 'xl'"
-                        :image_src="
-                            conversationWithUsersInfo[0].socket_session.user
-                                ? conversationWithUsersInfo[0].socket_session.user.user_meta.src || null
-                                : null
-                        "
-                        :name="
-                            conversationWithUsersInfo[0].socket_session.user
-                                ? conversationWithUsersInfo[0].socket_session.user.user_meta.display_name
-                                : conversationWithUsersInfo[0].socket_session.init_name
-                        "
-                        :email="
-                            conversationWithUsersInfo[0].socket_session.user
-                                ? conversationWithUsersInfo[0].socket_session.user.email
-                                : conversationWithUsersInfo[0].socket_session.init_email
-                        "
+                        :image_src="null"
+                        :name="conversationData.clientConversationSession?.socket_session?.init_name"
+                        :email="conversationData.clientConversationSession?.socket_session?.init_email"
                     ></ec-avatar>
                 </q-item-section>
 
-                <q-item-section class="tw-w-full">
+                <q-item-section
+                    v-if="
+                        conversationData.users_only &&
+                        conversationData.type === 'user_to_user_chat' &&
+                        conversationData.userToUserChatOtherPerson?.id
+                    "
+                    avatar
+                >
+                    <ec-avatar
+                        :size="mini_mode ? 'lg' : 'xl'"
+                        :image_src="
+                            conversationData.userToUserChatOtherPerson?.socket_session?.user?.user_meta?.src || null
+                        "
+                        :name="
+                            conversationData.userToUserChatOtherPerson?.socket_session?.user?.user_meta?.display_name
+                        "
+                        :email="conversationData.userToUserChatOtherPerson.socket_session.user.email"
+                    ></ec-avatar>
+                </q-item-section>
+
+                <q-item-section
+                    v-if="
+                        !conversationData.users_only ||
+                        (conversationData.users_only && conversationData.type === 'user_to_user_chat')
+                    "
+                    class="tw-w-full"
+                >
                     <q-item-label :class="[mini_mode ? 'tw-text-sm' : 'tw-text-lg', $helpers.colors().defaultText]">
-                        <div v-for="{ socket_session } in conversationWithUsersInfo" :key="socket_session.id">
-                            <div class="text-capitalize tw-mr-1 text-weight-bold">
-                                {{
-                                    socket_session.user
-                                        ? socket_session.user.user_meta.display_name
-                                        : socket_session.init_name
-                                }}
-                            </div>
-                            <div class="tw-text-sm" v-if="conversationInfo.users_only">
-                                {{ socket_session.user ? socket_session.user.email : socket_session.init_email }}
-                            </div>
-                            <!--<span class="text-caption">({{ socket_session.user ? 'agent' : 'client' }})</span>-->
+                        <div class="text-capitalize tw-mr-1 text-weight-bold">
+                            {{
+                                conversationData.clientConversationSession?.socket_session?.init_name ||
+                                conversationData.userToUserChatOtherPerson?.socket_session?.user?.user_meta
+                                    ?.display_name
+                            }}
                         </div>
                     </q-item-label>
                     <q-item-label caption>
-                        <!--<q-badge-->
-                        <!--    v-if="conversationWithUsersInfo[0]?.socket_session.user"-->
-                        <!--    :color="-->
-                        <!--        agentOnlineStatus === 'online'-->
-                        <!--            ? 'green'-->
-                        <!--            : agentOnlineStatus === 'offline'-->
-                        <!--            ? 'red-6'-->
-                        <!--            : 'grey'-->
-                        <!--    "-->
-                        <!--    :class="{ 'tw-px-2 tw-pb-1': !mini_mode }"-->
-                        <!--&gt;-->
-                        <!--    {{ agentOnlineStatus }}-->
-                        <!--</q-badge>-->
-
-                        <!--<q-badge
-                            v-else
-                            :color="clientActiveStatus ? 'green' : 'grey'"
-                            :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
-                        >
-                            {{ clientActiveStatus ? 'Online' : 'Offline' }}
-                        </q-badge>-->
-
-                        <!--<q-badge
-                            v-if="conversationInfo.closed_at"
-                            color="orange"
-                            :class="{ 'tw-px-2 tw-py-1': !mini_mode }"
-                            >Chat Closed
-                        </q-badge>-->
-
-                        <div v-if="!conversationInfo.users_only && !conversationInfo.closed_at">
+                        <div v-if="!conversationData.users_only && !conversationData.closed_at">
                             <!--                            q-card used for the ref instance-->
                             <q-card class="shadow-0" ref="chatDuration">
-                                Chat is Ongoing for <b>{{ $helpers.preciseDiff(conversationInfo.created_at) }}</b>
+                                Chat is Ongoing for <b>{{ $helpers.preciseDiff(conversationData.created_at) }}</b>
                             </q-card>
                         </div>
                     </q-item-label>
                 </q-item-section>
-
-                <!--                <q-item-section v-if="!mini_mode" side>-->
-                <!--                    <q-item-label>-->
-                <!--                        <connected-users-faces :users_conv_ses="conversationConnectedUsers" />-->
-                <!--                    </q-item-label>-->
-                <!--                </q-item-section>-->
 
                 <q-item-section side>
                     <q-item-label>
@@ -90,7 +71,7 @@
                             v-if="
                                 mini_mode &&
                                 rightBarState.mode === 'conversation' &&
-                                (conversationInfo.users_only || conversationInfo.closed_at)
+                                (conversationData.users_only || conversationData.closed_at)
                             "
                         >
                             <q-btn
@@ -101,7 +82,7 @@
                                     updateRightDrawerState({
                                         mode: 'client_info',
                                     });
-                                    $router.push({ name: 'chats', params: { conv_id: conversationInfo.id } });
+                                    $router.push({ name: 'chats', params: { conv_id: conversationData.id } });
                                 "
                             >
                                 <q-tooltip>Maximize Conversation</q-tooltip>
@@ -122,7 +103,7 @@
                         </template>
 
                         <q-btn
-                            v-if="!conversationInfo.users_only && !conversationInfo.closed_at"
+                            v-if="!conversationData.users_only && !conversationData.closed_at"
                             icon="flash_on"
                             class=""
                             :color="globalColor"
@@ -142,7 +123,7 @@
                                         <!--                                            <q-icon name="add" />-->
                                         <!--                                        </q-item-section>-->
                                         <q-item-section>
-                                            {{ conversationConnectedUsers.length ? "Join Chat" : "Accept Chat" }}
+                                            {{ conversationData.connectedUsers?.length ? "Join Chat" : "Accept Chat" }}
                                         </q-item-section>
                                     </q-item>
 
@@ -164,7 +145,7 @@
 
                                     <q-item
                                         v-if="
-                                            ['support', 'Support'].includes(conversationInfo.chat_department.tag) &&
+                                            ['support', 'Support'].includes(conversationData.chat_department.tag) &&
                                             conversationStatusForMe === 'joined'
                                         "
                                         clickable
@@ -205,7 +186,7 @@
                                                 });
                                                 $router.push({
                                                     name: 'chats',
-                                                    params: { conv_id: conversationInfo.id },
+                                                    params: { conv_id: conversationData.id },
                                                 });
                                             "
                                             :class="$helpers.colors().defaultText"
@@ -234,7 +215,7 @@
 
                                     <q-item v-if="canSendTranscript" clickable>
                                         <send-transcript
-                                            :conv_id="conversationInfo.id"
+                                            :conv_id="conversationData.id"
                                             @sendingTranscript="sendingTranscript = $event"
                                         >
                                             <template v-slot:custom-content>
@@ -254,7 +235,7 @@
 
                                     <q-item v-if="canSendTranscript" clickable>
                                         <div
-                                            @click="reloadClientWidget(conversationInfo.id)"
+                                            @click="reloadClientWidget(conversationData.id)"
                                             class="tw-flex tw-items-center"
                                         >
                                             <template v-if="reloadingClientWidget">
@@ -396,6 +377,7 @@ import ConversationStateConfirmModal from "components/common/modal/ConversationS
 import * as _l from "lodash";
 import moment from "moment";
 import SendTranscript from "components/common/SendTranscript.vue";
+import Conversation from "src/store/models/Conversation";
 
 export default defineComponent({
     name: "MessagesTopSection",
@@ -453,9 +435,9 @@ export default defineComponent({
         this.chatDurationInterval = setInterval(() => {
             if (
                 this.$route.name === "chats" &&
-                this.conversationWithUsersInfo?.length &&
-                !this.conversationInfo.users_only &&
-                !this.conversationInfo.closed_at
+                !this.conversationData.users_only &&
+                this.conversationData.clientConversationSession?.id &&
+                !this.conversationData.closed_at
             ) {
                 this.$refs.chatDuration?.$forceUpdate();
             }
@@ -476,33 +458,38 @@ export default defineComponent({
             globalColor: "setting_ui/globalColor",
         }),
 
+        conversationModel(): any {
+            return Conversation.query().where("id", this.conv_id);
+        },
+
+        conversationData(): any {
+            // if || {} empty object raise error for accessing models getter then manage null
+            return this.conversationModel.with("chat_department").first() || {};
+        },
+
         onlineUsers(): any {
             const users = this.$store.getters["chat/chatUsers"];
 
             return this.transferChatToFilter ? users : users;
         },
 
-        conversationInfo(): any {
-            return this.$store.getters["chat/conversationInfo"](this.conv_id);
-        },
-
         conversationStatusForMe(): any {
-            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id, this.profile?.socket_session?.id);
+            return this.$store.getters["chat/conversationStatusForMe"](this.conv_id);
         },
 
         needTransfer(): any {
             // not checking me. cz its before my leave
             return (
-                this.conversationConnectedUsers.filter(
+                this.conversationData.connectedUsers?.filter(
                     (conversationConnectedUser: any) => conversationConnectedUser.left_at
                 ).length ===
-                this.conversationConnectedUsers.length - 1
+                this.conversationData.connectedUsers?.length - 1
             );
         },
 
         canClose(): any {
             const sortedAgents = _l.sortBy(
-                this.conversationConnectedUsers.filter(
+                this.conversationData.connectedUsers?.filter(
                     (conversationConnectedUser: any) => !conversationConnectedUser.left_at
                 ),
                 (convSes: any) => moment(convSes.joined_at).format("x")
@@ -517,28 +504,6 @@ export default defineComponent({
 
         canSendTranscript(): any {
             return this.conversationStatusForMe === "joined";
-        },
-
-        conversationWithUsersInfo(): any {
-            return this.$store.getters["chat/conversationWithUsersInfo"](
-                this.conv_id,
-                this.profile?.socket_session?.id
-            );
-        },
-
-        conversationConnectedUsers(): any {
-            return this.$store.getters["chat/conversationConnectedUsers"](this.conv_id);
-        },
-
-        // get teammate online status
-        agentOnlineStatus(): any {
-            if (this.chatUsers.length && this.conversationWithUsersInfo) {
-                return this.chatUsers.find(
-                    (chatUser: any) => chatUser.id === this.conversationWithUsersInfo[0].socket_session.user.id
-                ).online_status;
-            }
-
-            return "offline";
         },
     },
 
@@ -590,7 +555,7 @@ export default defineComponent({
 
                     // reload ticket list
                     this.$store.dispatch("ticket/getTickets", {
-                        email: this.conversationWithUsersInfo[0].socket_session.init_email,
+                        email: this.conversationData.clientConversationSession.socket_session.init_email,
                     });
                 })
                 .catch((e: any) => {
