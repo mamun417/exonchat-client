@@ -38,7 +38,10 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             await Message.insert({ data: convData.log_message });
         }
 
+        const profile = context.rootGetters["auth/profile"];
+
         if (
+            profile.online_status === "online" &&
             localStorage.getItem("ec_not_in_tabs") &&
             window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
         ) {
@@ -284,9 +287,16 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             await helpers.notifications().replyOne.play();
         }
 
-        if (profile.online_status === "online" && conversationStatusForMe === "joined") {
+        if (conversationStatusForMe === "joined") {
             if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
-                await helpers.notifications().replyOne.play();
+                // for chat conversation no need to check online status cause joined users should be get sound notification
+                // And for user to user conversation its need to check the user online status,
+                // cause without online users should not be get sound notification
+                if (!tempConv.users_only || (tempConv.users_only && profile.online_status === "online")) {
+                    await helpers.notifications().replyOne.play();
+                }
+
+                return;
             }
 
             if (
@@ -296,7 +306,9 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             ) {
                 await helpers.notifications().replyTwo.play();
 
+                // browser notification should be get only for online users
                 if (
+                    profile.online_status === "online" &&
                     localStorage.getItem("ec_not_in_tabs") &&
                     window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
                 ) {
