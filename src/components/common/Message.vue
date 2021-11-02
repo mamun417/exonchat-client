@@ -748,6 +748,7 @@ export default defineComponent({
 
     data(): any {
         return {
+            scrollToBottomInterval: "",
             ecGetClientSesIdStatusInterval: "",
             chatActiveStatus: true,
             uid: new Date().getTime().toString(), // user convid insted. not from url
@@ -1794,12 +1795,15 @@ export default defineComponent({
 
         conv_id: {
             handler: function (newVal, oldVal) {
-                setTimeout(() => {
-                    if (this.conv_id && newVal !== oldVal && this.$refs.myInfiniteScrollArea) {
-                        this.$refs.myInfiniteScrollArea.poll();
-                        this.scrollToPosition(1, true);
+                this.scrollToBottomInterval = setInterval(() => {
+                    if (this.$refs.myInfiniteScrollArea && this.messages.length) {
+                        if (this.conv_id && newVal !== oldVal) {
+                            this.$refs.myInfiniteScrollArea.poll();
+                            this.scrollToPosition(1, true);
+                            clearInterval(this.scrollToBottomInterval);
+                        }
                     }
-                }, 300);
+                }, 100);
 
                 // if need remove mini mode check
                 if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
