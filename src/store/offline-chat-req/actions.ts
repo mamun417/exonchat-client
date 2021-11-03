@@ -1,6 +1,7 @@
 import { ActionTree } from "vuex";
 import { StateInterface } from "../index";
 import { OfflineChatReqStateInterface } from "./state";
+import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 
 const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
     getChatRequests(context) {
@@ -17,8 +18,31 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                         // message: query,
                     },
                 })
-                .then((res: any) => {
+                .then(async (res: any) => {
+                    console.log({ fff: res.data.chat_requests.data });
+
+                    await OfflineChatRequest.insert({ data: res.data.chat_requests.data });
+
                     context.commit("updatePaginationMeta", res.data.chat_requests.pagination);
+
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    getReplies(context, payload: any) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(`offline-chat-requests/${payload.offline_chat_req_id}/replies`)
+                .then(async (res: any) => {
+                    const offlineChatReq = res.data;
+
+                    console.log({ offlineChatReq });
+
+                    await OfflineChatRequest.insert({ data: offlineChatReq });
 
                     resolve(res);
                 })

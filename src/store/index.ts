@@ -67,6 +67,8 @@ import Message from "src/store/models/Message";
 import User from "src/store/models/User";
 import ChatDepartment from "src/store/models/ChatDepartment";
 import MessageAttachment from "src/store/models/MessageAttachment";
+import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
+import OfflineChatRequestReply from "src/store/models/offline-chat-req/OfflineChatRequestReply";
 
 /*
  * If not building with SSR mode, you can
@@ -122,6 +124,8 @@ database.register(ChatDepartment);
 database.register(Message);
 database.register(MessageAttachment);
 database.register(User);
+database.register(OfflineChatRequest);
+database.register(OfflineChatRequestReply);
 
 export default store(function (/* { ssrContext } */) {
     const Store = createStore<StateInterface>({

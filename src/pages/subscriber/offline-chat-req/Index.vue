@@ -8,20 +8,46 @@
             <div class="tw-shadow tw-bg-white tw-p-4">
                 <ec-table
                     @handlePipeline="handlePipeline({ s: $event })"
+                    @rowClick="openDetails"
                     :search-value="offlineChatReqPipeline.s"
-                    :rows="chatRequests.data"
+                    :rows="offlineChatRequest"
                     :columns="columns"
                     :bodyCelTemplate="bodyCelTemplate"
                 >
-                    <template v-slot:cell-chat_department="slotProps">
+                    <template v-slot:cell-name="slotProps">
+                        <div class="tw-flex tw-items-center tw-gap-2">
+                            <div>
+                                <ec-avatar :name="slotProps.row.name" :email="slotProps.row.email" />
+                            </div>
+                            <div>
+                                <div>
+                                    {{ slotProps.row.name }}
+                                </div>
+                                <div>
+                                    {{ slotProps.row.email }}
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-assignee="slotProps">
                         <div>
-                            {{ $_.upperFirst(slotProps.row.chat_department.tag) }}
+                            {{ slotProps.row.assign_user ? slotProps.row.assign_user : "Unassigned" }}
+                            <!--<pre>{{ slotProps.row }}</pre>-->
+                        </div>
+                    </template>
+
+                    <template v-slot:cell-status="slotProps">
+                        <div>
+                            <q-badge :style="{ backgroundColor: getOfflineChatReqStatusBgColor(slotProps.row) }">
+                                {{ slotProps.row.status }}
+                            </q-badge>
                         </div>
                     </template>
 
                     <template v-slot:cell-created_at="slotProps">
                         <div class="tw-text-xss">
-                            {{ $helpers.myDate(slotProps.row.created_at, "MMMM Do YYYY, h:mm a") }}
+                            {{ $helpers.myDate(slotProps.row.created_at, "MMM Do YYYY, h:mm a") }}
                         </div>
                     </template>
                 </ec-table>
@@ -35,6 +61,10 @@
                 </div>
             </div>
         </div>
+
+        <!--<pre>{{ offlineChatRequest }}</pre>-->
+
+        <reply-offline-chat-req-modal v-if="replyModal" @hide="replyModal = false" />
     </div>
 </template>
 
@@ -43,23 +73,21 @@ import { defineComponent } from "vue";
 import EcTable from "components/common/table/EcTable.vue";
 import Pagination from "components/common/Pagination.vue";
 import { mapGetters } from "vuex";
+import ReplyOfflineChatReqModal from "pages/subscriber/offline-chat-req/ReplyOfflineChatReqModal.vue";
+import Conversation from "src/store/models/Conversation";
+import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
+import EcAvatar from "components/common/EcAvatar.vue";
 
 export default defineComponent({
-    components: { Pagination, EcTable },
+    components: { EcAvatar, ReplyOfflineChatReqModal, Pagination, EcTable },
     data(): any {
         return {
             columns: [
                 {
                     name: "name",
                     align: "left",
-                    label: "Name",
+                    label: "Requester",
                     field: "name",
-                },
-                {
-                    name: "email",
-                    align: "left",
-                    label: "Email",
-                    field: "email",
                 },
                 {
                     name: "subject",
@@ -67,37 +95,29 @@ export default defineComponent({
                     label: "Subject",
                     field: "subject",
                 },
-
                 {
-                    name: "message",
+                    name: "assignee",
                     align: "left",
-                    label: "Message",
-                    field: "message",
+                    label: "Assignee",
+                    field: "assignee",
                 },
 
                 {
-                    name: "chat_department",
+                    name: "status",
                     align: "left",
-                    label: "Department",
-                    field: "chat_department",
+                    label: "Status",
+                    field: "status",
                 },
 
                 {
                     name: "created_at",
                     align: "left",
-                    label: "Date",
+                    label: "Last Message",
                     field: "created_at",
                 },
-
-                /*{
-                    name: 'action', // only view, close if needed, join if um not joined, leave if um joined
-                    label: 'Actions',
-                    field: 'action',
-                    align: 'center',
-                },*/
             ],
-            chatRequests: [],
             bodyCelTemplate: {},
+            replyModal: false,
         };
     },
 
@@ -110,18 +130,15 @@ export default defineComponent({
             offlineChatReqPaginationMeta: "offline_chat_req/paginationMeta",
             offlineChatReqPipeline: "offline_chat_req/pipeline",
         }),
+
+        offlineChatRequest() {
+            return OfflineChatRequest.all();
+        },
     },
 
     methods: {
         getChatRequests() {
-            this.$store
-                .dispatch("offline_chat_req/getChatRequests")
-                .then((res: any) => {
-                    this.chatRequests = res.data.chat_requests;
-                })
-                .catch((err: any) => {
-                    console.log(err);
-                });
+            this.$store.dispatch("offline_chat_req/getChatRequests");
         },
 
         handlePipeline(pipeline: any) {
@@ -138,6 +155,22 @@ export default defineComponent({
             this.$store.dispatch("offline_chat_req/updateCurrentPage", page).then(() => {
                 this.getChatRequests();
             });
+        },
+
+        openDetails(offlineChatReq: any) {
+            console.log(offlineChatReq);
+
+            this.$router.push({ name: "offline-chat-req.view", params: { id: offlineChatReq.id } });
+        },
+
+        getOfflineChatReqStatusBgColor(offlineChatReq: any) {
+            return offlineChatReq.status === "open"
+                ? "rgb(67, 132, 245)"
+                : offlineChatReq.status === "pending"
+                ? "rgb(66, 77, 87)"
+                : offlineChatReq.status === "solved"
+                ? "rgb(44, 176, 106)"
+                : "rgb(221, 226, 230)"; // spam
         },
     },
 });
