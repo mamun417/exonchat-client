@@ -83,8 +83,8 @@
                                                                     >
                                                                         {{
                                                                             reply.socket_session?.user
-                                                                                ? reply.socket_session.user.user_meta
-                                                                                      .display_name
+                                                                                ? reply.socket_session?.user?.user_meta
+                                                                                      ?.display_name
                                                                                 : offlineChatRequest.name
                                                                         }}
                                                                     </div>
@@ -135,7 +135,10 @@
                                         </div>
                                         <div v-else class="tw-py-2 tw-px-4 tw-flex tw-justify-between">
                                             <div>
-                                                <b>{{ reply.socket_session.user.user_meta.full_name }}</b> change status
+                                                <b class="tw-capitalize">{{
+                                                    reply.socket_session?.user?.user_meta?.display_name
+                                                }}</b>
+                                                change status
                                                 <!--from {{ reply.message.split("_")[1] }}-->
                                                 to
                                                 {{ reply.message.split("_")[2] }}
@@ -402,7 +405,11 @@
                                     class="tw-px-0 tw-py-0 tw-overflow-auto"
                                     :style="{ maxHeight: cardMaxHeight }"
                                 >
-                                    <q-list :class="$helpers.colors().defaultText" class="tw-text-xs">
+                                    <q-list
+                                        v-if="recentTickets.length"
+                                        :class="$helpers.colors().defaultText"
+                                        class="tw-text-xs"
+                                    >
                                         <q-item class="tw-flex tw-items-center tw-py-4" clickable dense>
                                             <div v-for="(recentTicket, key) in recentTickets" :key="key">
                                                 <q-badge
@@ -417,6 +424,7 @@
                                             </div>
                                         </q-item>
                                     </q-list>
+                                    <div v-else class="text-center tw-py-2 text-grey-7">No recent tickets found</div>
                                 </q-card-section>
                             </q-card>
                         </q-expansion-item>
@@ -441,6 +449,7 @@ export default defineComponent({
     components: { EcEmoji, EcAvatar },
     data(): any {
         return {
+            scrollToBottomInterval: "",
             offline_chat_req_id: this.$route.params["id"],
             msg: "",
             ticket_status: "Pending",
@@ -569,27 +578,12 @@ export default defineComponent({
         scrollToPosition(position = 1) {
             const msgScrollArea = this.$refs.msgScrollArea;
 
-            // waiting for dom render
-            setTimeout(() => {
+            this.scrollToBottomInterval = setInterval(() => {
                 if (msgScrollArea) {
-                    // console.log("scroll to ", position);
-
-                    // this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
-                    //     conv_id: this.conv_id,
-                    //     auto_scroll_to_bottom: position === 1,
-                    //     last_position: 1,
-                    // });
-
                     msgScrollArea.setScrollPercentage("vertical", position, 100);
-
-                    // if (position === 1) {
-                    //     clearTimeout(this.updateLastMsgSeenTimeTimer);
-                    //
-                    //     // check if user on page then update. for now do it
-                    //     this.updateLastMsgSeenTimeTimer = setTimeout(() => this.updateLastMsgSeenTime(), 1200);
-                    // }
+                    clearInterval(this.scrollToBottomInterval);
                 }
-            }, 500);
+            }, 100);
         },
 
         createTempMsgId() {

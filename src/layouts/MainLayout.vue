@@ -812,6 +812,11 @@ export default defineComponent({
                 // console.log("from ec_socket_rooms_info_res", res);
             });
 
+            this.socket.on("ec_offline_chat_req_from_client", (res: any) => {
+                this.$store.dispatch("offline_chat_req/getChatRequests");
+                console.log("from ec_offline_chat_req_from_client", res);
+            });
+
             this.socket.on("ec_error", (data: any) => {
                 console.log("from ec_error", data);
 

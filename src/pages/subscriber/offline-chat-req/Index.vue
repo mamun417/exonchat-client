@@ -17,7 +17,12 @@
                     <template v-slot:cell-name="slotProps">
                         <div class="tw-flex tw-items-center tw-gap-2">
                             <div>
-                                <ec-avatar :name="slotProps.row.name" :email="slotProps.row.email" />
+                                <pre>{{ slotProps.row }}</pre>
+                                <ec-avatar
+                                    :key="slotProps.row.id"
+                                    :name="slotProps.row.name"
+                                    :email="slotProps.row.email"
+                                />
                             </div>
                             <div>
                                 <div>
@@ -30,10 +35,15 @@
                         </div>
                     </template>
 
+                    <template v-slot:cell-suvject="slotProps">
+                        <div class="tw-whitespace-normal">
+                            {{ slotProps.row.subject }}
+                        </div>
+                    </template>
+
                     <template v-slot:cell-assignee="slotProps">
                         <div>
                             {{ slotProps.row.assign_user ? slotProps.row.assign_user : "Unassigned" }}
-                            <!--<pre>{{ slotProps.row }}</pre>-->
                         </div>
                     </template>
 
@@ -132,7 +142,7 @@ export default defineComponent({
         }),
 
         offlineChatRequest() {
-            return OfflineChatRequest.all();
+            return OfflineChatRequest.query().orderBy("created_at", "desc").get();
         },
     },
 

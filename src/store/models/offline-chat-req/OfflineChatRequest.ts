@@ -20,6 +20,7 @@ export default class OfflineChatRequest extends Model {
             status: this.attr(null),
             subject: this.attr(null),
             tags: this.attr(null),
+            // not_answered_req_count: this.attr(null),
 
             created_at: this.attr(null),
             updated_at: this.attr(null),
