@@ -18,7 +18,7 @@
                                                     <div class="tw-text-xs">Back</div>
                                                 </div>
                                             </div>
-                                            <div class="tw-text-lg tw-text-center tw-w-full">
+                                            <div class="tw-text-md tw-text-center tw-w-full">
                                                 {{ offlineChatRequest?.subject }}
                                             </div>
                                         </div>
@@ -206,7 +206,7 @@
                     <q-card-section class="row no-wrap items-center tw-p-0">
                         <q-item class="tw-w-full">
                             <q-item-section>
-                                <div class="tw-text-lg">Details</div>
+                                <div class="tw-text-md">Details</div>
                             </q-item-section>
                         </q-item>
                     </q-card-section>
@@ -252,8 +252,12 @@
                                             </q-item-section>
                                         </q-item>
 
-                                        <q-item class="tw-text-xs tw-py-2" dense>
-                                            <q-item-section v-if="offlineChatRequestReplies?.length">
+                                        <q-item
+                                            v-if="offlineChatRequestReplies?.length"
+                                            class="tw-text-xs tw-py-2"
+                                            dense
+                                        >
+                                            <q-item-section>
                                                 <q-item-label>
                                                     Last message:
                                                     {{
@@ -410,8 +414,21 @@
                                         :class="$helpers.colors().defaultText"
                                         class="tw-text-xs"
                                     >
-                                        <q-item class="tw-flex tw-items-center tw-py-4" clickable dense>
-                                            <div v-for="(recentTicket, key) in recentTickets" :key="key">
+                                        <q-item
+                                            v-for="(recentTicket, key) in recentTickets"
+                                            :key="key"
+                                            @click="
+                                                $router.push({
+                                                    name: 'offline-chat-req.view',
+                                                    params: { id: recentTicket.id },
+                                                })
+                                            "
+                                            class="tw-flex tw-items-center tw-py-2"
+                                            :class="`${index !== 0 ? 'custom-border-top' : ''}`"
+                                            clickable
+                                            dense
+                                        >
+                                            <div>
                                                 <q-badge
                                                     :style="{
                                                         backgroundColor: getOfflineChatReqStatusBgColor(recentTicket),
@@ -449,6 +466,7 @@ export default defineComponent({
     components: { EcEmoji, EcAvatar },
     data(): any {
         return {
+            recentTickets: [],
             scrollToBottomInterval: "",
             offline_chat_req_id: this.$route.params["id"],
             msg: "",
@@ -478,15 +496,6 @@ export default defineComponent({
 
             return offlineChatRequest?.offline_chat_req_replies;
         },
-
-        recentTickets(): any {
-            return OfflineChatRequest.query()
-                .where((offlineChatRequest: any) => {
-                    return offlineChatRequest.id !== this.offlineChatRequest.id;
-                })
-                .where("email", this.offlineChatRequest.email)
-                .get();
-        },
     },
 
     mounted() {
@@ -497,6 +506,19 @@ export default defineComponent({
     methods: {
         getReplies() {
             this.$store.dispatch("offline_chat_req/getReplies", { offline_chat_req_id: this.offline_chat_req_id });
+        },
+
+        getRecentTickets() {
+            window.api
+                .get("offline-chat-requests/recent-chat-requests", {
+                    params: {
+                        client_email: this.offlineChatRequest.email,
+                        except_chat_id: this.offline_chat_req_id,
+                    },
+                })
+                .then((res: any) => {
+                    this.recentTickets = res.data;
+                });
         },
 
         handleClickEmoji($event: any) {
@@ -552,7 +574,9 @@ export default defineComponent({
                     ...dynamicData,
                 },
             }).then(() => {
-                this.scrollToPosition();
+                if (dynamicData.message_type === "log") {
+                    this.scrollToPosition();
+                }
             });
         },
 
@@ -579,9 +603,12 @@ export default defineComponent({
             const msgScrollArea = this.$refs.msgScrollArea;
 
             this.scrollToBottomInterval = setInterval(() => {
-                if (msgScrollArea) {
+                if (msgScrollArea && this.offlineChatRequestReplies) {
                     msgScrollArea.setScrollPercentage("vertical", position, 100);
-                    clearInterval(this.scrollToBottomInterval);
+
+                    setTimeout(() => {
+                        clearInterval(this.scrollToBottomInterval);
+                    }, 100);
                 }
             }, 100);
         },
@@ -623,6 +650,16 @@ export default defineComponent({
             setTimeout(() => {
                 this.urlCopySuccess = false;
             }, 3000);
+        },
+    },
+
+    watch: {
+        offlineChatRequest: {
+            handler: function () {
+                this.getRecentTickets();
+            },
+            deep: true,
+            immediate: true,
         },
     },
 });

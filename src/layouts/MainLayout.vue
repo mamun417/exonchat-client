@@ -98,6 +98,9 @@
                                 flat
                                 size="18px"
                             >
+                                <q-badge style="margin-top: 5px; left: 37px; right: auto" color="red" rounded floating>
+                                    {{ notAnsweredOfflineChatReqCount }}
+                                </q-badge>
                                 <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
                                     Offline Chat Requests
                                 </q-tooltip>
@@ -425,6 +428,8 @@ export default defineComponent({
             clientsPageVisitInterval: null, // for better manage we can use this when agent is in page visitor or a conversation
 
             devMode: process.env.DEV,
+
+            notAnsweredOfflineChatReqCount: 0,
         };
     },
 
@@ -514,6 +519,8 @@ export default defineComponent({
         if (Notification.permission === "default" && !localStorage.getItem("ec_notification_hide_warning")) {
             this.notificationDisabledWarning = true;
         }
+
+        this.getNotAnsweredOfflineChatReqCount();
     },
 
     methods: {
@@ -814,6 +821,8 @@ export default defineComponent({
 
             this.socket.on("ec_offline_chat_req_from_client", (res: any) => {
                 this.$store.dispatch("offline_chat_req/getChatRequests");
+                this.getNotAnsweredOfflineChatReqCount();
+
                 console.log("from ec_offline_chat_req_from_client", res);
             });
 
@@ -1032,6 +1041,12 @@ export default defineComponent({
             this.notificationDisabledWarning = false;
 
             localStorage.setItem("ec_notification_hide_warning", "true");
+        },
+
+        getNotAnsweredOfflineChatReqCount() {
+            window.api.get("offline-chat-requests/not-answered-count").then((res: any) => {
+                this.notAnsweredOfflineChatReqCount = res.data;
+            });
         },
     },
 

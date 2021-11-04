@@ -17,7 +17,6 @@
                     <template v-slot:cell-name="slotProps">
                         <div class="tw-flex tw-items-center tw-gap-2">
                             <div>
-                                <pre>{{ slotProps.row }}</pre>
                                 <ec-avatar
                                     :key="slotProps.row.id"
                                     :name="slotProps.row.name"
@@ -168,8 +167,6 @@ export default defineComponent({
         },
 
         openDetails(offlineChatReq: any) {
-            console.log(offlineChatReq);
-
             this.$router.push({ name: "offline-chat-req.view", params: { id: offlineChatReq.id } });
         },
 

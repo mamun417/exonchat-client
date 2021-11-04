@@ -19,8 +19,6 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                     },
                 })
                 .then(async (res: any) => {
-                    console.log({ fff: res.data.chat_requests.data });
-
                     await OfflineChatRequest.insert({ data: res.data.chat_requests.data });
 
                     context.commit("updatePaginationMeta", res.data.chat_requests.pagination);
@@ -39,9 +37,6 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                 .get(`offline-chat-requests/${payload.offline_chat_req_id}/replies`)
                 .then(async (res: any) => {
                     const offlineChatReq = res.data;
-
-                    console.log({ offlineChatReq });
-
                     await OfflineChatRequest.insert({ data: offlineChatReq });
 
                     resolve(res);
