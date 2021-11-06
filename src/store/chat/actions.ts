@@ -256,6 +256,24 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     async storeMessage(context, messageRes) {
         const tempConv = messageRes.conversation;
 
+        const conversationStatusForMe = context.getters["conversationStatusForMe"](
+            messageRes.conversation_id,
+            helpers.getMySocketSessionId()
+        );
+
+        if (messageRes.socket_event === "ec_msg_from_client") {
+            const currentRouteName = window.router.currentRoute.value.name;
+            const currentRouteConvId = window.router.currentRoute.value.params?.conv_id;
+
+            // no need to store message without joined conversation
+            if (
+                (currentRouteName === "chats" && currentRouteConvId !== tempConv.id) ||
+                (currentRouteName !== "chats" && conversationStatusForMe !== "joined")
+            ) {
+                return false;
+            }
+        }
+
         const obj = {
             conv_id: tempConv.id,
             ai_is_replying: messageRes.ai_is_replying,
@@ -271,11 +289,6 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
         await Message.insert({ data: messageRes });
         window.emitter.emit("message_inserted_or_updated", { conv_id: tempConv.id });
-
-        const conversationStatusForMe = context.getters["conversationStatusForMe"](
-            messageRes.conversation_id,
-            helpers.getMySocketSessionId()
-        );
 
         const profile = context.rootGetters["auth/profile"];
 
@@ -335,6 +348,18 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     },
 
     updateTypingState(context, typingObj) {
+        const currentRouteName = window.router.currentRoute.value.name;
+        const currentRouteConvId = window.router.currentRoute.value.params?.conv_id;
+
+        if (typingObj.caller_page !== "web-chat") {
+            if (
+                currentRouteName !== "chats" ||
+                (currentRouteName === "chats" && currentRouteConvId !== typingObj.conv_id)
+            ) {
+                return false;
+            }
+        }
+
         return new Promise((resolve) => {
             context.commit("updateTypingState", typingObj);
             resolve(true);
