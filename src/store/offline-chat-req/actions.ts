@@ -31,20 +31,17 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
         });
     },
 
-    getReplies(context, payload: any) {
-        return new Promise((resolve, reject) => {
-            window.api
-                .get(`offline-chat-requests/${payload.offline_chat_req_id}/replies`)
-                .then(async (res: any) => {
-                    const offlineChatReq = res.data;
-                    await OfflineChatRequest.insert({ data: offlineChatReq });
+    async getReplies(context, payload: any) {
+        try {
+            const res = await window.api.get(`offline-chat-requests/${payload.offline_chat_req_id}/replies`);
 
-                    resolve(res);
-                })
-                .catch((err: any) => {
-                    reject(err);
-                });
-        });
+            const offlineChatReq = res.data;
+            await OfflineChatRequest.insert({ data: offlineChatReq });
+
+            return Promise.resolve(res);
+        } catch (e: any) {
+            return Promise.reject(e);
+        }
     },
 
     updateCurrentPage(context, currentPage) {

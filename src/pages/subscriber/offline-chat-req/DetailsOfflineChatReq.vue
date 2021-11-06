@@ -482,7 +482,7 @@ export default defineComponent({
         ...mapGetters({ globalBgColor: "setting_ui/globalBgColor", globalColor: "setting_ui/globalColor" }),
 
         offlineChatRequest(): any {
-            return OfflineChatRequest.query().where("id", this.offline_chat_req_id).first() || {};
+            return OfflineChatRequest.find(this.offline_chat_req_id) || {};
         },
 
         offlineChatRequestReplies(): any {
@@ -500,12 +500,13 @@ export default defineComponent({
 
     mounted() {
         this.getReplies();
-        this.scrollToPosition();
     },
 
     methods: {
         getReplies() {
-            this.$store.dispatch("offline_chat_req/getReplies", { offline_chat_req_id: this.offline_chat_req_id });
+            this.$store
+                .dispatch("offline_chat_req/getReplies", { offline_chat_req_id: this.offline_chat_req_id })
+                .then(() => setTimeout(() => this.scrollToPosition(), 500));
         },
 
         getRecentTickets() {
@@ -602,18 +603,11 @@ export default defineComponent({
         scrollToPosition(position = 1) {
             const msgScrollArea = this.$refs.msgScrollArea;
 
-            this.scrollToBottomInterval = setInterval(() => {
-                console.log("scroll to bottom");
-                console.log(this.offlineChatRequestReplies.length);
-
+            setTimeout(() => {
                 if (msgScrollArea && this.offlineChatRequestReplies.length) {
                     msgScrollArea.setScrollPercentage("vertical", position, 100);
-
-                    // setTimeout(() => {
-                    clearInterval(this.scrollToBottomInterval);
-                    // }, 100);
                 }
-            }, 300);
+            }, 100);
         },
 
         createTempMsgId() {
@@ -658,8 +652,10 @@ export default defineComponent({
 
     watch: {
         offlineChatRequest: {
-            handler: function () {
-                this.getRecentTickets();
+            handler: function (newVal, oldVal) {
+                if (newVal.id && newVal.id !== oldVal?.id) {
+                    this.getRecentTickets();
+                }
             },
             deep: true,
             immediate: true,
