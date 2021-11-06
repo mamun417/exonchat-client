@@ -494,7 +494,7 @@ export default defineComponent({
                 .with(["offline_chat_req_replies.socket_session", "offline_chat_req_replies.socket_session.user"])
                 .first();
 
-            return offlineChatRequest?.offline_chat_req_replies;
+            return offlineChatRequest?.offline_chat_req_replies || [];
         },
     },
 
@@ -603,14 +603,17 @@ export default defineComponent({
             const msgScrollArea = this.$refs.msgScrollArea;
 
             this.scrollToBottomInterval = setInterval(() => {
-                if (msgScrollArea && this.offlineChatRequestReplies) {
+                console.log("scroll to bottom");
+                console.log(this.offlineChatRequestReplies.length);
+
+                if (msgScrollArea && this.offlineChatRequestReplies.length) {
                     msgScrollArea.setScrollPercentage("vertical", position, 100);
 
-                    setTimeout(() => {
-                        clearInterval(this.scrollToBottomInterval);
-                    }, 100);
+                    // setTimeout(() => {
+                    clearInterval(this.scrollToBottomInterval);
+                    // }, 100);
                 }
-            }, 100);
+            }, 300);
         },
 
         createTempMsgId() {
