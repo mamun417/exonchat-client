@@ -1006,6 +1006,8 @@ export default defineComponent({
                 // console.log('from ec_msg_from_user', res);
             });
             this.socket.on("ec_is_typing_from_user", (res: any) => {
+                res.caller_page = "web-chat";
+
                 this.$store.dispatch("chat/updateTypingState", res);
 
                 // console.log('from ec_is_typing_from_user', res);
