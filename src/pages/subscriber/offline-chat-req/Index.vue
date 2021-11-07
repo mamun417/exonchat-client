@@ -34,7 +34,7 @@
                         </div>
                     </template>
 
-                    <template v-slot:cell-suvject="slotProps">
+                    <template v-slot:cell-subject="slotProps">
                         <div class="tw-whitespace-normal">
                             {{ slotProps.row.subject }}
                         </div>
@@ -56,12 +56,17 @@
 
                     <template v-slot:cell-created_at="slotProps">
                         <div class="tw-text-xss">
-                            {{ $helpers.myDate(slotProps.row.created_at, "MMM Do YYYY, h:mm a") }}
+                            {{
+                                $helpers.myDate(
+                                    getLastReply(slotProps.row.offline_chat_req_replies).created_at,
+                                    "MMM Do YYYY, h:mm a"
+                                )
+                            }}
                         </div>
                     </template>
                 </ec-table>
 
-                <div v-if="chatRequests?.pagination?.total_page > 1" class="tw-mt-10 flex flex-center">
+                <div v-if="offlineChatReqPaginationMeta?.total_page > 1" class="tw-mt-10 flex flex-center">
                     <pagination
                         :current_page="offlineChatReqPaginationMeta.current_page"
                         :last_page="offlineChatReqPaginationMeta.total_page"
@@ -86,6 +91,8 @@ import ReplyOfflineChatReqModal from "pages/subscriber/offline-chat-req/ReplyOff
 import Conversation from "src/store/models/Conversation";
 import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 import EcAvatar from "components/common/EcAvatar.vue";
+import * as _l from "lodash";
+import moment from "moment";
 
 export default defineComponent({
     components: { EcAvatar, ReplyOfflineChatReqModal, Pagination, EcTable },
@@ -104,12 +111,12 @@ export default defineComponent({
                     label: "Subject",
                     field: "subject",
                 },
-                {
+                /*{
                     name: "assignee",
                     align: "left",
                     label: "Assignee",
                     field: "assignee",
-                },
+                },*/
 
                 {
                     name: "status",
@@ -141,7 +148,7 @@ export default defineComponent({
         }),
 
         offlineChatRequest() {
-            return OfflineChatRequest.query().orderBy("created_at", "desc").get();
+            return OfflineChatRequest.query().with("offline_chat_req_replies").orderBy("created_at", "desc").get();
         },
     },
 
@@ -178,6 +185,11 @@ export default defineComponent({
                 : offlineChatReq.status === "solved"
                 ? "rgb(44, 176, 106)"
                 : "rgb(221, 226, 230)"; // spam
+        },
+
+        // get offline chat requests last reply
+        getLastReply(replies: any) {
+            return _l.findLast(replies, (reply: any) => moment(reply.created_at).format("x"));
         },
     },
 });

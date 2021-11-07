@@ -43,7 +43,7 @@
                 <slot name="scroll-area-top-section"></slot>
 
                 <div
-                    v-if="gettingNewMessages"
+                    v-if="gettingNewMessages && firstTimeMessageLoaded"
                     class="tw-flex tw-justify-center tw-items-center tw-my-3 tw-gap-2 tw-pr-2"
                     :class="{ 'tw-ml-16': mini_mode, 'tw-ml-20': !mini_mode }"
                 >
@@ -94,9 +94,10 @@
                                         </template>
 
                                         <template v-else-if="message.msg && message.msg.split('_')[0] === 'transfer'">
-                                            <span :class="`tw-mr-1 tw-break-none ${$helpers.colors().defaultText}`">
-                                                {{ transferMsgMaker(message) }}
-                                            </span>
+                                            <div
+                                                :class="`tw-mr-1 tw-break-none ${$helpers.colors().defaultText}`"
+                                                v-html="transferMsgMaker(message)"
+                                            />
                                         </template>
 
                                         <template
@@ -1273,7 +1274,11 @@ export default defineComponent({
                 .with("user")
                 .first();
 
-            return `${msg.socket_session?.user?.user_meta?.display_name} transferred the chat to ${transferToSocketSession?.user?.user_meta?.display_name}`;
+            return `<span class="text-${this.globalColor}">${_l.upperFirst(
+                msg.socket_session?.user?.user_meta?.display_name
+            )}</span> transferred the chat to <span class="text-${this.globalColor}">${_l.upperFirst(
+                transferToSocketSession?.user?.user_meta?.display_name
+            )}</span>`;
         },
 
         inputFocusHandle() {

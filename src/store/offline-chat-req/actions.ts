@@ -13,12 +13,13 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                     params: {
                         p: context.state.paginationMeta.current_page,
                         name: keyword,
-                        // email: query,
+                        email: keyword,
                         // subject: query,
                         // message: query,
                     },
                 })
                 .then(async (res: any) => {
+                    await OfflineChatRequest.deleteAll();
                     await OfflineChatRequest.insert({ data: res.data.chat_requests.data });
 
                     context.commit("updatePaginationMeta", res.data.chat_requests.pagination);

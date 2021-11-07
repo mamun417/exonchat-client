@@ -164,6 +164,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             params: {
                 p: current_page + 1,
                 pp: 25,
+                panel_type: window.router.currentRoute._value.path === "/web-chat" ? "client" : "agent",
             },
         });
         const conv = res.data.conversation.data;
@@ -325,10 +326,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     localStorage.getItem("ec_not_in_tabs") &&
                     window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
                 ) {
-                    const clientInfo = _l.find(
-                        tempConv.conversation_sessions,
-                        (convSes: any) => !convSes.socket_session.user
-                    );
+                    const clientInfo: any = ConversationSession.query()
+                        .with("socket_session")
+                        .whereHas("socket_session", (socketSessionQuery) => {
+                            socketSessionQuery.where("user_id", null);
+                        })
+                        .first();
 
                     const notification = new Notification(`New message from ${clientInfo?.socket_session.init_name}`, {
                         body: messageRes.msg,

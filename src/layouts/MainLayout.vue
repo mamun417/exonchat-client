@@ -520,7 +520,7 @@ export default defineComponent({
             this.notificationDisabledWarning = true;
         }
 
-        this.getNotAnsweredOfflineChatReqCount();
+        this.getNotSolvedOfflineChatReqCount();
     },
 
     methods: {
@@ -821,7 +821,7 @@ export default defineComponent({
 
             this.socket.on("ec_offline_chat_req_from_client", (res: any) => {
                 this.$store.dispatch("offline_chat_req/getChatRequests");
-                this.getNotAnsweredOfflineChatReqCount();
+                this.getNotSolvedOfflineChatReqCount();
 
                 console.log("from ec_offline_chat_req_from_client", res);
             });
@@ -1043,8 +1043,8 @@ export default defineComponent({
             localStorage.setItem("ec_notification_hide_warning", "true");
         },
 
-        getNotAnsweredOfflineChatReqCount() {
-            window.api.get("offline-chat-requests/not-answered-count").then((res: any) => {
+        getNotSolvedOfflineChatReqCount() {
+            window.api.get("offline-chat-requests/not-solved-count").then((res: any) => {
                 this.notAnsweredOfflineChatReqCount = res.data;
             });
         },
