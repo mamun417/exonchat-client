@@ -11,7 +11,7 @@
                                         <div class="tw-flex tw-items-center tw-gap-2">
                                             <div class="tw-whitespace-nowrap tw-cursor-pointer">
                                                 <div
-                                                    class="tw-flex tw-items-center tw-gap-2"
+                                                    class="tw-flex tw-items-center tw-gap-2 hover:tw-text-black"
                                                     @click="$router.push({ name: 'offline-chat-req' })"
                                                 >
                                                     <q-icon name="keyboard_backspace" size="sm" />
@@ -342,10 +342,16 @@
                                 <q-card-section class="tw-px-0 tw-py-0 tw-overflow-auto">
                                     <q-item>
                                         <q-item-section>
-                                            <div class="tw-flex tw-justify-between">
+                                            <div class="tw-flex tw-items-center tw-gap-2">
+                                                <q-badge class="tw-capitalize" color="amber-9">
+                                                    {{ offlineChatRequest.chat_department?.display_name[0] }}
+                                                </q-badge>
                                                 <div>
-                                                    {{ offlineChatRequest.chat_department?.display_name }}
+                                                    {{
+                                                        $_.upperFirst(offlineChatRequest.chat_department?.display_name)
+                                                    }}
                                                 </div>
+
                                                 <!--<div class="tw-float-right">
                                                     <div class="text-blue-5 tw-cursor-pointer">Edit</div>
                                                 </div>-->
@@ -576,7 +582,9 @@ export default defineComponent({
                 },
             }).then(() => {
                 if (dynamicData.message_type === "log") {
-                    this.scrollToPosition();
+                    setTimeout(() => {
+                        this.scrollToPosition();
+                    }, 200);
                 }
             });
         },
@@ -589,6 +597,11 @@ export default defineComponent({
             window.api
                 .post("offline-chat-requests/reply", { ...dynamicData, temp_msg_id: this.tempMsgId })
                 .then((res: any) => {
+                    // get getNotSolvedOfflineChatReqCount after change the status
+                    if (dynamicData.message_type === "log") {
+                        this.$store.dispatch("offline_chat_req/getNotSolvedOfflineChatReqCount");
+                    }
+
                     if (res.data.temp_msg_id) {
                         OfflineChatRequestReply.delete(res.data.temp_msg_id);
                     }
@@ -605,6 +618,7 @@ export default defineComponent({
 
             setTimeout(() => {
                 if (msgScrollArea && this.offlineChatRequestReplies.length) {
+                    console.log("scroll to bottom");
                     msgScrollArea.setScrollPercentage("vertical", position, 100);
                 }
             }, 100);

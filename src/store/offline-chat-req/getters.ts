@@ -10,6 +10,10 @@ const getters: GetterTree<OfflineChatReqStateInterface, StateInterface> = {
     pipeline(state) {
         return state.pipeline;
     },
+
+    getNotSolvedOfflineChatReqCount(state) {
+        return state.notSolvedOfflineChatReqCount;
+    },
 };
 
 export default getters;

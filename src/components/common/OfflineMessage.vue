@@ -95,7 +95,15 @@
         </template>-->
     </q-input>
 
-    <q-btn dense :color="globalColor" class="full-width tw-mt-4" @click="submitOfflineChatReq" no-caps unelevated>
+    <q-btn
+        :loading="submittingOfflineChatReq"
+        dense
+        :color="globalColor"
+        class="full-width tw-mt-4"
+        @click="submitOfflineChatReq"
+        no-caps
+        unelevated
+    >
         Submit Ticket
     </q-btn>
 
@@ -119,6 +127,7 @@ export default defineComponent({
                 user_info: {},
             },
             convInitFieldsErrors: {},
+            submittingOfflineChatReq: false,
         };
     },
 
@@ -135,6 +144,8 @@ export default defineComponent({
 
     methods: {
         submitOfflineChatReq() {
+            this.submittingOfflineChatReq = true;
+
             this.convInitFields.chat_department_id = this.convInitFields.department;
 
             window.socketSessionApi
@@ -148,6 +159,9 @@ export default defineComponent({
                 })
                 .catch((err: any) => {
                     this.submitOfflineChatReqErrorHandle(err);
+                })
+                .finally(() => {
+                    this.submittingOfflineChatReq = false;
                 });
         },
 

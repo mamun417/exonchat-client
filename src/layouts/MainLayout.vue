@@ -99,7 +99,7 @@
                                 size="18px"
                             >
                                 <q-badge style="margin-top: 5px; left: 37px; right: auto" color="red" rounded floating>
-                                    {{ notAnsweredOfflineChatReqCount }}
+                                    {{ notSolvedOfflineChatReqCount }}
                                 </q-badge>
                                 <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
                                     Offline Chat Requests
@@ -428,8 +428,6 @@ export default defineComponent({
             clientsPageVisitInterval: null, // for better manage we can use this when agent is in page visitor or a conversation
 
             devMode: process.env.DEV,
-
-            notAnsweredOfflineChatReqCount: 0,
         };
     },
 
@@ -447,6 +445,7 @@ export default defineComponent({
             globalBgColor: "setting_ui/globalBgColor",
             rightBarState: "setting_ui/rightBarState", // its a mistake to store & get from there
             myChatTransferRequests: "chat/myChatTransferRequests",
+            notSolvedOfflineChatReqCount: "offline_chat_req/getNotSolvedOfflineChatReqCount",
         }),
 
         myChatTransferRequest(): any {
@@ -1044,9 +1043,7 @@ export default defineComponent({
         },
 
         getNotSolvedOfflineChatReqCount() {
-            window.api.get("offline-chat-requests/not-solved-count").then((res: any) => {
-                this.notAnsweredOfflineChatReqCount = res.data;
-            });
+            this.$store.dispatch("offline_chat_req/getNotSolvedOfflineChatReqCount");
         },
     },
 

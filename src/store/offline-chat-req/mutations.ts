@@ -41,6 +41,10 @@ const mutation: MutationTree<OfflineChatReqStateInterface> = {
     updatePipeline(state, payload) {
         state.pipeline = helpers.updatePipeline(state.pipeline, payload.pipeline);
     },
+
+    updateNotSolvedOfflineChatReqCount(state, payload) {
+        state.notSolvedOfflineChatReqCount = payload.data;
+    },
 };
 
 export default mutation;

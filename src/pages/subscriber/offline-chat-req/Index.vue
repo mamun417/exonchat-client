@@ -13,7 +13,19 @@
                     :rows="offlineChatRequest"
                     :columns="columns"
                     :bodyCelTemplate="bodyCelTemplate"
+                    searchPlaceholder="Search ( Name, Email, Subject )"
                 >
+                    <template v-slot:filter>
+                        <div>
+                            <q-option-group
+                                @update:model-value="handlePipeline({ status: $event })"
+                                v-model="offlineChatReqPipeline.status"
+                                :options="filters"
+                                inline
+                            />
+                        </div>
+                    </template>
+
                     <template v-slot:cell-name="slotProps">
                         <div class="tw-flex tw-items-center tw-gap-2">
                             <div>
@@ -75,10 +87,6 @@
                 </div>
             </div>
         </div>
-
-        <!--<pre>{{ offlineChatRequest }}</pre>-->
-
-        <reply-offline-chat-req-modal v-if="replyModal" @hide="replyModal = false" />
     </div>
 </template>
 
@@ -87,15 +95,13 @@ import { defineComponent } from "vue";
 import EcTable from "components/common/table/EcTable.vue";
 import Pagination from "components/common/Pagination.vue";
 import { mapGetters } from "vuex";
-import ReplyOfflineChatReqModal from "pages/subscriber/offline-chat-req/ReplyOfflineChatReqModal.vue";
-import Conversation from "src/store/models/Conversation";
 import OfflineChatRequest from "src/store/models/offline-chat-req/OfflineChatRequest";
 import EcAvatar from "components/common/EcAvatar.vue";
 import * as _l from "lodash";
 import moment from "moment";
 
 export default defineComponent({
-    components: { EcAvatar, ReplyOfflineChatReqModal, Pagination, EcTable },
+    components: { EcAvatar, Pagination, EcTable },
     data(): any {
         return {
             columns: [
@@ -133,7 +139,13 @@ export default defineComponent({
                 },
             ],
             bodyCelTemplate: {},
-            replyModal: false,
+            filters: [
+                { label: "All", value: "" },
+                { label: "Open", value: "open" },
+                { label: "Pending", value: "pending" },
+                { label: "Solved", value: "solved" },
+                { label: "Spam", value: "spam" },
+            ],
         };
     },
 

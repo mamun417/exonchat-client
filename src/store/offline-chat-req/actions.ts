@@ -12,10 +12,8 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
                 .get("offline-chat-requests", {
                     params: {
                         p: context.state.paginationMeta.current_page,
-                        name: keyword,
-                        email: keyword,
-                        // subject: query,
-                        // message: query,
+                        s: keyword,
+                        status: context.state.pipeline.status,
                     },
                 })
                 .then(async (res: any) => {
@@ -57,6 +55,20 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
             context.commit("updatePipeline", payload);
             context.commit("updateCurrentPage", 1);
             resolve(true);
+        });
+    },
+
+    getNotSolvedOfflineChatReqCount(context) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get("offline-chat-requests/not-solved-count")
+                .then((res: any) => {
+                    context.commit("updateNotSolvedOfflineChatReqCount", res);
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
         });
     },
 };
