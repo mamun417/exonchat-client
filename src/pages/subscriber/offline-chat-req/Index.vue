@@ -68,12 +68,15 @@
 
                     <template v-slot:cell-created_at="slotProps">
                         <div class="tw-text-xss">
-                            {{
-                                $helpers.myDate(
-                                    getLastReply(slotProps.row.offline_chat_req_replies).created_at,
-                                    "MMM Do YYYY, h:mm a"
-                                )
-                            }}
+                            <div v-if="slotProps.row.offline_chat_req_replies.length">
+                                {{
+                                    $helpers.myDate(
+                                        getLastReply(slotProps.row.offline_chat_req_replies).created_at,
+                                        "MMM Do YYYY, h:mm a"
+                                    )
+                                }}
+                            </div>
+                            <div v-else></div>
                         </div>
                     </template>
                 </ec-table>
