@@ -5,7 +5,7 @@
         </div>
 
         <div class="tw-flex-grow">
-            <div class="tw-shadow tw-bg-white tw-p-4">
+            <div class="tw-shadow tw-bg-white">
                 <ec-table
                     @handlePipeline="handlePipeline({ s: $event })"
                     @rowClick="openDetails"
@@ -16,13 +16,35 @@
                     searchPlaceholder="Search ( Name, Email, Subject )"
                 >
                     <template v-slot:filter>
-                        <div>
-                            <q-option-group
-                                @update:model-value="handlePipeline({ status: $event })"
-                                v-model="offlineChatReqPipeline.status"
-                                :options="filters"
-                                inline
-                            />
+                        <div class="q-pa-md">
+                            <div class="tw-flex tw-gap-2 tw-items-center">
+                                <div class="q-gutter-lg">
+                                    <q-radio
+                                        @update:model-value="handlePipeline({ status: $event })"
+                                        v-model="offlineChatReqPipeline.status"
+                                        v-for="filter in filters"
+                                        :key="filter"
+                                        :val="filter.value"
+                                        dense
+                                    >
+                                        <template v-slot:default>
+                                            <div>
+                                                {{ filter.label }} -
+                                                <span>{{
+                                                    statusWiseCount[filter.value === "" ? "all" : filter.value]
+                                                }}</span>
+                                            </div>
+                                        </template>
+                                    </q-radio>
+                                </div>
+
+                                <!--<q-option-group
+                                    @update:model-value="handlePipeline({ status: $event })"
+                                    v-model="offlineChatReqPipeline.status"
+                                    :options="filters"
+                                    inline
+                                />-->
+                            </div>
                         </div>
                     </template>
 
@@ -160,6 +182,7 @@ export default defineComponent({
         ...mapGetters({
             offlineChatReqPaginationMeta: "offline_chat_req/paginationMeta",
             offlineChatReqPipeline: "offline_chat_req/pipeline",
+            statusWiseCount: "offline_chat_req/getStatusWiseCount",
         }),
 
         offlineChatRequest() {

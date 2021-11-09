@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface OfflineChatReqStateInterface {
     offlineChatRequests: any;
-    notSolvedOfflineChatReqCount: any;
+    statusWiseCount: any;
     paginationMeta: any;
     pipeline: any;
 }
@@ -9,7 +9,7 @@ export interface OfflineChatReqStateInterface {
 function state(): OfflineChatReqStateInterface {
     return {
         offlineChatRequests: {},
-        notSolvedOfflineChatReqCount: 0,
+        statusWiseCount: {},
         paginationMeta: {
             current_page: 1,
             total_page: 1,

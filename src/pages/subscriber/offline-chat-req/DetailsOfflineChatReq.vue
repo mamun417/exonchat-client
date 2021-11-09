@@ -597,9 +597,9 @@ export default defineComponent({
             window.api
                 .post("offline-chat-requests/reply", { ...dynamicData, temp_msg_id: this.tempMsgId })
                 .then((res: any) => {
-                    // get getNotSolvedOfflineChatReqCount after change the status
+                    // get getStatusWiseCount after change the status
                     if (dynamicData.message_type === "log") {
-                        this.$store.dispatch("offline_chat_req/getNotSolvedOfflineChatReqCount");
+                        this.$store.dispatch("offline_chat_req/getStatusWiseCount");
                     }
 
                     if (res.data.temp_msg_id) {

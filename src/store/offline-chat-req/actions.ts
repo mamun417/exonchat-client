@@ -58,12 +58,12 @@ const actions: ActionTree<OfflineChatReqStateInterface, StateInterface> = {
         });
     },
 
-    getNotSolvedOfflineChatReqCount(context) {
+    getStatusWiseCount(context) {
         return new Promise((resolve, reject) => {
             window.api
-                .get("offline-chat-requests/not-solved-count")
+                .get("offline-chat-requests/status-wise-count")
                 .then((res: any) => {
-                    context.commit("updateNotSolvedOfflineChatReqCount", res);
+                    context.commit("updateStatusWiseCount", res);
                     resolve(res);
                 })
                 .catch((err: any) => {

@@ -99,7 +99,7 @@
                                 size="18px"
                             >
                                 <q-badge style="margin-top: 5px; left: 37px; right: auto" color="red" rounded floating>
-                                    {{ notSolvedOfflineChatReqCount }}
+                                    {{ statusWiseCount.un_resolved }}
                                 </q-badge>
                                 <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
                                     Offline Chat Requests
@@ -445,7 +445,7 @@ export default defineComponent({
             globalBgColor: "setting_ui/globalBgColor",
             rightBarState: "setting_ui/rightBarState", // its a mistake to store & get from there
             myChatTransferRequests: "chat/myChatTransferRequests",
-            notSolvedOfflineChatReqCount: "offline_chat_req/getNotSolvedOfflineChatReqCount",
+            statusWiseCount: "offline_chat_req/getStatusWiseCount",
         }),
 
         myChatTransferRequest(): any {
@@ -519,7 +519,7 @@ export default defineComponent({
             this.notificationDisabledWarning = true;
         }
 
-        this.getNotSolvedOfflineChatReqCount();
+        this.getStatusWiseCount();
     },
 
     methods: {
@@ -820,9 +820,9 @@ export default defineComponent({
 
             this.socket.on("ec_offline_chat_req_from_client", (res: any) => {
                 this.$store.dispatch("offline_chat_req/getChatRequests");
-                this.getNotSolvedOfflineChatReqCount();
+                this.getStatusWiseCount();
 
-                console.log("from ec_offline_chat_req_from_client", res);
+                // console.log("from ec_offline_chat_req_from_client", res);
             });
 
             this.socket.on("ec_error", (data: any) => {
@@ -1042,8 +1042,8 @@ export default defineComponent({
             localStorage.setItem("ec_notification_hide_warning", "true");
         },
 
-        getNotSolvedOfflineChatReqCount() {
-            this.$store.dispatch("offline_chat_req/getNotSolvedOfflineChatReqCount");
+        getStatusWiseCount() {
+            this.$store.dispatch("offline_chat_req/getStatusWiseCount");
         },
     },
 
