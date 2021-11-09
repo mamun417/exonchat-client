@@ -19,7 +19,13 @@
                 <ec-table :rows="mappedUsers" :columns="userColumns" :bodyCelTemplate="bodyCelTemplate">
                     <template v-slot:cell-info="slotProps">
                         <div class="tw-flex tw-items-center">
-                            <q-avatar size="sm"><img :src="slotProps.row.img" alt="" /></q-avatar>
+                            <ec-avatar
+                                :image_src="slotProps.row.user_meta.src"
+                                :name="slotProps.row.user_meta.display_name"
+                                :email="slotProps.row.email"
+                                size="md"
+                            />
+
                             <div class="tw-ml-2">
                                 {{ $_.upperFirst(slotProps.row.user_meta.display_name) }}
                             </div>
@@ -78,7 +84,7 @@
                     :bodyCelTemplate="bodyCelTemplate"
                 >
                     <template v-slot:cell-sent_at="slotProps">
-                        {{ $helpers.myDate(slotProps.row.created_at, "MMMM Do YYYY, h:mm:ss a") }}
+                        {{ $helpers.myDate(slotProps.row.created_at, "MMM Do YYYY, h:mm a") }}
                     </template>
 
                     <template v-slot:cell-is_agent="slotProps">
@@ -221,6 +227,7 @@ import { defineComponent } from "vue";
 import EcTable from "components/common/table/EcTable.vue";
 import ConfirmModal from "components/common/modal/ConfirmModal.vue";
 import { mapGetters } from "vuex";
+import EcAvatar from "components/common/EcAvatar.vue";
 
 const userColumns = [
     {
@@ -297,7 +304,7 @@ const invitationColumns = [
 
 export default defineComponent({
     name: "Users",
-    components: { EcTable, ConfirmModal },
+    components: { EcAvatar, EcTable, ConfirmModal },
     data(): any {
         return {
             users: [],
@@ -446,7 +453,7 @@ export default defineComponent({
             this.$store
                 .dispatch("user_invitation/getInvitations")
                 .then((res: any) => {
-                    this.invitations = res.data;
+                    this.invitations = res.data.user_invitations.data;
                 })
                 .catch((err: any) => {
                     console.log(err);

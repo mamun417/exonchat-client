@@ -6,7 +6,11 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
     getInvitations() {
         return new Promise((resolve, reject) => {
             window.api
-                .get("users/invitations")
+                .get("users/invitations", {
+                    params: {
+                        status: "pending",
+                    },
+                })
                 .then((res: any) => {
                     resolve(res);
                 })
