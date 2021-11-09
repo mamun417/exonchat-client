@@ -29,10 +29,13 @@
                                     >
                                         <template v-slot:default>
                                             <div>
-                                                {{ filter.label }} -
-                                                <span>{{
-                                                    statusWiseCount[filter.value === "" ? "all" : filter.value]
-                                                }}</span>
+                                                {{ filter.label }}
+                                                <span
+                                                    v-if="statusWiseCount[filter.value === '' ? 'all' : filter.value]"
+                                                >
+                                                    -
+                                                    {{ statusWiseCount[filter.value === "" ? "all" : filter.value] }}
+                                                </span>
                                             </div>
                                         </template>
                                     </q-radio>

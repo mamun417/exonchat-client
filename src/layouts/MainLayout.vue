@@ -98,7 +98,13 @@
                                 flat
                                 size="18px"
                             >
-                                <q-badge style="margin-top: 5px; left: 37px; right: auto" color="red" rounded floating>
+                                <q-badge
+                                    v-if="statusWiseCount.un_resolved"
+                                    style="margin-top: 5px; left: 37px; right: auto"
+                                    color="red"
+                                    rounded
+                                    floating
+                                >
                                     {{ statusWiseCount.un_resolved }}
                                 </q-badge>
                                 <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
