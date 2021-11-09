@@ -1821,7 +1821,8 @@ export default defineComponent({
         },
 
         typingState: {
-            handler: function () {
+            handler: function (newVal, oldVal) {
+                if (newVal === oldVal) return;
                 this.scrollToPosition();
             },
             deep: true,
