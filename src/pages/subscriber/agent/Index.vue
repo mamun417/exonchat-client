@@ -138,64 +138,65 @@
         </div>
 
         <q-dialog
-            @hide="resetForm"
-            v-model="assignAgentModal"
             @update:modelValue="(value) => (assignAgentModal = value)"
+            v-model="assignAgentModal"
+            @hide="resetForm"
+            full-width
             persistent
         >
-            <q-card style="max-width: 500px">
-                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                    <div :class="`tw-text-lg text-${globalColor}`">Add New Agent</div>
+            <q-card style="width: 50% !important" :class="`${$helpers.colors().defaultText}`">
+                <q-card-section class="row tw-border-b">
+                    <div :class="`tw-text-lg text-${globalColor}`">Invite Agents</div>
                     <q-space></q-space>
-                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
+                    <q-btn icon="close" :color="globalColor" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
-                <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        :error-message="sendInvitationFormDataErrors.email"
-                        :error="!!sendInvitationFormDataErrors.email"
-                        @update:model-value="sendInvitationFormDataErrors.email = ''"
-                        v-model="sendInvitationFormData.email"
-                        label="Email"
-                        :color="globalColor"
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="mail" :color="globalColor" />
-                        </template>
-                    </q-input>
+                <q-card-section class="q-py-2 tw-mx-1">
+                    <div v-for="n in 2" :key="n" class="tw-flex tw-justify-between tw-gap-4 tw-py-2">
+                        <div class="tw-flex-1">
+                            <div v-if="n === 1" class="tw-text-base">Email</div>
 
-                    <q-select
-                        v-model="sendInvitationFormData.chat_department_ids"
-                        :options="chatDepartments"
-                        :error-message="sendInvitationFormDataErrors.chat_department_ids"
-                        :error="!!sendInvitationFormDataErrors.chat_department_ids"
-                        @update:model-value="sendInvitationFormDataErrors.chat_department_ids = ''"
-                        hide-bottom-space
-                        option-value="id"
-                        option-label="tag"
-                        label="Chat Department"
-                        class="tw-mb-3"
-                        :color="globalColor"
-                        use-chips
-                        multiple
-                        emit-value
-                        map-options
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="person" size="xs" color="blue-grey" />
-                        </template>
-                    </q-select>
+                            <q-input
+                                @update:model-value="sendInvitationFormDataErrors.email = ''"
+                                :error-message="sendInvitationFormDataErrors.email"
+                                :error="!!sendInvitationFormDataErrors.email"
+                                v-model="sendInvitationFormData.email"
+                                label="Enter email address to invite"
+                                :color="globalColor"
+                                hide-bottom-space
+                                no-error-icon
+                                outlined
+                                dense
+                            />
+                        </div>
 
-                    <q-checkbox
-                        v-model="sendInvitationFormData.active"
-                        label="Active when verified"
-                        :color="globalColor"
-                        class="tw-mt-3"
-                        dense
-                    />
+                        <pre>{{ filterChatDepartments }}</pre>
 
-                    <div class="tw-text-xs tw-mt-4 text-white bg-orange tw-p-2 tw-font-bold">
+                        <div class="tw-flex-1">
+                            <div v-if="n === 1" class="tw-text-base">Departments</div>
+                            <q-select
+                                dense
+                                multiple
+                                outlined
+                                use-chips
+                                emit-value
+                                map-options
+                                no-error-icon
+                                option-value="id"
+                                hide-bottom-space
+                                :color="globalColor"
+                                label="Select departments"
+                                option-label="display_name"
+                                :options="chatDepartments"
+                                v-model="sendInvitationFormData.chat_department_ids"
+                                :error-message="sendInvitationFormDataErrors.email"
+                                :error="!!sendInvitationFormDataErrors.email"
+                                @update:model-value="sendInvitationFormDataErrors.email = ''"
+                            />
+                        </div>
+                    </div>
+
+                    <!--<div class="tw-text-xs tw-mt-4 text-white bg-orange tw-p-2 tw-font-bold">
                         <div>A verification email will be send with a random generated password to this email</div>
                     </div>
 
@@ -203,17 +204,47 @@
                         <div>
                             Uncheck 'activate when verified' if you want to change role or permissions after verify
                         </div>
+                    </div>-->
+
+                    <div class="tw-mt-6">
+                        <div class="tw-text-base">Shareable invite link</div>
+                        <div class="tw-flex tw-gap-4">
+                            <q-input
+                                class="tw-flex-1"
+                                @update:model-value="sendInvitationFormDataErrors.email = ''"
+                                :error-message="sendInvitationFormDataErrors.email"
+                                :error="!!sendInvitationFormDataErrors.email"
+                                v-model="sendInvitationFormData.email"
+                                :color="globalColor"
+                                hide-bottom-space
+                                label="Shareable link"
+                                no-error-icon
+                                outlined
+                                dense
+                            />
+
+                            <q-btn :color="globalColor" label="Copy link" @click="sendInvitation" outline no-caps />
+                        </div>
+                    </div>
+
+                    <div class="tw-pt-4">
+                        For security, this link will be expire 11 days (4 Sept 2011).
+                        <span class="text-blue-5 tw-cursor-pointer">Generate new link</span>
                     </div>
                 </q-card-section>
 
-                <q-card-actions class="tw-mx-6 tw-mb-4">
-                    <q-btn
-                        :color="globalColor"
-                        :loading="sendingInvitation"
-                        label="submit"
-                        class="full-width"
-                        @click="sendInvitation"
-                    />
+                <q-card-actions class="tw-mx-1 tw-my-4">
+                    <div class="tw-w-full text-right">
+                        <q-btn label="cancel" @click="sendInvitation" outline />
+                        <q-btn
+                            :color="globalColor"
+                            :loading="sendingInvitation"
+                            @click="sendInvitation"
+                            class="tw-ml-3"
+                            label="submit"
+                            unelevated
+                        />
+                    </div>
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -313,7 +344,7 @@ export default defineComponent({
 
             // invitation
             sendingInvitation: false,
-            assignAgentModal: false,
+            assignAgentModal: true,
             invitations: [],
             sendInvitationFormData: {
                 email: "",
