@@ -35,7 +35,7 @@
                         :name="
                             conversationData.userToUserChatOtherPerson?.socket_session?.user?.user_meta?.display_name
                         "
-                        :email="conversationData.userToUserChatOtherPerson.socket_session.user.email"
+                        :email="conversationData.userToUserChatOtherPerson.socket_session.user?.email"
                     ></ec-avatar>
                 </q-item-section>
 

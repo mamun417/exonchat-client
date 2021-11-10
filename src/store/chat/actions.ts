@@ -266,9 +266,11 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             const currentRouteName = window.router.currentRoute.value.name;
             const currentRouteConvId = window.router.currentRoute.value.params?.conv_id;
 
-            // no need to store message without joined conversation
+            // no need to store message without joined conversation and current opened conversation
             if (
-                (currentRouteName === "chats" && currentRouteConvId !== tempConv.id) ||
+                (currentRouteName === "chats" &&
+                    currentRouteConvId !== tempConv.id &&
+                    conversationStatusForMe !== "joined") ||
                 (currentRouteName !== "chats" && conversationStatusForMe !== "joined")
             ) {
                 return false;
