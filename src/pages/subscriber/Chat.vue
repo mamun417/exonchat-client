@@ -3,7 +3,7 @@
         <div class="tw-flex tw-flex-col tw-h-full">
             <messages-top-section :conv_id="$route.params['conv_id']" class="tw-mb-3" />
 
-            <message :conv_id="$route.params['conv_id']" :ses_id="profile?.socket_session?.id" />
+            <message :conv_id="$route.params['conv_id']" />
         </div>
     </div>
 </template>
@@ -25,7 +25,6 @@ export default defineComponent({
 
     computed: {
         ...mapGetters({
-            profile: "auth/profile",
             rightBarState: "setting_ui/rightBarState",
         }),
     },

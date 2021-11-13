@@ -402,7 +402,6 @@ export default defineComponent({
 
     data(): any {
         return {
-            clientActiveStatus: false,
             confirmModal: false,
             modalForState: "",
 
@@ -428,10 +427,6 @@ export default defineComponent({
     },
 
     mounted() {
-        this.$emitter.on("ec_get_client_ses_id_status_res", (res: any) => {
-            this.clientActiveStatus = res.status === "active";
-        });
-
         this.chatDurationInterval = setInterval(() => {
             if (
                 this.$route.name === "chats" &&

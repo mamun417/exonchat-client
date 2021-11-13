@@ -233,7 +233,6 @@
                                 class="tw-flex-grow tw-flex tw-flex-col"
                             >
                                 <message
-                                    :ses_id="sesId"
                                     :socket="socket"
                                     :conv_id="clientInitiateConvInfo.conv_id"
                                     :mini_mode="true"
