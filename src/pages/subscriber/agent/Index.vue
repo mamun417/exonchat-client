@@ -170,8 +170,6 @@
                             />
                         </div>
 
-                        <pre>{{ filterChatDepartments }}</pre>
-
                         <div class="tw-flex-1">
                             <div v-if="n === 1" class="tw-text-base">Departments</div>
                             <q-select
@@ -186,8 +184,9 @@
                                 hide-bottom-space
                                 :color="globalColor"
                                 label="Select departments"
-                                option-label="display_name"
                                 :options="chatDepartments"
+                                option-label="display_name"
+                                options-selected-class="tw-hidden"
                                 v-model="sendInvitationFormData.chat_department_ids"
                                 :error-message="sendInvitationFormDataErrors.email"
                                 :error="!!sendInvitationFormDataErrors.email"
