@@ -68,7 +68,11 @@
                                                                 :name="
                                                                     reply.socket_session?.user?.user_meta?.display_name
                                                                 "
-                                                                :email="reply.socket_session?.user?.email"
+                                                                :email="
+                                                                    reply.socket_session?.user
+                                                                        ? reply.socket_session?.user?.email
+                                                                        : offlineChatRequest.email
+                                                                "
                                                                 size="xl"
                                                             />
                                                         </div>
@@ -136,7 +140,9 @@
                                         <div v-else class="tw-py-2 tw-px-4 tw-flex tw-justify-between">
                                             <div>
                                                 <b class="tw-capitalize">{{
-                                                    reply.socket_session?.user?.user_meta?.display_name
+                                                    reply.socket_session?.user
+                                                        ? reply.socket_session?.user?.user_meta?.display_name
+                                                        : offlineChatRequest.name
                                                 }}</b>
                                                 change status
                                                 <!--from {{ reply.message.split("_")[1] }}-->
@@ -596,17 +602,17 @@ export default defineComponent({
 
             window.api
                 .post("offline-chat-requests/reply", { ...dynamicData, temp_msg_id: this.tempMsgId })
-                .then((res: any) => {
+                .then(async (res: any) => {
                     // get getStatusWiseCount after change the status
                     if (dynamicData.message_type === "log") {
-                        this.$store.dispatch("offline_chat_req/getStatusWiseCount");
+                        await this.$store.dispatch("offline_chat_req/getStatusWiseCount");
                     }
 
                     if (res.data.temp_msg_id) {
-                        OfflineChatRequestReply.delete(res.data.temp_msg_id);
+                        await OfflineChatRequestReply.delete(res.data.temp_msg_id);
                     }
 
-                    OfflineChatRequestReply.insert({ data: res.data });
+                    await OfflineChatRequestReply.insert({ data: res.data });
                 })
                 .catch((err: any) => {
                     console.log(err);
