@@ -832,11 +832,11 @@ export default defineComponent({
                 // console.log("from ec_offline_chat_req_from_client", res);
             });
 
-            this.socket.on("ec_email_reply_from_client", async (res: any) => {
+            this.socket.on("ec_email_reply_created", async (res: any) => {
                 this.getStatusWiseCount();
                 await OfflineChatRequestReply.insert({ data: res });
 
-                // console.log("from ec_email_reply_from_client", res);
+                // console.log("from ec_email_reply_created", res);
             });
 
             this.socket.on("ec_error", (data: any) => {
