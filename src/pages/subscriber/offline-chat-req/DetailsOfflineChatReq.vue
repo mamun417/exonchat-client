@@ -512,6 +512,16 @@ export default defineComponent({
 
     mounted() {
         this.getReplies();
+
+        this.$socket.on("ec_email_reply_from_client", (res: any) => {
+            if (res.offline_chat_req_id === this.$route.params["id"]) {
+                setTimeout(() => {
+                    this.scrollToPosition();
+                }, 200);
+            }
+
+            // console.log("from ec_email_reply_from_client", res);
+        });
     },
 
     methods: {

@@ -833,12 +833,10 @@ export default defineComponent({
             });
 
             this.socket.on("ec_email_reply_from_client", async (res: any) => {
-                await this.$store.dispatch("offline_chat_req/getChatRequests");
                 this.getStatusWiseCount();
-
                 await OfflineChatRequestReply.insert({ data: res });
 
-                console.log("from ec_email_reply_from_client", res);
+                // console.log("from ec_email_reply_from_client", res);
             });
 
             this.socket.on("ec_error", (data: any) => {

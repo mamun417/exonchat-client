@@ -189,7 +189,7 @@ export default defineComponent({
         }),
 
         offlineChatRequest() {
-            return OfflineChatRequest.query().with("offline_chat_req_replies").orderBy("created_at", "desc").get();
+            return OfflineChatRequest.query().with("offline_chat_req_replies").orderBy("updated_at", "desc").get();
         },
     },
 
