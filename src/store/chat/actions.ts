@@ -329,6 +329,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                     window.$browser_tab_id === localStorage.getItem("ec_last_visited_tab")
                 ) {
                     const clientInfo: any = ConversationSession.query()
+                        .where("conversation_id", tempConv.id)
                         .with("socket_session")
                         .whereHas("socket_session", (socketSessionQuery) => {
                             socketSessionQuery.where("user_id", null);

@@ -388,6 +388,7 @@ import helpers from "boot/helpers/helpers";
 import Conversation from "src/store/models/Conversation";
 import { Query } from "@vuex-orm/core";
 import MessageAttachment from "src/store/models/MessageAttachment";
+import OfflineChatRequestReply from "src/store/models/offline-chat-req/OfflineChatRequestReply";
 
 declare global {
     interface Window {
@@ -829,6 +830,13 @@ export default defineComponent({
                 this.getStatusWiseCount();
 
                 // console.log("from ec_offline_chat_req_from_client", res);
+            });
+
+            this.socket.on("ec_email_reply_created", async (res: any) => {
+                this.getStatusWiseCount();
+                await OfflineChatRequestReply.insert({ data: res });
+
+                // console.log("from ec_email_reply_created", res);
             });
 
             this.socket.on("ec_error", (data: any) => {
