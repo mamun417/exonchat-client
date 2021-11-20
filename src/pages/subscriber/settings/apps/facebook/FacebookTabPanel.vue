@@ -1,56 +1,5 @@
 <template>
     <q-tab-panel name="facebook" :class="$helpers.colors().defaultText">
-        <q-card-section>
-            <div class="tw-border-b-1">
-                <div class="tw-font-medium tw-pb-2">Facebook API Manager</div>
-            </div>
-        </q-card-section>
-
-        <q-card-section>
-            <div>App ID</div>
-            <q-input
-                v-model="facebookApiManagerForm.apps_fb_app_id"
-                :error-message="facebookApiManagerFormErrors.apps_fb_app_id"
-                :error="!!facebookApiManagerFormErrors.apps_fb_app_id"
-                @update:model-value="facebookApiManagerFormErrors.apps_fb_app_id = ''"
-                placeholder="Ex. 1033239004116693"
-                type="input"
-                bg-color="white"
-                class="tw-shadow tw-px-2 tw-mb-3"
-                hide-bottom-space
-                standout
-                borderless
-                dense
-            />
-
-            <div>Secret Key</div>
-            <q-input
-                v-model="facebookApiManagerForm.apps_fb_secret_key"
-                :error-message="facebookApiManagerFormErrors.apps_fb_secret_key"
-                :error="!!facebookApiManagerFormErrors.apps_fb_secret_key"
-                @update:model-value="facebookApiManagerFormErrors.apps_fb_secret_key = ''"
-                placeholder="Ex. 26ee4518d92aad3173751b1c491d70a7"
-                type="input"
-                bg-color="white"
-                class="tw-shadow tw-px-2"
-                hide-bottom-space
-                standout
-                borderless
-                dense
-            />
-
-            <q-btn
-                @click="updateFacebookApiSetting"
-                class="tw-mt-5"
-                type="submit"
-                :color="globalColor"
-                unelevated
-                no-caps
-            >
-                Update App Setting
-            </q-btn>
-        </q-card-section>
-
         <q-card-section class="tw-mt-4">
             <div class="tw-mb-4 tw-border-b-1">
                 <div class="tw-font-medium tw-pb-2" :class="$helpers.colors().defaultText">
@@ -236,11 +185,6 @@ export default defineComponent({
         return {
             accounts: [],
             chatDepartments: [],
-            facebookApiManagerForm: {
-                apps_fb_app_id: "",
-                apps_fb_secret_key: "",
-            },
-            facebookApiManagerFormErrors: {},
             facebookDataForSubmit: {
                 auth_response: {},
                 user_response: {},
@@ -250,7 +194,7 @@ export default defineComponent({
     },
 
     mounted() {
-        this.getAppSetting();
+        this.initFacebookSdk();
     },
 
     computed: {
@@ -258,63 +202,11 @@ export default defineComponent({
     },
 
     methods: {
-        getAppSetting() {
-            this.$store
-                .dispatch("setting_app/getAppSetting")
-                .then((res: any) => {
-                    res.data.forEach((appSetting: any) => {
-                        if (this.facebookApiManagerForm.hasOwnProperty(appSetting.slug)) {
-                            this.facebookApiManagerForm[appSetting.slug] = this.getSingleInputValue(appSetting);
-                        }
-                    });
-
-                    this.initFacebookSdk();
-                })
-                .catch((err: any) => {
-                    console.log(err.response.data);
-                });
-        },
-
-        getSingleInputValue(appSetting: any) {
-            const value = appSetting.user_settings_value.length
-                ? appSetting.user_settings_value[0].value
-                : appSetting.default_value;
-
-            return appSetting.input_type === "checkbox" ? value === "true" : value;
-        },
-
-        updateFacebookApiSetting() {
-            const data = Object.keys(this.facebookApiManagerForm).map((inputName: any) => {
-                return {
-                    name: inputName,
-                    value: this.facebookApiManagerForm[inputName].toString(),
-                };
-            });
-
-            this.$store
-                .dispatch("setting_app/updateAppSetting", {
-                    inputs: {
-                        app_settings: data,
-                    },
-                })
-                .then(() => {
-                    this.initFacebookSdk();
-                    this.$helpers.showSuccessNotification(this, "App setting update successful");
-                })
-                .catch((err: any) => {
-                    if (this.$_.isObject(err.response.data.message)) {
-                        this.facebookApiManagerFormErrors = err.response.data.message;
-                    } else {
-                        this.$helpers.showErrorNotification(this, err.response.data.message);
-                    }
-                });
-        },
-
         initFacebookSdk() {
             this.$nextTick(() => {
                 window.fbAsyncInit = () => {
                     FB.init({
-                        appId: this.facebookApiManagerForm.apps_fb_app_id,
+                        appId: process.env.FB_APP_ID,
                         xfbml: true,
                         version: "v11.0",
                     });

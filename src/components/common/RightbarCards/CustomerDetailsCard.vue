@@ -107,7 +107,7 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import EcAvatar from "components/common/EcAvatar";
+import EcAvatar from "src/components/common/EcAvatar";
 import { defineComponent } from "vue";
 
 export default defineComponent({

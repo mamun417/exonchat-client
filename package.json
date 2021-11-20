@@ -8,7 +8,7 @@
     "scripts": {
         "lint": "eslint --ext .js,.ts,.vue ./",
         "test": "echo \"No test specified\" && exit 0",
-        "build:prod": "PROD_API_ENDPOINT=https://chat.exonhost.com:8000 quasar build; cp .gitignore dist/spa/.gitignore"
+        "build:prod": "PROD_API_ENDPOINT=https://chat.exonhost.com:8000 FB_APP_ID=774129166727721 quasar build; cp .gitignore dist/spa/.gitignore"
     },
     "dependencies": {
         "@quasar/extras": "^1.0.0",
