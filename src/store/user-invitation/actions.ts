@@ -23,7 +23,7 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
     sendInvitation(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
-                .post("users/invitations/invite", payload.inputs)
+                .post("users/invitations/invite", payload)
                 .then((res: any) => {
                     resolve(res);
                 })

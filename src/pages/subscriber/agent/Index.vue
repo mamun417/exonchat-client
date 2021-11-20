@@ -158,19 +158,21 @@
                         class="tw-flex tw-gap-4 tw-py-2"
                     >
                         <div class="tw-flex-1">
+                            <!--<pre>{{ sendInvitationFormDataErrors }}</pre>-->
                             <div v-if="index === 0" class="tw-text-base">Email</div>
 
                             <q-input
-                                @update:model-value="sendInvitationFormDataErrors.email = ''"
-                                :error-message="sendInvitationFormDataErrors.email"
-                                :error="!!sendInvitationFormDataErrors.email"
+                                @update:model-value="
+                                    sendInvitationFormDataErrors[`invitations_request.${index}.email`] = ''
+                                "
+                                :error-message="sendInvitationFormDataErrors[`invitations_request.${index}.email`]"
+                                :error="!!sendInvitationFormDataErrors[`invitations_request.${index}.email`]"
                                 v-model="sendInvitationFormData.email"
                                 label="Enter email address to invite"
-                                @keyup="checkForAutoNewForm"
                                 :color="globalColor"
-                                type="email"
                                 hide-bottom-space
                                 no-error-icon
+                                type="email"
                                 outlined
                                 dense
                             />
@@ -194,9 +196,13 @@
                                 option-label="display_name"
                                 options-selected-class="tw-hidden"
                                 v-model="sendInvitationFormData.chat_department_ids"
-                                :error-message="sendInvitationFormDataErrors.email"
-                                :error="!!sendInvitationFormDataErrors.email"
-                                @update:model-value="checkForAutoNewForm"
+                                :error="!!sendInvitationFormDataErrors[index]?.chat_department_ids"
+                                :error-message="sendInvitationFormDataErrors[index]?.chat_department_ids"
+                                @update:model-value="
+                                    sendInvitationFormDataErrors[index]
+                                        ? (sendInvitationFormDataErrors[index].chat_department_ids = '')
+                                        : null
+                                "
                             />
                         </div>
                     </div>
@@ -363,6 +369,7 @@ export default defineComponent({
 
             loadingChatDepartments: false,
             chatDepartments: [],
+            testCount: 0,
         };
     },
 
@@ -407,6 +414,7 @@ export default defineComponent({
     mounted() {
         this.getUsers();
         this.getInvitations();
+        this.getChatDepartments();
     },
 
     methods: {
@@ -498,9 +506,14 @@ export default defineComponent({
         sendInvitation() {
             this.sendingInvitation = true;
 
+            const filledFormRow = this.sendInvitationFormDataArr.filter(
+                (singleSendInvitationFormRow: any) =>
+                    singleSendInvitationFormRow.email || singleSendInvitationFormRow.chat_department_ids.length
+            );
+
             this.$store
                 .dispatch("user_invitation/sendInvitation", {
-                    inputs: this.sendInvitationFormData,
+                    invitations_request: filledFormRow,
                 })
                 .then((res: any) => {
                     this.$helpers.showSuccessNotification(this, res.data.msg);
@@ -514,6 +527,7 @@ export default defineComponent({
         },
 
         sendInvitationErrorHandle(err: any) {
+            console.log(err.response);
             if (this.$_.isObject(err.response.data.message)) {
                 this.sendInvitationFormDataErrors = err.response.data.message;
             } else {
@@ -565,21 +579,49 @@ export default defineComponent({
                 });
         },
 
-        checkForAutoNewForm() {
-            const totalFormLength = this.sendInvitationFormDataArr.length;
+        // checkForAutoNewForm() {
+        //     const totalFormLength = this.sendInvitationFormDataArr.length;
+        //
+        //     const filledForm = this.sendInvitationFormDataArr.filter(
+        //         (singleFormDataArr: any) => singleFormDataArr.email && singleFormDataArr.chat_department_ids.length
+        //     );
+        //
+        //     // if (filledForm.length) {
+        //     //     this.sendInvitationFormDataArr = filledForm;
+        //     // }
+        //
+        //     // check all the form filled
+        //     if (totalFormLength === filledForm.length) {
+        //         this.sendInvitationFormDataArr.push({ ...sendInvitationFormObj });
+        //     }
+        // },
+    },
 
-            const filledForm = this.sendInvitationFormDataArr.filter(
-                (singleFormDataArr: any) => singleFormDataArr.email && singleFormDataArr.chat_department_ids.length
-            );
+    watch: {
+        sendInvitationFormDataArr: {
+            handler: function () {
+                const lastFormRow = this.$_.last(this.sendInvitationFormDataArr);
 
-            if (filledForm.length) {
-                this.sendInvitationFormDataArr = filledForm;
-            }
+                if (lastFormRow.email && lastFormRow.chat_department_ids.length) {
+                    this.sendInvitationFormDataArr.push({ ...sendInvitationFormObj });
+                }
 
-            // check all the form filled
-            if (totalFormLength === filledForm.length) {
-                this.sendInvitationFormDataArr.push({ ...sendInvitationFormObj });
-            }
+                if (this.sendInvitationFormDataArr.length > 1) {
+                    const withoutLastFormRow = this.sendInvitationFormDataArr.slice(
+                        0,
+                        this.sendInvitationFormDataArr.length - 1
+                    );
+
+                    const findEmptyRowInWithoutLast = withoutLastFormRow.find(
+                        (singleFormRow: any) => !singleFormRow.email || !singleFormRow.chat_department_ids.length
+                    );
+
+                    if (findEmptyRowInWithoutLast) {
+                        this.sendInvitationFormDataArr = withoutLastFormRow;
+                    }
+                }
+            },
+            deep: true,
         },
     },
 });
