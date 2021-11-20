@@ -389,6 +389,7 @@ import Conversation from "src/store/models/Conversation";
 import { Query } from "@vuex-orm/core";
 import MessageAttachment from "src/store/models/MessageAttachment";
 import OfflineChatRequestReply from "src/store/models/offline-chat-req/OfflineChatRequestReply";
+import Message from "src/store/models/Message";
 
 declare global {
     interface Window {
@@ -706,6 +707,18 @@ export default defineComponent({
                 const convInfo = res.data.conv_data;
 
                 await this.$store.dispatch("chat/updateConvStateToClosed", convInfo);
+
+                if (
+                    this.$route.name !== "chats" ||
+                    (this.$route.name === "chats" && this.$route.params.conv_id !== convInfo.id)
+                ) {
+                    await Message.delete((message: any) => message.conversation_id === this.conv_id);
+
+                    await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
+                        conv_id: this.conv_id,
+                        pagination_meta: { current_page: 0 },
+                    });
+                }
 
                 console.log("from ec_is_closed_from_conversation", convInfo);
             });

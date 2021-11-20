@@ -1759,7 +1759,6 @@ export default defineComponent({
         this.saveDraft();
 
         if (this.conversationData.closed_at) {
-            // if its causing performance issue for not deleting message then handle it in socket event
             // clear message for this conversation
             await Message.delete((message: any) => message.conversation_id === this.conv_id);
 
