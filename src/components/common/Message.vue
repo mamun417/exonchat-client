@@ -1733,22 +1733,15 @@ export default defineComponent({
                 this.scrollToBottomInterval = setInterval(() => {
                     if (this.$refs.myInfiniteScrollArea && this.messages.length) {
                         if (this.conv_id && newVal !== oldVal) {
-                            // if (!this.conversationInfo.pagination_meta?.first_time_loaded) {
-                            this.$refs.myInfiniteScrollArea.poll();
-                            // }
+                            if (!this.conversationInfo.pagination_meta?.first_time_loaded) {
+                                this.$refs.myInfiniteScrollArea.poll();
+                            }
 
                             this.scrollToPosition(1, true);
                             clearInterval(this.scrollToBottomInterval);
                         }
                     }
                 }, 100);
-
-                // if need remove mini mode check
-                if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
-                    this.$store.dispatch("chat/getPreviousConversations", {
-                        before_conversation_id: this.conv_id,
-                    });
-                }
             },
             immediate: true,
         },
@@ -1765,21 +1758,21 @@ export default defineComponent({
     async unmounted() {
         this.saveDraft();
 
-        // if (this.conversationData.closed_at) {
-        // clear message for this conversation
-        await Message.delete((message: any) => message.conversation_id === this.conv_id);
+        if (this.conversationData.closed_at) {
+            // if its causing performance issue for not deleting message then handle it in socket event
+            // clear message for this conversation
+            await Message.delete((message: any) => message.conversation_id === this.conv_id);
 
-        await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
-            conv_id: this.conv_id,
-            pagination_meta: { current_page: 0 },
-        });
-        // } else {
-
-        // await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
-        //     conv_id: this.conv_id,
-        //     pagination_meta: { first_time_loaded: true },
-        // });
-        // }
+            await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
+                conv_id: this.conv_id,
+                pagination_meta: { current_page: 0 },
+            });
+        } else {
+            await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
+                conv_id: this.conv_id,
+                pagination_meta: { first_time_loaded: true },
+            });
+        }
     },
 });
 </script>
