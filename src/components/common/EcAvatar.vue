@@ -76,11 +76,26 @@ export default defineComponent({
         }),
     },
 
-    mounted() {
-        if (!this.email) return;
+    // mounted() {
+    //     if (!this.email) return;
+    //
+    //     console.log(this.email);
+    //
+    //     const hash = CryptoJS.MD5(this.email.trim());
+    //     this.avatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404`;
+    // },
 
-        const hash = CryptoJS.MD5(this.email.trim());
-        this.avatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404`;
+    watch: {
+        email: {
+            handler: function (email) {
+                if (!email) return;
+
+                const hash = CryptoJS.MD5(email.trim());
+                this.avatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404`;
+            },
+            deep: true,
+            immediate: true,
+        },
     },
 });
 </script>
