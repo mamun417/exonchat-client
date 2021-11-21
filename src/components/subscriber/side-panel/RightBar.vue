@@ -599,6 +599,9 @@ export default defineComponent({
             clientTickets: "ticket/tickets",
             clientPreviousChats: "chat/previousConversations",
         }),
+        conversationInfo(): any {
+            return this.$store.getters["chat/conversationInfo"](this.fullChatConvId);
+        },
 
         conversationModel(): any {
             return Conversation.query().where("id", this.fullChatConvId);
@@ -733,9 +736,16 @@ export default defineComponent({
                     newVal.id &&
                     newVal.id !== oldVal.id
                 ) {
-                    // this.$store.dispatch("chat/getPreviousConversations", {
-                    //     before_conversation: newVal[0].conversation_id,
-                    // });
+                    // if need remove mini mode check
+                    if (
+                        !this.conversationInfo.pagination_meta?.first_time_loaded &&
+                        this.$route.name === "chats" &&
+                        this.rightBarState.mode === "client_info"
+                    ) {
+                        this.$store.dispatch("chat/getPreviousConversations", {
+                            before_conversation_id: this.conversationData.id,
+                        });
+                    }
 
                     const clientEmail = this.conversationData.clientConversationSession.socket_session.init_email;
 

@@ -192,7 +192,7 @@
                                         isAgentChatPanel ? '' : 'ec-widget-message-card-container',
                                     ]"
                                     :style="
-                                        checkOwnMessage(message)
+                                        message.isMyMsg
                                             ? `background-color: ${
                                                   isAgentChatPanel ? '#f0f5f8' : 'rgba(46, 104, 44, 0.04)'
                                               }`
@@ -724,10 +724,6 @@ export default defineComponent({
         conv_id: {
             type: String,
         },
-        ses_id: {
-            type: String,
-        },
-
         socket: {
             type: Object,
             default: null,
@@ -750,7 +746,6 @@ export default defineComponent({
     data(): any {
         return {
             scrollToBottomInterval: "",
-            ecGetClientSesIdStatusInterval: "",
             chatActiveStatus: true,
             uid: new Date().getTime().toString(), // user convid insted. not from url
 
@@ -791,7 +786,6 @@ export default defineComponent({
             usersAvatarLoading: false,
 
             scrollInfo: {},
-            scrollCheckInterval: null,
             updateLastMsgSeenTimeTimer: null,
 
             scrollbarCanHandleScrollEvent: false,
@@ -832,12 +826,7 @@ export default defineComponent({
     },
 
     beforeUnmount() {
-        clearInterval(this.ecGetClientSesIdStatusInterval);
         clearInterval(this.forceUpdateInterval);
-
-        if (this.chatPanelType === "user" && !this.conversationData.users_only) {
-            this.$socket.removeEventListener("ec_get_client_ses_id_status_res");
-        }
 
         this.$emitter.off(`new_message_from_client_${this.conv_id}`);
         this.$emitter.off(`new_message_from_user_${this.conv_id}`);
@@ -1020,10 +1009,6 @@ export default defineComponent({
             return {};
         },
 
-        ecGetClientSesIdStatusWatch(): any {
-            return [this.conv_id, this.conversationData.clientConversationSession];
-        },
-
         canGoToBottom(): any {
             return (
                 !this.conversationInfo.hasOwnProperty("scroll_info") ||
@@ -1105,42 +1090,7 @@ export default defineComponent({
         },
 
         fireSocketListeners() {
-            if (this.chatPanelType === "user" && !this.conversationData.users_only) {
-                this.$socket.on("ec_get_client_ses_id_status_res", (res: any) => {
-                    // custom event fire for messageTopSection
-                    this.$emitter.emit("ec_get_client_ses_id_status_res", res);
-
-                    // console.log('from ec_get_client_ses_id_status_res', res);
-                });
-            }
-
-            this.$emitter.on(`new_message_from_client_${this.conv_id}`, () => {
-                if (this.chatPanelType === "user" && !this.conversationData.users_only) {
-                    this.emitEcGetClientSesIdStatus();
-                }
-
-                // this.scrollToPosition();
-            });
-
-            this.$emitter.on(`new_message_from_user_${this.conv_id}`, () => {
-                // this.scrollToPosition();
-            });
-        },
-
-        ecGetClientSesIdStatusEvent() {
-            if (this.chatPanelType === "user" && !this.conversationData.users_only) {
-                this.emitEcGetClientSesIdStatus();
-
-                this.ecGetClientSesIdStatusInterval = setInterval(() => {
-                    this.emitEcGetClientSesIdStatus();
-                }, 10000);
-            }
-        },
-
-        emitEcGetClientSesIdStatus() {
-            this.$socket.emit("ec_get_client_ses_id_status", {
-                client_ses_id: this.conversationData.clientSocketSession.id,
-            });
+            //
         },
 
         handleInfiniteScrollLoad(index: any, done: any) {
@@ -1188,10 +1138,6 @@ export default defineComponent({
                         }, 1000);
                     });
             }
-        },
-
-        checkOwnMessage(message: any) {
-            return message.socket_session_id === this.ses_id;
         },
 
         msgSenderInfo(msg: any) {
@@ -1671,11 +1617,6 @@ export default defineComponent({
         },
 
         async updateLastMsgSeenTime() {
-            // urgent check needed
-            // must check if seen need to update or not
-            const lastMsgSeenTime = moment().format();
-            const mySocketSesId = this.$helpers.getMySocketSessionId();
-
             // check for undefined issue
             if (
                 this.myConversationSession &&
@@ -1787,35 +1728,20 @@ export default defineComponent({
     },
 
     watch: {
-        conversationData: {
-            handler: function () {
-                // console.log('conversationData watcher started');
-                if (this.conversationData.id && this.conversationData.closed_at) {
-                    clearInterval(this.ecGetClientSesIdStatusInterval);
-                }
-            },
-            deep: true,
-            immediate: true,
-        },
-
         conv_id: {
             handler: function (newVal, oldVal) {
                 this.scrollToBottomInterval = setInterval(() => {
                     if (this.$refs.myInfiniteScrollArea && this.messages.length) {
                         if (this.conv_id && newVal !== oldVal) {
-                            this.$refs.myInfiniteScrollArea.poll();
+                            if (!this.conversationInfo.pagination_meta?.first_time_loaded) {
+                                this.$refs.myInfiniteScrollArea.poll();
+                            }
+
                             this.scrollToPosition(1, true);
                             clearInterval(this.scrollToBottomInterval);
                         }
                     }
                 }, 100);
-
-                // if need remove mini mode check
-                if (this.conv_id && newVal !== oldVal && !this.mini_mode) {
-                    this.$store.dispatch("chat/getPreviousConversations", {
-                        before_conversation_id: this.conv_id,
-                    });
-                }
             },
             immediate: true,
         },
@@ -1827,42 +1753,25 @@ export default defineComponent({
             },
             deep: true,
         },
-
-        ecGetClientSesIdStatusWatch: {
-            handler: function () {
-                if (
-                    this.conversationData?.id &&
-                    !this.conversationData.closed_at &&
-                    !this.conversationData.users_only &&
-                    this.conversationData.clientSocketSession.id &&
-                    !this.ecGetClientSesIdStatusInterval
-                ) {
-                    this.ecGetClientSesIdStatusEvent();
-                }
-            },
-            deep: true,
-            immediate: true,
-        },
     },
 
     async unmounted() {
-        await this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
-            conv_id: this.conv_id,
-            auto_scroll_to_bottom: true,
-            last_position: 1,
-        });
-
-        clearInterval(this.scrollCheckInterval);
-
         this.saveDraft();
 
-        // clear message for this conversation
-        await Message.delete((message: any) => message.conversation_id === this.conv_id);
+        if (this.conversationData.closed_at) {
+            // clear message for this conversation
+            await Message.delete((message: any) => message.conversation_id === this.conv_id);
 
-        await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
-            conv_id: this.conv_id,
-            pagination_meta: { current_page: 0 },
-        });
+            await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
+                conv_id: this.conv_id,
+                pagination_meta: { current_page: 0 },
+            });
+        } else {
+            await this.$store.dispatch("chat/updateConvMessagesCurrentPage", {
+                conv_id: this.conv_id,
+                pagination_meta: { first_time_loaded: true },
+            });
+        }
     },
 });
 </script>
