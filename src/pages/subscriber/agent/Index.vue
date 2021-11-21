@@ -196,12 +196,15 @@
                                 option-label="display_name"
                                 options-selected-class="tw-hidden"
                                 v-model="sendInvitationFormData.chat_department_ids"
-                                :error="!!sendInvitationFormDataErrors[index]?.chat_department_ids"
-                                :error-message="sendInvitationFormDataErrors[index]?.chat_department_ids"
+                                :error="
+                                    !!sendInvitationFormDataErrors[`invitations_request.${index}.chat_department_ids`]
+                                "
+                                :error-message="
+                                    sendInvitationFormDataErrors[`invitations_request.${index}.chat_department_ids`]
+                                "
                                 @update:model-value="
-                                    sendInvitationFormDataErrors[index]
-                                        ? (sendInvitationFormDataErrors[index].chat_department_ids = '')
-                                        : null
+                                    sendInvitationFormDataErrors[`invitations_request.${index}.chat_department_ids`] =
+                                        ''
                                 "
                             />
                         </div>
@@ -245,8 +248,9 @@
                 </q-card-section>
 
                 <q-card-actions class="tw-mx-2 tw-my-4 tw-flex tw-justify-end">
-                    <q-btn label="cancel" @click="sendInvitation" outline />
+                    <q-btn label="cancel" outline v-close-popup />
                     <q-btn
+                        :disable="!getOnlyFilledRows().length"
                         :color="globalColor"
                         :loading="sendingInvitation"
                         @click="sendInvitation"
@@ -359,7 +363,7 @@ export default defineComponent({
             bodyCelTemplate: {},
 
             sendingInvitation: false,
-            assignAgentModal: true,
+            assignAgentModal: false,
             invitations: [],
             sendInvitationFormDataArr: [{ ...sendInvitationFormObj }],
             sendInvitationFormDataErrors: {},
@@ -414,7 +418,6 @@ export default defineComponent({
     mounted() {
         this.getUsers();
         this.getInvitations();
-        this.getChatDepartments();
     },
 
     methods: {
@@ -506,38 +509,47 @@ export default defineComponent({
         sendInvitation() {
             this.sendingInvitation = true;
 
-            const filledFormRow = this.sendInvitationFormDataArr.filter(
-                (singleSendInvitationFormRow: any) =>
-                    singleSendInvitationFormRow.email || singleSendInvitationFormRow.chat_department_ids.length
-            );
+            const filledFormRow = this.getOnlyFilledRows();
 
             this.$store
                 .dispatch("user_invitation/sendInvitation", {
                     invitations_request: filledFormRow,
                 })
                 .then((res: any) => {
-                    this.$helpers.showSuccessNotification(this, res.data.msg);
                     this.assignAgentModal = false;
+                    this.$helpers.showSuccessNotification(this, res.data.msg);
                     this.getInvitations();
+                    this.resetForm();
                 })
-                .catch((err: any) => this.sendInvitationErrorHandle(err))
-                .then(() => {
+                .catch((err: any) => {
                     this.sendingInvitation = false;
+                    this.sendInvitationErrorHandle(err);
                 });
         },
 
+        getOnlyFilledRows() {
+            return this.sendInvitationFormDataArr.filter(
+                (singleSendInvitationFormRow: any) =>
+                    singleSendInvitationFormRow.email || singleSendInvitationFormRow.chat_department_ids.length
+            );
+        },
+
         sendInvitationErrorHandle(err: any) {
-            console.log(err.response);
-            if (this.$_.isObject(err.response.data.message)) {
-                this.sendInvitationFormDataErrors = err.response.data.message;
+            let errorMessages = err.response.data.message;
+
+            Object.keys(errorMessages).forEach((key: any) => {
+                errorMessages[key] = errorMessages[key].replace(`${key}`, "");
+            });
+
+            if (this.$_.isObject(errorMessages)) {
+                this.sendInvitationFormDataErrors = errorMessages;
             } else {
-                this.$helpers.showErrorNotification(this, err.response.data.message);
+                this.$helpers.showErrorNotification(this, errorMessages);
             }
         },
 
         resetForm() {
-            this.sendInvitationFormData = {};
-            this.sendInvitationFormData.active = true;
+            this.sendInvitationFormDataArr = [{ ...sendInvitationFormObj }];
             this.sendInvitationFormDataErrors = {};
         },
 
@@ -578,23 +590,6 @@ export default defineComponent({
                     this.sendInvitationErrorHandle(err);
                 });
         },
-
-        // checkForAutoNewForm() {
-        //     const totalFormLength = this.sendInvitationFormDataArr.length;
-        //
-        //     const filledForm = this.sendInvitationFormDataArr.filter(
-        //         (singleFormDataArr: any) => singleFormDataArr.email && singleFormDataArr.chat_department_ids.length
-        //     );
-        //
-        //     // if (filledForm.length) {
-        //     //     this.sendInvitationFormDataArr = filledForm;
-        //     // }
-        //
-        //     // check all the form filled
-        //     if (totalFormLength === filledForm.length) {
-        //         this.sendInvitationFormDataArr.push({ ...sendInvitationFormObj });
-        //     }
-        // },
     },
 
     watch: {
