@@ -119,7 +119,7 @@
             >
                 <template v-if="hasApiKey">
                     <div
-                        class="tw-text-gray-50 tw-px-2 tw-py-1 tw-flex tw-items-center tw-justify-between"
+                        class="tw-text-gray-50 tw-px-2 tw-py-3 tw-flex tw-items-center tw-justify-between"
                         :class="`bg-${globalColor}`"
                         style="border-radius: 8px 8px 0 0"
                     >

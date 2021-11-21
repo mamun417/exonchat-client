@@ -138,64 +138,79 @@
         </div>
 
         <q-dialog
-            @hide="resetForm"
-            v-model="assignAgentModal"
             @update:modelValue="(value) => (assignAgentModal = value)"
+            v-model="assignAgentModal"
+            @hide="resetForm"
+            full-width
             persistent
         >
-            <q-card style="max-width: 500px">
-                <q-card-section class="row items-center tw-border-b tw-border-green-500 tw-px-10">
-                    <div :class="`tw-text-lg text-${globalColor}`">Add New Agent</div>
+            <q-card style="width: 80% !important" :class="`${$helpers.colors().defaultText}`">
+                <q-card-section class="row tw-border-b">
+                    <div :class="`tw-text-lg text-${globalColor}`">Invite Agents</div>
                     <q-space></q-space>
-                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
+                    <q-btn icon="close" :color="globalColor" flat round dense v-close-popup></q-btn>
                 </q-card-section>
 
-                <q-card-section class="q-py-2 tw-mx-6">
-                    <q-input
-                        :error-message="sendInvitationFormDataErrors.email"
-                        :error="!!sendInvitationFormDataErrors.email"
-                        @update:model-value="sendInvitationFormDataErrors.email = ''"
-                        v-model="sendInvitationFormData.email"
-                        label="Email"
-                        :color="globalColor"
+                <q-card-section class="q-py-2 tw-mx-1">
+                    <div
+                        v-for="(sendInvitationFormData, index) in sendInvitationFormDataArr"
+                        :key="index"
+                        class="tw-flex tw-gap-4 tw-py-2"
                     >
-                        <template v-slot:prepend>
-                            <q-icon name="mail" :color="globalColor" />
-                        </template>
-                    </q-input>
+                        <div class="tw-flex-1">
+                            <!--<pre>{{ sendInvitationFormDataErrors }}</pre>-->
+                            <div v-if="index === 0" class="tw-text-base">Email</div>
 
-                    <q-select
-                        v-model="sendInvitationFormData.chat_department_ids"
-                        :options="chatDepartments"
-                        :error-message="sendInvitationFormDataErrors.chat_department_ids"
-                        :error="!!sendInvitationFormDataErrors.chat_department_ids"
-                        @update:model-value="sendInvitationFormDataErrors.chat_department_ids = ''"
-                        hide-bottom-space
-                        option-value="id"
-                        option-label="tag"
-                        label="Chat Department"
-                        class="tw-mb-3"
-                        :color="globalColor"
-                        use-chips
-                        multiple
-                        emit-value
-                        map-options
-                        dense
-                    >
-                        <template v-slot:prepend>
-                            <q-icon name="person" size="xs" color="blue-grey" />
-                        </template>
-                    </q-select>
+                            <q-input
+                                @update:model-value="
+                                    sendInvitationFormDataErrors[`invitations_request.${index}.email`] = ''
+                                "
+                                :error-message="sendInvitationFormDataErrors[`invitations_request.${index}.email`]"
+                                :error="!!sendInvitationFormDataErrors[`invitations_request.${index}.email`]"
+                                v-model="sendInvitationFormData.email"
+                                label="Enter email address to invite"
+                                :color="globalColor"
+                                hide-bottom-space
+                                no-error-icon
+                                type="email"
+                                outlined
+                                dense
+                            />
+                        </div>
 
-                    <q-checkbox
-                        v-model="sendInvitationFormData.active"
-                        label="Active when verified"
-                        :color="globalColor"
-                        class="tw-mt-3"
-                        dense
-                    />
+                        <div class="tw-flex-1">
+                            <div v-if="index === 0" class="tw-text-base">Departments</div>
+                            <q-select
+                                dense
+                                multiple
+                                outlined
+                                use-chips
+                                emit-value
+                                map-options
+                                no-error-icon
+                                option-value="id"
+                                hide-bottom-space
+                                :color="globalColor"
+                                :options="chatDepartments"
+                                label="Select departments"
+                                option-label="display_name"
+                                options-selected-class="tw-hidden"
+                                v-model="sendInvitationFormData.chat_department_ids"
+                                :error="
+                                    !!sendInvitationFormDataErrors[`invitations_request.${index}.chat_department_ids`]
+                                "
+                                :error-message="
+                                    sendInvitationFormDataErrors[`invitations_request.${index}.chat_department_ids`]
+                                "
+                                @update:model-value="
+                                    sendInvitationFormDataErrors[`invitations_request.${index}.chat_department_ids`] =
+                                        ''
+                                "
+                            />
+                        </div>
+                    </div>
 
-                    <div class="tw-text-xs tw-mt-4 text-white bg-orange tw-p-2 tw-font-bold">
+                    <!--<div class="tw-text-xs tw-mt-4 text-white bg-orange tw-p-2 tw-font-bold">
                         <div>A verification email will be send with a random generated password to this email</div>
                     </div>
 
@@ -203,16 +218,45 @@
                         <div>
                             Uncheck 'activate when verified' if you want to change role or permissions after verify
                         </div>
+                    </div>-->
+
+                    <div class="tw-mt-6">
+                        <div class="tw-text-base">Shareable invite link</div>
+                        <div class="tw-flex tw-gap-4">
+                            <!--:error-message="sendInvitationFormDataErrors.email"-->
+                            <!--:error="!!sendInvitationFormDataErrors.email"-->
+                            <!--v-model="sendInvitationFormDataArr[0].email"-->
+                            <q-input
+                                class="tw-flex-1"
+                                @update:model-value="sendInvitationFormDataErrors.email = ''"
+                                :color="globalColor"
+                                hide-bottom-space
+                                label="Shareable link"
+                                no-error-icon
+                                outlined
+                                dense
+                            />
+
+                            <q-btn :color="globalColor" label="Copy link" @click="sendInvitation" outline no-caps />
+                        </div>
+                    </div>
+
+                    <div class="tw-pt-4">
+                        For security, this link will be expire 11 days (4 Sept 2011).
+                        <span class="text-blue-5 tw-cursor-pointer">Generate new link</span>
                     </div>
                 </q-card-section>
 
-                <q-card-actions class="tw-mx-6 tw-mb-4">
+                <q-card-actions class="tw-mx-2 tw-my-4 tw-flex tw-justify-end">
+                    <q-btn label="cancel" outline v-close-popup />
                     <q-btn
+                        :disable="!getOnlyFilledRows().length"
                         :color="globalColor"
                         :loading="sendingInvitation"
-                        label="submit"
-                        class="full-width"
                         @click="sendInvitation"
+                        class="tw-ml-3"
+                        label="submit"
+                        unelevated
                     />
                 </q-card-actions>
             </q-card>
@@ -302,6 +346,13 @@ const invitationColumns = [
     },
 ];
 
+const sendInvitationFormObj = {
+    email: "",
+    type: "agent",
+    chat_department_ids: [],
+    active: true,
+};
+
 export default defineComponent({
     name: "Users",
     components: { EcAvatar, EcTable, ConfirmModal },
@@ -311,16 +362,10 @@ export default defineComponent({
             userAssignFormDataErrors: {},
             bodyCelTemplate: {},
 
-            // invitation
             sendingInvitation: false,
             assignAgentModal: false,
             invitations: [],
-            sendInvitationFormData: {
-                email: "",
-                type: "agent",
-                chat_department_ids: [],
-                active: true,
-            },
+            sendInvitationFormDataArr: [{ ...sendInvitationFormObj }],
             sendInvitationFormDataErrors: {},
             deleteInvitationId: "",
             showDeleteModal: false,
@@ -328,6 +373,7 @@ export default defineComponent({
 
             loadingChatDepartments: false,
             chatDepartments: [],
+            testCount: 0,
         };
     },
 
@@ -463,32 +509,47 @@ export default defineComponent({
         sendInvitation() {
             this.sendingInvitation = true;
 
+            const filledFormRow = this.getOnlyFilledRows();
+
             this.$store
                 .dispatch("user_invitation/sendInvitation", {
-                    inputs: this.sendInvitationFormData,
+                    invitations_request: filledFormRow,
                 })
                 .then((res: any) => {
-                    this.$helpers.showSuccessNotification(this, res.data.msg);
                     this.assignAgentModal = false;
+                    this.$helpers.showSuccessNotification(this, res.data.msg);
                     this.getInvitations();
+                    this.resetForm();
                 })
-                .catch((err: any) => this.sendInvitationErrorHandle(err))
-                .then(() => {
+                .catch((err: any) => {
                     this.sendingInvitation = false;
+                    this.sendInvitationErrorHandle(err);
                 });
         },
 
+        getOnlyFilledRows() {
+            return this.sendInvitationFormDataArr.filter(
+                (singleSendInvitationFormRow: any) =>
+                    singleSendInvitationFormRow.email || singleSendInvitationFormRow.chat_department_ids.length
+            );
+        },
+
         sendInvitationErrorHandle(err: any) {
-            if (this.$_.isObject(err.response.data.message)) {
-                this.sendInvitationFormDataErrors = err.response.data.message;
+            let errorMessages = err.response.data.message;
+
+            Object.keys(errorMessages).forEach((key: any) => {
+                errorMessages[key] = errorMessages[key].replace(`${key}`, "");
+            });
+
+            if (this.$_.isObject(errorMessages)) {
+                this.sendInvitationFormDataErrors = errorMessages;
             } else {
-                this.$helpers.showErrorNotification(this, err.response.data.message);
+                this.$helpers.showErrorNotification(this, errorMessages);
             }
         },
 
         resetForm() {
-            this.sendInvitationFormData = {};
-            this.sendInvitationFormData.active = true;
+            this.sendInvitationFormDataArr = [{ ...sendInvitationFormObj }];
             this.sendInvitationFormDataErrors = {};
         },
 
@@ -528,6 +589,34 @@ export default defineComponent({
                 .catch((err: any) => {
                     this.sendInvitationErrorHandle(err);
                 });
+        },
+    },
+
+    watch: {
+        sendInvitationFormDataArr: {
+            handler: function () {
+                const lastFormRow = this.$_.last(this.sendInvitationFormDataArr);
+
+                if (lastFormRow.email && lastFormRow.chat_department_ids.length) {
+                    this.sendInvitationFormDataArr.push({ ...sendInvitationFormObj });
+                }
+
+                if (this.sendInvitationFormDataArr.length > 1) {
+                    const withoutLastFormRow = this.sendInvitationFormDataArr.slice(
+                        0,
+                        this.sendInvitationFormDataArr.length - 1
+                    );
+
+                    const findEmptyRowInWithoutLast = withoutLastFormRow.find(
+                        (singleFormRow: any) => !singleFormRow.email || !singleFormRow.chat_department_ids.length
+                    );
+
+                    if (findEmptyRowInWithoutLast) {
+                        this.sendInvitationFormDataArr = withoutLastFormRow;
+                    }
+                }
+            },
+            deep: true,
         },
     },
 });
