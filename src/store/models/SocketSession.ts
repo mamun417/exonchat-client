@@ -18,8 +18,11 @@ export default class SocketSession extends Model {
             init_ip: this.attr(null),
             init_location: this.attr(null),
             init_user_agent: this.attr(null),
+            user_info: this.attr(null),
             use_for: this.attr(null),
+            use_for_id: this.attr(null),
             user_id: this.attr(null),
+            is_facebook_page: this.attr(false),
 
             conversation_sessions: this.hasMany(ConversationSession, "socket_session_id"),
             user: this.belongsTo(User, "user_id"),

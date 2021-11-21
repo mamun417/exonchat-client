@@ -216,8 +216,10 @@
                                                 :email="msgSenderInfo(message).email"
                                                 class=""
                                             >
+                                                <!--{{ msgSenderInfo(message).src }}-->
                                                 <!--<q-tooltip class="">{{ msgSenderInfo(message, index).email }}</q-tooltip>-->
                                             </ec-avatar>
+                                            <!--<pre>{{ msgSenderInfo(message) }}</pre>-->
                                         </div>
                                         <div class="tw-pr-4 tw-text-base tw-w-full">
                                             <div
@@ -271,7 +273,7 @@
                                                     <div>
                                                         <div class="tw-text-sm">
                                                             <pre
-                                                                v-html="$helpers.makeCLickAbleLink(msgItem.msg)"
+                                                                v-html="$helpers.makeCLickAbleLink(msgItem.msg || '')"
                                                                 class="tw-whitespace-normal"
                                                                 style="
                                                                     font-family: inherit;
@@ -314,6 +316,36 @@
                                                                         color="white"
                                                                     />
                                                                 </q-img>
+                                                            </div>
+                                                        </div>
+
+                                                        <div
+                                                            v-if="
+                                                                conversationData.type === 'facebook_chat' &&
+                                                                msgItem.extra_msg_data?.attachments
+                                                            "
+                                                            class="tw-my-3 tw-flex tw-flex-wrap tw-gap-3"
+                                                        >
+                                                            <div
+                                                                v-for="(attachment, index) in msgItem.extra_msg_data
+                                                                    ?.attachments"
+                                                                :key="index"
+                                                                style="height: 150px; min-width: 150px"
+                                                                class="tw-shadow-lg tw-rounded tw-cursor-pointer tw-overflow-hidden"
+                                                            >
+                                                                <q-img
+                                                                    v-if="attachment.type === 'image'"
+                                                                    height="100%"
+                                                                    fit="cover"
+                                                                    spinner-color="green"
+                                                                    :src="attachment.payload.url"
+                                                                    @click="
+                                                                        attachmentPreview = {
+                                                                            src: attachment.payload.url,
+                                                                        };
+                                                                        attachmentPreviewModal = true;
+                                                                    "
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -507,7 +539,7 @@
             @update:model-value="attachmentUploaderHandle"
         />
 
-        <div class="tw-flex tw-flex-col tw-justify-end">
+        <div v-if="conversationData.type !== 'facebook_chat'" class="tw-flex tw-flex-col tw-justify-end">
             <q-btn
                 flat
                 :color="chatPanelType === 'user' ? globalColor : clientPanelGlobalColor"
@@ -668,7 +700,11 @@
                     !conversationData.closed_at &&
                     (!conversationStatusForMe || conversationStatusForMe !== 'joined')
                 "
-                :label="conversationData.connectedUsers?.length ? 'Join Chat' : 'Accept Chat'"
+                :label="
+                    conversationData.connectedUsers?.length || conversationInfo.type === 'facebook_chat'
+                        ? 'Join Chat'
+                        : 'Accept Chat'
+                "
                 :color="globalColor"
                 unelevated
                 no-caps
@@ -773,7 +809,7 @@ export default defineComponent({
             attachments: [],
             finalAttachments: [],
 
-            attachmentPreview: null,
+            attachmentPreview: {},
             attachmentPreviewModal: false,
 
             chatTemplate: false,
@@ -820,7 +856,7 @@ export default defineComponent({
             }
         });
 
-        window.onbeforeunload = (e: any) => {
+        window.onbeforeunload = () => {
             this.saveDraft();
         };
     },
@@ -1165,10 +1201,20 @@ export default defineComponent({
                 };
             }
 
+            if (!msg.socket_session.user_id && msg.socket_session.is_facebook_page) {
+                return {
+                    display_name: msg.socket_session.init_name,
+                    img_alt_name: msg.socket_session.init_name,
+                    email: msg.socket_session.init_email,
+                    type: "fb",
+                };
+            }
+
             return {
                 display_name: isMyMsg ? "You" : msg.socket_session.init_name,
                 img_alt_name: msg.socket_session.init_name,
                 email: msg.socket_session.init_email,
+                src: msg.socket_session.user_info?.profile_pic || null,
                 type: "client",
             };
         },

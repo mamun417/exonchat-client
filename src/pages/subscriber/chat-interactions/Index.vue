@@ -57,7 +57,7 @@
 
                     <template v-slot:cell-department="slotProps">
                         <div class="text-xss">
-                            {{ slotProps.row.chat_department.display_name }}
+                            {{ slotProps.row.chat_department?.display_name }}
                         </div>
                     </template>
 
@@ -337,7 +337,7 @@ export default defineComponent({
                 return app[chatType].filter(
                     (chat: any) =>
                         app.departmentFilters[chatType].label === "All" ||
-                        chat.chat_department.tag === app.departmentFilters[chatType].label
+                        chat.chat_department?.tag === app.departmentFilters[chatType].label
                 );
             }
 

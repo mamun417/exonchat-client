@@ -3,7 +3,7 @@ import ConversationSession from "src/store/models/ConversationSession";
 import Message from "src/store/models/Message";
 import ChatDepartment from "src/store/models/ChatDepartment";
 import helpers from "boot/helpers/helpers";
-import { values } from "lodash";
+import * as _l from "lodash";
 
 export default class Conversation extends Model {
     // This is the name used as module name of the Vuex Store.
@@ -42,7 +42,7 @@ export default class Conversation extends Model {
             .with("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery
                     .whereHas("socket_session", (socketSessionQuery) => {
-                        socketSessionQuery.where("user_id", null);
+                        socketSessionQuery.where("user_id", null).where("is_facebook_page", false);
                     })
                     .with("socket_session");
             })
@@ -127,13 +127,12 @@ export default class Conversation extends Model {
             .with("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery
                     .where("socket_session_id", (value: any) => value !== helpers.getMySocketSessionId())
-                    .orderBy("last_msg_seen_time", "desc")
-                    .limit(1);
+                    .orderBy("last_msg_seen_time", "desc");
             })
             .first();
 
         return conversation?.conversation_sessions.length
-            ? conversation?.conversation_sessions[0].last_msg_seen_time || 0
+            ? _l.sortBy(conversation.conversation_sessions, "last_msg_seen_time")[0].last_msg_seen_time || 0
             : 0;
     }
 

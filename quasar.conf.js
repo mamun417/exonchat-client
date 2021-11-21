@@ -53,7 +53,16 @@ module.exports = configure(function (ctx) {
         build: {
             vueRouterMode: "history", // available values: 'hash', 'history'
 
-            env: { API: ctx.dev ? "http://localhost:3000" : process.env.PROD_API_ENDPOINT, DEV: ctx.dev },
+            env: {
+                API: ctx.dev ? "http://localhost:3000" : process.env.PROD_API_ENDPOINT,
+                DEV: ctx.dev,
+                FB_APP_ID: ctx.FB_APP_ID || "",
+            },
+
+            // env: {
+            //     API: ctx.dev ? "https://f3e0-103-148-172-231.ngrok.io" : process.env.PROD_API_ENDPOINT,
+            //     DEV: ctx.dev,
+            // },
 
             // transpile: false,
 

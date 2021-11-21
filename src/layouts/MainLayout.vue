@@ -390,6 +390,7 @@ import { Query } from "@vuex-orm/core";
 import MessageAttachment from "src/store/models/MessageAttachment";
 import OfflineChatRequestReply from "src/store/models/offline-chat-req/OfflineChatRequestReply";
 import Message from "src/store/models/Message";
+import User from "src/store/models/User";
 
 declare global {
     interface Window {
@@ -664,6 +665,8 @@ export default defineComponent({
             this.socket.on("ec_conv_initiated_from_client", async (res: any) => {
                 console.log("from ec_conv_initiated_from_client", res);
 
+                // if conv type is fb then handle notification
+
                 if (res.data.notify) {
                     clearTimeout(this.newChatTimeout);
 
@@ -689,6 +692,7 @@ export default defineComponent({
             this.socket.on("ec_is_joined_from_conversation", async (res: any) => {
                 const convSesInfo = res.data.conv_ses_data;
                 convSesInfo.from_chat_transfer_request = res.data.from_chat_transfer_request;
+                convSesInfo.conversation_closed_at = null;
 
                 await this.$store.dispatch("chat/updateConvState", convSesInfo);
 
@@ -1021,6 +1025,15 @@ export default defineComponent({
         },
 
         vuexOrmMutationListener() {
+            // prevent api call for attachment load
+            Query.on("beforeCreate", (model: any) => {
+                if (model instanceof User) {
+                    if (User.find(model.id)) {
+                        return false;
+                    }
+                }
+            });
+
             Query.on("afterCreate", (model: any) => {
                 if (model instanceof MessageAttachment) {
                     if (!model.loaded && !model.src) {
@@ -1041,6 +1054,31 @@ export default defineComponent({
                                 MessageAttachment.update({
                                     where: model.id,
                                     data: { src: src },
+                                });
+                            })
+                            .catch();
+                    }
+                }
+
+                if (model instanceof User) {
+                    if (model.user_meta.attachment_id && !model.user_meta.loaded && !model.user_meta.src) {
+                        User.update({
+                            where: model.id,
+                            data: { user_meta: { ...model.user_meta, loaded: true } },
+                        });
+
+                        this.$api
+                            .get(`attachments/${model.user_meta.attachment_id}`, {
+                                responseType: "arraybuffer",
+                            })
+                            .then((imgRes: any) => {
+                                const src = URL.createObjectURL(
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                                );
+
+                                User.update({
+                                    where: model.id,
+                                    data: { user_meta: { ...model.user_meta, src } },
                                 });
                             })
                             .catch();
@@ -1081,61 +1119,6 @@ export default defineComponent({
     },
 
     watch: {
-        // if you need to load avatars everywhere then watch conversation n use same way in the layout template
-        // conversations: {
-        //     handler: async function () {
-        //         // console.log('conversations watcher started');
-        //
-        //         if (this.usersAvatarLoading) return;
-        //
-        //         this.usersAvatarLoading = true;
-        //
-        //         if (this.conversations) {
-        //             for (const convObj of Object.values(this.conversations)) {
-        //                 const conv: any = convObj;
-        //                 const tempArray: any = { conv_id: conv.id, srcs: [] };
-        //
-        //                 for (const convSes of conv.sessions) {
-        //                     if (convSes.socket_session.user) {
-        //                         // I can send attachment from db but for that I have to send from all the query
-        //                         // I have to get the image so y give hard time to api so here check that
-        //                         if (
-        //                             convSes.socket_session.user?.user_meta?.attachment_id &&
-        //                             !convSes.socket_session.user?.user_meta?.src
-        //                         ) {
-        //                             try {
-        //                                 const imgRes = await this.$api.get(
-        //                                     `attachments/${convSes.socket_session.user.user_meta.attachment_id}`,
-        //                                     {
-        //                                         responseType: "arraybuffer",
-        //                                     }
-        //                                 );
-        //
-        //                                 tempArray.srcs.push({
-        //                                     conv_ses_id: convSes.id,
-        //                                     src: URL.createObjectURL(
-        //                                         new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
-        //                                     ),
-        //                                 });
-        //                             } catch (e) {
-        //                                 console.log(e);
-        //                             }
-        //                         }
-        //                     }
-        //                 }
-        //
-        //                 if (tempArray.srcs.length) {
-        //                     this.$store.commit("chat/updateConversationUserAvatar", tempArray);
-        //                 }
-        //             }
-        //         }
-        //
-        //         this.usersAvatarLoading = false;
-        //     },
-        //     deep: true,
-        //     immediate: true,
-        // },
-
         newConversationInfo: {
             handler: function (newVal, oldVal) {
                 if (newVal?.id && (!oldVal?.id || newVal.id !== oldVal.id)) {
@@ -1201,5 +1184,9 @@ body {
 
 .flip-list-move {
     transition: transform 0.5s;
+}
+
+.custom-border-bottom {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 </style>

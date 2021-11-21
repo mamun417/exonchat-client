@@ -281,7 +281,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationData.closed_at"
+                    v-if="
+                        !conversationData.users_only &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.closed_at
+                    "
                     label="RELATED SERVICES"
                     dense
                     default-opened
@@ -342,7 +346,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationData.closed_at"
+                    v-if="
+                        !conversationData.closed_at &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.users_only
+                    "
                     label="RELATED DOMAINS"
                     dense
                     default-opened
@@ -394,7 +402,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationData.closed_at"
+                    v-if="
+                        !conversationData.closed_at &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.users_only
+                    "
                     label="CUSTOMER PAGE VISITS"
                     dense
                     default-opened
@@ -439,7 +451,7 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationData.closed_at"
+                    v-if="!conversationData.closed_at && conversationData.type !== 'facebook_chat'"
                     label="PREVIOUS CHATS"
                     dense
                     default-opened
@@ -485,7 +497,11 @@
                 <div class="tw-mb-4"></div>
 
                 <q-expansion-item
-                    v-if="!conversationData.closed_at"
+                    v-if="
+                        !conversationData.closed_at &&
+                        conversationData.type !== 'facebook_chat' &&
+                        !conversationData.users_only
+                    "
                     label="TICKETS"
                     dense
                     default-opened
@@ -714,7 +730,6 @@ export default defineComponent({
             ) {
                 this.$refs.page_visit_list?.$forceUpdate();
                 this.$refs.chat_duration?.$forceUpdate();
-                this.$refs.connectedForTimer?.$forceUpdate();
             }
         }, 3000);
 
@@ -733,6 +748,7 @@ export default defineComponent({
                 if (
                     this.conversationData.id &&
                     !this.conversationData.users_only &&
+                    this.conversationData.type !== "facebook_chat" &&
                     newVal.id &&
                     newVal.id !== oldVal.id
                 ) {

@@ -68,6 +68,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return Conversation.query()
             .where("users_only", false)
             .where("closed_at", null)
+            .where("type", (value: any) => value !== "facebook_chat")
             .whereHasNot("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery.whereHasNot("socket_session", (socketSessionQuery) => {
                     socketSessionQuery.where("user_id", null);
@@ -88,6 +89,7 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return Conversation.query()
             .where("users_only", false)
             .where("closed_at", null)
+            .where("type", (value: any) => value !== "facebook_chat")
             .whereHas("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery
                     .where("joined_at", (value: any) => value)

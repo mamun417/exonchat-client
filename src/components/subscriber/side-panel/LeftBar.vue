@@ -105,10 +105,10 @@
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="myOngoingChats.length">
+                            <q-list v-if="myOngoingWithFbChats.length">
                                 <q-item
                                     class="tw-pr-0"
-                                    v-for="ongoingChat in myOngoingChats"
+                                    v-for="ongoingChat in myOngoingWithFbChats"
                                     :to="{ name: 'chats', params: { conv_id: ongoingChat.id } }"
                                     :key="ongoingChat.id"
                                     clickable
@@ -121,6 +121,7 @@
                                         <ec-avatar
                                             :name="ongoingChat.clientSocketSession.init_name"
                                             :email="ongoingChat.clientSocketSession.init_email"
+                                            :image_src="ongoingChat.clientSocketSession.user_info?.profile_pic || null"
                                             size="23px"
                                         ></ec-avatar>
                                     </q-item-section>
@@ -308,7 +309,6 @@ import moment from "moment";
 import helpers from "boot/helpers/helpers";
 import ChatDepartment from "src/store/models/ChatDepartment";
 import Conversation from "src/store/models/Conversation";
-import _ from "lodash";
 
 export default defineComponent({
     name: "LeftBar",
@@ -360,6 +360,19 @@ export default defineComponent({
 
         chatDepartmentModel(): any {
             return ChatDepartment.query();
+        },
+
+        myOngoingWithFbChats(): any {
+            const facebookChats = Conversation.query()
+                .where("type", (value: any) => value === "facebook_chat")
+                .where("closed_at", null)
+                // .whereHas("conversation_sessions", (conversationSessionQuery) => {
+                //     conversationSessionQuery; //
+                // })
+                .orderBy("created_at")
+                .get();
+
+            return [...this.myOngoingChats, ...facebookChats];
         },
 
         selectAbleOnlineStatus(): any {
