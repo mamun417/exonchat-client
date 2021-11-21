@@ -743,7 +743,7 @@ export default defineComponent({
                         this.rightBarState.mode === "client_info"
                     ) {
                         this.$store.dispatch("chat/getPreviousConversations", {
-                            before_conversation_id: this.conv_id,
+                            before_conversation_id: this.conversationData.id,
                         });
                     }
 
