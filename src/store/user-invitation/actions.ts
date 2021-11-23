@@ -33,6 +33,19 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
         });
     },
 
+    generateShareAbleLink(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post("users/invitations/sharable-link-create", payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
     deleteInvitation(context, payload) {
         return new Promise((resolve, reject) => {
             window.api

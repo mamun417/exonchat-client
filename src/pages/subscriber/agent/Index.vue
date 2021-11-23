@@ -222,22 +222,64 @@
 
                     <div class="tw-mt-6">
                         <div class="tw-text-base">Shareable invite link</div>
-                        <div class="tw-flex tw-gap-4">
-                            <!--:error-message="sendInvitationFormDataErrors.email"-->
-                            <!--:error="!!sendInvitationFormDataErrors.email"-->
-                            <!--v-model="sendInvitationFormDataArr[0].email"-->
-                            <q-input
-                                class="tw-flex-1"
-                                @update:model-value="sendInvitationFormDataErrors.email = ''"
-                                :color="globalColor"
-                                hide-bottom-space
-                                label="Shareable link"
-                                no-error-icon
-                                outlined
-                                dense
-                            />
+                        <div class="tw-grid tw-grid-cols-8 tw-gap-4 tw-items-center">
+                            <div class="tw-col-span-4">
+                                <q-input
+                                    @update:model-value="sendInvitationFormDataErrors.email = ''"
+                                    v-model="createShareAbleLinkForm.shareableLink"
+                                    :color="globalColor"
+                                    hide-bottom-space
+                                    label="Shareable link"
+                                    no-error-icon
+                                    outlined
+                                    dense
+                                />
+                            </div>
 
-                            <q-btn :color="globalColor" label="Copy link" @click="sendInvitation" outline no-caps />
+                            <div class="tw-col-span-3">
+                                <q-select
+                                    multiple
+                                    use-chips
+                                    emit-value
+                                    map-options
+                                    option-value="id"
+                                    :options="chatDepartments"
+                                    label="Select departments"
+                                    option-label="display_name"
+                                    options-selected-class="tw-hidden"
+                                    v-model="createShareAbleLinkForm.chat_department_ids"
+                                    :error="!!createShareAbleLinkFormErrors.chat_department_ids"
+                                    :error-message="createShareAbleLinkFormErrors.chat_department_ids"
+                                    @update:model-value="createShareAbleLinkFormErrors.chat_department_ids = ''"
+                                    :color="globalColor"
+                                    hide-bottom-space
+                                    no-error-icon
+                                    outlined
+                                    dense
+                                />
+                            </div>
+                            <div>
+                                <q-btn
+                                    v-if="createShareAbleLinkForm.shareableLink"
+                                    class="tw-w-full"
+                                    :color="globalColor"
+                                    label="Copy link"
+                                    @click="sendInvitation"
+                                    outline
+                                    no-caps
+                                />
+
+                                <q-btn
+                                    v-else
+                                    class="tw-w-full"
+                                    :color="globalColor"
+                                    label="Generate link"
+                                    @click="generateShareAbleLink"
+                                    no-wrap
+                                    outline
+                                    no-caps
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -366,6 +408,11 @@ export default defineComponent({
             assignAgentModal: false,
             invitations: [],
             sendInvitationFormDataArr: [{ ...sendInvitationFormObj }],
+            createShareAbleLinkForm: {
+                chat_department_ids: [],
+                shareableLink: "",
+            },
+            createShareAbleLinkFormErrors: {},
             sendInvitationFormDataErrors: {},
             deleteInvitationId: "",
             showDeleteModal: false,
@@ -589,6 +636,29 @@ export default defineComponent({
                 .catch((err: any) => {
                     this.sendInvitationErrorHandle(err);
                 });
+        },
+
+        generateShareAbleLink() {
+            console.log("generate shareable link");
+
+            this.$store
+                .dispatch("user_invitation/generateShareAbleLink", {
+                    inputs: this.createShareAbleLinkForm,
+                })
+                .then((res: any) => {
+                    console.log(res.data);
+                })
+                .catch((err: any) => {
+                    this.generateShareAbleLinkErrorHandle(err);
+                });
+        },
+
+        generateShareAbleLinkErrorHandle(err: any) {
+            if (this.$_.isObject(err.response.data.message)) {
+                this.createShareAbleLinkFormErrors = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
         },
     },
 
