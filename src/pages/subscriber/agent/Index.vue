@@ -225,11 +225,11 @@
                         <div class="tw-grid tw-grid-cols-8 tw-gap-4 tw-items-center">
                             <div class="tw-col-span-4">
                                 <q-input
-                                    @update:model-value="sendInvitationFormDataErrors.email = ''"
                                     v-model="createShareAbleLinkForm.shareableLink"
                                     :color="globalColor"
                                     hide-bottom-space
                                     label="Shareable link"
+                                    ref="shareabelLink"
                                     no-error-icon
                                     outlined
                                     dense
@@ -261,10 +261,10 @@
                             <div>
                                 <q-btn
                                     v-if="createShareAbleLinkForm.shareableLink"
+                                    @click="copyShareableLink"
                                     class="tw-w-full"
                                     :color="globalColor"
-                                    label="Copy link"
-                                    @click="sendInvitation"
+                                    :label="copyingShareableLink ? 'Copied' : 'Copy link'"
                                     outline
                                     no-caps
                                 />
@@ -283,9 +283,13 @@
                         </div>
                     </div>
 
-                    <div class="tw-pt-4">
-                        For security, this link will be expire 11 days (4 Sept 2011).
-                        <span class="text-blue-5 tw-cursor-pointer">Generate new link</span>
+                    <div class="tw-pt-4" v-if="getShareableLinkExpireData">
+                        For security, this link will be expire {{ getShareableLinkExpireData.expireInDays }} days ({{
+                            getShareableLinkExpireData.expireDate
+                        }}).
+                        <span class="text-blue-5 tw-cursor-pointer" @click="generateShareAbleLink">
+                            Generate new link
+                        </span>
                     </div>
                 </q-card-section>
 
@@ -314,6 +318,7 @@ import EcTable from "components/common/table/EcTable.vue";
 import ConfirmModal from "components/common/modal/ConfirmModal.vue";
 import { mapGetters } from "vuex";
 import EcAvatar from "components/common/EcAvatar.vue";
+import moment from "moment";
 
 const userColumns = [
     {
@@ -411,7 +416,9 @@ export default defineComponent({
             createShareAbleLinkForm: {
                 chat_department_ids: [],
                 shareableLink: "",
+                expire_at: "",
             },
+            copyingShareableLink: false,
             createShareAbleLinkFormErrors: {},
             sendInvitationFormDataErrors: {},
             deleteInvitationId: "",
@@ -459,6 +466,22 @@ export default defineComponent({
 
                 return inv;
             });
+        },
+
+        getShareableLinkExpireData(): any {
+            if (!this.createShareAbleLinkForm.expire_at) return false;
+
+            const expireAt = moment(this.createShareAbleLinkForm.expire_at);
+            const currentDate = moment(new Date());
+
+            const expireInDays = expireAt.diff(currentDate, "days");
+
+            const expireDate = expireAt.format("D MMM Y");
+
+            return {
+                expireDate,
+                expireInDays,
+            };
         },
     },
 
@@ -639,14 +662,14 @@ export default defineComponent({
         },
 
         generateShareAbleLink() {
-            console.log("generate shareable link");
-
             this.$store
                 .dispatch("user_invitation/generateShareAbleLink", {
-                    inputs: this.createShareAbleLinkForm,
+                    inputs: { chat_department_ids: this.createShareAbleLinkForm.chat_department_ids },
                 })
                 .then((res: any) => {
                     console.log(res.data);
+                    this.createShareAbleLinkForm.shareableLink = res.data.link;
+                    this.createShareAbleLinkForm.expire_at = res.data.expire_at;
                 })
                 .catch((err: any) => {
                     this.generateShareAbleLinkErrorHandle(err);
@@ -659,6 +682,20 @@ export default defineComponent({
             } else {
                 this.$helpers.showErrorNotification(this, err.response.data.message);
             }
+        },
+
+        copyShareableLink() {
+            if (!this.createShareAbleLinkForm.shareableLink) return false;
+
+            let textToCopy = this.$refs.shareabelLink.$el.querySelector("input");
+            textToCopy.select();
+            document.execCommand("copy");
+
+            this.copyingShareableLink = true;
+
+            setTimeout(() => {
+                this.copyingShareableLink = false;
+            }, 3000);
         },
     },
 
