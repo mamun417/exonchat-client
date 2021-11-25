@@ -284,9 +284,13 @@
                     </div>
 
                     <div class="tw-pt-4" v-if="getShareableLinkExpireData">
-                        For security, this link will be expire {{ getShareableLinkExpireData.expireInDays }} days ({{
-                            getShareableLinkExpireData.expireDate
-                        }}).
+                        <span v-if="getShareableLinkExpireData.expireInDays > 0">
+                            For security, this link will be expire in {{ getShareableLinkExpireData.expireInDays }} days
+                            ({{ getShareableLinkExpireData.expireDate }}).
+                        </span>
+
+                        <span v-else>For security, this link has been expired.</span>
+
                         <span class="text-blue-5 tw-cursor-pointer" @click="generateShareAbleLink">
                             Generate new link
                         </span>
