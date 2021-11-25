@@ -8,6 +8,7 @@ import helpers from "boot/helpers/helpers";
 import Conversation from "src/store/models/Conversation";
 import Message from "src/store/models/Message";
 import ConversationSession from "src/store/models/ConversationSession";
+import User from "src/store/models/User";
 
 const actions: ActionTree<ChatStateInterface, StateInterface> = {
     storeClientInitiateConvInfo(context, payload) {
@@ -407,6 +408,8 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
 
             return user;
         });
+
+        await User.insert({ data: chatUsers });
 
         context.commit("storeUsers", chatUsers);
     },

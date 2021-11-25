@@ -205,7 +205,7 @@ export default defineComponent({
         initFacebookSdk() {
             this.$nextTick(() => {
                 window.fbAsyncInit = () => {
-                    FB.init({
+                    window.FB.init({
                         appId: process.env.FB_APP_ID,
                         xfbml: true,
                         version: "v11.0",
@@ -286,7 +286,7 @@ export default defineComponent({
             //         "status": "connected"
             //     }
             // }
-            FB.login(
+            window.FB.login(
                 function (authResponse: any) {
                     console.log({ authResponse });
                     if (authResponse.status === "connected") {
@@ -295,7 +295,7 @@ export default defineComponent({
                         //     "name": "Mohammed Younus",
                         //     "id": "1893527"
                         // }
-                        FB.api("/me", function (userResponse: any) {
+                        window.FB.api("/me", function (userResponse: any) {
                             if (!userResponse.error) {
                                 console.log({ userResponse });
 
@@ -349,7 +349,7 @@ export default defineComponent({
                     self.facebookLoginWorking = false;
                 });
 
-            FB.logout(() => {
+            window.FB.logout(() => {
                 //
             });
         },

@@ -8,6 +8,9 @@ import ChatDepartment from "src/store/models/ChatDepartment";
 import Conversation from "src/store/models/Conversation";
 import ConversationSession from "src/store/models/ConversationSession";
 import SocketSession from "src/store/models/SocketSession";
+import User from "src/store/models/User";
+import { socketSessionApi } from "boot/axios";
+import { cloneDeep } from "lodash";
 
 const getters: GetterTree<ChatStateInterface, StateInterface> = {
     clientInitiateConvInfo(state) {
@@ -133,7 +136,18 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
 
     // teammates => for left bar
     chatUsers(state, getters, rootState, rootGetters) {
-        const allUsers = state.chatUsers;
+        const allUsers = cloneDeep(state.chatUsers);
+
+        // load attachment src from User entity
+        Object.keys(allUsers).forEach((userSocketSesId: string) => {
+            const user = allUsers[userSocketSesId];
+
+            const entityUserWithAttachmentSrc = User.query().where("id", user.id).first();
+
+            if (user.user_meta.attachment) {
+                user.user_meta.attachment.src = entityUserWithAttachmentSrc?.user_meta?.src || "";
+            }
+        });
 
         const authInfo = rootGetters["auth/profile"];
 
