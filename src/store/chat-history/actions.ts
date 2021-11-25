@@ -79,6 +79,8 @@ const actions: ActionTree<ChatHistoryStateInterface, StateInterface> = {
                         return null;
                     }
 
+                    context.commit("storeChatHistories", chatHistories);
+
                     resolve(chatHistories);
                 })
                 .catch((err: any) => {
