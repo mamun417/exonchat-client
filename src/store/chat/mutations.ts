@@ -74,7 +74,7 @@ const mutation: MutationTree<ChatStateInterface> = {
         if (convId) {
             if (!state.conversations[convId]?.loaded) {
                 state.conversations[convId] = {
-                    loaded: true // its for if check
+                    loaded: true, // its for if check
                 };
             }
 
@@ -154,6 +154,13 @@ const mutation: MutationTree<ChatStateInterface> = {
             state.typingStates[convId][sesId].socket_session_id = sesId;
             state.typingStates[convId][sesId].conversation_id = convId;
             state.typingStates[convId][sesId].status = typingStateObj.status;
+        }
+    },
+    updateTypingStateToFalse(state: ChatStateInterface, convId: any) {
+        if (state.typingStates.hasOwnProperty(convId)) {
+            Object.keys(state.typingStates[convId]).forEach((sesId: string) => {
+                state.typingStates[convId][sesId].status = "not_typing";
+            });
         }
     },
 
