@@ -56,7 +56,7 @@ module.exports = configure(function (ctx) {
             env: {
                 API: ctx.dev ? "http://localhost:3000" : process.env.PROD_API_ENDPOINT,
                 DEV: ctx.dev,
-                FB_APP_ID: ctx.FB_APP_ID || "",
+                FB_APP_ID: process.env.FB_APP_ID || "give_me_app_id",
             },
 
             // env: {
