@@ -85,10 +85,36 @@ const actions: ActionTree<UserInvitationStateInterface, StateInterface> = {
         });
     },
 
+    getShareableLinkInvitationInfo(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .get(`/users/invitations/shareable-link/${payload.id}`)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
     joinInvitation(context, payload) {
         return new Promise((resolve, reject) => {
             window.api
                 .post("users/invitations/join", payload.inputs)
+                .then((res: any) => {
+                    resolve(res);
+                })
+                .catch((err: any) => {
+                    reject(err);
+                });
+        });
+    },
+
+    joinInvitationByShareableLink(context, payload) {
+        return new Promise((resolve, reject) => {
+            window.api
+                .post("users/invitations/join/shareable-link", payload.inputs)
                 .then((res: any) => {
                     resolve(res);
                 })

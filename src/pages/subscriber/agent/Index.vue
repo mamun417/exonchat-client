@@ -225,7 +225,7 @@
                         <div class="tw-grid tw-grid-cols-8 tw-gap-4 tw-items-center">
                             <div class="tw-col-span-4">
                                 <q-input
-                                    v-model="createShareAbleLinkForm.shareableLink"
+                                    v-model="createShareAbleLinkData.shareableLink"
                                     :color="globalColor"
                                     hide-bottom-space
                                     label="Shareable link"
@@ -260,7 +260,7 @@
                             </div>
                             <div>
                                 <q-btn
-                                    v-if="createShareAbleLinkForm.shareableLink"
+                                    v-if="createShareAbleLinkData.shareableLink"
                                     @click="copyShareableLink"
                                     class="tw-w-full"
                                     :color="globalColor"
@@ -419,6 +419,9 @@ export default defineComponent({
             sendInvitationFormDataArr: [{ ...sendInvitationFormObj }],
             createShareAbleLinkForm: {
                 chat_department_ids: [],
+                type: "agent",
+            },
+            createShareAbleLinkData: {
                 shareableLink: "",
                 expire_at: "",
             },
@@ -672,7 +675,7 @@ export default defineComponent({
                 })
                 .then((res: any) => {
                     console.log(res.data);
-                    this.createShareAbleLinkForm.shareableLink = res.data.link;
+                    this.createShareAbleLinkData.shareableLink = res.data.link;
                     this.createShareAbleLinkForm.expire_at = res.data.expire_at;
                 })
                 .catch((err: any) => {
@@ -689,7 +692,7 @@ export default defineComponent({
         },
 
         copyShareableLink() {
-            if (!this.createShareAbleLinkForm.shareableLink) return false;
+            if (!this.createShareAbleLinkData.shareableLink) return false;
 
             let textToCopy = this.$refs.shareabelLink.$el.querySelector("input");
             textToCopy.select();
