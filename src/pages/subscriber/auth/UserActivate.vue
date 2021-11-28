@@ -154,7 +154,6 @@ export default defineComponent({
                 code: "",
                 invitation_id: "",
                 type: "",
-                isShareableLinkInvitation: false,
             },
             formDataErrors: {},
             error: false,
@@ -211,16 +210,14 @@ export default defineComponent({
                     inputs: this.formData,
                 })
                 .then((res: any) => {
-                    console.log(res);
+                    this.$helpers.showSuccessNotification(
+                        this,
+                        "Your account activated successful. You can login  now."
+                    );
 
-                    // this.$helpers.showSuccessNotification(
-                    //     this,
-                    //     "Your account activated successful. You can login  now."
-                    // );
-                    //
-                    // if (res.data.status === "success") {
-                    //     this.$router.push({ name: "login" });
-                    // }
+                    if (res.data.status === "success") {
+                        this.$router.push({ name: "login" });
+                    }
                 })
                 .catch((err: any) => {
                     console.log(err);
