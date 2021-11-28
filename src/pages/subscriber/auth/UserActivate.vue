@@ -20,7 +20,8 @@
                         class="full-width"
                         color="green"
                         dense
-                        readonly
+                        :readonly="!isShareableLinkInvitation"
+                        hide-bottom-space
                     >
                         <template v-slot:prepend>
                             <q-icon name="mail" color="green" />
@@ -38,6 +39,7 @@
                         class="full-width"
                         color="green"
                         dense
+                        hide-bottom-space
                     >
                         <template v-slot:prepend>
                             <q-icon name="badge" color="green" />
@@ -55,6 +57,7 @@
                         class="full-width"
                         color="green"
                         dense
+                        hide-bottom-space
                     >
                         <template v-slot:prepend>
                             <q-icon name="badge" color="green" />
@@ -62,7 +65,7 @@
                     </q-input>
                 </div>
 
-                <div class="tw-flex tw-mb-3">
+                <div v-if="!isShareableLinkInvitation" class="tw-flex tw-mb-3">
                     <q-input
                         :error-message="formDataErrors.code"
                         :error="!!formDataErrors.code"
@@ -72,6 +75,7 @@
                         class="full-width"
                         color="green"
                         dense
+                        hide-bottom-space
                     >
                         <template v-slot:prepend>
                             <q-icon name="qr_code" color="green" />
@@ -89,6 +93,8 @@
                         class="full-width"
                         color="green"
                         dense
+                        hide-bottom-space
+                        type="password"
                     >
                         <template v-slot:prepend>
                             <q-icon name="password" color="green" />
@@ -106,22 +112,14 @@
                         class="full-width"
                         color="green"
                         dense
+                        hide-bottom-space
+                        type="password"
                     >
                         <template v-slot:prepend>
                             <q-icon name="password" color="green" />
                         </template>
                     </q-input>
                 </div>
-
-                <!-- <div class="tw-flex tw-items-center tw-justify-between tw-mt-6">
-                    <q-checkbox
-                        color="green"
-                        label="Remember me"
-                        size="sm"
-                        dense
-                    ></q-checkbox>
-                    <div class="text-green">Forgot Password?</div>
-                </div> -->
 
                 <div class="tw-mt-8 tw-mb-4">
                     <q-btn color="green" dense class="full-width" @click="join">Activate</q-btn>
@@ -162,21 +160,34 @@ export default defineComponent({
         };
     },
 
+    computed: {
+        isShareableLinkInvitation() {
+            return !!this.$route.query["access_token"];
+        },
+    },
+
     mounted() {
         this.getInvitationInfo();
     },
 
     methods: {
         getInvitationInfo() {
+            const url = this.isShareableLinkInvitation
+                ? "user_invitation/getShareableLinkInvitationInfo"
+                : "user_invitation/getInvitationInfo";
+
             this.$store
-                .dispatch("user_invitation/getInvitationInfo", {
+                .dispatch(url, {
                     id: this.$route.params["id"],
                 })
                 .then((res: any) => {
                     if (!res.data) this.error = true;
 
-                    this.formData.email = res.data.email;
-                    this.formData.type = res.data.type;
+                    if (!this.isShareableLinkInvitation) {
+                        this.formData.email = res.data.email;
+                        this.formData.type = res.data.type;
+                    }
+
                     this.formData.invitation_id = this.$route.params["id"];
                 })
                 .catch((err: any) => {
@@ -190,13 +201,15 @@ export default defineComponent({
                 return;
             }
 
+            const url = this.isShareableLinkInvitation
+                ? "user_invitation/joinInvitationByShareableLink"
+                : "user_invitation/joinInvitation";
+
             this.$store
-                .dispatch("user_invitation/joinInvitation", {
+                .dispatch(url, {
                     inputs: this.formData,
                 })
                 .then((res: any) => {
-                    // console.log(res.data);
-
                     this.$helpers.showSuccessNotification(
                         this,
                         "Your account activated successful. You can login  now."
@@ -207,6 +220,7 @@ export default defineComponent({
                     }
                 })
                 .catch((err: any) => {
+                    console.log(err);
                     this.joinErrorHandle(err);
                 });
         },

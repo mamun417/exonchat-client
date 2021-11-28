@@ -222,28 +222,78 @@
 
                     <div class="tw-mt-6">
                         <div class="tw-text-base">Shareable invite link</div>
-                        <div class="tw-flex tw-gap-4">
-                            <!--:error-message="sendInvitationFormDataErrors.email"-->
-                            <!--:error="!!sendInvitationFormDataErrors.email"-->
-                            <!--v-model="sendInvitationFormDataArr[0].email"-->
-                            <q-input
-                                class="tw-flex-1"
-                                @update:model-value="sendInvitationFormDataErrors.email = ''"
-                                :color="globalColor"
-                                hide-bottom-space
-                                label="Shareable link"
-                                no-error-icon
-                                outlined
-                                dense
-                            />
+                        <div class="tw-grid tw-grid-cols-8 tw-gap-4 tw-items-center">
+                            <div class="tw-col-span-4">
+                                <q-input
+                                    v-model="createShareAbleLinkData.shareableLink"
+                                    :color="globalColor"
+                                    hide-bottom-space
+                                    label="Shareable link"
+                                    ref="shareabelLink"
+                                    no-error-icon
+                                    outlined
+                                    dense
+                                />
+                            </div>
 
-                            <q-btn :color="globalColor" label="Copy link" @click="sendInvitation" outline no-caps />
+                            <div class="tw-col-span-3">
+                                <q-select
+                                    multiple
+                                    use-chips
+                                    emit-value
+                                    map-options
+                                    option-value="id"
+                                    :options="chatDepartments"
+                                    label="Select departments"
+                                    option-label="display_name"
+                                    options-selected-class="tw-hidden"
+                                    v-model="createShareAbleLinkForm.chat_department_ids"
+                                    :error="!!createShareAbleLinkFormErrors.chat_department_ids"
+                                    :error-message="createShareAbleLinkFormErrors.chat_department_ids"
+                                    @update:model-value="createShareAbleLinkFormErrors.chat_department_ids = ''"
+                                    :color="globalColor"
+                                    hide-bottom-space
+                                    no-error-icon
+                                    outlined
+                                    dense
+                                />
+                            </div>
+                            <div>
+                                <q-btn
+                                    v-if="createShareAbleLinkData.shareableLink"
+                                    @click="copyShareableLink"
+                                    class="tw-w-full"
+                                    :color="globalColor"
+                                    :label="copyingShareableLink ? 'Copied' : 'Copy link'"
+                                    outline
+                                    no-caps
+                                />
+
+                                <q-btn
+                                    v-else
+                                    class="tw-w-full"
+                                    :color="globalColor"
+                                    label="Generate link"
+                                    @click="generateShareAbleLink"
+                                    no-wrap
+                                    outline
+                                    no-caps
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div class="tw-pt-4">
-                        For security, this link will be expire 11 days (4 Sept 2011).
-                        <span class="text-blue-5 tw-cursor-pointer">Generate new link</span>
+                    <div class="tw-pt-4" v-if="getShareableLinkExpireData">
+                        <span v-if="getShareableLinkExpireData.expireInDays > 0">
+                            For security, this link will be expire in {{ getShareableLinkExpireData.expireInDays }} days
+                            ({{ getShareableLinkExpireData.expireDate }}).
+                        </span>
+
+                        <span v-else>For security, this link has been expired.</span>
+
+                        <span class="text-blue-5 tw-cursor-pointer" @click="generateShareAbleLink">
+                            Generate new link
+                        </span>
                     </div>
                 </q-card-section>
 
@@ -272,6 +322,7 @@ import EcTable from "components/common/table/EcTable.vue";
 import ConfirmModal from "components/common/modal/ConfirmModal.vue";
 import { mapGetters } from "vuex";
 import EcAvatar from "components/common/EcAvatar.vue";
+import moment from "moment";
 
 const userColumns = [
     {
@@ -366,6 +417,16 @@ export default defineComponent({
             assignAgentModal: false,
             invitations: [],
             sendInvitationFormDataArr: [{ ...sendInvitationFormObj }],
+            createShareAbleLinkForm: {
+                chat_department_ids: [],
+                type: "agent",
+            },
+            createShareAbleLinkData: {
+                shareableLink: "",
+                expire_at: "",
+            },
+            copyingShareableLink: false,
+            createShareAbleLinkFormErrors: {},
             sendInvitationFormDataErrors: {},
             deleteInvitationId: "",
             showDeleteModal: false,
@@ -412,6 +473,22 @@ export default defineComponent({
 
                 return inv;
             });
+        },
+
+        getShareableLinkExpireData(): any {
+            if (!this.createShareAbleLinkForm.expire_at) return false;
+
+            const expireAt = moment(this.createShareAbleLinkForm.expire_at);
+            const currentDate = moment(new Date());
+
+            const expireInDays = expireAt.diff(currentDate, "days");
+
+            const expireDate = expireAt.format("D MMM Y");
+
+            return {
+                expireDate,
+                expireInDays,
+            };
         },
     },
 
@@ -589,6 +666,43 @@ export default defineComponent({
                 .catch((err: any) => {
                     this.sendInvitationErrorHandle(err);
                 });
+        },
+
+        generateShareAbleLink() {
+            this.$store
+                .dispatch("user_invitation/generateShareAbleLink", {
+                    inputs: { chat_department_ids: this.createShareAbleLinkForm.chat_department_ids },
+                })
+                .then((res: any) => {
+                    console.log(res.data);
+                    this.createShareAbleLinkData.shareableLink = res.data.link;
+                    this.createShareAbleLinkForm.expire_at = res.data.expire_at;
+                })
+                .catch((err: any) => {
+                    this.generateShareAbleLinkErrorHandle(err);
+                });
+        },
+
+        generateShareAbleLinkErrorHandle(err: any) {
+            if (this.$_.isObject(err.response.data.message)) {
+                this.createShareAbleLinkFormErrors = err.response.data.message;
+            } else {
+                this.$helpers.showErrorNotification(this, err.response.data.message);
+            }
+        },
+
+        copyShareableLink() {
+            if (!this.createShareAbleLinkData.shareableLink) return false;
+
+            let textToCopy = this.$refs.shareabelLink.$el.querySelector("input");
+            textToCopy.select();
+            document.execCommand("copy");
+
+            this.copyingShareableLink = true;
+
+            setTimeout(() => {
+                this.copyingShareableLink = false;
+            }, 3000);
         },
     },
 
