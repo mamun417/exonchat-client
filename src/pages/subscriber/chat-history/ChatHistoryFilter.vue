@@ -72,6 +72,7 @@
                                     :name="opt.user_meta.display_name"
                                     :email="opt.email"
                                     size="sm"
+                                    :key="opt.id"
                                 />
                                 <div>
                                     <q-item-label>{{ opt.user_meta.display_name }} </q-item-label>
@@ -92,10 +93,32 @@
                 clearable
                 dense
             >
+                <template v-slot:option="{ itemProps, opt }">
+                    <q-item v-bind="itemProps">
+                        <q-item-section>
+                            <div class="tw-flex tw-w-full tw-items-center tw-my-1 tw-gap-3">
+                                <div>
+                                    <q-item-label>
+                                        <span v-if="+opt.value === 5">
+                                            <q-icon name="thumb_up" color="green" size="15px" />
+                                        </span>
+                                        <span v-else><q-icon name="thumb_down" color="red" size="15px" /></span>
+                                        {{ opt.label }}
+                                    </q-item-label>
+                                </div>
+                            </div>
+                        </q-item-section>
+                    </q-item>
+                </template>
+
                 <template v-slot:selected v-if="chatHistoryPipeline.rating">
                     <q-chip dense square color="white" class="q-my-none q-mr-none tw-ml-0">
                         <div class="tw-flex tw-items-center">
-                            <div>{{ getRatingData(chatHistoryPipeline.rating).label }}</div>
+                            <span v-if="+getRatingData(chatHistoryPipeline.rating).value === 5">
+                                <q-icon name="thumb_up" color="green" size="15px" />
+                            </span>
+                            <span v-else><q-icon name="thumb_down" color="red" size="15px" /></span>
+                            <span class="tw-ml-1">{{ getRatingData(chatHistoryPipeline.rating).label }}</span>
                         </div>
                     </q-chip>
                 </template>

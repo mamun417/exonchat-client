@@ -173,7 +173,18 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
     },
 
     allAgent(state) {
-        const allUsers = state.chatUsers;
+        const allUsers = cloneDeep(state.chatUsers);
+
+        // load attachment src from User entity
+        Object.keys(allUsers).forEach((userSocketSesId: string) => {
+            const user = allUsers[userSocketSesId];
+
+            const entityUserWithAttachmentSrc = User.query().where("id", user.id).first();
+
+            if (user.user_meta.attachment) {
+                user.user_meta.src = entityUserWithAttachmentSrc?.user_meta?.src || "";
+            }
+        });
 
         return Object.values(allUsers);
     },

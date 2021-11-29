@@ -255,7 +255,7 @@
                                         <div class="tw-flex tw-w-full tw-my-1 tw-gap-4">
                                             <ec-avatar
                                                 :size="mini_mode ? 'md' : 'xl'"
-                                                :image_src="null"
+                                                :image_src="agent.socket_session.user.user_meta.src"
                                                 :name="agent.socket_session.user.user_meta.display_name"
                                                 :email="agent.socket_session.user.email"
                                             ></ec-avatar>

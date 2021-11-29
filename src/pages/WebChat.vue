@@ -545,6 +545,7 @@ import SendTranscript from "components/common/SendTranscript.vue";
 import { Query } from "@vuex-orm/core";
 import MessageAttachment from "src/store/models/MessageAttachment";
 import Conversation from "src/store/models/Conversation";
+import User from "src/store/models/User";
 
 declare global {
     interface Window {
@@ -1268,6 +1269,10 @@ export default defineComponent({
             this.$store.commit("chat/showRatingForm");
 
             this.closeChatModal = false;
+
+            setTimeout(() => {
+                this.$refs.message.scrollToPosition(1, true);
+            }, 100);
         },
 
         submitOfflineChatReq() {
@@ -1440,6 +1445,31 @@ export default defineComponent({
                                 MessageAttachment.update({
                                     where: model.id,
                                     data: { src: src },
+                                });
+                            })
+                            .catch();
+                    }
+                }
+
+                if (model instanceof User) {
+                    if (model.user_meta.attachment_id && !model.user_meta.loaded && !model.user_meta.src) {
+                        User.update({
+                            where: model.id,
+                            data: { user_meta: { ...model.user_meta, loaded: true } },
+                        });
+
+                        this.$api
+                            .get(`attachments/${model.user_meta.attachment_id}`, {
+                                responseType: "arraybuffer",
+                            })
+                            .then((imgRes: any) => {
+                                const src = URL.createObjectURL(
+                                    new Blob([imgRes.data], { type: imgRes.headers["content-type"] })
+                                );
+
+                                User.update({
+                                    where: model.id,
+                                    data: { user_meta: { ...model.user_meta, src } },
                                 });
                             })
                             .catch();

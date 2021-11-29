@@ -9,7 +9,7 @@
                     ? userConv.socket_session.user.user_meta.display_name
                     : userConv.socket_session.init_name
             "
-            :key="key"
+            :key="`${userConv.id}-${key}`"
             :style="key !== 0 ? 'margin-left: -12px' : ''"
             :size="size"
             :email="

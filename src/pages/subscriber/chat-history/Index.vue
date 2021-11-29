@@ -27,10 +27,12 @@
 
                     <template v-slot:cell-chat_rating="slotProps">
                         <div v-if="slotProps.row.conversation_rating">
-                            {{ slotProps.row.conversation_rating.rating === 5 ? "Good" : "Bad" }}
-
-                            <!--<q-badge v-if="slotProps.row.rating.rating === 5" color="green">GOOD</q-badge>
-                            <q-badge v-else color="red">BAD</q-badge>-->
+                            <div v-if="slotProps.row.conversation_rating.rating === 5">
+                                <span><q-icon name="thumb_up" color="green" size="15px" /></span> Good
+                            </div>
+                            <div v-else>
+                                <span><q-icon name="thumb_down" color="red" size="15px" /></span> Bad
+                            </div>
                         </div>
                         <div v-else>Not rated</div>
                     </template>
@@ -68,12 +70,12 @@
             </div>
         </div>
 
-        <conversation-state-confirm-modal
-            v-if="confirm"
-            :conv-state-button-info="{ name: 'close' }"
-            @convStateHandle="closeConversation()"
-            @hide="confirm = false"
-        />
+        <!--<conversation-state-confirm-modal-->
+        <!--    v-if="confirm"-->
+        <!--    :conv-state-button-info="{ name: 'close' }"-->
+        <!--    @convStateHandle="closeConversation()"-->
+        <!--    @hide="confirm = false"-->
+        <!--/>-->
     </div>
 </template>
 
@@ -81,7 +83,6 @@
 import { defineComponent } from "vue";
 import { mapMutations, mapGetters } from "vuex";
 import EcTable from "components/common/table/EcTable.vue";
-import ConversationStateConfirmModal from "components/common/modal/ConversationStateConfirmModal.vue";
 import ConnectedUsersFaces from "src/components/subscriber/chat/ConnectedUsersFaces.vue";
 import Pagination from "components/common/Pagination.vue";
 import ChatHistoryFilter from "pages/subscriber/chat-history/ChatHistoryFilter.vue";
@@ -131,7 +132,6 @@ export default defineComponent({
     components: {
         ChatHistoryFilter,
         Pagination,
-        ConversationStateConfirmModal,
         EcTable,
         ConnectedUsersFaces,
     },
@@ -170,15 +170,15 @@ export default defineComponent({
             this.$store.dispatch("chat_history/getChatHistories");
         },
 
-        closeConversation() {
-            const convId = this.conversationId;
-
-            if (!convId) return;
-
-            this.$socket.emit("ec_close_conversation", {
-                conv_id: convId,
-            });
-        },
+        // closeConversation() {
+        //     const convId = this.conversationId;
+        //
+        //     if (!convId) return;
+        //
+        //     this.$socket.emit("ec_close_conversation", {
+        //         conv_id: convId,
+        //     });
+        // },
 
         chatHistoryPaginationHandle(page: any) {
             this.$store.dispatch("chat_history/updateCurrentPage", page).then(() => {

@@ -1036,10 +1036,14 @@ export default defineComponent({
         // return user who first join the conversation
         speakingWithMessage(): any {
             if (this.conversationData.id) {
-                return _l.find(
+                const test = _l.find(
                     this.messages || [],
                     (msg: any) => msg.message_type === "log" && msg.msg === "joined" && msg.socket_session.user
                 );
+
+                console.log(test);
+
+                return test;
             }
 
             return {};
