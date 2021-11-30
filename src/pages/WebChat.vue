@@ -1070,13 +1070,11 @@ export default defineComponent({
 
                 this.$store.commit("chat/showRatingForm", true);
 
-                // this.socket.close();
-                // // force reload dom
-                // location.reload();
-
                 clearInterval(this.queuePositionInterval);
 
-                // console.log('from ec_is_closed_from_conversation', res);
+                this.scrollToBottom();
+
+                // console.log("from ec_is_closed_from_conversation", res);
             });
 
             this.socket.on("ec_conversation_session_updated", async (res: any) => {
@@ -1266,13 +1264,7 @@ export default defineComponent({
                 conv_id: this.clientInitiateConvInfo.conv_id,
             });
 
-            this.$store.commit("chat/showRatingForm");
-
             this.closeChatModal = false;
-
-            setTimeout(() => {
-                this.$refs.message.scrollToPosition(1, true);
-            }, 100);
         },
 
         submitOfflineChatReq() {
@@ -1476,6 +1468,12 @@ export default defineComponent({
                     }
                 }
             });
+        },
+
+        scrollToBottom() {
+            setTimeout(() => {
+                this.$refs.message.scrollToPosition(1, true);
+            }, 100);
         },
     },
 

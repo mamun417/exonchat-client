@@ -538,8 +538,8 @@ export default defineComponent({
                         online_status: status,
                     },
                 })
-                .then(() => {
-                    this.$store.dispatch("auth/updateAuthInfo");
+                .then(async () => {
+                    await this.$store.dispatch("auth/updateAuthInfo");
 
                     this.$socket.emit("ec_updated_socket_room_info", {
                         online_status: status,

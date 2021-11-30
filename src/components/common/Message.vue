@@ -486,14 +486,14 @@
                 >
                     <div :class="[mini_mode ? 'tw-text-xs' : 'tw-text-sm']">
                         <div>
-                            Chat rated by {{ conversationData.clientSocketSession.init_name }}
+                            Chat rated by {{ conversationData.clientSocketSession.init_name }} -
                             {{ getDateTime(conversationData.conversation_rating.created_at) }}
                         </div>
                         <div v-if="conversationData.conversation_rating.comment" style="word-break: break-word">
                             “{{ conversationData.conversation_rating.comment }}”
                         </div>
                         <div class="tw-mt-2">
-                            <div>Chat rating</div>
+                            <div>Chat Rating</div>
                             <div>
                                 <q-btn
                                     size="sm"
@@ -850,11 +850,7 @@ export default defineComponent({
         this.fireSocketListeners();
         this.emitSocketEvents();
 
-        this.$emitter.on("message_inserted_or_updated", (res: any) => {
-            if (res.conv_id === this.conv_id) {
-                setTimeout(() => this.scrollToPosition(), 300);
-            }
-        });
+        this.fireSocketListeners();
 
         window.onbeforeunload = () => {
             this.saveDraft();
@@ -1036,14 +1032,10 @@ export default defineComponent({
         // return user who first join the conversation
         speakingWithMessage(): any {
             if (this.conversationData.id) {
-                const test = _l.find(
+                return _l.find(
                     this.messages || [],
                     (msg: any) => msg.message_type === "log" && msg.msg === "joined" && msg.socket_session.user
                 );
-
-                console.log(test);
-
-                return test;
             }
 
             return {};
@@ -1074,7 +1066,7 @@ export default defineComponent({
     },
 
     methods: {
-        scrollObserverHandle(info: any) {
+        async scrollObserverHandle(info: any) {
             // go up, assume that scroll happened manually so update
 
             // check this.scrollInfo.verticalPercentage !== 1 cz up fires even if vertical position is 1
@@ -1084,7 +1076,7 @@ export default defineComponent({
                 this.scrollInfo.verticalPercentage !== 1 &&
                 (!info.directionChanged || (info.directionChanged && info.delta.top < -30))
             ) {
-                this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+                await this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                     conv_id: this.conv_id,
                     auto_scroll_to_bottom: false,
                     last_position: this.scrollInfo.verticalPercentage,
@@ -1130,7 +1122,23 @@ export default defineComponent({
         },
 
         fireSocketListeners() {
-            //
+            this.$emitter.on("message_inserted_or_updated", (res: any) => {
+                if (res.conv_id === this.conv_id) {
+                    setTimeout(() => this.scrollToPosition(), 300);
+                }
+            });
+
+            this.$socket.on("ec_is_closed_from_conversation", (res: any) => {
+                if (res.conv_id === this.conv_id) {
+                    setTimeout(() => this.scrollToPosition(1, true), 300);
+                }
+            });
+
+            this.$socket.on("ec_conversation_rated_from_client", (res: any) => {
+                if (res.conversation_id === this.conv_id) {
+                    setTimeout(() => this.scrollToPosition(1, true), 300);
+                }
+            });
         },
 
         handleInfiniteScrollLoad(index: any, done: any) {
@@ -1480,17 +1488,18 @@ export default defineComponent({
         },
 
         scrollToPosition(position = 1, forceBottom = false) {
-            if (this.conversationData.closed_at) return; // no need to scroll bottom if conv is closed or chat history
+            if (this.conversationData.closed_at && !forceBottom) return; // no need to scroll bottom if conv is closed or chat history
             if (!this.canGoToBottom && !forceBottom) return;
 
             const msgScrollArea = this.$refs.msgScrollArea;
 
             // waiting for dom render
-            setTimeout(() => {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            setTimeout(async () => {
                 if (msgScrollArea) {
                     console.log("scroll to ", position);
 
-                    this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
+                    await this.$store.dispatch("chat/updateConvMessagesAutoScrollToBottom", {
                         conv_id: this.conv_id,
                         auto_scroll_to_bottom: position === 1,
                         last_position: 1,
@@ -1787,7 +1796,7 @@ export default defineComponent({
                                 this.$refs.myInfiniteScrollArea.poll();
                             }
 
-                            this.scrollToPosition(1, true);
+                            this.scrollToPosition(1, false);
                             clearInterval(this.scrollToBottomInterval);
                         }
                     }

@@ -166,8 +166,8 @@ export default defineComponent({
     methods: {
         ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
-        getChatHistories() {
-            this.$store.dispatch("chat_history/getChatHistories");
+        async getChatHistories() {
+            await this.$store.dispatch("chat_history/getChatHistories");
         },
 
         // closeConversation() {

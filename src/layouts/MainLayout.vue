@@ -509,7 +509,7 @@ export default defineComponent({
             this.rightDrawer = true;
         }
 
-        this.$store.dispatch("setting_ui/getUiSetting");
+        await this.$store.dispatch("setting_ui/getUiSetting");
 
         // its now only for check logout from other tab
         window.addEventListener("storage", (event) => {
@@ -520,8 +520,8 @@ export default defineComponent({
             }
         });
 
-        this.$emitter.on("user_socket_token_timeout", () => {
-            this.$store.dispatch("auth/logOut");
+        this.$emitter.on("user_socket_token_timeout", async () => {
+            await this.$store.dispatch("auth/logOut");
         });
 
         if (Notification.permission === "default" && !localStorage.getItem("ec_notification_hide_warning")) {
@@ -644,14 +644,14 @@ export default defineComponent({
             });
 
             // handle only other users typing
-            this.socket.on("ec_is_typing_from_user", (res: any) => {
-                this.$store.dispatch("chat/updateTypingState", res);
+            this.socket.on("ec_is_typing_from_user", async (res: any) => {
+                await this.$store.dispatch("chat/updateTypingState", res);
 
                 console.log("from ec_is_typing_from_user", res);
             });
 
-            this.socket.on("ec_is_typing_from_client", (res: any) => {
-                this.$store.dispatch("chat/updateTypingState", res);
+            this.socket.on("ec_is_typing_from_client", async (res: any) => {
+                await this.$store.dispatch("chat/updateTypingState", res);
 
                 console.log("from ec_is_typing_from_client", res.msg);
             });
@@ -724,7 +724,7 @@ export default defineComponent({
                     });
                 }
 
-                console.log("from ec_is_closed_from_conversation", convInfo);
+                // console.log("from ec_is_closed_from_conversation", convInfo);
             });
 
             this.socket.on("ec_conversation_session_updated", async (res: any) => {

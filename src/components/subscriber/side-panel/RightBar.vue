@@ -252,7 +252,10 @@
                             <q-list v-if="conversationData.connectedUsers?.length">
                                 <q-item v-for="agent of conversationData.connectedUsers" :key="agent.id" dense>
                                     <q-item-section class="tw-w-full">
-                                        <div class="tw-flex tw-w-full tw-my-1 tw-gap-4">
+                                        <div
+                                            v-if="agent.socket_session.user"
+                                            class="tw-flex tw-w-full tw-my-1 tw-gap-4"
+                                        >
                                             <ec-avatar
                                                 :size="mini_mode ? 'md' : 'xl'"
                                                 :image_src="agent.socket_session.user.user_meta.src"
@@ -742,7 +745,7 @@ export default defineComponent({
 
     watch: {
         conversationData: {
-            handler: function (newVal, oldVal) {
+            handler: async function (newVal, oldVal) {
                 // console.log(newVal, oldVal);
 
                 if (
@@ -758,7 +761,7 @@ export default defineComponent({
                         this.$route.name === "chats" &&
                         this.rightBarState.mode === "client_info"
                     ) {
-                        this.$store.dispatch("chat/getPreviousConversations", {
+                        await this.$store.dispatch("chat/getPreviousConversations", {
                             before_conversation_id: this.conversationData.id,
                         });
                     }
@@ -767,7 +770,7 @@ export default defineComponent({
 
                     if (!this.conversationData.closed_at) {
                         // load client tickets
-                        this.$store.dispatch("ticket/getTickets", {
+                        await this.$store.dispatch("ticket/getTickets", {
                             email: clientEmail,
                         });
 

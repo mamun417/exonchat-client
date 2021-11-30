@@ -3,7 +3,7 @@
         <q-card class="tw-shadow-sm">
             <q-card-section>
                 <div class="tw-text-base tw-text-center tw-font-bold text-dark" :class="$helpers.colors().defaultText">
-                    <div v-if="ratingForm.ratingTempValue === ''">Rate This Chat!</div>
+                    <div v-if="ratingForm.ratingTempValue === ''">Rate This Conversation!</div>
                     <div v-else>
                         <div v-if="ratingForm.ratingTempValue === true">Good</div>
                         <div v-if="ratingForm.ratingTempValue === false">Bad</div>
@@ -14,7 +14,7 @@
                 </div>
             </q-card-section>
 
-            <q-card-section class="tw-pt-0">
+            <div class="tw-pt-0 tw-px-5">
                 <div class="tw-flex tw-justify-center tw-gap-2 tw-mb-6 rating-icons">
                     <q-btn
                         @click="ratingForm.ratingTempValue = true"
@@ -45,7 +45,7 @@
                 <q-input
                     v-model="ratingForm.comment"
                     dense
-                    label="Leave a comment"
+                    label="Leave a comment (optional)"
                     class="full-width tw-mb-4"
                     :color="globalColor"
                     outlined
@@ -55,8 +55,7 @@
                 <q-btn
                     @click="submitRating"
                     :disable="ratingForm.ratingTempValue === ''"
-                    :color="ratingForm.ratingTempValue === '' ? 'green-1' : globalColor"
-                    :text-color="ratingForm.ratingTempValue === '' ? 'green-6' : ''"
+                    :color="ratingForm.ratingTempValue === '' ? globalColor : globalColor"
                     class="tw-mt-2 full-width"
                     style="padding: 0 20px"
                     no-caps
@@ -64,7 +63,7 @@
                 >
                     Submit Rating
                 </q-btn>
-            </q-card-section>
+            </div>
         </q-card>
     </div>
 </template>
@@ -130,6 +129,7 @@ export default defineComponent({
     background-color: rgba(46, 104, 44, 0.06) !important;
 }
 
+.rating-icon-thumbs-down,
 .rating-icon-thumbs-down:hover {
     background: rgba(178, 0, 0, 0.05) !important;
     color: #b20000 !important;

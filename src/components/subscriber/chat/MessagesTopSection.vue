@@ -56,7 +56,13 @@
                         </div>
                     </q-item-label>
                     <q-item-label caption>
-                        <div v-if="!conversationData.users_only && !conversationData.closed_at && conversationData.type !== 'facebook_chat'">
+                        <div
+                            v-if="
+                                !conversationData.users_only &&
+                                !conversationData.closed_at &&
+                                conversationData.type !== 'facebook_chat'
+                            "
+                        >
                             <!--                            q-card used for the ref instance-->
                             <q-card class="shadow-0" ref="chatDuration">
                                 Chat is Ongoing for <b>{{ $helpers.preciseDiff(conversationData.created_at) }}</b>
@@ -547,14 +553,14 @@ export default defineComponent({
                     conv_id: this.conv_id,
                     inputs: this.openTicketForm,
                 })
-                .then(() => {
+                .then(async () => {
                     this.$helpers.showSuccessNotification(this, "Ticket submitted successfully");
 
                     this.resetOpenTicketForm();
                     this.openTicketModal = false;
 
                     // reload ticket list
-                    this.$store.dispatch("ticket/getTickets", {
+                    await this.$store.dispatch("ticket/getTickets", {
                         email: this.conversationData.clientConversationSession.socket_session.init_email,
                     });
                 })
