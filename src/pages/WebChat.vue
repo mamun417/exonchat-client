@@ -846,6 +846,7 @@ export default defineComponent({
 
         clearSession() {
             // handle actual close by emitting
+            this.$emitter.off("client_socket_token_timeout");
             this.socket.close();
 
             localStorage.removeItem("clientInitiateConvInfo");
@@ -1071,6 +1072,7 @@ export default defineComponent({
                 this.$store.commit("chat/showRatingForm", true);
 
                 clearInterval(this.queuePositionInterval);
+                this.$emitter("ec_is_closed_from_conversation", { conv_id: res.data.conv_data.id });
 
                 this.scrollToBottom();
 

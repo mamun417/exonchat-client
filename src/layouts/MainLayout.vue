@@ -522,6 +522,13 @@ export default defineComponent({
 
         this.$emitter.on("user_socket_token_timeout", async () => {
             await this.$store.dispatch("auth/logOut");
+
+            this.$emitter.off("user_socket_token_timeout");
+            if (this.socket) {
+                this.socket.close();
+            }
+
+            await this.$router.push({ name: "login" });
         });
 
         if (Notification.permission === "default" && !localStorage.getItem("ec_notification_hide_warning")) {
@@ -724,6 +731,8 @@ export default defineComponent({
                     });
                 }
 
+                this.$emitter("ec_is_closed_from_conversation", { conv_id: convInfo.id });
+
                 // console.log("from ec_is_closed_from_conversation", convInfo);
             });
 
@@ -798,9 +807,10 @@ export default defineComponent({
                 console.log("from ec_apps_notification", res);
             });
 
-            this.socket.on("ec_conversation_rated_from_client", (res: any) => {
-                this.$store.dispatch("chat/updateConvRating", res);
-                console.log("from ec_conversation_rated_from_client", res);
+            this.socket.on("ec_conversation_rated_from_client", async (res: any) => {
+                await this.$store.dispatch("chat/updateConvRating", res);
+                this.$emitter("ec_is_closed_from_conversation", { conv_id: res.conversation_id });
+                // console.log("from ec_conversation_rated_from_client", res);
             });
 
             this.socket.on("ec_chat_transfer", (data: any) => {
