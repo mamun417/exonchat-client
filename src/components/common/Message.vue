@@ -860,8 +860,8 @@ export default defineComponent({
     beforeUnmount() {
         clearInterval(this.forceUpdateInterval);
 
-        this.$emitter.off(`new_message_from_client_${this.conv_id}`);
-        this.$emitter.off(`new_message_from_user_${this.conv_id}`);
+        // this.$emitter.off(`new_message_from_client_${this.conv_id}`);
+        // this.$emitter.off(`new_message_from_user_${this.conv_id}`);
     },
 
     computed: {
@@ -1831,6 +1831,8 @@ export default defineComponent({
                 pagination_meta: { first_time_loaded: true },
             });
         }
+
+        this.$store.commit("chat/updateTypingStateToFalse", this.conversationData.id);
     },
 });
 </script>

@@ -258,25 +258,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
     async storeMessage(context, messageRes) {
         const tempConv = messageRes.conversation;
 
-        const conversationStatusForMe = context.getters["conversationStatusForMe"](
-            messageRes.conversation_id,
-            helpers.getMySocketSessionId()
-        );
-
-        if (messageRes.socket_event === "ec_msg_from_client") {
-            const currentRouteName = window.router.currentRoute.value.name;
-            const currentRouteConvId = window.router.currentRoute.value.params?.conv_id;
-
-            // no need to store message without joined conversation and current opened conversation
-            if (
-                (currentRouteName === "chats" &&
-                    currentRouteConvId !== tempConv.id &&
-                    conversationStatusForMe !== "joined") ||
-                (currentRouteName !== "chats" && conversationStatusForMe !== "joined")
-            ) {
-                return false;
-            }
-        }
+        const conversationStatusForMe = context.getters["conversationStatusForMe"](messageRes.conversation_id);
 
         const obj = {
             conv_id: tempConv.id,
@@ -301,11 +283,13 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
             messageRes.socket_event === "ec_msg_from_user" &&
             messageRes.caller_page === "web-chat"
         ) {
+            // in future check for last tab otherwise all tab will make sound
             await helpers.notifications().replyOne.play();
+            return;
         }
 
         if (conversationStatusForMe === "joined") {
-            if (messageRes.hasOwnProperty("socket_event") && messageRes.socket_event === "ec_msg_from_user") {
+            if (messageRes.socket_event === "ec_msg_from_user") {
                 // for chat conversation no need to check online status cause joined users should be get sound notification
                 // And for user to user conversation its need to check the user online status,
                 // cause without online users should not be get sound notification
@@ -316,11 +300,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                 return;
             }
 
-            if (
-                messageRes.hasOwnProperty("socket_event") &&
-                messageRes.socket_event === "ec_msg_from_client" &&
-                !messageRes.init_message_from_client
-            ) {
+            if (messageRes.socket_event === "ec_msg_from_client" && !messageRes.init_message_from_client) {
                 await helpers.notifications().replyTwo.play();
 
                 // browser notification should be get only for online users
@@ -333,7 +313,7 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
                         .where("conversation_id", tempConv.id)
                         .with("socket_session")
                         .whereHas("socket_session", (socketSessionQuery) => {
-                            socketSessionQuery.where("user_id", null);
+                            socketSessionQuery.where("user_id", null).where("is_facebook_page", false);
                         })
                         .first();
 
@@ -358,19 +338,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         const currentRouteName = window.router.currentRoute.value.name;
         const currentRouteConvId = window.router.currentRoute.value.params?.conv_id;
 
-        if (typingObj.caller_page !== "web-chat") {
-            if (
-                currentRouteName !== "chats" ||
-                (currentRouteName === "chats" && currentRouteConvId !== typingObj.conv_id)
-            ) {
-                return false;
-            }
-        }
-
-        return new Promise((resolve) => {
+        if (
+            typingObj.caller_page === "web-chat" ||
+            (currentRouteName === "chats" && currentRouteConvId === typingObj.conv_id)
+        ) {
             context.commit("updateTypingState", typingObj);
-            resolve(true);
-        });
+        }
     },
 
     // get users

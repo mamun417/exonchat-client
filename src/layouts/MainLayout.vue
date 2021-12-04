@@ -622,9 +622,9 @@ export default defineComponent({
 
                 await this.$store.dispatch("chat/storeMessage", res);
 
-                this.$emitter.emit(`new_message_from_user_${res.conversation.id}`, res);
+                // this.$emitter.emit(`new_message_from_user_${res.conversation.id}`, res);
 
-                console.log("from ec_msg_from_user", res);
+                // console.log("from ec_msg_from_user", res);
             });
 
             this.socket.on("ec_msg_from_client", async (res: any) => {
@@ -632,9 +632,9 @@ export default defineComponent({
 
                 await this.$store.dispatch("chat/storeMessage", res);
 
-                this.$emitter.emit(`new_message_from_client_${res.conversation.id}`, res);
+                // this.$emitter.emit(`new_message_from_client_${res.conversation.id}`, res);
 
-                console.log("from ec_msg_from_client", res);
+                // console.log("from ec_msg_from_client", res);
             });
 
             this.socket.on("ec_reply_from_ai", async (res: any) => {
@@ -647,13 +647,13 @@ export default defineComponent({
             this.socket.on("ec_is_typing_from_user", async (res: any) => {
                 await this.$store.dispatch("chat/updateTypingState", res);
 
-                console.log("from ec_is_typing_from_user", res);
+                // console.log("from ec_is_typing_from_user", res);
             });
 
             this.socket.on("ec_is_typing_from_client", async (res: any) => {
                 await this.$store.dispatch("chat/updateTypingState", res);
 
-                console.log("from ec_is_typing_from_client", res.msg);
+                // console.log("from ec_is_typing_from_client", res.msg);
             });
 
             this.socket.on("ec_conv_initiated_from_user", (data: any) => {
