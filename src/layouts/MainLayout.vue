@@ -731,7 +731,7 @@ export default defineComponent({
                     });
                 }
 
-                this.$emitter("ec_is_closed_from_conversation", { conv_id: convInfo.id });
+                this.$emitter.emit("ec_is_closed_from_conversation", { conv_id: convInfo.id });
 
                 // console.log("from ec_is_closed_from_conversation", convInfo);
             });
@@ -809,7 +809,7 @@ export default defineComponent({
 
             this.socket.on("ec_conversation_rated_from_client", async (res: any) => {
                 await this.$store.dispatch("chat/updateConvRating", res);
-                this.$emitter("ec_is_closed_from_conversation", { conv_id: res.conversation_id });
+                this.$emitter.emit("ec_conversation_rated_from_client", { conv_id: res.conversation_id });
                 // console.log("from ec_conversation_rated_from_client", res);
             });
 

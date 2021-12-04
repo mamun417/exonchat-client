@@ -1072,10 +1072,9 @@ export default defineComponent({
                 this.$store.commit("chat/showRatingForm", true);
 
                 clearInterval(this.queuePositionInterval);
-                this.$emitter("ec_is_closed_from_conversation", { conv_id: res.data.conv_data.id });
+                this.$emitter.emit("ec_is_closed_from_conversation", { conv_id: res.data.conv_data.id });
 
                 this.scrollToBottom();
-
                 // console.log("from ec_is_closed_from_conversation", res);
             });
 

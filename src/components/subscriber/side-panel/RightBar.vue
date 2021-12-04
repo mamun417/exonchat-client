@@ -659,8 +659,6 @@ export default defineComponent({
         ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
         getClientServices(clientEmail: string) {
-            this.relatedServices = [];
-
             window.api
                 .get("apps/whmcs/client-products", {
                     params: {
@@ -676,8 +674,6 @@ export default defineComponent({
         },
 
         getClientDomains(clientEmail: string) {
-            this.clientDomains = [];
-
             window.api
                 .get("apps/whmcs/client-domains", {
                     params: {
@@ -759,6 +755,9 @@ export default defineComponent({
                     newVal.id &&
                     newVal.id !== oldVal.id
                 ) {
+                    this.clientDomains = [];
+                    this.relatedServices = [];
+
                     // if need remove mini mode check
                     if (
                         !this.conversationInfo.pagination_meta?.first_time_loaded &&
