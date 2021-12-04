@@ -1121,38 +1121,28 @@ export default defineComponent({
             //
         },
 
-        emitterKeyFinder(emitName: string) {
-            for (const [emtName] of this.$emitter.all) {
-                if (emtName === emitName) return true;
-            }
-
-            return false;
-        },
-
         fireSocketListeners() {
-            if (!this.emitterKeyFinder("message_inserted_or_updated")) {
-                this.$emitter.on("message_inserted_or_updated", (res: any) => {
-                    if (res.conv_id === this.conv_id) {
-                        setTimeout(() => this.scrollToPosition(), 300);
-                    }
-                });
-            }
+            this.$emitter.all.delete("message_inserted_or_updated");
+            this.$emitter.all.delete("ec_is_closed_from_conversation");
+            this.$emitter.all.delete("ec_conversation_rated_from_client");
 
-            if (!this.emitterKeyFinder("ec_is_closed_from_conversation")) {
-                this.$emitter.on("ec_is_closed_from_conversation", (res: any) => {
-                    if (res.conv_id === this.conv_id) {
-                        setTimeout(() => this.scrollToPosition(1, true), 300);
-                    }
-                });
-            }
+            this.$emitter.on("message_inserted_or_updated", (res: any) => {
+                if (res.conv_id === this.conv_id) {
+                    setTimeout(() => this.scrollToPosition(), 300);
+                }
+            });
 
-            if (!this.emitterKeyFinder("ec_conversation_rated_from_client")) {
-                this.$emitter.on("ec_conversation_rated_from_client", (res: any) => {
-                    if (res.conv_id === this.conv_id) {
-                        setTimeout(() => this.scrollToPosition(1, true), 300);
-                    }
-                });
-            }
+            this.$emitter.on("ec_is_closed_from_conversation", (res: any) => {
+                if (res.conv_id === this.conv_id) {
+                    setTimeout(() => this.scrollToPosition(1, true), 300);
+                }
+            });
+
+            this.$emitter.on("ec_conversation_rated_from_client", (res: any) => {
+                if (res.conv_id === this.conv_id) {
+                    setTimeout(() => this.scrollToPosition(1, true), 300);
+                }
+            });
         },
 
         handleInfiniteScrollLoad(index: any, done: any) {
