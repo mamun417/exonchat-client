@@ -659,6 +659,8 @@ export default defineComponent({
         ...mapMutations({ updateRightDrawerState: "setting_ui/updateRightDrawerState" }),
 
         getClientServices(clientEmail: string) {
+            this.relatedServices = [];
+
             window.api
                 .get("apps/whmcs/client-products", {
                     params: {
@@ -674,6 +676,8 @@ export default defineComponent({
         },
 
         getClientDomains(clientEmail: string) {
+            this.clientDomains = [];
+
             window.api
                 .get("apps/whmcs/client-domains", {
                     params: {

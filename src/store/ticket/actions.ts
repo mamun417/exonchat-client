@@ -5,6 +5,8 @@ import { TicketStateInterface } from "./state";
 const actions: ActionTree<TicketStateInterface, StateInterface> = {
     getTickets(context, payload) {
         return new Promise((resolve, reject) => {
+            context.commit("storeTickets", []);
+
             window.api
                 .get(`apps/whmcs/tickets?email=${payload.email}`)
                 .then((res: any) => {
