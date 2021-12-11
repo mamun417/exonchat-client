@@ -61,6 +61,12 @@
                                         />
                                     </q-item-section>
                                 </q-item>
+
+                                <q-separator />
+
+                                <q-item @click="showEditAgentForm = !showEditAgentForm" clickable dense>
+                                    <q-item-section>Edit</q-item-section>
+                                </q-item>
                             </q-menu>
                         </q-btn>
 
@@ -137,6 +143,96 @@
             </div>
         </div>
 
+        <!--agent edit modal-->
+        <q-dialog @hide="showEditAgentForm = false" :model-value="showEditAgentForm" persistent>
+            <q-card style="min-width: 400px">
+                <q-card-section class="row items-center tw-border-b tw-px-6 tw-py-3">
+                    <div class="tw-text-lg tw-font-bold" :class="`text-${globalColor}`">
+                        <div>Edit Agent</div>
+                    </div>
+                    <q-space></q-space>
+                    <q-btn icon="close" color="orange" flat round dense v-close-popup></q-btn>
+                </q-card-section>
+
+                <form>
+                    <q-card-section class="q-py-2 tw-mx-2">
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <div class="tw-text-xs tw-mb-1">Name Change</div>
+                            <div>
+                                <q-toggle
+                                    v-model="editAgentForm.change_name"
+                                    checked-icon="check"
+                                    color="green"
+                                    unchecked-icon="clear"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <div class="tw-text-xs tw-mb-1">Email Change</div>
+                            <div>
+                                <q-toggle
+                                    v-model="editAgentForm.change_email"
+                                    checked-icon="check"
+                                    color="green"
+                                    unchecked-icon="clear"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <div class="tw-text-xs tw-mb-1">Password Change</div>
+                            <div>
+                                <q-toggle
+                                    v-model="editAgentForm.change_password"
+                                    checked-icon="check"
+                                    color="green"
+                                    unchecked-icon="clear"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <div class="tw-text-xs tw-mb-1">Department Change</div>
+                            <div>
+                                <q-toggle
+                                    v-model="editAgentForm.change_department"
+                                    checked-icon="check"
+                                    color="green"
+                                    unchecked-icon="clear"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <div class="tw-text-xs tw-mb-1">Chat Limit</div>
+                            <div>
+                                <q-input
+                                    v-model="editAgentForm.chat_limit"
+                                    hide-bottom-space
+                                    dense
+                                    no-error-icon
+                                    :color="globalColor"
+                                    outlined
+                                />
+                            </div>
+                        </div>
+                    </q-card-section>
+
+                    <q-card-actions class="tw-mx-6 tw-mb-4">
+                        <q-btn
+                            type="submit"
+                            :color="globalColor"
+                            :label="updateModal ? 'update' : 'submit'"
+                            class="full-width"
+                            unelevated
+                        />
+                    </q-card-actions>
+                </form>
+            </q-card>
+        </q-dialog>
+
+        <!--agent assign modal-->
         <q-dialog
             @update:modelValue="(value) => (assignAgentModal = value)"
             v-model="assignAgentModal"
@@ -417,6 +513,14 @@ export default defineComponent({
             assignAgentModal: false,
             invitations: [],
             sendInvitationFormDataArr: [{ ...sendInvitationFormObj }],
+            showEditAgentForm: false,
+            editAgentForm: {
+                change_name: false,
+                change_email: true,
+                change_password: false,
+                change_department: true,
+                chat_limit: 3,
+            },
             createShareAbleLinkForm: {
                 chat_department_ids: [],
                 type: "agent",
