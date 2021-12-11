@@ -909,7 +909,7 @@ export default defineComponent({
             if (!this.clientsPageVisitInterval) {
                 this.clientsPageVisitInterval = setInterval(() => {
                     this.$socket.emit("ec_get_clients_page_visit_info", {});
-                }, 5000);
+                }, 8000);
             }
         },
 

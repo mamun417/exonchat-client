@@ -601,11 +601,9 @@ export default defineComponent({
             convInitFieldsErrors: {},
 
             msg: "",
-            typingHandler: {
-                typing: false,
-            },
 
             pageInFocus: false,
+            lastPageVisitUrl: "",
             pageNotInFocusEmitted: false,
             pageVisitingHandler: null,
 
@@ -964,7 +962,6 @@ export default defineComponent({
                 }
 
                 this.getChatDepartments();
-                this.setTypingFalse();
                 // localStorage.debug = '*';
                 // console.log(this.socket);
 
@@ -1210,16 +1207,20 @@ export default defineComponent({
 
         handlePageVisibilityChange() {
             this.pageInFocus = document.visibilityState === "visible";
+            this.lastPageVisitUrl = "";
         },
         sendPageVisitingInfo(data: any) {
             if (this.socketId) {
                 if (this.pageInFocus) {
-                    this.socket.emit("ec_page_visit_info_from_client", {
-                        page_data: data,
-                        sent_at: Date.now(),
-                        visiting: true,
-                    });
+                    if (this.lastPageVisitUrl !== data.url) {
+                        this.socket.emit("ec_page_visit_info_from_client", {
+                            page_data: data,
+                            sent_at: Date.now(),
+                            visiting: true,
+                        });
+                    }
 
+                    this.lastPageVisitUrl = data.url;
                     this.pageNotInFocusEmitted = false;
                 } else {
                     if (!this.pageNotInFocusEmitted) {
@@ -1233,31 +1234,6 @@ export default defineComponent({
                     }
                 }
             }
-        },
-
-        inputFocusHandle() {
-            this.typingHandler = setInterval(() => {
-                this.sendTypingData();
-            }, 1000);
-        },
-        inputBlurHandle() {
-            clearInterval(this.typingHandler);
-        },
-
-        sendTypingData() {
-            if (this.msg && this.socketId) {
-                // console.log('typing');
-
-                this.socket.emit("ec_is_typing_from_client", {
-                    msg: this.msg,
-                    sent_at: "timestamp",
-                });
-            }
-        },
-        setTypingFalse() {
-            setInterval(() => {
-                this.typingHandler.typing = false;
-            }, 2000);
         },
 
         closeChat() {
@@ -1479,7 +1455,6 @@ export default defineComponent({
     },
 
     unmounted() {
-        clearInterval(this.typingHandler);
         clearInterval(this.pageVisitingHandler);
 
         if (this.socket) {
