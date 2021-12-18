@@ -105,10 +105,10 @@
                 >
                     <q-card>
                         <q-card-section class="tw-p-0">
-                            <q-list v-if="myOngoingWithFbChats.length">
+                            <q-list v-if="myOngoingChats.length">
                                 <q-item
                                     class="tw-pr-0"
-                                    v-for="ongoingChat in myOngoingWithFbChats"
+                                    v-for="ongoingChat in myOngoingChats"
                                     :to="{ name: 'chats', params: { conv_id: ongoingChat.id } }"
                                     :key="ongoingChat.id"
                                     clickable
@@ -360,19 +360,6 @@ export default defineComponent({
 
         chatDepartmentModel(): any {
             return ChatDepartment.query();
-        },
-
-        myOngoingWithFbChats(): any {
-            const facebookChats = Conversation.query()
-                .where("type", (value: any) => value === "facebook_chat")
-                .where("closed_at", null)
-                // .whereHas("conversation_sessions", (conversationSessionQuery) => {
-                //     conversationSessionQuery; //
-                // })
-                .orderBy("created_at")
-                .get();
-
-            return [...this.myOngoingChats, ...facebookChats];
         },
 
         selectAbleOnlineStatus(): any {
