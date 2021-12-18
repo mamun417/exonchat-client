@@ -33,6 +33,12 @@ const actions: ActionTree<ChatStateInterface, StateInterface> = {
         };
         context.commit("updateConversation", obj);
 
+        if (convData.type === "facebook_chat") {
+            await ConversationSession.delete((convSes: any) => {
+                return convSes.conversation_id === convData.id;
+            });
+        }
+
         await Conversation.insert({ data: convData });
 
         if (convData.log_message) {
