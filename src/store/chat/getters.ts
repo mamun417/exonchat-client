@@ -71,7 +71,6 @@ const getters: GetterTree<ChatStateInterface, StateInterface> = {
         return Conversation.query()
             .where("users_only", false)
             .where("closed_at", null)
-            .where("type", (value: any) => value !== "facebook_chat")
             .whereHasNot("conversation_sessions", (conversationSessionQuery) => {
                 conversationSessionQuery.whereHasNot("socket_session", (socketSessionQuery) => {
                     socketSessionQuery.where("user_id", null);
